@@ -1,7 +1,7 @@
 {
   "name": "hyperhtml",
   "version": "0.1.0",
-  "description": "DOM Mapped Template Strings",
+  "description": "DOM Mapped Template Strings. A Light Virtual DOM Alternative",
   "main": "hyperhtml.js",
   "scripts": {
     "build": "npm run minify && npm test && npm run size",

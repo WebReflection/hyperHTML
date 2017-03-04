@@ -1,6 +1,6 @@
 # hyperHTML [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
 
-A Virtual DOM Alternative
+A Light Virtual DOM Alternative
 - - -
 
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
