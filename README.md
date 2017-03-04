@@ -38,7 +38,7 @@ setInterval(tick, 1000,
 ### ... wait, WAT?
 [ES6 Template literals](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Template_literals) come with a special feature that is not commonly used: prefixed transformers.
 
-Using such feature to map a template string to a generic DOM node, makes it possible to automatically target and update only the differences between to template invokes and with **no `innerHTML` involved**.
+Using such feature to map a template string to a generic DOM node, makes it possible to automatically target and update only the differences between two template invokes and with **no `innerHTML` involved**.
 
 Following [an example](https://webreflection.github.io/hyperHTML/test/article.html):
 ```js
@@ -72,20 +72,27 @@ update(
 Since most of the time templates are 70% static text and 30% or less dynamic, `hyperHTML` passes through the resulting string only once, finds all attributes and content that is dynamic, and maps it 1:1 to the node to make updates as cheap as possible for both node attributes and node content.
 
 ## Usage
-You have function that is suitable for parsing templates literals but it needs a DOM node context to operate.
+You have a `hyperHTML` function that is suitable for parsing template literals but it needs a DOM node context to operate.
+
 If you want to render many times the same template for a specific node, bind it once and boost up performance for free.
+No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
 
 ### F.A.Q. and Caveats
 
   * _how can I differentiate between textContent only and HTML or DOM nodes?_
-    If there's any space or char around the value, that'd be a textContent. Other cases accept DOM nodes as well as html.
-    ```render`<p>This is: ${'text'}</p>`;``` for text, and ```render`<p>${'html' || node}</p>`;``` for everything else.
+    If there's any space or char around the value, that'd always be a textContent.
+    Other cases accept DOM nodes as well as html, but it's obviously slightly slower.
+    As summary: ```render`<p>This is: ${'text'}</p>`;``` for text,
+    and ```render`<p>${'html' || node}</p>`;``` for everything else.
 
-  * _can I use different renders for a single node?_ Sure thing. However, the best performance gain is reached with nodes that always use the same template string. If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary. In every other case, the new template will create new content and map it once per change.
+  * _can I use different renders for a single node?_
+    Sure thing. However, the best performance gain is reached with nodes that always use the same template string.
+    If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary.
+    In every other case, the new template will create new content and map it once per change.
 
 
 ## Compatibility
-If your string literals are transpiled, this project is compatible with every browser, old to new.
+If your string literals are transpiled, this project should be compatible with every single browser, old or new.
 
 If you don't transpile string literals, check the [test page](https://webreflection.github.io/hyperHTML/test/) and wait 'till it's green.
 
