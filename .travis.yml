@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - 4
+  - 6
+  - 7
+git:
+  depth: 1
+branches:
+  only:
+    - master
+after_success:
+  - "npm run coveralls"

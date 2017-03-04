@@ -1,0 +1,26 @@
+{
+  "name": "hyperhtml",
+  "version": "0.1.0",
+  "description": "DOM Mapped Template Strings",
+  "main": "hyperhtml.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebReflection/hyperhtml.git"
+  },
+  "keywords": [
+    "dom",
+    "template",
+    "fast",
+    "performance",
+    "diff"
+  ],
+  "author": "Andrea Giammarchi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WebReflection/hyperhtml/issues"
+  },
+  "homepage": "https://github.com/WebReflection/hyperhtml#readme"
+}
