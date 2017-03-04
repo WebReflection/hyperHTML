@@ -1,6 +1,5 @@
+node_modules/*
+test/*
 .DS_Store
 .gitignore
 .travis.yml
-coverage/*
-test/*
-node_modules/*

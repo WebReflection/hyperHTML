@@ -76,9 +76,26 @@ var hyperHTML = (function () {'use strict';
     };
   }
 
-  function setHTMLContent(node) {
+  function setAnyContent(node) {
     return function (value) {
-      node.innerHTML = value;
+      switch (typeof value) {
+        // all primitives are considered html
+        case 'string':
+        case 'number':
+        case 'boolean':
+          node.innerHTML = value;
+          break;
+        default:
+          if (node.firstChild !== value) {
+            if (node.childNodes.length === 1) {
+              node.replaceChild(value, node.firstChild);
+            } else {
+              node.textContent = '';
+              node.appendChild(value);
+            }
+          }
+          break;
+      }
     };
   }
 
@@ -102,7 +119,7 @@ var hyperHTML = (function () {'use strict';
           length === 2 &&
           (textNodes[0] + textNodes[1]).length < 1
         ) {
-          actions.push(setHTMLContent(parent));
+          actions.push(setAnyContent(parent));
           break;
         } else {
           actions.push(setTextContent(

@@ -1,0 +1,55 @@
+tressa.title('HyperHTML');
+tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
+tressa.async(function (done) {
+  tressa.log('## injecting text and attributes');
+  var i = 0;
+  var div = document.body.appendChild(document.createElement('div'));
+  var render = hyperHTML.bind(div);
+  function update(i) {
+    return render`
+    <p data-counter="${i}">
+      Time: ${Math.random() * new Date}
+    </p>
+    `;
+  }
+  function compare(html) {
+    return /^\s*<p data-counter="\d">\s*Time: \d+\.\d+\s*<\/p>\s*$/i.test(html);
+  }
+  var html = update(i++);
+  var p = div.querySelector('p');
+  var attr = p.attributes[0];
+  tressa.assert(compare(html), 'correct HTML');
+  tressa.assert(html === div.innerHTML, 'correctly returned');
+  setTimeout(function () {
+    tressa.log('## updating same nodes');
+    var html = update(i++);
+    tressa.assert(compare(html), 'correct HTML update');
+    tressa.assert(html === div.innerHTML, 'update applied');
+    tressa.assert(p === div.querySelector('p'), 'no node was changed');
+    tressa.assert(attr === p.attributes[0], 'no attribute was changed');
+    done();
+  });
+})
+.then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## injecting HTML');
+    var div = document.body.appendChild(document.createElement('div'));
+    var render = hyperHTML.bind(div);
+    var html = update('hello');
+    function update(text) {
+      return render`<p>${'<strong>' + text + '</strong>'}</p>`;
+    }
+    function compare(html) {
+      return /^<p><strong>\w+<\/strong><\/p>$/i.test(html);
+    }
+    tressa.assert(compare(html), 'HTML injected');
+    tressa.assert(html === div.innerHTML, 'HTML returned');
+    done();
+  });
+})
+.then(function () {
+  if (!tressa.exitCode) {
+    document.body.style.backgroundColor = '#0FA';
+  }
+  tressa.end();
+});
