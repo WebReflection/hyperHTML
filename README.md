@@ -84,5 +84,10 @@ If you want to render many times the same template for a specific node, bind it 
   * _can I use different renders for a single node?_ Sure thing. However, the best performance gain is reached with nodes that always use the same template string. If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary. In every other case, the new template will create new content and map it once per change.
 
 
+## Compatibility
+If your string literals are transpiled, this project is compatible with every browser, old to new.
+
+If you don't transpile string literals, check the [test page](https://webreflection.github.io/hyperHTML/test/) and wait 'till it's green.
+
 - - -
 (C) 2017 Andrea Giammarchi - MIT Style License
