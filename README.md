@@ -3,6 +3,7 @@
 A Virtual DOM Alternative
 - - -
 
+The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
 ```js
 // this is React's first tick example
 // https://facebook.github.io/react/docs/state-and-lifecycle.html
@@ -39,7 +40,7 @@ setInterval(tick, 1000,
 
 Using such feature to map a template string to a generic DOM node, makes it possible to automatically target and update only the differences between to template invokes and with **no `innerHTML` involved**.
 
-Following an example:
+Following [an example](https://webreflection.github.io/hyperHTML/test/article.html):
 ```js
 function update(render, state) {
   return render `
