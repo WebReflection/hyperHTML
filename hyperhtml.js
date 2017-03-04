@@ -38,36 +38,37 @@ var hyperHTML = (function () {'use strict';
     }
   }
 
-  function update(values) {
-    var html = [values[0]];
+  function update(statics) {
     for (var
       any,
-      html = [values[0]],
-      updates = this[EXPANDO],
+      html = [statics[0]],
+      updates = this[EXPANDO].u,
       i = 1,
-      length = values.length;
+      length = statics.length;
       i < length; i++
     ) {
       any = arguments[i];
       updates[i - 1](any);
-      html.push(any, values[i]);
+      html.push(any, statics[i]);
     }
     return html.join('');
   }
 
-  function upgrade(values) {
+  function upgrade(statics) {
     for (var
       self = this,
-      html = [values[0]],
+      updates = [],
+      html = [statics[0]],
       i = 1,
-      length = values.length;
+      length = statics.length;
       i < length; i++
     ) {
-      html.push(uid, values[i]);
+      html.push(uid, statics[i]);
     }
     self.innerHTML = html.join('');
-    lukeTreeWalker(self, (self[EXPANDO] = []));
-    return update.apply(this, arguments);
+    lukeTreeWalker(self, updates);
+    self[EXPANDO] = {s: statics, u: updates};
+    return update.apply(self, arguments);
   }
 
   function setAttribute(attribute) {
@@ -146,11 +147,12 @@ var hyperHTML = (function () {'use strict';
     uid = EXPANDO + ((Math.random() * new Date) | 0)
   ;
 
-  return function hyperHTML() {
-    return EXPANDO in this ?
-      update.apply(this, arguments) :
-      upgrade.apply(this, arguments);
-  }
+  return function hyperHTML(statics) {
+    return  EXPANDO in this &&
+            this[EXPANDO].s === statics ?
+              update.apply(this, arguments) :
+              upgrade.apply(this, arguments);
+  };
 
 }());
 

@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; }</style>
+    <script src="../min.js"></script>
+  </head>
+  <body></body>
+  <script>
+  function tick(render) {
+    render`
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>It is ${new Date().toLocaleTimeString()}.</h2>
+      </div>
+    `;
+  }
+  setInterval(tick, 1000,
+    hyperHTML.bind(document.getElementById('root'))
+  );
+  </script>
+</html>

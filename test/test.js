@@ -44,7 +44,23 @@ tressa.async(function (done) {
     }
     tressa.assert(compare(html), 'HTML injected');
     tressa.assert(html === div.innerHTML, 'HTML returned');
-    done();
+    done(div);
+  });
+})
+.then(function (div) {
+  return tressa.async(function (done) {
+    tressa.log('## changing template');
+    var render = hyperHTML.bind(div);
+    var html = update('hello');
+    function update(text) {
+      return render`<p>${'<em>' + text + '</em>'}</p>`;
+    }
+    function compare(html) {
+      return /^<p><em>\w+<\/em><\/p>$/i.test(html);
+    }
+    tressa.assert(compare(html), 'new HTML injected');
+    tressa.assert(html === div.innerHTML, 'new HTML returned');
+    done(div);
   });
 })
 .then(function () {
