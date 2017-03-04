@@ -8,7 +8,12 @@ tressa.async(function (done) {
   function update(i) {
     return render`
     <p data-counter="${i}">
-      Time: ${Math.random() * new Date}
+      Time: ${
+        // IE edge did something funny here
+        // as template string returned xxx.xxxx
+        // but as innerHTML returned xxx.xx
+        (Math.random() * new Date).toFixed(2)
+      }
     </p>
     `;
   }

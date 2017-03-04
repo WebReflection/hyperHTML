@@ -56,7 +56,6 @@ var hyperHTML = (function () {'use strict';
 
   function upgrade(statics) {
     for (var
-      self = this,
       updates = [],
       html = [statics[0]],
       i = 1,
@@ -65,10 +64,10 @@ var hyperHTML = (function () {'use strict';
     ) {
       html.push(uid, statics[i]);
     }
-    self.innerHTML = html.join('');
-    lukeTreeWalker(self, updates);
-    self[EXPANDO] = {s: statics, u: updates};
-    return update.apply(self, arguments);
+    this.innerHTML = html.join('');
+    lukeTreeWalker(this, updates);
+    this[EXPANDO] = {s: statics, u: updates};
+    return update.apply(this, arguments);
   }
 
   function setAttribute(attribute) {
