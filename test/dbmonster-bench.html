@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="dbmonster.css">
+    <script src="./dbmonster100.js"></script>
+    <script src="../min.js"></script>
+  </head>
+  <body>
+    <div id="link">
+      You're looking at hyperHTML<br>
+      version of <a href="https://dbmonster.firebaseapp.com/">DBMonster</a>.
+    </div>
+    <table class="table table-striped latest-data"></table>
+  </body>
+  <script>
+
+  // partial TR setup, the rest will be appended on setup
+  function updateTR(render, db) {
+    render`
+    <td class="dbname">
+      ${db.name}
+    </td>
+    <td class="query-count">
+      <span class="${getCountClassName(db)}">
+        ${db.queries.length}
+      </span>
+    </td>
+    `;
+  }
+
+  // the rest is 5 TDs with different data
+  function updateTopFiveTD(render, query) {
+    render`
+    <span class="foo">
+      ${formatElapsed(query.elapsed)}
+    </span>
+    <div class="popover left">
+      <div class="popover-content">
+        ${query.query}
+      </div>
+      <div class="arrow"></div>
+    </div>
+    `;
+  }
+
+  var memBench = () => {};
+  var renderRow = [];
+  var renderCell = [];
+  var create = name => document.createElement(name);
+  var table = document.querySelector('table');
+  var tbody = table.appendChild(create('tbody'));
+
+  // first time setup
+  getData().forEach((db, i) => {
+    var
+      tr = tbody.appendChild(create('tr')),
+      render = hyperHTML.bind(tr),
+      update = db => {
+        tr.setAttribute('key', db.name);
+        updateTR(render, db);
+      }
+    ;
+
+    // render this row for the first time
+    update(db); // also populate its content
+    renderRow.push(update);
+
+    // do the same per each top 5 TD
+    db.topFiveQueries.forEach((query, j) => {
+      var
+        td = tr.appendChild(create('td')),
+        render = hyperHTML.bind(td),
+        update = query => {
+          td.className = 'Query ' + elapsedClassName(query.elapsed);
+          updateTopFiveTD(render, query);
+        }
+      ;
+
+      // render this cell for the first time
+      update(query); // also populate its content
+      renderCell.push(update);
+
+    });
+  });
+
+  // update all cells from now on
+  setTimeout(function update() {
+    requestAnimationFrame(update);
+    getData().forEach((db, i) => {
+      var cell = db.topFiveQueries.length * i;
+      renderRow[i](db);
+      db.topFiveQueries.forEach((query, j) => {
+        renderCell[cell + j](query);
+      });
+    });
+    memBench();
+  });
+
+  // following unrelated stuff for memory benchmark
+
+  </script>
+  <script>module={exports:{}};</script>
+  <script src="https://unpkg.com/memory-stats@1.0.2/memory-stats.js"></script>
+  <script>
+  var stats;
+  if (window.performance && performance.memory) {
+    stats = new MemoryStats();
+    stats.domElement.style.position = 'fixed';
+    stats.domElement.style.right = '0px';
+    stats.domElement.style.bottom = '0px';
+    document.body.appendChild( stats.domElement );
+  } else {
+    stats = {update: function () {}};
+  }
+  memBench = function () {
+    stats.update();
+  };
+  </script>
+</html>

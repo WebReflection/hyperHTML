@@ -12,7 +12,7 @@ var hyperHTML = (function () {'use strict';
       i < length; i++
     ) {
       attribute = attributes[i];
-      if (attribute.value === uid) {
+      if (attribute.value === uidc) {
         actions.push(setAttribute(node, attribute));
       }
     }
@@ -20,7 +20,7 @@ var hyperHTML = (function () {'use strict';
 
   function lukeTreeWalker(node, actions) {
     for (var
-      child,
+      child, text,
       childNodes = slice.call(node.childNodes),
       length = childNodes.length,
       i = 0; i < length; i++
@@ -31,47 +31,20 @@ var hyperHTML = (function () {'use strict';
           attributesSeeker(child, actions);
           lukeTreeWalker(child, actions);
           break;
-        case 3:
-          walkerTextRanger(node, child, actions);
+        case 8:
+          if (child.textContent === uid) {
+            if (length === 1) {
+              actions.push(setAnyContent(node));
+              node.removeChild(child);
+            } else {
+              text = node.ownerDocument.createTextNode('');
+              node.replaceChild(text, child);
+              actions.push(setTextContent(text));
+            }
+          }
           break;
       }
     }
-  }
-
-  function walkerTextRanger(parent, child, actions) {
-    for (var
-      doc = parent.ownerDocument || document,
-      text = child.nodeValue,
-      textNodes = text.split(uid),
-      i = 0,
-      length = textNodes.length;
-      i < length; i++
-    ) {
-      if (i) {
-        if (
-          length === 2 &&
-          (textNodes[0] + textNodes[1]).length < 1
-        ) {
-          actions.push(setAnyContent(parent));
-          break;
-        } else {
-          actions.push(setTextContent(
-            parent.insertBefore(
-              doc.createTextNode(''),
-              child
-            )
-          ));
-        }
-      }
-      text = textNodes[i];
-      if (text.length) {
-        parent.insertBefore(
-          doc.createTextNode(text),
-          child
-        );
-      }
-    }
-    parent.removeChild(child);
   }
 
   // DOM manipulating
@@ -87,10 +60,18 @@ var hyperHTML = (function () {'use strict';
           break;
         default:
           if (Array.isArray(value)) {
-            any(populateFragment(
-              document.createDocumentFragment(),
-              value
-            ));
+            if (value.length === 0) {
+              any(value[0]);
+            } else if(typeof value[0] === 'string') {
+              any(value.join(''));
+            } else {
+              if (!sameList(node.childNodes, value)) {
+                any(populateFragment(
+                  node.ownerDocument.createDocumentFragment(),
+                  value
+                ));
+              }
+            }
           } else {
             populateNode(node, value);
           }
@@ -134,14 +115,14 @@ var hyperHTML = (function () {'use strict';
 
   function populateNode(parent, child) {
     switch (child.nodeType) {
-      case 11:
-        if (!sameList(parent.childNodes, child.childNodes)) {
-          resetAndPopulate(parent, child);
-        }
-        break;
       case 1:
         var childNodes = parent.childNodes;
         if (childNodes.length !== 1 || childNodes[0] !== child) {
+          resetAndPopulate(parent, child);
+        }
+        break;
+      case 11:
+        if (!sameList(parent.childNodes, child.childNodes)) {
           resetAndPopulate(parent, child);
         }
         break;
@@ -160,10 +141,9 @@ var hyperHTML = (function () {'use strict';
     if (a === b) return true;
     var
       i = 0,
-      aLength = a.length,
-      bLength = b.length
+      aLength = a.length
     ;
-    if (aLength !== bLength) return false;
+    if (aLength !== b.length) return false;
     while (i < aLength) {
       if (a[i] !== b[i]) return false;
       i++;
@@ -174,31 +154,37 @@ var hyperHTML = (function () {'use strict';
   // Template setup
   function update(statics) {
     for (var
-      any,
-      html = [statics[0]],
-      updates = this[EXPANDO].u,
       i = 1,
-      length = statics.length;
+      length = statics.length,
+      updates = this[EXPANDO].u;
       i < length; i++
     ) {
-      any = arguments[i];
-      updates[i - 1](any);
-      html.push(any, statics[i]);
+      updates[i - 1](arguments[i]);
     }
-    return html.join('');
+    return this;
   }
 
   function upgrade(statics) {
     for (var
+      template,
       updates = [],
       html = [statics[0]],
       i = 1,
       length = statics.length;
       i < length; i++
     ) {
-      html.push(uid, statics[i]);
+      html.push(uidc, statics[i]);
     }
-    this.innerHTML = html.join('');
+    if (this.nodeType === 1) {
+      this.innerHTML = html.join('');
+    } else {
+      template = this.ownerDocument.createElement('template');
+      template.innerHTML = html.join('');
+      populateFragment(
+        this,
+        slice.call((template.content || template).childNodes)
+      );
+    }
     lukeTreeWalker(this, updates);
     this[EXPANDO] = {s: statics, u: updates};
     return update.apply(this, arguments);
@@ -208,6 +194,7 @@ var hyperHTML = (function () {'use strict';
   var
     EXPANDO = '_hyperHTML',
     uid = EXPANDO + ((Math.random() * new Date) | 0),
+    uidc = '<!--' + uid + '-->',
     slice = [].slice
   ;
 
