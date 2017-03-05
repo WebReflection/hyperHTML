@@ -77,16 +77,18 @@ var hyperHTML = (function () {'use strict';
 
   // DOM manipulating
   function setAttribute(node, attribute) {
-    var name = attribute.name;
-    return function (value) {
-      if (typeof value === 'function') {
-        // TODO: need it?
-        // node.removeAttribute(name);
+    var
+      name = attribute.name,
+      onStuff = !name.indexOf('on')
+    ;
+    if (onStuff) node.removeAttribute(name);
+    return onStuff ?
+      function (value) {
         node[name] = value;
-      } else {
+      } :
+      function (value) {
         attribute.value = value;
-      }
-    };
+      };
   }
 
   function setAnyContent(node) {

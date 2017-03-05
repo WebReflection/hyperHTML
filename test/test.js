@@ -56,12 +56,13 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     tressa.log('## function attributes');
     var render = hyperHTML.bind(div);
-    var html = update(function (e) {
+    update(function (e) {
       if (e) {
         e.preventDefault();
         e.stopPropagation();
       }
       tressa.assert(true, 'onclick invoked');
+      tressa.assert(!a.hasAttribute('onclick'), 'no attribute');
       done(div);
     });
     function update(click) {
