@@ -21,10 +21,9 @@ var hyperHTML = (function () {'use strict';
   function lukeTreeWalker(node, actions) {
     for (var
       child,
-      childNodes = node.childNodes,
-      i = 0,
-      length = childNodes.length;
-      i < length; i++
+      childNodes = slice.call(node.childNodes),
+      length = childNodes.length,
+      i = 0; i < length; i++
     ) {
       child = childNodes[i];
       switch (child.nodeType) {
@@ -77,7 +76,7 @@ var hyperHTML = (function () {'use strict';
 
   // DOM manipulating
   function setAnyContent(node) {
-    return function set(value) {
+    return function any(value) {
       switch (typeof value) {
         case 'string':
           node.innerHTML = value;
@@ -88,7 +87,7 @@ var hyperHTML = (function () {'use strict';
           break;
         default:
           if (Array.isArray(value)) {
-            set(populateFragment(
+            any(populateFragment(
               document.createDocumentFragment(),
               value
             ));
@@ -107,16 +106,16 @@ var hyperHTML = (function () {'use strict';
     ;
     if (onStuff) node.removeAttribute(name);
     return onStuff ?
-      function (value) {
+      function event(value) {
         node[name] = value;
       } :
-      function (value) {
+      function attr(value) {
         attribute.value = value;
       };
   }
 
   function setTextContent(node) {
-    return function (value) {
+    return function text(value) {
       node.textContent = value;
     };
   }
@@ -208,7 +207,8 @@ var hyperHTML = (function () {'use strict';
   // local variables
   var
     EXPANDO = '_hyperHTML',
-    uid = EXPANDO + ((Math.random() * new Date) | 0)
+    uid = EXPANDO + ((Math.random() * new Date) | 0),
+    slice = [].slice
   ;
 
   // hyperHTML \o/
