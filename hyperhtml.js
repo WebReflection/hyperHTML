@@ -165,21 +165,16 @@ var hyperHTML = (function () {'use strict';
   }
 
   function upgrade(statics) {
-    for (var
+    var
       template,
       updates = [],
-      html = [statics[0]],
-      i = 1,
-      length = statics.length;
-      i < length; i++
-    ) {
-      html.push(uidc, statics[i]);
-    }
+      html = statics.join(uidc)
+    ;
     if (this.nodeType === 1) {
-      this.innerHTML = html.join('');
+      this.innerHTML = html;
     } else {
       template = this.ownerDocument.createElement('template');
-      template.innerHTML = html.join('');
+      template.innerHTML = html;
       populateFragment(
         this,
         slice.call((template.content || template).childNodes)
