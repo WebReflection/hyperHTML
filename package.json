@@ -1,6 +1,6 @@
 {
   "name": "hyperhtml",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A Fast & Light Virtual DOM Alternative",
   "main": "hyperhtml.js",
   "scripts": {
