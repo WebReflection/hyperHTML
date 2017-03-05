@@ -66,7 +66,7 @@ Well, that's half of the story, 'cause [attributes are just nodes](https://dom.s
 
 This means that a generic attribute can be updated simply setting its `.value` property, like an `input` element would update its view when we set its value. It'd be silly to `input.setAttribute('value', content)` when we can just `input.value = content`, right?
 
-And that's how attributes are updated here. Trapped in a closure, a ner template render will simply target the specific attribute and change its value, with the only exception of those attributes prefixed with `on`.
+And that's how attributes are updated here. Trapped in a closure, a new template render will simply target the specific attribute and change its value, with the only exception of those attributes prefixed with `on`.
 
 These are meant to be handlers, and since nobody likes to deal with handlers as string content, `hyperHTML` recognizes these attributes and it actually remove them from the node, bit it will assign to the attribute owner, the node, the DOM Level 0 event.
 
@@ -128,7 +128,7 @@ function update(render) {
         'html' || node || array
       }</ul>
       <!-- everything else is text -->
-      ${new Date || 'text node'}
+      ${new Date && 'text node'}
     </div>
   `;
 }
@@ -188,10 +188,11 @@ Now we can return few different kind of things per each fragment:
   * a `string`, in such case `innerHTML` will kicks in like there's no tomorrow
   * a `boolean` or a `number`, that will be injected through the cheap `textContent` instead of `innerHTML`
   * a `DocumentFragment` which will be compared through its childNodes, and if already there, nothing will happen 'cause fragments are just an indirection to reach real updates, and these also lose nodes once appended
-  * an `Array` of _strings_, that will be injected through `innerHTML` through a brutal `.join('')`
+  * an `Array` of _strings_, that will be injected through `innerHTML` and a brutal `.join('')`
   * an `Array` of _nodes_, that if not already the same on the DOM, will be replaced all at once through a runtime fragment.
 
-I think I've managed to not forget any case (please file a bug if I did!), but the annoying bit is when you use a fragment as a target.
+I think I've managed to not forget any case <sup><sub>(please file a bug if I did!)</sub></sup>,
+but the annoying bit is when you use a fragment as a target.
 
 
 ### Binding A Document Fragment
@@ -213,7 +214,7 @@ As example, imagine you want to append a list of `<LI>` elements or `<TR>` or `<
 
 Comparing nodes is all `hyperHTML` can do, so whenever you need to actually **return a fragment** to compose the layout like I've done in [the DBMonster example page](https://github.com/WebReflection/hyperHTML/blob/master/test/dbmonster.html#L38-L86), don't return directly the rendered result, but its very first node instead.
 
-I'm planning to experiment if I should automagically do the same via `hyperHTML`, but the truth is that you might want to return not one node but a list of nodes as fragment childnodes, and there's no way I can fix that <sub>(yeah yeah there is but not right now on a Sunday evening launch at almost midnight ...)</sub>
+I'm planning to experiment if I should automagically do the same via `hyperHTML`, but the truth is that you might want to return not one node but a list of nodes as fragment childnodes, and there's no way I can fix that <sup><sub>(yeah yeah there is but not right now on a Sunday evening launch at almost midnight ...)</sub></sup>
 
 I'll come back to this!
 
