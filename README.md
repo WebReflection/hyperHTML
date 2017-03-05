@@ -71,6 +71,7 @@ update(
   hyperHTML.bind(articleElement),
   {
     title: 'True story',
+    magic: true,
     paragraphs: [
       {title: 'touching'},
       {title: 'incredible'},

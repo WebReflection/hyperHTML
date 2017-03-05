@@ -12,9 +12,42 @@
       You're looking at hyperHTML<br>
       version of <a href="https://dbmonster.firebaseapp.com/">DBMonster</a>.
     </div>
-    <table class="table table-striped latest-data"></table>
   </body>
   <script>
+
+  var
+    frog = document.createDocumentFragment(),
+    renderTABLE = hyperHTML.bind(
+      document.body
+    ),
+    renderTR = [],
+    renderTD = []
+  ;
+
+  // TODO: drop the pointless HTML return and return node instead
+
+  function updateTable() {
+    renderTABLE`
+    <table class="table table-striped latest-data">${
+      getData().map((db, i) => {
+        var render = renderTR[i] ||
+                     (renderTR[i] = hyperHTML.bind(frog()));
+        return render`
+        <tr key=${db.name}>
+          <td class="dbname">
+            ${db.name}
+          </td>
+          <td class="query-count">
+            <span class="${getCountClassName(db)}">
+              ${db.queries.length}
+            </span>
+          </td>
+        </tr>
+        `;
+      })
+    }</table>
+    `;
+  }
 
   // partial TR setup, the rest will be appended on setup
   function updateTR(render, db) {
