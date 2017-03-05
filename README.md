@@ -110,6 +110,9 @@ No new nodes, or innerHTML, will be ever used in such case: safe listeners, fast
     You can directly test [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark and see it goes _N_ times faster than `yo-yo` version on both Desktop and Mobile browsers 🎉.
 
 
+For all other deeper dirty details, please check the [DeepDive](https://github.com/WebReflection/hyperHTML/blob/master/DEEPDIVE.md) page.
+
+
 ### Caveats
 
 Following a list of `hyperHTML` caveats <sup><sub>(so far just one)</sub></sup>.
