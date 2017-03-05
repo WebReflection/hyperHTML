@@ -101,6 +101,10 @@ No new nodes, or innerHTML, will be ever used in such case: safe listeners, fast
     If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary.
     In every other case, the new template will create new content and map it once per change.
 
+  * _is this project just the same as [yo-yo](https://github.com/maxogden/yo-yo) or [bel](https://github.com/shama/bel) ?_
+    Well, the goal is similar but the execution is kinda different.
+    I've also thought I've created just a clone but then I've tested [yo-yo-perf](https://github.com/shama/yo-yo-perf) on mobile and realized we do very different things. I wouldn't explain otherwise why my [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark goes _N_ times faster than `yo-yo` 🤷‍♂️
+
 
 ## Compatibility
 If your string literals are transpiled, this project should be compatible with every single browser, old or new.
