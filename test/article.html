@@ -10,13 +10,12 @@
 
   function update(render, state) {
     return render `
-    <article data-magic=${state.magic}>
+    <article data-magic="${state.magic}">
       <h3>${state.title}</h3>
       List of ${state.paragraphs.length} paragraphs:
       <ul>${
         state.paragraphs
           .map(p => `<li>${p.title}</li>`)
-          .join('')
       }</ul>
     </article>
     `;

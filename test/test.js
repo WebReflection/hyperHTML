@@ -20,14 +20,14 @@ tressa.async(function (done) {
   function compare(html) {
     return /^\s*<p data-counter="\d">\s*Time: \d+\.\d+\s*<\/p>\s*$/i.test(html);
   }
-  var html = update(i++);
+  var html = update(i++).innerHTML;
   var p = div.querySelector('p');
   var attr = p.attributes[0];
   tressa.assert(compare(html), 'correct HTML');
   tressa.assert(html === div.innerHTML, 'correctly returned');
   setTimeout(function () {
     tressa.log('## updating same nodes');
-    var html = update(i++);
+    var html = update(i++).innerHTML;
     tressa.assert(compare(html), 'correct HTML update');
     tressa.assert(html === div.innerHTML, 'update applied');
     tressa.assert(p === div.querySelector('p'), 'no node was changed');
@@ -40,7 +40,7 @@ tressa.async(function (done) {
     tressa.log('## injecting HTML');
     var div = document.body.appendChild(document.createElement('div'));
     var render = hyperHTML.bind(div);
-    var html = update('hello');
+    var html = update('hello').innerHTML;
     function update(text) {
       return render`<p>${'<strong>' + text + '</strong>'}</p>`;
     }
@@ -66,7 +66,7 @@ tressa.async(function (done) {
       done(div);
     });
     function update(click) {
-      return render`<a href="#" onclick=${click}>click</a>`;
+      return render`<a href="#" onclick="${click}">click</a>`;
     }
     var a = div.querySelector('a');
     if (typeof CustomEvent === 'undefined') {
@@ -80,7 +80,7 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     tressa.log('## changing template');
     var render = hyperHTML.bind(div);
-    var html = update('hello');
+    var html = update('hello').innerHTML;
     function update(text) {
       return render`<p>${'<em>' + text + '</em>'}</p>`;
     }
