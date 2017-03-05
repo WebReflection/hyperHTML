@@ -6,7 +6,7 @@ var hyperHTML = (function () {'use strict';
   function attributesSeeker(node, actions) {
     for (var
       attribute,
-      attributes = node.attributes,
+      attributes = slice.call(node.attributes),
       i = 0,
       length = attributes.length;
       i < length; i++

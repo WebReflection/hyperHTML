@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <title>hyperHTML Basic Form Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    body { font-family: sans-serif; }
+    input { display: block; margin: 8px 0; }
+    form { padding: 8px; }
+    </style>
+  </head>
+  <body></body>
+  <script src="../min.js"></script>
+  <script>
+
+  function update(render, state) {
+    render`
+    <form action="?" method="GET" onsubmit="${state.onsubmit}">
+      <input name="time" value="${(new Date).toLocaleString()}" disabled>
+      <input name="message" oninput="${state.oninput}" autocomplete="off">
+      <input type="submit" disabled>
+      ${state.message}
+    </form>
+    `;
+  }
+
+  var
+    // bind hyperHTML once
+    render = hyperHTML.bind(document.body),
+    // manage your state
+    // FOR DEMO PURPOSE ONLY
+    state = {
+      message: '',
+      // when the input changes
+      // update the state message
+      // and update the view
+      oninput: function (event) {
+        var el = event.target;
+        state.message = el.value.trim();
+        // set the submit state
+        el.nextElementSibling.disabled =
+          !state.message.length;
+        // update the view
+        update(render, state);
+      },
+      // on submit enable the time so it'll be sent
+      // and update the input with the trimmed message
+      onsubmit: function () {
+        document.querySelector('input[name=time]').disabled = false;
+        document.querySelector('input[name=message]').value = state.message;
+      }
+    }
+  ;
+
+  // show it
+  update(render, state);
+  // and update the time
+  setInterval(update, 1000, render, state);
+
+  </script>
+</html>
