@@ -40,9 +40,10 @@ setInterval(tick, 1000,
   * Zero dependencies and fits in less than a kilobyte (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
-  * Compatible with vanilla DOM elements and vanilla JS data structures <sup><sub>(actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smaller. I fell like I'm writing Assembly these days ...)</sub></sup>
+  * Compatible with vanilla DOM elements and vanilla JS data structures *
   * Compatible 1:1 with Babel transpiled output, hence compatible with every browser you can think of
 
+* <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I fell like I'm writing Assembly these days ...</sub></sup>
 
 ### ... wait, WAT?
 [ES6 Template literals](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Template_literals) come with a special feature that is not commonly used: prefixed transformers.
