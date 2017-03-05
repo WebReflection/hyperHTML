@@ -22,7 +22,8 @@ var hyperHTML = (function () {'use strict';
     for (var
       child,
       childNodes = slice.call(node.childNodes),
-      i = 0; i < childNodes.length; i++
+      length = childNodes.length,
+      i = 0; i < length; i++
     ) {
       child = childNodes[i];
       switch (child.nodeType) {
@@ -108,7 +109,7 @@ var hyperHTML = (function () {'use strict';
       function event(value) {
         node[name] = value;
       } :
-      function attribute(value) {
+      function attr(value) {
         attribute.value = value;
       };
   }
