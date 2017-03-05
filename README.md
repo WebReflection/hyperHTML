@@ -54,7 +54,7 @@ Using such feature to map a template string to a generic DOM node, makes it poss
 Following [an example](https://webreflection.github.io/hyperHTML/test/article.html):
 ```js
 function update(render, state) {
-  return render `
+  render`
   <article data-magic="${state.magic}">
     <h3>${state.title}</h3>
     List of ${state.paragraphs.length} paragraphs:
@@ -89,6 +89,8 @@ If you want to render many times the same template for a specific node, bind it 
 No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
 
 ### FAQs
+
+  * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
 
   * _how can I differentiate between textContent only and HTML or DOM nodes?_
     If there's any space or char around the value, that'd be a textContent.
