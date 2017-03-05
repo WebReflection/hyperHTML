@@ -76,6 +76,30 @@ var hyperHTML = (function () {'use strict';
   }
 
   // DOM manipulating
+  function setAnyContent(node) {
+    return function set(value) {
+      switch (typeof value) {
+        case 'string':
+          node.innerHTML = value;
+          break;
+        case 'number':
+        case 'boolean':
+          node.textContent = value;
+          break;
+        default:
+          if (Array.isArray(value)) {
+            set(populateFragment(
+              document.createDocumentFragment(),
+              value
+            ));
+          } else {
+            populateNode(node, value);
+          }
+          break;
+      }
+    };
+  }
+
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
@@ -91,32 +115,61 @@ var hyperHTML = (function () {'use strict';
       };
   }
 
-  function setAnyContent(node) {
-    return function (value) {
-      switch (typeof value) {
-        case 'string':
-        case 'number':
-        case 'boolean':
-          node.innerHTML = value;
-          break;
-        default:
-          if (node.firstChild !== value) {
-            if (node.childNodes.length === 1) {
-              node.replaceChild(value, node.firstChild);
-            } else {
-              node.textContent = '';
-              node.appendChild(value);
-            }
-          }
-          break;
-      }
-    };
-  }
-
   function setTextContent(node) {
     return function (value) {
       node.textContent = value;
     };
+  }
+
+  // Helpers
+  function populateFragment(f, nodes) {
+    for (var
+      i = 0,
+      length = nodes.length;
+      i < length; i++
+    ) {
+      f.appendChild(nodes[i]);
+    }
+    return f;
+  }
+
+  function populateNode(parent, child) {
+    switch (child.nodeType) {
+      case 11:
+        if (!sameList(parent.childNodes, child.childNodes)) {
+          resetAndPopulate(parent, child);
+        }
+        break;
+      case 1:
+        var childNodes = parent.childNodes;
+        if (childNodes.length !== 1 || childNodes[0] !== child) {
+          resetAndPopulate(parent, child);
+        }
+        break;
+      case 3:
+        parent.textContent = child.textContent;
+        break;
+    }
+  }
+
+  function resetAndPopulate(parent, child) {
+    parent.textContent = '';
+    parent.appendChild(child);
+  }
+
+  function sameList(a, b) {
+    if (a === b) return true;
+    var
+      i = 0,
+      aLength = a.length,
+      bLength = b.length
+    ;
+    if (aLength !== bLength) return false;
+    while (i < aLength) {
+      if (a[i] !== b[i]) return false;
+      i++;
+    }
+    return true;
   }
 
   // Template setup
