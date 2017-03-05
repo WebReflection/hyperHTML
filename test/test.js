@@ -9,7 +9,7 @@ tressa.async(function (done) {
     return render`
     <p data-counter="${i}">
       Time: ${
-        // IE edge did something funny here
+        // IE Edge mobile did something funny here
         // as template string returned xxx.xxxx
         // but as innerHTML returned xxx.xx
         (Math.random() * new Date).toFixed(2)
@@ -50,6 +50,29 @@ tressa.async(function (done) {
     tressa.assert(compare(html), 'HTML injected');
     tressa.assert(html === div.innerHTML, 'HTML returned');
     done(div);
+  });
+})
+.then(function (div) {
+  return tressa.async(function (done) {
+    tressa.log('## function attributes');
+    var render = hyperHTML.bind(div);
+    var html = update(function (e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      tressa.assert(true, 'onclick invoked');
+      done(div);
+    });
+    function update(click) {
+      return render`<a href="#" onclick=${click}>click</a>`;
+    }
+    var a = div.querySelector('a');
+    if (typeof CustomEvent === 'undefined') {
+      a.onclick();
+    } else {
+      a.dispatchEvent(new CustomEvent('click'));
+    }
   });
 })
 .then(function (div) {
