@@ -13,11 +13,11 @@
   <script src="../min.js"></script>
   <script>
 
-  function update(render, state) {
+  function update(render, state, evt) {
     render`
-    <form action="?" method="GET" onsubmit="${state.onsubmit}">
+    <form action="?" method="GET" onsubmit="${evt.onsubmit}">
       <input name="time" value="${(new Date).toLocaleString()}" disabled>
-      <input name="message" oninput="${state.oninput}" autocomplete="off">
+      <input name="message" oninput="${evt.oninput}" autocomplete="off">
       <input type="submit" disabled>
       ${state.message}
     </form>
@@ -27,10 +27,12 @@
   var
     // bind hyperHTML once
     render = hyperHTML.bind(document.body),
-    // manage your state
-    // FOR DEMO PURPOSE ONLY
+    // the current state
     state = {
-      message: '',
+      message: ''
+    },
+    // the handler helper
+    evt = {
       // when the input changes
       // update the state message
       // and update the view
@@ -41,7 +43,7 @@
         el.nextElementSibling.disabled =
           !state.message.length;
         // update the view
-        update(render, state);
+        update(render, state, evt);
       },
       // on submit enable the time so it'll be sent
       // and update the input with the trimmed message
@@ -53,9 +55,9 @@
   ;
 
   // show it
-  update(render, state);
+  update(render, state, evt);
   // and update the time
-  setInterval(update, 1000, render, state);
+  setInterval(update, 1000, render, state, evt);
 
   </script>
 </html>
