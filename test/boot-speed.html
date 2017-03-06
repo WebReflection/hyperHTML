@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src="../hyperhtml.js"></script>
+    <style>
+      .red {
+        color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>Boot speed: <span id='boot'></span></p>
+    <div id='app'>
+      <my-tag :items='items'></my-tag>
+    </div>
+    <script>
+// coming from
+// https://github.com/developit/preact/issues/416
+
+const items = [];
+let amount = 10000;
+
+while(amount--) {
+  items.push({
+    name: `item-${ amount }`
+  });
+}
+
+var start = Date.now();
+
+var render = hyperHTML.bind(app);
+
+update();
+
+boot.textContent = Date.now() - start;
+
+function update() {
+  render`
+  <div>
+    <button onclick='${onclick}'>
+      update
+    </button>
+    <p>
+      ${Date.now() - start}
+    </p>${
+    items.map((item, i) =>
+      `<h1 class="${i % 2 ? 'red' : ''}">${item.name}</h1>`
+    )
+  }<div>`;
+}
+
+function onclick() {
+  start = Date.now();
+  items.reverse();
+  update();
+}
+
+    </script> 
+  </body>
+
+</html>
