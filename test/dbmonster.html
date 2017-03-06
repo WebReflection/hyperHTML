@@ -19,70 +19,45 @@
     // some unrelated bench stuff
     memBench = () => {},
 
-    // shortcuts to create fragments
-    frog = (/*🐸*/) => document.createDocumentFragment(),
-    // to relate rows and cells to their initial fragments
-    setEl = (frog) => (frog.el = frog.firstElementChild),
-    // to setup a render as fragment, if not there yet
-    render = (arr, i) => arr[i] ||
-                        (arr[i] = hyperHTML.bind(frog())),
+    // retrieve a frog or create one
+    render = (arr, i) => arr[i] || (arr[i] = hyperHTML.frog()),
 
     // list of all known renders
     renderTABLE = hyperHTML.bind(document.body),
-    TRs = [], // populated on demand
-    TDs = []  // +5 per each row
+    TRs = [],
+    TDs = [],
+    Top5 = []
   ;
 
-  // one shot DB Monster via hyperHTML
   function updateTable(dbs) {
     renderTABLE`
     <table class="table table-striped latest-data">
-      <tbody>${dbs.map((db, i) => {
-        // rows must be wrapped in fragments
-        const wrap = render(TRs, i)`
-          <tr key="${db.name}">
-            <td class="dbname">
-              ${db.name}
-            </td>
-            <td class="query-count">
-              <span class="${getCountClassName(db)}">
-                ${db.queries.length}
-              </span>
-            </td>
-          </tr>
-        `;
-        // however, these will lose their childNodes
-        // but we need to return it for the table
-        const TR = wrap.el || setEl(wrap);
-
-        // Top Five Queries parsed inline
-        const start = db.topFiveQueries.length * i;
-        db.topFiveQueries.forEach((query, i) => {
-          const known = TDs[start + i];
-          const wrap = (known || render(TDs, start + i))`
-            <td class="${'Query ' + elapsedClassName(query.elapsed)}">
-              <span class="foo">
-                ${formatElapsed(query.elapsed)}
-              </span>
-              <div class="popover left">
-                <div class="popover-content">
-                  ${query.query}
-                </div>
-                <div class="arrow"></div>
+      <tbody>${dbs.map((db, i) => render(TRs, i)`
+        <tr key="${db.name}">${render(TDs, i)`
+          <td class="dbname">
+            ${db.name}
+          </td>
+          <td class="query-count">
+            <span class="${getCountClassName(db)}">
+              ${db.queries.length}
+            </span>
+          </td>`.concat(db.topFiveQueries.map((query, j, a) =>
+            render(Top5, a.length * i + j)`
+          <td class="${'Query ' + elapsedClassName(query.elapsed)}">
+            <span class="foo">
+              ${formatElapsed(query.elapsed)}
+            </span>
+            <div class="popover left">
+              <div class="popover-content">
+                ${query.query}
               </div>
-            </td>
-          `;
-          // only the first time
-          if (!known) TR.appendChild(wrap.firstElementChild);
-        });
-
-        // will append this TR directly
-        // and its `wrap` will lose its childNodes
-        return TR;
-
-      })}</tbody>
-    </table>
-    `;
+              <div class="arrow"></div>
+            </div>
+          </td>`
+          ))
+        }</tr>`
+      )}</tbody>
+    </table>`;
   }
 
   (function update() {

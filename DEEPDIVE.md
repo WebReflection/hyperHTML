@@ -197,25 +197,32 @@ but the annoying bit is when you use a fragment as a target.
 
 ### Binding A Document Fragment
 
-For documentation sake I'll write down what happens now, but this is the only bit I'm still a bit puzzled about.
+Document fragments lose their content as soon as you `appendChild(them)`.
+Unless you really know what you are doing, don't bind fragments directly.
 
-So here the thing: document fragments lose their content, so if you try to `appendChild(fragment)` twice nothing happens.
+```js
+// IT DOESN'T WORK AS EXPECTED
+var render = hyperHTML.bind(
+ document.createDocumentFragment()
+);
 
-Was that meant to be an empty fragment? Was it used elsewhere already? You'll never know.
+// first time will return the fragment
+document.body.appendChild(
+  render`<p>Hello and Goodbye</p>`
+);
 
+// but second time it will be empty
+render`<p>Hello and Goodbye</p>` // empty
+```
+To simplify the boilerplate needed to make fragments work as expected, `hyperHTML` offers a method called **frog** 🐸, or if you like, a "_Document Frogment_".
 
-#### Fragments Are Essential
+Instead of returning the fragment directly, a `.frog()` jumps to its only node or to the list of nodes rendered the very first time.
 
-There are cases where you cannot use anything else but a fragment.
-As example, imagine you want to append a list of `<LI>` elements or `<TR>` or `<TD>`, there's no HTML node suitable to temporarily wrap those elements, so `DocumentFragment` it is.
+```js
+var render = hyperHTML.frog();
+render`<p>Hello Again!</p>` ===
+render`<p>Hello Again!</p>`; // true
 
-
-### hyperHTML work around
-
-Comparing nodes is all `hyperHTML` can do, so whenever you need to actually **return a fragment** to compose the layout like I've done in [the DBMonster example page](https://github.com/WebReflection/hyperHTML/blob/master/test/dbmonster.html#L38-L86), don't return directly the rendered result, but its very first node instead.
-
-I'm planning to experiment if I should automagically do the same via `hyperHTML`, but the truth is that you might want to return not one node but a list of nodes as fragment childnodes, and there's no way I can fix that <sup><sub>(yeah yeah there is but not right now on a Sunday evening launch at almost midnight ...)</sub></sup>
-
-I'll come back to this!
-
-Best Regards
+render`<p>Hello Again!</p>`;
+// <p>Hello Again!</p>
+```

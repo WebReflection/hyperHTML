@@ -37,13 +37,67 @@ setInterval(tick, 1000,
 
 ## Features
 
-  * Zero dependencies and fits in less than a kilobyte (minzipped)
+  * Zero dependencies and fits in about 1KB (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with vanilla DOM elements and vanilla JS data structures `*`
   * Compatible 1:1 with Babel transpiled output, hence compatible with every browser you can think of
 
 `*` <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I also fell like I'm writing Assembly these days ... anyway ...</sub></sup>
+
+
+## Usage
+You have a `hyperHTML` function that is suitable for parsing template literals but it needs a DOM node context to operate.
+
+If you want to render many times the same template for a specific node, bind it once and boost up performance for free.
+No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
+
+
+### Wait ... there is a frog in the code! 🐸
+Quite experimental but tested already enough, `hyperHTML.frog()` is the solution to an already common use case:
+using `hyperHTML` to define not the content of a node, but the node itself.
+
+In this case binding a `DocumentFragment` would work but it will also lose its content as soon as it's appended.
+Using `hyperHTML.frog()` will grant that render will always work as expected, without ever losing knowledge of its initial content.
+
+```js
+const render = hyperHTML.frog();
+const update = () => render`
+  <div>Hello Frog!</div>
+`;
+
+update() === update(); // true
+update(); // <div>Hello Frog!</div>
+```
+It is also possible to define a generic template, and in such case the update won't be the single node, but an Array of nodes.
+
+
+
+### FAQs
+
+  * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
+
+  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are threated differently form other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
+
+  * _how can I differentiate between textContent only and HTML or DOM nodes?_
+    If there's any space or char around the value, that'd be a textContent.
+    Otherwise it can be strings, used as html, or DOM nodes.
+    As summary: ```render`<p>This is: ${'text'}</p>`;``` for text, and ```render`<p>${'html' || node || array}</p>`;``` for other cases.
+    An array wil result into html, if its content has strings, or a document fragment, if it contains nodes.
+    I've thought a pinch of extra handy magic would've been nice there 😉.
+
+  * _can I use different renders for a single node?_
+    Sure thing. However, the best performance gain is reached with nodes that always use the same template string.
+    If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary.
+    In every other case, the new template will create new content and map it once per change.
+
+  * _is this project just the same as [yo-yo](https://github.com/maxogden/yo-yo) or [bel](https://github.com/shama/bel) ?_
+    First of all, I didn't even know those projects were existing when I've written `hyperHTML`, and while the goal is quiet similar, the implementation is very different.
+    For instance, `hyperHTML` performance seems to be superior than [yo-yo-perf](https://github.com/shama/yo-yo-perf).
+    You can directly test [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark and see it goes _N_ times faster than `yo-yo` version on both Desktop and Mobile browsers 🎉.
+
+
+For all other deeper dirty details, please check the [DeepDive](https://github.com/WebReflection/hyperHTML/blob/master/DEEPDIVE.md) page.
 
 
 ### ... wait, WAT?
@@ -81,38 +135,6 @@ update(
 ```
 
 Since most of the time templates are 70% static text and 30% or less dynamic, `hyperHTML` passes through the resulting string only once, finds all attributes and content that is dynamic, and maps it 1:1 to the node to make updates as cheap as possible for both node attributes and node content.
-
-## Usage
-You have a `hyperHTML` function that is suitable for parsing template literals but it needs a DOM node context to operate.
-
-If you want to render many times the same template for a specific node, bind it once and boost up performance for free.
-No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
-
-### FAQs
-
-  * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
-
-  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are threated differently form other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
-
-  * _how can I differentiate between textContent only and HTML or DOM nodes?_
-    If there's any space or char around the value, that'd be a textContent.
-    Otherwise it can be strings, used as html, or DOM nodes.
-    As summary: ```render`<p>This is: ${'text'}</p>`;``` for text, and ```render`<p>${'html' || node || array}</p>`;``` for other cases.
-    An array wil result into html, if its content has strings, or a document fragment, if it contains nodes.
-    I've thought a pinch of extra handy magic would've been nice there 😉.
-
-  * _can I use different renders for a single node?_
-    Sure thing. However, the best performance gain is reached with nodes that always use the same template string.
-    If you have a very unpredictable conditional template, you might want to create two different nodes and apply `hyperHTML` with the same template for both of them, swapping them when necessary.
-    In every other case, the new template will create new content and map it once per change.
-
-  * _is this project just the same as [yo-yo](https://github.com/maxogden/yo-yo) or [bel](https://github.com/shama/bel) ?_
-    First of all, I didn't even know those projects were existing when I've written `hyperHTML`, and while the goal is quiet similar, the implementation is very different.
-    For instance, `hyperHTML` performance seems to be superior than [yo-yo-perf](https://github.com/shama/yo-yo-perf).
-    You can directly test [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark and see it goes _N_ times faster than `yo-yo` version on both Desktop and Mobile browsers 🎉.
-
-
-For all other deeper dirty details, please check the [DeepDive](https://github.com/WebReflection/hyperHTML/blob/master/DEEPDIVE.md) page.
 
 
 ### Caveats

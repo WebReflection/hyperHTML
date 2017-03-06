@@ -2,12 +2,14 @@
 <html>
 <head>
 <title>Recycling benchmark (uber-inspired)</title>
+<script src="../min.js"></script>
 <script>
 
   var cars = []; setupCars();
   function setupCars() {
     for(var i = 4000; i--;) {
       cars[i] = {
+        render: hyperHTML.frog(),
         x: Math.random() * 300 - 100,
         y: Math.random() * 300 - 100
       }
@@ -31,44 +33,32 @@
 </head>
 <body>
 
-  <script src="https://webreflection.github.io/hyperHTML/min.js"></script>
   <script>
 
-    var update = function update(bodyContent, carRender, cars) {
+    var update = function update(bodyContent, cars) {
       bodyContent`
       <section
         aria-label="map"
         style="width: 100vmin; height: 100vmin; position: absolute; top: 0; left: 0; overflow: hidden;"
       >${
-        getVisibleCars().map(car => {
-            var fragment = carRender.get(car);
-            if (!fragment) {
-                fragment = hyperHTML.bind(
-                    document.createDocumentFragment()
-                )`
-                <input
-                    type="button"
-                    value="car"
-                    style="${`
-                      position: absolute;
-                      top:0;
-                      left:0;
-                      transform: translate(${car.x}vmin, ${car.y}vmin);
-                    `}"
-                >`;
-                fragment.el = fragment.firstElementChild;
-                carRender.set(car, fragment);
-            }
-            return fragment.el;
-        })
-      }</section>
+        getVisibleCars().map(car => car.render`
+          <input
+              type="button"
+              value="car"
+              style="${`
+                position: absolute;
+                top:0;
+                left:0;
+                transform: translate(${car.x}vmin, ${car.y}vmin);
+              `}"
+          >`
+        )}</section>
       `;
     };
 
     update = update.bind(
         window,
         hyperHTML.bind(document.body),
-        new WeakMap,
         cars
     );
     

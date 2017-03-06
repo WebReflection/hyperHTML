@@ -2,6 +2,14 @@ var hyperHTML = (function () {'use strict';
 
   /*! (C) 2017 Andrea Giammarchi @WebReflection (MIT) */
 
+  // hyperHTML \o/
+  function hyperHTML(statics) {
+    return  EXPANDO in this &&
+            this[EXPANDO].s === statics ?
+              update.apply(this, arguments) :
+              upgrade.apply(this, arguments);
+  }
+
   // DOM parsing & traversing
   function attributesSeeker(node, actions) {
     for (var
@@ -66,7 +74,7 @@ var hyperHTML = (function () {'use strict';
               any(value.join(''));
             } else {
               if (!sameList(node.childNodes, value)) {
-                any(populateFragment(
+                resetAndPopulate(node, populateFragment(
                   node.ownerDocument.createDocumentFragment(),
                   value
                 ));
@@ -151,6 +159,30 @@ var hyperHTML = (function () {'use strict';
     return true;
   }
 
+  function setupAndGetContent(node) {
+    for (var
+      child,
+      children = [],
+      childNodes = node.childNodes,
+      i = 0,
+      length = childNodes.length;
+      i < length; i++
+    ) {
+      child = childNodes[i];
+      if (
+        1 === child.nodeType ||
+        0 < trim.call(child.textContent).length
+      ) {
+        children.push(child);
+      }
+    }
+    length = children.length;
+    return length < 2 ?
+      ((child = length < 1 ? node : children[0]),
+      function () { return child; }) :
+      function () { return children; };
+  }
+
   // Template setup
   function update(statics) {
     for (var
@@ -190,16 +222,43 @@ var hyperHTML = (function () {'use strict';
     EXPANDO = '_hyperHTML',
     uid = EXPANDO + ((Math.random() * new Date) | 0),
     uidc = '<!--' + uid + '-->',
-    slice = [].slice
+    slice = [].slice,
+    trim = EXPANDO.trim || function () {
+      return this.replace(/^\s+|\s+$/g, '');
+    }
   ;
 
-  // hyperHTML \o/
-  return function hyperHTML(statics) {
-    return  EXPANDO in this &&
-            this[EXPANDO].s === statics ?
-              update.apply(this, arguments) :
-              upgrade.apply(this, arguments);
+  // A 🐸 is a bridge between a document fragment
+  // and its inevitably lost list of rendered nodes
+  //
+  // var render = hyperHTML.frog();
+  // render`
+  //  <div>Hello Frog!</div>
+  // `;
+  //
+  // Every single invocation will return that div
+  // or the list of elements it contained as Array.
+  // This simplifies most task where hyperHTML
+  // is used to create the node itself, instead of
+  // populating an already known and bound one.
+  hyperHTML.frog = function frog() {
+    var
+      frogment = document.createDocumentFragment(),
+      render = hyperHTML.bind(frogment),
+      setup = true,
+      content
+    ;
+    return function update() {
+      render.apply(null, arguments);
+      if (setup) {
+        setup = !setup;
+        content = setupAndGetContent(frogment);
+      }
+      return content();
+    };
   };
+
+  return hyperHTML;
 
 }());
 

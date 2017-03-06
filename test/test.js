@@ -93,6 +93,50 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## hyperHTML.frog()');
+
+    var render = hyperHTML.frog();
+    var update = function () {
+      return render`
+        <p>1</p>
+      `;
+    };
+    var node = update();
+    tressa.assert(node.nodeName === 'P', 'correct node');
+    var same = update();
+    tressa.assert(node === same, 'same node returned');
+
+    render = hyperHTML.frog();
+    update = function () {
+      return render`
+        0
+        <p>1</p>
+      `;
+    };
+    node = update();
+    tressa.assert(Array.isArray(node), 'list of nodes');
+    same = update();
+    tressa.assert(
+      node.length === same.length &&
+      node[0] &&
+      node.every(function (n, i) { return same[i] === n; }),
+      'same list returned'
+    );
+    var div = document.createElement('div');
+    render = hyperHTML.bind(div);
+    render`${node}`;
+    same = div.childNodes;
+    tressa.assert(
+      node.length === same.length &&
+      node[0] &&
+      node.every(function (n, i) { return same[i] === n; }),
+      'same list applied'
+    );
+    done();
+  });
+})
+.then(function () {
   if (!tressa.exitCode) {
     document.body.style.backgroundColor = '#0FA';
   }
