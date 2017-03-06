@@ -214,12 +214,12 @@ document.body.appendChild(
 // but second time it will be empty
 render`<p>Hello and Goodbye</p>` // empty
 ```
-To simplify the boilerplate needed to make fragments work as expected, `hyperHTML` offers a method called **frog** 🐸, or if you like, a "_Document Frogment_".
+To simplify the boilerplate needed to make fragments work as expected, `hyperHTML` offers a method called **wire**.
 
-Instead of returning the fragment directly, a `.frog()` jumps to its only node or to the list of nodes rendered the very first time.
+Instead of returning the fragment directly, a `.wire()` connects directly the rendered node to the template.
 
 ```js
-var render = hyperHTML.frog();
+var render = hyperHTML.wire();
 render`<p>Hello Again!</p>` ===
 render`<p>Hello Again!</p>`; // true
 

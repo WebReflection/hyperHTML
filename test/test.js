@@ -94,9 +94,9 @@ tressa.async(function (done) {
 })
 .then(function () {
   return tressa.async(function (done) {
-    tressa.log('## hyperHTML.frog()');
+    tressa.log('## hyperHTML.wire()');
 
-    var render = hyperHTML.frog();
+    var render = hyperHTML.wire();
     var update = function () {
       return render`
         <p>1</p>
@@ -107,7 +107,7 @@ tressa.async(function (done) {
     var same = update();
     tressa.assert(node === same, 'same node returned');
 
-    render = hyperHTML.frog();
+    render = hyperHTML.wire();
     update = function () {
       return render`
         0

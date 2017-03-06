@@ -18,12 +18,12 @@ var hyperHTML = (function () {'use strict';
               upgrade.apply(this, arguments);
   }
 
-  // A 🐸 is a bridge between a document fragment
+  // A wire ➰ is a bridge between a document fragment
   // and its inevitably lost list of rendered nodes
   //
-  // var render = hyperHTML.frog();
+  // var render = hyperHTML.wire();
   // render`
-  //  <div>Hello Frog!</div>
+  //  <div>Hello Wired!</div>
   // `;
   //
   // Every single invocation will return that div
@@ -31,10 +31,10 @@ var hyperHTML = (function () {'use strict';
   // This simplifies most task where hyperHTML
   // is used to create the node itself, instead of
   // populating an already known and bound one.
-  hyperHTML.frog = function frog() {
+  hyperHTML.wire = function wire() {
     var
-      frogment = document.createDocumentFragment(),
-      render = hyperHTML.bind(frogment),
+      fragment = document.createDocumentFragment(),
+      render = hyperHTML.bind(fragment),
       setup = true,
       content
     ;
@@ -42,7 +42,7 @@ var hyperHTML = (function () {'use strict';
       render.apply(null, arguments);
       if (setup) {
         setup = !setup;
-        content = setupAndGetContent(frogment);
+        content = setupAndGetContent(fragment);
       }
       return content();
     };
@@ -332,7 +332,7 @@ var hyperHTML = (function () {'use strict';
     return true;
   }
 
-  // the first time a hyperHTML.frog() is invoked
+  // the first time a hyperHTML.wire() is invoked
   // remember the list of nodes that should be updated
   // at every consequent render call.
   // The resulting function might return the very first node
@@ -410,7 +410,7 @@ var hyperHTML = (function () {'use strict';
     uid = EXPANDO + ((Math.random() * new Date) | 0),
     // use comment nodes with pseudo unique content to setup
     uidc = '<!--' + uid + '-->',
-    // verify empty textContent on .frog() setup
+    // verify empty textContent on .wire() setup
     trim = EXPANDO.trim || function () {
       return this.replace(/^\s+|\s+$/g, '');
     },
@@ -421,7 +421,7 @@ var hyperHTML = (function () {'use strict';
 
 
   // -------------------------
-  // ⚡️ ️️The End 🐸
+  // ⚡️ ️️The End ➰
   // -------------------------
   return hyperHTML;
 
