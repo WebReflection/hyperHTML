@@ -53,7 +53,7 @@ If you want to render many times the same template for a specific node, bind it 
 No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
 
 
-### Wait ... there is a wire in the code! ➰ 
+### Wait ... there is a wire ➰ in the code!
 Quite experimental but tested already enough, `hyperHTML.wire()` is the solution to an already common use case:
 using `hyperHTML` to define not the content of a node, but the node itself, or a list of nodes.
 
