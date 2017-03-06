@@ -92,6 +92,8 @@ No new nodes, or innerHTML, will be ever used in such case: safe listeners, fast
 
   * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
 
+  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are threated differently form other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
+
   * _how can I differentiate between textContent only and HTML or DOM nodes?_
     If there's any space or char around the value, that'd be a textContent.
     Otherwise it can be strings, used as html, or DOM nodes.
