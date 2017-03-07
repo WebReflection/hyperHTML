@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; }</style>
+    <script src="../min.js"></script>
+  </head>
+  <body></body>
+  <script>
+  this.onload = function () {
+
+    function update(render, items, events) {
+        render`
+        <style>
+            .done { text-decoration: line-through; }
+            .remove { text-decoration: none; color: silver; }
+        </style>
+        <h3>Todo<em>s</em></h3>
+        <div>${hyperHTML.wire(render)`
+            <input onkeypress="${events.onkeypress}">
+        `}</div>
+        <ul>${items.map((item, i) => hyperHTML.wire(item)`
+            <li class="${item.done ? 'done' : ''}">
+                <input
+                    type="checkbox"
+                    data-index="${i}"
+                    onchange="${events.onchange}"
+                >
+                ${item.description}
+                <a
+                    onclick="${events.onclick}"
+                    data-index="${i}"
+                    class="remove"
+                    href="#remove"
+                >✗</a>
+            </li>
+        `)}</ul>`;
+    }
+
+    var
+        render = hyperHTML.bind(document.body),
+        items = [],
+        events = {
+            onclick(e) {
+                items.splice(e.target.dataset.index, 1);
+                update(render, items, events);
+                e.preventDefault();
+            },
+            onkeypress(e) {
+                if (e.keyCode === 13 && e.target.value.trim()) {
+                    items.push({
+                        done: false,
+                        description: e.target.value.trim()
+                    });
+                    e.target.value = '';
+                    update(render, items, events);
+                }
+            },
+            onchange(e) {
+                items[e.target.dataset.index].done = e.target.checked;
+                update(render, items, events);
+            }
+        }
+    ;
+
+    update(render, items, events);
+
+  };
+</script>
+</html>
