@@ -351,7 +351,7 @@ var hyperHTML = (function () {'use strict';
       function () { return children; };
   }
 
-  // remove and/or a list of nodes through an array
+  // remove and/or and a list of nodes through an array
   function updateViaArray(node, childNodes, i) {
     var fragment = node.ownerDocument.createDocumentFragment();
     if (0 < i) {
@@ -364,7 +364,7 @@ var hyperHTML = (function () {'use strict';
     }
   }
 
-  // remove and/or a list of nodes through a fragment
+  // remove and/or and a list of nodes through a fragment
   /* temporarily removed until it's demonstrated it's needed
   function updateViaFragment(node, fragment, i) {
     if (0 < i) {
