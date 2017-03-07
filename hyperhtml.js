@@ -369,7 +369,7 @@ var hyperHTML = (function () {'use strict';
     };
   }
 
-  // get ore create a wired weak reference
+  // get or create a wired weak reference
   function wireWeakly(any) {
     return wm.get(any) || (
       wm.set(any, wireContent()),
