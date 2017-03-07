@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<title>Recycling benchmark (uber-inspired)</title>
+<script>
+	var cars = []; setupCars();
+	function setupCars() {
+		for(var i = 4000; i--;) {
+			cars[i] = {
+				x: Math.random() * 300 - 100,
+				y: Math.random() * 300 - 100
+			}
+		}
+	}
+	function updateCars() {
+		for(var i = cars.length; i--;) {
+			cars[i].x += Math.random() * 10 - 5;
+			cars[i].y += Math.random() * 10 - 5;
+		}
+	}
+	function getVisibleCars() {
+		function between(x,min,max) {
+			return min <= x && x <= max;
+		}
+		return cars.filter(c => between(c.x, -5, +105) && between(c.y, -5, +105));
+	}
+	
+</script>
+
+</head>
+<body>
+
+	<script src="https://unpkg.com/mithril/mithril.js"></script>
+	<script>
+		var update = function update(m, cars) {
+			m.render(this, m('section', { 'aria-label':"map", 'style':"width: 100vmin; height: 100vmin; position: absolute; top: 0; left: 0; overflow: hidden;" }, 
+				getVisibleCars().map(c => m('input', { 'type':"button",  'value':"car", style: "position: absolute; top:0; left:0; transform: translate("+c.x+"vmin,"+c.y+"vmin);"}))
+			));
+		}
+		update = update.bind(document.body, m, cars);
+		
+		var continuousUpdate = () => {
+      requestAnimationFrame(continuousUpdate);
+      updateCars();
+      update();
+    };
+    continuousUpdate();
+	
+	</script>
+
+</body>

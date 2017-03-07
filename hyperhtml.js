@@ -169,10 +169,10 @@ var hyperHTML = (function () {'use strict';
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
-      onStuff = !name.indexOf('on')
+      isSpecial = SPECIAL_ATTRIBUTE.test(name)
     ;
-    if (onStuff) node.removeAttribute(name);
-    return onStuff ?
+    if (isSpecial) node.removeAttribute(name);
+    return isSpecial ?
       function event(value) {
         node[name] = value;
       } :
@@ -404,6 +404,8 @@ var hyperHTML = (function () {'use strict';
   // -------------------------
 
   var
+    // decide special attributes behavior
+    SPECIAL_ATTRIBUTE = /^(?:on[a-z]+|autofocus|disabled|required)$/,
     // avoids WeakMap to avoid memory pressure
     EXPANDO = '_hyperHTML',
     // use a pseudo unique id to avoid conflicts

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; }</style>
+    <script src="../min.js"></script>
+  </head>
+  <body></body>
+  <script>
+
+  var render = hyperHTML.wire();
+
+  var events = {
+    onchange: function (e) {
+      console.log(items.find(function (item) {
+        return e.target.value === item.ref;
+      }));
+    }
+  };
+
+  var items = [
+    {
+      colors: "Bright yellow",
+      img: "images/faux.jpg",
+      price: "100",
+      ref: "3046/023/322",
+      sizes: ["m"],
+      title: "Faux Leather Jacket",
+    },
+    {
+      colors: "Bright yellow",
+      img: "images/double.jpg",
+      price: "90",
+      ref: "6254/022/382",
+      sizes: ["s", "m", "l"],
+      title: "Double Faced Coat",
+    },
+  ];
+
+  var select = update(
+    render,
+    items,
+    events
+  );
+
+  document.body.appendChild(select);
+
+  function update(render, items, events) {
+    return render`
+      <select onchange="${events.onchange}">${items.map(item => `
+        <option value="${item.ref}">
+          ${item.title}
+        </option>
+      `)}</select>
+    `;
+  }
+  </script>
+</html>
