@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>hyperHTML Basic Form Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    body { font-family: sans-serif; }
+    input { display: block; margin: 8px 0; }
+    form { padding: 8px; }
+    </style>
+  </head>
+  <body></body>
+  <script src="../min.js"></script>
+  <script>
+  function update() {
+    hyperHTML.bind(document.body)`
+      Ao
+      <div>${
+        items.map((item, i) => hyperHTML.wire(item)`
+          <input name="${'input-' + i}">
+        `)
+      }</div>
+    `
+  }
+
+  var items = [{}];
+
+  update();
+
+  setInterval(function () {
+    items.push({});
+    update();
+  }, 5000);
+
+  </script>
+</html>

@@ -133,11 +133,9 @@ var hyperHTML = (function () {'use strict';
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
             } else {
-              if (!sameList(node.childNodes, value)) {
-                resetAndPopulate(node, appendNodes(
-                  node.ownerDocument.createDocumentFragment(),
-                  value
-                ));
+              var i = indexOfDiffereces(node.childNodes, value);
+              if (-1 < i) {
+                updateViaArray(node, value, i);
               }
             }
           } else {
@@ -189,12 +187,12 @@ var hyperHTML = (function () {'use strict';
       childNodes = []
     ;
     return function any(value) {
-      var parentNode = node.parentNode;
+      var i, parentNode = node.parentNode;
       switch (typeof value) {
         case 'string':
         case 'number':
         case 'boolean':
-          removeNodeList(childNodes);
+          removeNodeList(childNodes, 0);
           injectHTML(fragment, value);
           childNodes = slice.call(fragment.childNodes);
           parentNode.insertBefore(fragment, node);
@@ -206,15 +204,16 @@ var hyperHTML = (function () {'use strict';
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
             } else {
-              if (!sameList(childNodes, value)) {
-                removeNodeList(childNodes);
-                appendNodes(fragment, value);
-                childNodes = slice.call(fragment.childNodes);
+              i = indexOfDiffereces(childNodes, value);
+              if (-1 < i) {
+                removeNodeList(childNodes, i);
+                childNodes = value.slice(i);
+                appendNodes(fragment, childNodes);
                 parentNode.insertBefore(fragment, node);
               }
             }
           } else {
-            removeNodeList(childNodes);
+            removeNodeList(childNodes, 0);
             childNodes = value.nodeType === 11 ?
               slice.call(value.childNodes) :
               [value];
@@ -242,6 +241,38 @@ var hyperHTML = (function () {'use strict';
   // Helpers
   // -------------------------
 
+  // it does exactly what it says
+  function appendNodes(node, childNodes) {
+    for (var
+      i = 0,
+      length = childNodes.length;
+      i < length; i++
+    ) {
+      node.appendChild(childNodes[i]);
+    }
+  }
+
+  // given two collections, find
+  // the first index that has different content.
+  // If such index is worth a partial update,
+  // meaning it's higher than half of the list length,
+  // then return its value, otherwise 0.
+  // If the two lists are the same, return -1
+  // to indicate no differences were found.
+  function indexOfDiffereces(a, b) {
+    if (a === b) return -1;
+    var
+      i = 0,
+      aLength = a.length,
+      bLength = b.length
+    ;
+    while (i < aLength) {
+      if (i < bLength && a[i] === b[i]) i++;
+      else return i;
+    }
+    return i === bLength ? -1 : i;
+  }
+
   // inject HTML into a template node
   // and populate a fragment with resulting nodes
   //
@@ -257,18 +288,6 @@ var hyperHTML = (function () {'use strict';
     );
   }
 
-  // it does exactly what it says
-  function appendNodes(node, childNodes) {
-    for (var
-      i = 0,
-      length = childNodes.length;
-      i < length; i++
-    ) {
-      node.appendChild(childNodes[i]);
-    }
-    return node;
-  }
-
   // accordingly with the kind of child
   // it put its content into a parent node
   function populateNode(parent, child) {
@@ -280,8 +299,9 @@ var hyperHTML = (function () {'use strict';
         }
         break;
       case 11:
-        if (!sameList(parent.childNodes, child.childNodes)) {
-          resetAndPopulate(parent, child);
+        var i = indexOfDiffereces(parent.childNodes, child.childNodes);
+        if (-1 < i) {
+          resetAndPopulate(parent, child, i);
         }
         break;
       case 3:
@@ -290,35 +310,19 @@ var hyperHTML = (function () {'use strict';
     }
   }
 
-  // drop all nodes and append a node
-  function resetAndPopulate(parent, child) {
-    parent.textContent = '';
-    parent.appendChild(child);
-  }
-
   // it does exactly what it says
-  function removeNodeList(list) {
-    var i = list.length, child;
-    while (i--) {
-      child = list[i];
+  function removeNodeList(list, startIndex) {
+    var length = list.length, child;
+    while (startIndex < length--) {
+      child = list[length];
       child.parentNode.removeChild(child);
     }
   }
 
-  // compare two list of nodes
-  // if different, will update later on
-  function sameList(a, b) {
-    if (a === b) return true;
-    var
-      i = 0,
-      aLength = a.length
-    ;
-    if (aLength !== b.length) return false;
-    while (i < aLength) {
-      if (a[i] !== b[i]) return false;
-      i++;
-    }
-    return true;
+  // drop all nodes and append a node
+  function resetAndPopulate(parent, child) {
+    parent.textContent = '';
+    parent.appendChild(child);
   }
 
   // the first time a hyperHTML.wire() is invoked
@@ -349,6 +353,33 @@ var hyperHTML = (function () {'use strict';
       function () { return child; }) :
       function () { return children; };
   }
+
+  // remove and/or a list of nodes through an array
+  function updateViaArray(node, childNodes, i) {
+    var fragment = node.ownerDocument.createDocumentFragment();
+    if (0 < i) {
+      removeNodeList(node, i);
+      appendNodes(fragment, childNodes.slice(i));
+      node.appendChild(fragment);
+    } else {
+      appendNodes(fragment, childNodes);
+      resetAndPopulate(node, fragment);
+    }
+  }
+
+  // remove and/or a list of nodes through a fragment
+  /* temporarily removed until it's demonstrated it's needed
+  function updateViaFragment(node, fragment, i) {
+    if (0 < i) {
+      removeNodeList(node, i);
+      var slim = fragment.cloneNode();
+      appendNodes(slim, slice.call(fragment.childNodes, i));
+      node.appendChild(fragment, slim);
+    } else {
+      resetAndPopulate(node, fragment);
+    }
+  }
+  //*/
 
   // create a new wire for generic DOM content
   function wireContent() {
