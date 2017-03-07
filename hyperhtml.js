@@ -128,7 +128,7 @@ var hyperHTML = (function () {'use strict';
           break;
         default:
           if (Array.isArray(value)) {
-            if (value.length === 0) {
+            if (value.length === 1) {
               any(value[0]);
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
