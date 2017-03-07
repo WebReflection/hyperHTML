@@ -254,9 +254,6 @@ var hyperHTML = (function () {'use strict';
 
   // given two collections, find
   // the first index that has different content.
-  // If such index is worth a partial update,
-  // meaning it's higher than half of the list length,
-  // then return its value, otherwise 0.
   // If the two lists are the same, return -1
   // to indicate no differences were found.
   function indexOfDiffereces(a, b) {
