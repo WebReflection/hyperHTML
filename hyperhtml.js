@@ -31,10 +31,10 @@ var hyperHTML = (function () {'use strict';
   // This simplifies most task where hyperHTML
   // is used to create the node itself, instead of
   // populating an already known and bound one.
-  hyperHTML.wire = function wire(any) {
+  hyperHTML.wire = function wire(obj) {
     return arguments.length < 1 ?
       wireContent() :
-      wireWeakly(any);
+      wireWeakly(obj);
   };
 
   // - - - - - - - - - - - - - - - - - -  - - - - -
@@ -370,10 +370,10 @@ var hyperHTML = (function () {'use strict';
   }
 
   // get or create a wired weak reference
-  function wireWeakly(any) {
-    return wm.get(any) || (
-      wm.set(any, wireContent()),
-      wireWeakly(any)
+  function wireWeakly(obj) {
+    return wm.get(obj) || (
+      wm.set(obj, wireContent()),
+      wireWeakly(obj)
     );
   }
 
@@ -440,9 +440,9 @@ var hyperHTML = (function () {'use strict';
     // quick and dirty expando property.
     wm = typeof WeakMap === typeof wm ?
       {
-        get: function (any) { return any[EXPANDO]; },
-        set: function (any, value) {
-          Object.defineProperty(any, EXPANDO, {
+        get: function (obj) { return obj[EXPANDO]; },
+        set: function (obj, value) {
+          Object.defineProperty(obj, EXPANDO, {
             configurable: true,
             value: value
           });

@@ -54,7 +54,7 @@ No new nodes, or innerHTML, will be ever used in such case: safe listeners, fast
 
 
 ### Wait ... there is a wire ➰ in the code!
-The helper `hyperHTML.wire(any?)` is the solution to a common use case:
+The helper `hyperHTML.wire(obj?)` is the solution to a common use case:
 using `hyperHTML` to _define not the content_ of a node, _but the node_ itself, or a list of nodes.
 
 In this case binding a `DocumentFragment` would work but it will also lose its content as soon as it's appended.
