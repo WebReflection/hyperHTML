@@ -31,21 +31,10 @@ var hyperHTML = (function () {'use strict';
   // This simplifies most task where hyperHTML
   // is used to create the node itself, instead of
   // populating an already known and bound one.
-  hyperHTML.wire = function wire() {
-    var
-      fragment = document.createDocumentFragment(),
-      render = hyperHTML.bind(fragment),
-      setup = true,
-      content
-    ;
-    return function update() {
-      render.apply(null, arguments);
-      if (setup) {
-        setup = !setup;
-        content = setupAndGetContent(fragment);
-      }
-      return content();
-    };
+  hyperHTML.wire = function wire(any) {
+    return arguments.length < 1 ?
+      wireContent() :
+      wireWeakly(any);
   };
 
   // - - - - - - - - - - - - - - - - - -  - - - - -
@@ -361,6 +350,32 @@ var hyperHTML = (function () {'use strict';
       function () { return children; };
   }
 
+  // create a new wire for generic DOM content
+  function wireContent() {
+    var content, fragment, render, setup, template;
+    return function update(statics) {
+      if (template !== statics) {
+        setup = true;
+        template = statics;
+        fragment = document.createDocumentFragment();
+        render = hyperHTML.bind(fragment);
+      }
+      render.apply(null, arguments);
+      if (setup) {
+        setup = false;
+        content = setupAndGetContent(fragment);
+      }
+      return content();
+    };
+  }
+
+  // get ore create a wired weak reference
+  function wireWeakly(any) {
+    return wm.get(any) || (
+      wm.set(any, wireContent()),
+      wireWeakly(any)
+    );
+  }
 
   // -------------------------
   // Template setup
@@ -418,7 +433,22 @@ var hyperHTML = (function () {'use strict';
     },
     // convert DOM.childNodes into arrays to avoid
     // DOM mutation backfiring on loops
-    slice = [].slice
+    slice = [].slice,
+    // used for weak references
+    // if WeakMap is not available
+    // it uses a configurable, non enumerable,
+    // quick and dirty expando property.
+    wm = typeof WeakMap === typeof wm ?
+      {
+        get: function (any) { return any[EXPANDO]; },
+        set: function (any, value) {
+          Object.defineProperty(any, EXPANDO, {
+            configurable: true,
+            value: value
+          });
+        }
+      } :
+      new WeakMap();
   ;
 
 

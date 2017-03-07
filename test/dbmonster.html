@@ -19,7 +19,9 @@
     // some unrelated bench stuff
     memBench = () => {},
 
-    // retrieve a wire or create one
+    // retrieve a wire or create one, based on lists of data
+    // necessary if you have JSON data to deal with
+    // since weak reference won't bring in any benefit
     render = (arr, i) => arr[i] || (arr[i] = hyperHTML.wire()),
 
     // list of all known renders

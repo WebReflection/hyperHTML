@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../min.js"></script>
+  </head>
+  <body></body>
+  <script>
+
+const updateTable = dbs => hyperHTML.bind(document.body)`
+    <table class="table table-striped latest-data">
+      <tbody>${dbs.map(toTableRow)}</tbody>
+    </table>
+`;
+
+const toTableRow = data => hyperHTML.wire()`
+  <tr>
+    <td>
+      ${data.whatever}
+    </td>
+    <td>${makeOtherThing(data.otherThing)}</td>
+  </tr>
+`;
+
+const makeOtherThing = otherThing => hyperHTML.wire()`
+  <a
+    onclick="${otherThing.onclick}"
+    href="${otherThing.link}"
+  >
+    ${otherThing.name}
+  </a>
+`;
+
+function onclick(e) {
+  e.preventDefault();
+  alert(this.textContent);
+}
+
+updateTable([{
+  whatever: 'Whatever 1',
+  otherThing: {
+    link: '#whatever-1',
+    name: 'This is another thing 1',
+    onclick: onclick
+  }
+}, {
+  whatever: 'Whatever 2',
+  otherThing: {
+    link: '#whatever-2',
+    name: 'This is another thing 2',
+    onclick: onclick
+  }
+}]);
+
+  </script>
+</html>

@@ -37,11 +37,11 @@ setInterval(tick, 1000,
 
 ## Features
 
-  * Zero dependencies and fits in about 1KB (minzipped)
+  * Zero dependencies and it fits in **less than 1.5KB** (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with vanilla DOM elements and vanilla JS data structures `*`
-  * Compatible 1:1 with Babel transpiled output, hence compatible with every browser you can think of
+  * Also compatible with Babel transpiled output, hence suitable for every browser you can think of
 
 `*` <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I also fell like I'm writing Assembly these days ... anyway ...</sub></sup>
 
@@ -54,8 +54,8 @@ No new nodes, or innerHTML, will be ever used in such case: safe listeners, fast
 
 
 ### Wait ... there is a wire ➰ in the code!
-Quite experimental but tested already enough, `hyperHTML.wire()` is the solution to an already common use case:
-using `hyperHTML` to define not the content of a node, but the node itself, or a list of nodes.
+The helper `hyperHTML.wire(any?)` is the solution to a common use case:
+using `hyperHTML` to _define not the content_ of a node, _but the node_ itself, or a list of nodes.
 
 In this case binding a `DocumentFragment` would work but it will also lose its content as soon as it's appended.
 Using `hyperHTML.wire()` will grant that render will always work as expected, without ever losing knowledge of its initial content.
@@ -63,13 +63,30 @@ Using `hyperHTML.wire()` will grant that render will always work as expected, wi
 It wires render updates to whatever content is holding.
 
 ```js
+// hyperHTML.wire() returns a new wire
 const render = hyperHTML.wire();
+// which can be used multiple times
 const update = () => render`
   <div>Hello Wired!</div>
 `;
 
 update() === update(); // true
 update(); // <div>Hello Wired!</div>
+
+// it is possible to reference a wire
+const point = {x: 1, y: 2};
+// simply passing a generic object
+hyperHTML.wire(point)`
+  <span style="${`
+    position: absolute;
+    left: ${point.x}px;
+    top: ${point.y}px;
+  `}">O</span>
+`;
+
+// the used render will be always the same
+hyperHTML.wire(point) === hyperHTML.wire(point);
+// true
 ```
 It is also possible to define a generic template, and in such case the update won't be the single node, but an Array of nodes.
 

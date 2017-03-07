@@ -133,6 +133,31 @@ tressa.async(function (done) {
       node.every(function (n, i) { return same[i] === n; }),
       'same list applied'
     );
+
+    render = hyperHTML.wire();
+    tressa.assert(
+      render`a` === render`a` &&
+      render`a` !== render`b`,
+      'template sensible wire'
+    );
+
+    done();
+  });
+})
+.then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## hyperHTML.wire(object)');
+    var point = {x: 1, y: 2};
+    function update() {
+      return hyperHTML.wire(point)`
+      <span style="${`
+        position: absolute;
+        left: ${point.x}px;
+        top: ${point.y}px;
+      `}">O</span>`;
+    }
+    tressa.assert(update() === update(), 'same output');
+    tressa.assert(hyperHTML.wire(point) === hyperHTML.wire(point), 'same wire');
     done();
   });
 })
