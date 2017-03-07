@@ -368,7 +368,7 @@ var hyperHTML = (function () {'use strict';
   /* temporarily removed until it's demonstrated it's needed
   function updateViaFragment(node, fragment, i) {
     if (0 < i) {
-      removeNodeList(node, i);
+      removeNodeList(node.childNodes, i);
       var slim = fragment.cloneNode();
       appendNodes(slim, slice.call(fragment.childNodes, i));
       node.appendChild(fragment, slim);
