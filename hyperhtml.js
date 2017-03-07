@@ -355,7 +355,7 @@ var hyperHTML = (function () {'use strict';
   function updateViaArray(node, childNodes, i) {
     var fragment = node.ownerDocument.createDocumentFragment();
     if (0 < i) {
-      removeNodeList(node, i);
+      removeNodeList(node.childNodes, i);
       appendNodes(fragment, childNodes.slice(i));
       node.appendChild(fragment);
     } else {

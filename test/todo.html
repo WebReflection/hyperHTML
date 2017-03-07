@@ -43,9 +43,9 @@
       items = [],
       events = {
         onclick(e) {
+          e.preventDefault();
           items.splice(e.target.dataset.index, 1);
           update(render, items, events);
-          e.preventDefault();
         },
         onkeypress(e) {
           if (e.keyCode === 13 && e.target.value.trim()) {
