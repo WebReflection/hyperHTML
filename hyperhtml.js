@@ -91,7 +91,7 @@ var hyperHTML = (function () {'use strict';
             actions.push(setAnyContent(node));
             node.removeChild(child);
           } else if (
-            childNodes[i - 1].nodeType === 1 &&
+            (i < 1 || childNodes[i - 1].nodeType === 1) &&
             (i + 1 === length || childNodes[i + 1].nodeType === 1)
           ) {
             actions.push(setVirtualContent(child));

@@ -10,7 +10,7 @@
     </style>
   </head>
   <body></body>
-  <script src="../min.js"></script>
+  <script src="../hyperhtml.js"></script>
   <script>
 
   const items = [{}];
@@ -26,12 +26,11 @@
   function update() {
     render`
       Incremental updates for ${items.length} items
-      <form onsubmit="${e => confirm('Are you sure ?')}">
-      <input type="submit">${
+      <form onsubmit="${e => confirm('Are you sure ?')}">${
         items.map((item, i) => hyperHTML.wire(item)`
-          <input name="${'input-' + i}">
-        `)
-      }</form>
+        <input name="${'input-' + i}">`)
+      }<input type="submit">
+      </form>
     `;
   }
 
