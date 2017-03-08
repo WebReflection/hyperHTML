@@ -43,7 +43,7 @@ setInterval(tick, 1000,
   * Compatible with vanilla DOM elements and vanilla JS data structures `*`
   * Also compatible with Babel transpiled output, hence suitable for every browser you can think of
 
-`*` <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I also fell like I'm writing Assembly these days ... anyway ...</sub></sup>
+`*` <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I also feel like I'm writing Assembly these days ... anyway ...</sub></sup>
 
 
 ## Usage
@@ -102,7 +102,7 @@ It is also possible to define a generic template, and in such case the update wo
     If there's any space or char around the value, that'd be a textContent.
     Otherwise it can be strings, used as html, or DOM nodes.
     As summary: ```render`<p>This is: ${'text'}</p>`;``` for text, and ```render`<p>${'html' || node || array}</p>`;``` for other cases.
-    An array wil result into html, if its content has strings, or a document fragment, if it contains nodes.
+    An array will result into html, if its content has strings, or a document fragment, if it contains nodes.
     I've thought a pinch of extra handy magic would've been nice there 😉.
 
   * _can I use different renders for a single node?_
@@ -167,7 +167,7 @@ This makes it possible to quickly walk through the DOM tree and setup behaviors,
 
 Unfortunately, if you have html such `<div attr=<!-- comment --> class="any"></div>` the result is broken, while using single or double quotes will grant a successful operation. This is the biggest, and so far only, real caveat.
 
-As summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will be broken, even if the attribute is a number or a boolean.
+As summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will break, even if the attribute is a number or a boolean.
 
 In this way you'll also ensure whatever value you'll pass later on won't ever break the layout. It's a bit annoying, yet a win.
 
