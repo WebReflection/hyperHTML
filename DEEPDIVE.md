@@ -41,7 +41,7 @@ console.log(
 
 As basic example, it would be now possible to drop that `comment` with a text node that will update its content when `values[0]` is passed on, and once all nodes have been mapped 1:1 to the amount of extra arguments passed along to update each sub-value, real data is used and real data will be used from that very moment on to populate nodes and attributes.
 
-At this point `hyperHTML` uses an [expando property](https://developer.mozilla.org/en-US/docs/Glossary/Expando), for the sake of wider compatibility and to avoid too many [GC pressure](https://mail.mozilla.org/pipermail/es-discuss/2014-December/040565.html) due a potentially heavily populated WeakMap, to save the list of callbacks used to update only what's needed to be updated, being specific text nodes, attributes, or fragments, and together with the static template reference.
+At this point `hyperHTML` uses an [expando property](https://developer.mozilla.org/en-US/docs/Glossary/Expando), for the sake of wider compatibility and to avoid too much [GC pressure](https://mail.mozilla.org/pipermail/es-discuss/2014-December/040565.html) due a potentially heavily populated WeakMap, to save the list of callbacks used to update only what's needed to be updated, being specific text nodes, attributes, or fragments, and together with the static template reference.
 
 From now on, every time the same template is used, all `hyperHTML` has to do is the following:
 
@@ -62,13 +62,13 @@ function update(statics, ...values) {
 ## How are attributes updated
 
 Quite often developers thinks about DOM attributes as something you can get or set via `node.setAttribute(name, value)`.
-Well, that's half of the story, 'cause [attributes are just nodes](https://dom.spec.whatwg.org/#interface-attr) like anything else on the DOM.
+Well, that's half of the story, 'cause [attributes are just nodes](https://dom.spec.whatwg.org/#interface-attr) like anything else in the DOM.
 
 This means that a generic attribute can be updated simply setting its `.value` property, like an `input` element would update its view when we set its value. It'd be silly to `input.setAttribute('value', content)` when we can just `input.value = content`, right?
 
 And that's how attributes are updated here. Trapped in a closure, a new template render will simply target the specific attribute and change its value, with the only exception of those attributes prefixed with `on`.
 
-These are meant to be handlers, and since nobody likes to deal with handlers as string content, `hyperHTML` recognizes these attributes and it actually remove them from the node, bit it will assign to the attribute owner, the node, the DOM Level 0 event.
+These are meant to be event handlers. And since nobody likes to deal with handlers as string content, `hyperHTML` recognizes these attributes and it actually remove them from the node, but it will assign to the attribute owner, the node, the DOM Level 0 event.
 
 ```js
 // simulation of the attribute update mechanism
@@ -134,12 +134,14 @@ function update(render) {
 }
 ```
 
-**Remember:** raw text nodes updates are the fastest, cheapest thing to do. Since also CSS ignores spaces around text, unless of course the node is a special one, don't enclose a text node only right in between tags, put a space and it'll be faster and safer!
+**Remember:** raw text nodes updates are the fastest, cheapest thing to do. Since also CSS ignores spaces around text, unless of course the node is a special one, don't put content right next to tags. Put a space and it'll be faster and safer!
 
 ```js
 function update(render) {
   render`
+    <!-- this is fast -->
     <p>${'this will accept <em>HTML</em>'}</p>
+    <!-- 🏎 this is faster! because it's treated as a TextNode -->
     <p>
       ${'this will update a raw <nope>textNode</nope>'}
     </p>
@@ -153,7 +155,7 @@ update(hyperHTML.bind(document.body));
 
 ## How are HTML and Document Fragments managed
 
-This is "_the hard core_" bit. By this time, you should've understood how to hook yourself into HTML and fragments world.
+This is "_the hard core_" bit. By this time, you should have understood how to hook yourself into HTML and fragments world.
 
 Literally check the example right before this chapter to remember that you **must not have spaces** or any other char around your fragment, being a table row, a list, or anything else, literally!
 
@@ -185,13 +187,13 @@ Got it? Put a single space around your `${template entry points}` and goodbye HT
 Now we can return few different kind of things per each fragment:
 
   * a generic DOM `node`, probably the most common case, it will just be there where you expect it when you need it!
-  * a `string`, in such case `innerHTML` will kicks in like there's no tomorrow
+  * a `string`, in such case `innerHTML` will kick in like there's no tomorrow
   * a `boolean` or a `number`, that will be injected through the cheap `textContent` instead of `innerHTML`
   * a `DocumentFragment` which will be compared through its childNodes, and if already there, nothing will happen 'cause fragments are just an indirection to reach real updates, and these also lose nodes once appended
   * an `Array` of _strings_, that will be injected through `innerHTML` and a brutal `.join('')`
   * an `Array` of _nodes_, that if not already the same on the DOM, will be replaced all at once through a runtime fragment.
 
-I think I've managed to not forget any case <sup><sub>(please file a bug if I did!)</sub></sup>,
+I think I've managed to not forget any case <sup><sub>(please [file a bug](issues/) if I did!)</sub></sup>,
 but the annoying bit is when you use a fragment as a target.
 
 
@@ -214,6 +216,7 @@ document.body.appendChild(
 // but second time it will be empty
 render`<p>Hello and Goodbye</p>` // empty
 ```
+
 To simplify the boilerplate needed to make fragments work as expected, `hyperHTML` offers a method called **wire**.
 
 Instead of returning the fragment directly, a `.wire()` connects directly the rendered node to the template.
