@@ -209,8 +209,8 @@ var hyperHTML = (function () {'use strict';
                 removeNodeList(childNodes, i);
                 value = value.slice(i);
                 appendNodes(fragment, value);
-                childNodes.push.apply(childNodes, value);
                 parentNode.insertBefore(fragment, node);
+                childNodes.push.apply(childNodes, value);
               }
             }
           } else {
