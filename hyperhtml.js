@@ -207,8 +207,9 @@ var hyperHTML = (function () {'use strict';
               i = indexOfDiffereces(childNodes, value);
               if (-1 < i) {
                 removeNodeList(childNodes, i);
-                childNodes = value.slice(i);
-                appendNodes(fragment, childNodes);
+                value = value.slice(i);
+                appendNodes(fragment, value);
+                childNodes.push.apply(childNodes, value);
                 parentNode.insertBefore(fragment, node);
               }
             }
@@ -296,9 +297,8 @@ var hyperHTML = (function () {'use strict';
         }
         break;
       case 11:
-        var i = indexOfDiffereces(parent.childNodes, child.childNodes);
-        if (-1 < i) {
-          resetAndPopulate(parent, child, i);
+        if (-1 < indexOfDiffereces(parent.childNodes, child.childNodes)) {
+          resetAndPopulate(parent, child);
         }
         break;
       case 3:
