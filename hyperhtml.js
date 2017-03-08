@@ -414,7 +414,7 @@ var hyperHTML = (function () {'use strict';
   function update(statics) {
     for (var
       i = 1,
-      length = statics.length,
+      length = arguments.length,
       updates = this[EXPANDO].u;
       i < length; i++
     ) {
@@ -448,7 +448,7 @@ var hyperHTML = (function () {'use strict';
 
   var
     // decide special attributes behavior
-    SPECIAL_ATTRIBUTE = /^(?:on[a-z]+|autofocus|disabled|required)$/,
+    SPECIAL_ATTRIBUTE = /^(?:on[a-z]+|async|autofocus|autoplay|capture|checked|controls|deferred|disabled|formnovalidate|loop|multiple|muted|required)$/,
     // avoids WeakMap to avoid memory pressure
     EXPANDO = '_hyperHTML',
     // use a pseudo unique id to avoid conflicts
