@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>hyperHTML Basic Form Example</title>
+    <title>hyperHTML Incremental Form Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
     body { font-family: sans-serif; }
@@ -12,25 +12,28 @@
   <body></body>
   <script src="../min.js"></script>
   <script>
-  function update() {
-    hyperHTML.bind(document.body)`
-      Incremental updates
-      <div>${
-        items.map((item, i) => hyperHTML.wire(item)`
-          <input name="${'input-' + i}">
-        `)
-      }</div>
-    `
-  }
 
-  var items = [{}];
+  const items = [{}];
+  const render = hyperHTML.bind(document.body);
 
   update();
 
-  setInterval(function () {
+  setInterval(() => {
     items.push({});
     update();
   }, 5000);
+
+  function update() {
+    render`
+      Incremental updates for ${items.length} items
+      <form onsubmit="${e => confirm('Are you sure ?')}">
+      <input type="submit">${
+        items.map((item, i) => hyperHTML.wire(item)`
+          <input name="${'input-' + i}">
+        `)
+      }</form>
+    `;
+  }
 
   </script>
 </html>
