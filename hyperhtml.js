@@ -479,6 +479,8 @@ var hyperHTML = (function () {'use strict';
       new WeakMap();
   ;
 
+  // Simply to avoid duplicated RegExp in viperHTML
+  hyperHTML.SPECIAL_ATTRIBUTE = SPECIAL_ATTRIBUTE;
 
   // -------------------------
   // ⚡️ ️️The End ➰
