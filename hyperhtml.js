@@ -87,18 +87,20 @@ var hyperHTML = (function () {'use strict';
           lukeTreeWalker(child, actions);
           break;
         case 8:
-          if (length === 1) {
-            actions.push(setAnyContent(node));
-            node.removeChild(child);
-          } else if (
-            (i < 1 || childNodes[i - 1].nodeType === 1) &&
-            (i + 1 === length || childNodes[i + 1].nodeType === 1)
-          ) {
-            actions.push(setVirtualContent(child));
-          } else {
-            text = node.ownerDocument.createTextNode('');
-            actions.push(setTextContent(text));
-            node.replaceChild(text, child);
+          if (child.textContent === uid) {
+            if (length === 1) {
+              actions.push(setAnyContent(node));
+              node.removeChild(child);
+            } else if (
+              (i < 1 || childNodes[i - 1].nodeType === 1) &&
+              (i + 1 === length || childNodes[i + 1].nodeType === 1)
+            ) {
+              actions.push(setVirtualContent(child));
+            } else {
+              text = node.ownerDocument.createTextNode('');
+              actions.push(setTextContent(text));
+              node.replaceChild(text, child);
+            }
           }
           break;
       }
