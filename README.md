@@ -97,7 +97,7 @@ It is also possible to define a generic template, and in such case the update wo
 
   * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
 
-  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are threated differently form other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
+  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are treated differently form other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
 
   * _how can I differentiate between textContent only and HTML or DOM nodes?_
     If there's any space or char around the value, that'd be a textContent.
@@ -112,7 +112,7 @@ It is also possible to define a generic template, and in such case the update wo
     In every other case, the new template will create new content and map it once per change.
 
   * _is this project just the same as [yo-yo](https://github.com/maxogden/yo-yo) or [bel](https://github.com/shama/bel) ?_
-    First of all, I didn't even know those projects were existing when I've written `hyperHTML`, and while the goal is quiet similar, the implementation is very different.
+    First of all, I didn't even know those projects were existing when I've written `hyperHTML`, and while the goal is quite similar, the implementation is very different.
     For instance, `hyperHTML` performance seems to be superior than [yo-yo-perf](https://github.com/shama/yo-yo-perf).
     You can directly test [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark and see it goes _N_ times faster than `yo-yo` version on both Desktop and Mobile browsers 🎉.
 
@@ -168,7 +168,7 @@ This makes it possible to quickly walk through the DOM tree and setup behaviors,
 
 Unfortunately, if you have html such `<div attr=<!-- comment --> class="any"></div>` the result is broken, while using single or double quotes will grant a successful operation. This is the biggest, and so far only, real caveat.
 
-As summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will break, even if the attribute is a number or a boolean.
+In summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will break, even if the attribute is a number or a boolean.
 
 In this way you'll also ensure whatever value you'll pass later on won't ever break the layout. It's a bit annoying, yet a win.
 
