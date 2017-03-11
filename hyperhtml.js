@@ -52,13 +52,14 @@ var hyperHTML = (function () {'use strict';
   function attributesSeeker(node, actions) {
     for (var
       attribute,
+      value = IE ? uid : uidc,
       attributes = slice.call(node.attributes),
       i = 0,
       length = attributes.length;
       i < length; i++
     ) {
       attribute = attributes[i];
-      if (attribute.value === uidc) {
+      if (attribute.value === value) {
         actions.push(setAttribute(node, attribute));
       }
     }
@@ -366,20 +367,6 @@ var hyperHTML = (function () {'use strict';
     }
   }
 
-  // remove and/or and a list of nodes through a fragment
-  /* temporarily removed until it's demonstrated it's needed
-  function updateViaFragment(node, fragment, i) {
-    if (0 < i) {
-      removeNodeList(node.childNodes, i);
-      var slim = fragment.cloneNode();
-      appendNodes(slim, slice.call(fragment.childNodes, i));
-      node.appendChild(fragment, slim);
-    } else {
-      resetAndPopulate(node, fragment);
-    }
-  }
-  //*/
-
   // create a new wire for generic DOM content
   function wireContent() {
     var content, fragment, render, setup, template;
@@ -433,6 +420,7 @@ var hyperHTML = (function () {'use strict';
       updates = [],
       html = statics.join(uidc)
     ;
+    if (IE) html = html.replace(no, comments);
     if (this.nodeType === 1) {
       this.innerHTML = html;
     } else {
@@ -443,6 +431,34 @@ var hyperHTML = (function () {'use strict';
     return update.apply(this, arguments);
   }
 
+  // -------------------------
+  // the trash bin
+  // -------------------------
+
+  // IE used to suck.
+  /*
+  // even in a try/catch this throw an error
+  // since it's reliable though, I'll keep it around
+  function isIE() {
+    var p = document.createElement('p');
+    p.innerHTML = '<i onclick="<!---->">';
+    return p.childNodes[0].onclick == null;
+  }
+  //*/
+
+  // remove and/or and a list of nodes through a fragment
+  /* temporarily removed until it's demonstrated it's needed
+  function updateViaFragment(node, fragment, i) {
+    if (0 < i) {
+      removeNodeList(node.childNodes, i);
+      var slim = fragment.cloneNode();
+      appendNodes(slim, slice.call(fragment.childNodes, i));
+      node.appendChild(fragment, slim);
+    } else {
+      resetAndPopulate(node, fragment);
+    }
+  }
+  //*/
 
   // -------------------------
   // local variables
@@ -457,6 +473,10 @@ var hyperHTML = (function () {'use strict';
     uid = EXPANDO + ((Math.random() * new Date) | 0),
     // use comment nodes with pseudo unique content to setup
     uidc = '<!--' + uid + '-->',
+    // threat it differently
+    IE = 'documentMode' in document,
+    no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),
+    comments = IE && '$1$2' + uid + '$2',
     // verify empty textContent on .wire() setup
     trim = EXPANDO.trim || function () {
       return this.replace(/^\s+|\s+$/g, '');

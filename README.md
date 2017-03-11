@@ -36,9 +36,16 @@ setInterval(tick, 1000,
 );
 ```
 
+## Compatibility
+
+  * every modern browser (Chrome, Edge, Firefox, Safari)
+  * IE9 to IE11 on both Mobile and Desktop
+  * every other Mobile or Desktop browser compatible with Babel transpilation
+
+
 ## Features
 
-  * Zero dependencies and it fits in **less than 1.5KB** (minzipped)
+  * Zero dependencies and it fits in **less than 2KB** (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with vanilla DOM elements and vanilla JS data structures `*`
@@ -52,6 +59,8 @@ You have a `hyperHTML` function that is suitable for parsing template literals b
 
 If you want to render many times the same template for a specific node, bind it once and boost up performance for free.
 No new nodes, or innerHTML, will be ever used in such case: safe listeners, faster DOM.
+
+You can also check the [TodoMVC repository](https://github.com/WebReflection/hypermvc/tree/master/js) or its [live demo](https://webreflection.github.io/hypermvc/index.html).
 
 
 ### Wait ... there is a wire ➰ in the code!

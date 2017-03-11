@@ -4,6 +4,7 @@
   "description": "A Fast & Light Virtual DOM Alternative",
   "main": "hyperhtml.js",
   "scripts": {
+    "es5": "babel ./test/js/* --out-dir ./dist --presets=es2015; cp ./dist/test/js/* ./test/dist",
     "build": "npm run minify && npm test && npm run size",
     "test": "node test/runner.js",
     "minify": "uglifyjs hyperhtml.js --comments=/^!/ --compress --mangle -o min.js",
@@ -27,6 +28,8 @@
   },
   "homepage": "https://github.com/WebReflection/hyperhtml#readme",
   "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
     "jsdom": "^9.11.0",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.5"
