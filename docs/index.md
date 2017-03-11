@@ -1,4 +1,4 @@
-# Getting Started with `hyperHTML`
+# Getting Started with _hyperHTML_
 
 To describe it in a sentence, `hyperHTML` is a just-in-time ([JIT](https://en.wikipedia.org/wiki/Just-in-time_compilation)) template literals compiler that maps 1:1 interpolations to DOM nodes or attributes.
 
@@ -42,7 +42,7 @@ Being tags callbacks, it is also possible to bind them to a specific context, li
 and this is the basic concept that gives `hyperHTML` super powers.
 
 
-## How To Define `hyperHTML` Templates
+## How To Define _hyperHTML_ Templates
 
 There are two basic but fundamental rules to remember:
 
@@ -141,7 +141,7 @@ const update = (render) => render`${[
 update(render);
 ```
 
-## What is a `.wire()` ?
+## What is a _.wire()_ ?
 
 There are basically two ways to define a _rendered_ with `hyperHTML`:
 
