@@ -467,10 +467,10 @@ var hyperHTML = (function () {'use strict';
   var
     // decide special attributes behavior
     SPECIAL_ATTRIBUTE = /^(?:on[a-z]+|async|autofocus|autoplay|capture|checked|controls|deferred|disabled|formnovalidate|loop|multiple|muted|required)$/,
-    // avoids WeakMap to avoid memory pressure
-    EXPANDO = '_hyperHTML',
-    // use a pseudo unique id to avoid conflicts
-    uid = EXPANDO + ((Math.random() * new Date) | 0),
+    // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
+    EXPANDO = '-hyper-html: ',
+    // use a pseudo unique id to avoid conflicts and normalize CS style for IE
+    uid = EXPANDO + ((Math.random() * new Date) | 0) + ';',
     // use comment nodes with pseudo unique content to setup
     uidc = '<!--' + uid + '-->',
     // threat it differently
