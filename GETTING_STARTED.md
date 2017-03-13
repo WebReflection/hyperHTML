@@ -120,7 +120,7 @@ replaced, removed, or be completely untouched, if it was already there.
 
 ```js
 const update = (render, listOfItems) => render`
-  <u>${listOfItems.map(item => hyperHTML.wire(item)`
+  <ul>${listOfItems.map(item => hyperHTML.wire(item)`
     <li> ${item.name} </li>
   `)}</ul>
 `;
