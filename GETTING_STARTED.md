@@ -226,7 +226,18 @@ const update = (render) => render`
 update(render);
 ```
 
+To make that wire visible to the user, target any live content so it will render.
 
+```js
+const containerRender = hyperHTML.bind(
+  document.query('.container')
+);
 
+containerRender`${
+  update(render)
+}`
 
+```
+
+The container will know how to show up that div.
 
