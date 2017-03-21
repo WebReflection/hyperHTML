@@ -7,6 +7,17 @@
     body { font-family: sans-serif; }
     input { display: block; margin: 8px 0; }
     form { padding: 8px; }
+    .fading {
+      animation: fadein .600s ease-in;
+    }
+    @keyframes fadein {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
     </style>
   </head>
   <body></body>
@@ -28,7 +39,7 @@
       Incremental updates for ${items.length} items
       <form onsubmit="${e => confirm('Are you sure ?')}">${
         items.map((item, i) => hyperHTML.wire(item)`
-        <input name="${'input-' + i}">`)
+        <input class="fading" name="${'input-' + i}">`)
       }<input type="submit">
       </form>
     `;
