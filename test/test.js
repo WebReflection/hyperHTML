@@ -135,11 +135,18 @@ tressa.async(function (done) {
     );
 
     render = hyperHTML.wire();
-    tressa.assert(
-      render`a` === render`a` &&
-      render`a` !== render`b`,
-      'template sensible wire'
-    );
+    if (
+      (function(s){ return s; })`a` ===
+      (function(s){ return s; })`a`
+    ) {
+      tressa.assert(
+        render`a` === render`a` &&
+        render`a` !== render`b`,
+        'template sensible wire'
+      );
+    } else {
+      tressa.log('⚠️ this *browser* is *not spec compliant*');
+    }
 
     done();
   });
