@@ -60,7 +60,12 @@ var hyperHTML = (function () {'use strict';
     ) {
       attribute = attributes[i];
       if (attribute.value === value) {
-        actions.push(setAttribute(node, attribute));
+        // with IE the order doesn't really matter
+        // as long as the right attribute is addressed
+        actions.push(setAttribute(node, IE ?
+          node.getAttributeNode(IEAttributes.shift()) :
+          attribute
+        ));
       }
     }
   }
@@ -400,7 +405,7 @@ var hyperHTML = (function () {'use strict';
 
   // each known hyperHTML update is
   // kept as simple as possible.
-  function update(statics) {
+  function update() {
     for (var
       i = 1,
       length = arguments.length,
@@ -420,7 +425,10 @@ var hyperHTML = (function () {'use strict';
       updates = [],
       html = statics.join(uidc)
     ;
-    if (IE) html = html.replace(no, comments);
+    if (IE) {
+      IEAttributes = [];
+      html = html.replace(no, comments);
+    }
     if (this.nodeType === 1) {
       this.innerHTML = html;
     } else {
@@ -476,7 +484,10 @@ var hyperHTML = (function () {'use strict';
     // threat it differently
     IE = 'documentMode' in document,
     no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),
-    comments = IE && '$1$2' + uid + '$2',
+    comments = IE && function ($0, $1, $2) {
+      IEAttributes.push($1.slice(1, -1));
+      return $1 + $2 + uid + $2;
+    },
     // verify empty textContent on .wire() setup
     trim = EXPANDO.trim || function () {
       return this.replace(/^\s+|\s+$/g, '');
@@ -498,7 +509,8 @@ var hyperHTML = (function () {'use strict';
           });
         }
       } :
-      new WeakMap();
+      new WeakMap(),
+    IEAttributes
   ;
 
   // Simply to avoid duplicated RegExp in viperHTML

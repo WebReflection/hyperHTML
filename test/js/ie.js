@@ -3,7 +3,12 @@ window.onload = () => {
   const articleElement = document.querySelector('article');
 
   const update = (render, state) => render`
-    <article data-magic="${state.magic}">
+    <article
+      onclick="alert([this.id,this.className])"
+      data-magic="${state.magic}"
+      id="${state.id}"
+      class="${state.class}"
+    >
       <h3>${state.title}</h3>
       List of ${state.paragraphs.length} paragraphs:
       <ul onclick="${e => alert(e.target.innerHTML)}">${
@@ -16,6 +21,8 @@ window.onload = () => {
   update(
     hyperHTML.bind(articleElement),
     {
+      id: 'completely-random',
+      class: 'it-does-not-matter',
       title: 'True story',
       magic: true,
       paragraphs: [
