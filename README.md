@@ -168,7 +168,7 @@ Since most of the time templates are 70% static text and 30% or less dynamic, `h
 
 ### Caveats
 
-Following a list of `hyperHTML` caveats <sup><sub>(so far just one)</sub></sup>.
+Following a list of `hyperHTML` caveats.
 
 #### Quotes are mandatory for dynamic attributes
 To achieve best performance at setup time, a special `<!-- comment -->` is used the first time as template values.
@@ -180,6 +180,35 @@ Unfortunately, if you have html such `<div attr=<!-- comment --> class="any"></d
 In summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will break, even if the attribute is a number or a boolean.
 
 In this way you'll also ensure whatever value you'll pass later on won't ever break the layout. It's a bit annoying, yet a win.
+
+
+#### Attributes resolved offline might show warnings
+Attributes like image `src` or `srcset` might involve failing network requests or some overly-scary console error even if nothing would be really compromised.
+
+This is caused by the fact `hyperHTML` uses a place holder for all attributes but some browser might try to load such string even if not a valid URL.
+
+Eventually, this console warning would happen only once per container or wire, but you can always augment network sensible attributes in two steps.
+
+```js
+const srcset = ["foo.png 200w"];
+
+// use this update
+function withSrcset(srcset, alt) {
+  var img = toImage(alt);
+  img.srcset = srcset.join(" ");
+  return img;
+}
+
+// instead of just this one
+function toImage(alt) {
+  return hyperHTML.wire()
+  `<img
+      role="button"
+      alt="${alt}"
+      width="195" height="80"/>`;
+}
+```
+
 
 
 ## Compatibility
