@@ -282,12 +282,19 @@ var hyperHTML = (function () {'use strict';
   // inject HTML into a template node
   // and populate a fragment with resulting nodes
   //
-  // Note: for partial layout such `<tr>` or `<td>`
-  //       you need an HTML5 compatible browser
-  //       (or an HTML5 Template specification that works)
+  // IE9~IE11 are not compatible with the template tag.
+  // If the content is a partial part of a table there is a fallback.
+  // Not the most elegant/robust way but good enough for common cases.
+  // (I don't want to include a whole DOM parser for IE only here).
   function injectHTML(fragment, html) {
-    var template = fragment.ownerDocument.createElement('template');
-    template.innerHTML = html;
+    var
+      fallback = IE && /^[^\S]*?<(t(?:body|head|d|r))/i.test(html),
+      template = fragment.ownerDocument.createElement('template')
+    ;
+    template.innerHTML = fallback ? ('<table>' + html + '</table>') : html;
+    if (fallback) {
+      template = {childNodes: template.querySelectorAll(RegExp.$1)};
+    }
     appendNodes(
       fragment,
       slice.call((template.content || template).childNodes)
@@ -427,9 +434,8 @@ var hyperHTML = (function () {'use strict';
     ;
     if (IE) {
       IEAttributes = [];
-      html = html.replace(no, comments);
-    }
-    if (this.nodeType === 1) {
+      injectHTML(this, html.replace(no, comments));
+    } else if (this.nodeType === 1) {
       this.innerHTML = html;
     } else {
       injectHTML(this, html);

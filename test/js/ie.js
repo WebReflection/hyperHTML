@@ -33,4 +33,22 @@ window.onload = () => {
     }
   );
 
+  const tbody = hyperHTML.bind(document.body.appendChild(
+    document.createElement('table')
+  ).appendChild(
+    document.createElement('tbody')
+  ));
+
+  tbody`
+      <tr>
+        <td>even</td>
+        <td style="text-align:right;font-weight:bold">IE</td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          can do partial ${'<tr>'}
+        </td>
+      </tr>
+    `;
+
 };
