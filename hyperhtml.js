@@ -288,7 +288,7 @@ var hyperHTML = (function () {'use strict';
   // (I don't want to include a whole DOM parser for IE only here).
   function injectHTML(fragment, html) {
     var
-      fallback = IE && /^[^\S]*?<(t(?:body|head|d|r))/i.test(html),
+      fallback = IE && /^[^\S]*?<(t(?:body|head|d|h|r))/i.test(html),
       template = fragment.ownerDocument.createElement('template')
     ;
     template.innerHTML = fallback ? ('<table>' + html + '</table>') : html;
