@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../min.js"></script>
+    <script src="js/hyper.js"></script>
+  </head>
+  <body>
+    <h-welcome data-name="World"></h-welcome>
+    <script>
+    // A Custom Element Example
+    customElements.define('h-welcome', class extends Hyper {
+      render() {
+        return this.hyper`<h1>Hello, ${this.dataset.name}</h1>`;
+      }
+    });
+    </script>
+  </body>
+</html>
+
+
