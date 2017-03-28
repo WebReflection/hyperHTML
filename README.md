@@ -4,6 +4,16 @@ A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebR
 now [available for both client and server](https://github.com/WebReflection/viperHTML).
 - - -
 
+## How To Define _hyperHTML_ Templates
+There are two basic but fundamental rules to remember:
+
+  1. **attributes**, as well as eventual **callbacks**, must be defined inside single or double quoted attributes
+  2. if there's any char different from `>` and `<` surrounding the interpolation, that content will be text, instead of HTML
+
+Please read the [Getting Started](https://github.com/WebReflection/hyperHTML/blob/master/GETTING_STARTED.md#how-to-define-hyperhtml-templates) for more examples.
+
+
+## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
 ```js
 // this is React's first tick example
