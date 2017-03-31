@@ -31,10 +31,13 @@ var hyperHTML = (function () {'use strict';
   // This simplifies most task where hyperHTML
   // is used to create the node itself, instead of
   // populating an already known and bound one.
-  hyperHTML.wire = function wire(obj) {
+  hyperHTML.wire = function wire(obj, type) {
     return arguments.length < 1 ?
-      wireContent() :
-      wireWeakly(obj);
+      wireContent('html') :
+      (obj == null ?
+        wireContent(type || 'html') :
+        (wm.get(obj) || wireWeakly(obj, type || 'html'))
+      );
   };
 
   // - - - - - - - - - - - - - - - - - -  - - - - -
@@ -380,18 +383,24 @@ var hyperHTML = (function () {'use strict';
   }
 
   // create a new wire for generic DOM content
-  function wireContent() {
-    var content, fragment, render, setup, template;
+  function wireContent(type) {
+    var content, container, fragment, render, setup, template;
     return function update(statics) {
       if (template !== statics) {
         setup = true;
         template = statics;
         fragment = document.createDocumentFragment();
-        render = hyperHTML.bind(fragment);
+        container = type === 'svg' ?
+          document.createElementNS('http://www.w3.org/2000/svg', 'svg') :
+          fragment;
+        render = hyperHTML.bind(container);
       }
       render.apply(null, arguments);
       if (setup) {
         setup = false;
+        if (type === 'svg') {
+          appendNodes(fragment, slice.call(container.childNodes));
+        }
         content = setupAndGetContent(fragment);
       }
       return content();
@@ -399,11 +408,10 @@ var hyperHTML = (function () {'use strict';
   }
 
   // get or create a wired weak reference
-  function wireWeakly(obj) {
-    return wm.get(obj) || (
-      wm.set(obj, wireContent()),
-      wireWeakly(obj)
-    );
+  function wireWeakly(obj, type) {
+    var wire = wireContent(type);
+    wm.set(obj, wire);
+    return wire;
   }
 
   // -------------------------
