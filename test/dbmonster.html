@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="dbmonster.css">
     <script src="https://unpkg.com/perf-monitor@0.3.0/dist/umd/perf-monitor.js"></script>
     <script src="./dbmonster100.js"></script>
@@ -17,11 +16,27 @@
         render = (arr, i) => arr[i] || (arr[i] = hyperHTML.wire()),
 
         // list of all known renders
-        renderTABLE = hyperHTML.bind(document.body),
+        renderRange = hyperHTML.bind(document.querySelector('#range')),
+        renderTABLE = hyperHTML.bind(document.querySelector('#app')),
         TRs = [],
         TDs = [],
-        Top5 = []
+        Top5 = [],
+        mutations = 100
       ;
+
+      function updateRage() {
+        // currently not supported
+        window.mutations = mutations / 100;
+        renderRange`
+          <label>mutations : ${mutations}%</label>
+          <input
+            type="range"
+            value="${mutations}"
+            min=0 max=100
+            onchange="${e => updateRage(mutations = e.target.value)}"
+          >
+        `;
+      }
 
       function updateTable(dbs) {
         renderTABLE`
@@ -54,6 +69,7 @@
         </table>`;
       }
 
+      updateRage();
       updateTable(getData());
 
       perfMonitor.startFPSMonitor();
@@ -74,6 +90,8 @@
     </script>
   </head>
   <body>
+    <div id="range"></div>
+    <div id="app"></div>
     <div id="link">
       You're looking at hyperHTML<br>
       version of <a href="https://dbmonster.firebaseapp.com/">DBMonster</a>.
