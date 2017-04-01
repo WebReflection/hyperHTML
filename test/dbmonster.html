@@ -4,8 +4,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="dbmonster.css">
+    <script src="https://unpkg.com/perf-monitor@0.3.0/dist/umd/perf-monitor.js"></script>
     <script src="./dbmonster100.js"></script>
     <script src="../min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      var
+        // retrieve a wire or create one, based on lists of data
+        // necessary if you have JSON data to deal with
+        // since weak reference won't bring in any benefit
+        render = (arr, i) => arr[i] || (arr[i] = hyperHTML.wire()),
+
+        // list of all known renders
+        renderTABLE = hyperHTML.bind(document.body),
+        TRs = [],
+        TDs = [],
+        Top5 = []
+      ;
+
+      function updateTable(dbs) {
+        renderTABLE`
+        <table class="table table-striped latest-data">
+          <tbody>${dbs.map((db, i) => render(TRs, i)`
+            <tr key="${db.name}">${render(TDs, i)`
+              <td class="dbname">
+                ${db.name}
+              </td>
+              <td class="query-count">
+                <span class="${getCountClassName(db)}">
+                  ${db.queries.length}
+                </span>
+              </td>`.concat(db.topFiveQueries.map((query, j, a) =>
+                render(Top5, a.length * i + j)`
+              <td class="${'Query ' + elapsedClassName(query.elapsed)}">
+                <span class="foo">
+                  ${formatElapsed(query.elapsed)}
+                </span>
+                <div class="popover left">
+                  <div class="popover-content">
+                    ${query.query}
+                  </div>
+                  <div class="arrow"></div>
+                </div>
+              </td>`
+              ))
+            }</tr>`
+          )}</tbody>
+        </table>`;
+      }
+
+      updateTable(getData());
+
+      perfMonitor.startFPSMonitor();
+      perfMonitor.startMemMonitor();
+      perfMonitor.initProfiler('view update');
+
+      function update() {
+        var data = getData();
+        requestAnimationFrame(update);
+        perfMonitor.startProfile('view update');
+        updateTable(data);
+        perfMonitor.endProfile('view update');
+      }
+
+      requestAnimationFrame(update);
+
+    }, {once: true});
+    </script>
   </head>
   <body>
     <div id="link">
@@ -13,76 +79,4 @@
       version of <a href="https://dbmonster.firebaseapp.com/">DBMonster</a>.
     </div>
   </body>
-  <script>
-
-  var
-    // some unrelated bench stuff
-    memBench = () => {},
-
-    // retrieve a wire or create one, based on lists of data
-    // necessary if you have JSON data to deal with
-    // since weak reference won't bring in any benefit
-    render = (arr, i) => arr[i] || (arr[i] = hyperHTML.wire()),
-
-    // list of all known renders
-    renderTABLE = hyperHTML.bind(document.body),
-    TRs = [],
-    TDs = [],
-    Top5 = []
-  ;
-
-  function updateTable(dbs) {
-    renderTABLE`
-    <table class="table table-striped latest-data">
-      <tbody>${dbs.map((db, i) => render(TRs, i)`
-        <tr key="${db.name}">${render(TDs, i)`
-          <td class="dbname">
-            ${db.name}
-          </td>
-          <td class="query-count">
-            <span class="${getCountClassName(db)}">
-              ${db.queries.length}
-            </span>
-          </td>`.concat(db.topFiveQueries.map((query, j, a) =>
-            render(Top5, a.length * i + j)`
-          <td class="${'Query ' + elapsedClassName(query.elapsed)}">
-            <span class="foo">
-              ${formatElapsed(query.elapsed)}
-            </span>
-            <div class="popover left">
-              <div class="popover-content">
-                ${query.query}
-              </div>
-              <div class="arrow"></div>
-            </div>
-          </td>`
-          ))
-        }</tr>`
-      )}</tbody>
-    </table>`;
-  }
-
-  (function update() {
-    requestAnimationFrame(update);
-    updateTable(getData());
-    memBench();
-  }());
-
-  // following unrelated stuff for memory benchmark
-  </script>
-  <script>module={exports:{}};</script>
-  <script src="https://unpkg.com/memory-stats@1.0.2/memory-stats.js"></script>
-  <script>
-  var stats;
-  if (window.performance && performance.memory) {
-    stats = new MemoryStats();
-    stats.domElement.style.position = 'fixed';
-    stats.domElement.style.right = '0px';
-    stats.domElement.style.bottom = '0px';
-    document.body.appendChild( stats.domElement );
-  } else {
-    stats = {update: function () {}};
-  }
-  memBench = function () { stats.update(); };
-  </script>
 </html>
