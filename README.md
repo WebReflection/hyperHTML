@@ -3,6 +3,12 @@
 A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
 now [available for both client and server](https://github.com/WebReflection/viperHTML).
 - - -
+Don't miss the [viperHTML](https://github.com/WebReflection/viperHTML) version of **Hacker News**
+
+Live: https://viper-news.now.sh/
+
+Repo: https://github.com/WebReflection/viper-news
+- - -
 
 ## How To Define _hyperHTML_ Templates
 There are two basic but fundamental rules to remember:
