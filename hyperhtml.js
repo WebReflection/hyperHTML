@@ -487,8 +487,8 @@ var hyperHTML = (function () {'use strict';
   // -------------------------
 
   var
-    // decide special attributes behavior
-    SPECIAL_ATTRIBUTE = /^(?:on[a-z]+|async|autofocus|autoplay|capture|checked|controls|deferred|disabled|formnovalidate|hidden|loop|multiple|muted|required)$/,
+    // decide special attributes behavior ("boolean attributes", as per HTML)
+    SPECIAL_ATTRIBUTE = /^(?:allow[a-z]+|?:on[a-z]+|async|autofocus|autoplay|capture|checked|controls|default|defer|disabled|formnovalidate|hidden|ismap|itemscope|loop|multiple|muted|nomodule|novalidate|open|playsinline|readonly|required|reversed|selected|truespeed|typemustmatch|usecache)$/,
     // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
     EXPANDO = '_hyper_html: ',
     // use a pseudo unique id to avoid conflicts and normalize CSS style for IE
