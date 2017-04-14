@@ -162,9 +162,10 @@ const updateCart = (render, info) =>render`
     // and here items define their own content
     // same item object, same wire applied
     // new item, new wire
-    menu.items.map(item => hyperHTML.wire(item))`
+    info.items.map(item => hyperHTML.wire(item)`
     <li> ${item.name} </li>`
-  }</ul>
+  )}</ul>
+  
 `;
 
 updateCart(cart, {class: '', items: [
