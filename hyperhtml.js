@@ -200,9 +200,14 @@ var hyperHTML = (function () {'use strict';
     return function any(value) {
       var i, parentNode = node.parentNode;
       switch (typeof value) {
-        case 'string':
         case 'number':
         case 'boolean':
+          removeNodeList(childNodes, 0);
+          var newNode = document.createTextNode(value);
+          childNodes = [newNode];
+          parentNode.insertBefore(newNode, node);
+          break;
+        case 'string':
           removeNodeList(childNodes, 0);
           injectHTML(fragment, value);
           childNodes = slice.call(fragment.childNodes);
