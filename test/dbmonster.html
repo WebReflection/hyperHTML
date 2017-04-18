@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="dbmonster.css">
     <script src="https://unpkg.com/perf-monitor@0.3.0/dist/umd/perf-monitor.js"></script>
-    <script src="./dbmonster100.js"></script>
     <script src="../min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -15,46 +14,30 @@
         // since weak reference won't bring in any benefit
         render = (arr, i) => arr[i] || (arr[i] = hyperHTML.wire()),
 
-        // list of all known renders
-        renderRange = hyperHTML.bind(document.querySelector('#range')),
+        // table render
         renderTABLE = hyperHTML.bind(document.querySelector('#app')),
         TRs = [],
         TDs = [],
-        Top5 = [],
-        mutations = 100
+        Top5 = []
       ;
-
-      function updateRage() {
-        // currently not supported
-        window.mutations = mutations / 100;
-        renderRange`
-          <label>mutations : ${mutations}%</label>
-          <input
-            type="range"
-            value="${mutations}"
-            min=0 max=100
-            onchange="${e => updateRage(mutations = e.target.value)}"
-          >
-        `;
-      }
 
       function updateTable(dbs) {
         renderTABLE`
         <table class="table table-striped latest-data">
           <tbody>${dbs.map((db, i) => render(TRs, i)`
-            <tr key="${db.name}">${render(TDs, i)`
+            <tr key="${db.dbname}">${render(TDs, i)`
               <td class="dbname">
-                ${db.name}
+                ${db.dbname}
               </td>
               <td class="query-count">
-                <span class="${getCountClassName(db)}">
-                  ${db.queries.length}
+                <span class="${db.lastSample.countClassName}">
+                  ${db.lastSample.nbQueries}
                 </span>
-              </td>`.concat(db.topFiveQueries.map((query, j, a) =>
+              </td>`.concat(db.lastSample.topFiveQueries.map((query, j, a) =>
                 render(Top5, a.length * i + j)`
-              <td class="${'Query ' + elapsedClassName(query.elapsed)}">
+              <td class="${query.elapsedClassName}">
                 <span class="foo">
-                  ${formatElapsed(query.elapsed)}
+                  ${query.formatElapsed}
                 </span>
                 <div class="popover left">
                   <div class="popover-content">
@@ -69,18 +52,16 @@
         </table>`;
       }
 
-      updateRage();
-      updateTable(getData());
+      updateTable(ENV.generateData().toArray());
 
       perfMonitor.startFPSMonitor();
       perfMonitor.startMemMonitor();
       perfMonitor.initProfiler('view update');
 
       function update() {
-        var data = getData();
         requestAnimationFrame(update);
         perfMonitor.startProfile('view update');
-        updateTable(data);
+        updateTable(ENV.generateData().toArray());
         perfMonitor.endProfile('view update');
       }
 
@@ -97,4 +78,5 @@
       version of <a href="https://dbmonster.firebaseapp.com/">DBMonster</a>.
     </div>
   </body>
+  <script src="./dbmonster.js"></script>
 </html>
