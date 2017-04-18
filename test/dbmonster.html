@@ -56,16 +56,20 @@
 
       perfMonitor.startFPSMonitor();
       perfMonitor.startMemMonitor();
+      // perfMonitor.initProfiler('data update');
       perfMonitor.initProfiler('view update');
 
       function update() {
-        requestAnimationFrame(update);
+        // perfMonitor.startProfile('data update');
+        var data = ENV.generateData().toArray();
+        // perfMonitor.endProfile('data update');
         perfMonitor.startProfile('view update');
-        updateTable(ENV.generateData().toArray());
+        updateTable(data);
         perfMonitor.endProfile('view update');
+        setTimeout(update, ENV.timeout);
       }
 
-      requestAnimationFrame(update);
+      update();
 
     }, {once: true});
     </script>
