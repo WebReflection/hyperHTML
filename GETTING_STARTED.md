@@ -174,7 +174,7 @@ updateCart(cart, {class: '', items: [
 ]});
 ```
 
-A wire can be craeted at any time, and its content will be discovered as soon as its used to render a specific template.
+A wire can be created at any time, and its content will be discovered as soon as its used to render a specific template.
 
 ```js
 // empty wire
