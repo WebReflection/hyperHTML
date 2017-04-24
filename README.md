@@ -5,7 +5,7 @@ now [available for both client and server](https://github.com/WebReflection/vipe
 - - -
 Don't miss the [viperHTML](https://github.com/WebReflection/viperHTML) version of **Hacker News**
 
-Live: https://viper-news.now.sh/
+Live: https://viperhtml-164315.appspot.com/
 
 Repo: https://github.com/WebReflection/viper-news
 - - -
