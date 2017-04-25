@@ -161,13 +161,12 @@ var hyperHTML = (function () {'use strict';
   //
   // render`<a href="${url}" onclick="${click}">${name}</a>`;
   //
-  // Note: attributes with `on` prefix are set directly as callbacks.
-  //       These won't ever be transformed into strings while other
-  //       attributes will be automatically sanitized.
+  // Note: attributes with a special meaning like DOM Level 0
+  //       listeners or accessors properties are directly set
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
-      isSpecial = SPECIAL_ATTRIBUTE.test(name)
+      isSpecial = name in node
     ;
     if (isSpecial) node.removeAttribute(name);
     return isSpecial ?
@@ -468,7 +467,7 @@ var hyperHTML = (function () {'use strict';
   }
   //*/
 
-  // remove and/or and a list of nodes through a fragment
+  // remove and/or add a list of nodes through a fragment
   /* temporarily removed until it's demonstrated it's needed
   function updateViaFragment(node, fragment, i) {
     if (0 < i) {
@@ -487,8 +486,6 @@ var hyperHTML = (function () {'use strict';
   // -------------------------
 
   var
-    // decide special attributes behavior (DOM Level 0 events or "boolean attributes", as per HTML)
-    SPECIAL_ATTRIBUTE = /^(?:(?:on|allow)[a-z]+|async|autofocus|autoplay|capture|checked|controls|default|defer|disabled|formnovalidate|hidden|ismap|itemscope|loop|multiple|muted|nomodule|novalidate|open|playsinline|readonly|required|reversed|selected|truespeed|typemustmatch|usecache)$/,
     // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
     EXPANDO = '_hyper_html: ',
     // use a pseudo unique id to avoid conflicts and normalize CSS style for IE
@@ -526,9 +523,6 @@ var hyperHTML = (function () {'use strict';
       new WeakMap(),
     IEAttributes
   ;
-
-  // Simply to avoid duplicated RegExp in viperHTML
-  hyperHTML.SPECIAL_ATTRIBUTE = SPECIAL_ATTRIBUTE;
 
   // -------------------------
   // ⚡️ ️️The End ➰
