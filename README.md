@@ -155,9 +155,13 @@ Following [an example](https://webreflection.github.io/hyperHTML/test/article.ht
 function update(render, state) {
   render`
   <article data-magic="${state.magic}">
-    <h3>${state.title}</h3>
+    <h3> ${state.title} </h3>
     List of ${state.paragraphs.length} paragraphs:
     <ul>${
+      // if you want to create wired node instead
+      // .map(p => hyperHTML.wire(p)`<li>${p.title}</li>`)
+      // otherwise it will be just injected as array of strings
+      // without any special power, simply generated via literals
       state.paragraphs
         .map(p => `<li>${p.title}</li>`)
     }</ul>
