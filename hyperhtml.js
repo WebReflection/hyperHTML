@@ -495,7 +495,7 @@ var hyperHTML = (function () {'use strict';
 
   var
     // some attribute might be present on the element prototype but cannot be set directly
-    SHOULD_USE_ATTRIBUTE = /^style$/,
+    SHOULD_USE_ATTRIBUTE = /^style$/i,
     // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
     EXPANDO = '_hyper_html: ',
     // use a pseudo unique id to avoid conflicts and normalize CSS style for IE
