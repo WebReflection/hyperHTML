@@ -166,15 +166,20 @@ var hyperHTML = (function () {'use strict';
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
-      isSpecial = name in node
+      isSpecial = name in node,
+      oldValue
     ;
     if (isSpecial) node.removeAttribute(name);
     return isSpecial ?
-      function event(value) {
-        node[name] = value;
+      function specialAttr(newValue) {
+        if (oldValue !== newValue) {
+          node[name] = (oldValue = newValue);
+        }
       } :
-      function attr(value) {
-        attribute.value = value;
+      function attr(newValue) {
+        if (oldValue !== newValue) {
+          attribute.value = (oldValue = newValue);
+        }
       };
   }
 
@@ -242,8 +247,11 @@ var hyperHTML = (function () {'use strict';
   //    ${'spaces around means textContent'}
   //  </p>`;
   function setTextContent(node) {
-    return function text(value) {
-      node.textContent = value;
+    var oldValue;
+    return function text(newValue) {
+      if (oldValue !== newValue) {
+        node.textContent = (oldValue = newValue);
+      }
     };
   }
 
