@@ -166,7 +166,7 @@ var hyperHTML = (function () {'use strict';
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
-      isSpecial = name in node,
+      isSpecial = name in node && !SHOULD_USE_ATTRIBUTE.test(name),
       oldValue
     ;
     if (isSpecial) node.removeAttribute(name);
@@ -494,6 +494,8 @@ var hyperHTML = (function () {'use strict';
   // -------------------------
 
   var
+    // some attribute might be present on the element prototype but cannot be set directly
+    SHOULD_USE_ATTRIBUTE = /^style$/,
     // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
     EXPANDO = '_hyper_html: ',
     // use a pseudo unique id to avoid conflicts and normalize CSS style for IE
