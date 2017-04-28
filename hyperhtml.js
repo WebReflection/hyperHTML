@@ -318,7 +318,11 @@ var hyperHTML = (function () {'use strict';
       case 1:
         var childNodes = parent.childNodes;
         if (childNodes.length !== 1 || childNodes[0] !== child) {
-          resetAndPopulate(parent, child);
+          if (childNodes[0] === child) {
+            removeNodeList(childNodes, 1);
+          } else {
+            resetAndPopulate(parent, child);
+          }
         }
         break;
       case 11:
