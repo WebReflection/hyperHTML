@@ -169,6 +169,72 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  if (typeof MutationObserver === 'undefined') return;
+  return tressa.async(function (done) {
+    tressa.log('## preserve first child where first child is the same as incoming');
+    var div = document.body.appendChild(document.createElement('div'));
+    var render = hyperHTML.bind(div);
+    var observer = new MutationObserver(function (mutations) {
+      for (var i = 0, len = mutations.length; i < len; i++) {
+        trackMutations(mutations[i].addedNodes, 'added');
+        trackMutations(mutations[i].removedNodes, 'removed');
+      }
+    });
+
+    observer.observe(div, {
+      childList: true,
+      subtree: true,
+    });
+
+    var counters = [];
+
+    function trackMutations (nodes, countKey) {
+      for (var i = 0, len = nodes.length, counter, key; i < len; i++) {
+        if (nodes[i] && nodes[i].getAttribute && nodes[i].getAttribute('data-test')) {
+          key = nodes[i].getAttribute('data-test');
+          counter = counters[key] || (counters[key] = { added: 0, removed: 0 });
+          counter[countKey]++;
+        }
+        if (nodes[i].childNodes.length > 0) {
+          trackMutations(nodes[i].childNodes, countKey);
+        }
+      }
+    }
+
+    var listItems = [];
+
+    function update(items) {
+      render`
+      <section>
+        <ul>${
+          items.map(function (item, i) {
+            return hyperHTML.wire((listItems[i] || (listItems[i] = {})))`
+            <li data-test="${i}">${item.text}</li>
+            `;
+          })
+        }</ul>
+      </section>`;
+    }
+
+    update([]);
+
+    setTimeout(function () {
+      update([{ text: 'test1' }]);
+    });
+    setTimeout(function () {
+      update([{ text: 'test1' }, { text: 'test2' }]);
+    });
+    setTimeout(function () {
+      update([{ text: 'test1' }]);
+    });
+    setTimeout(function () {
+      tressa.assert(counters[0].added === 1, 'first item added only once');
+      tressa.assert(counters[0].removed === 0, 'first item never removed');
+      done();
+    });
+  });
+})
+.then(function () {
   if (!tressa.exitCode) {
     document.body.style.backgroundColor = '#0FA';
   }

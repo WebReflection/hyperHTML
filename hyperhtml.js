@@ -312,12 +312,17 @@ var hyperHTML = (function () {'use strict';
   }
 
   // accordingly with the kind of child
-  // it put its content into a parent node
+  // it puts its content into a parent node
   function populateNode(parent, child) {
     switch (child.nodeType) {
       case 1:
-        var childNodes = parent.childNodes;
-        if (childNodes.length !== 1 || childNodes[0] !== child) {
+        var
+          childNodes = parent.childNodes,
+          length = childNodes.length
+        ;
+        if (0 < length && childNodes[0] === child) {
+          removeNodeList(childNodes, 1);
+        } else if (length !== 1) {
           resetAndPopulate(parent, child);
         }
         break;
