@@ -112,6 +112,11 @@ var hyperHTML = (function () {'use strict';
             }
           }
           break;
+        case 3:
+          if (node.nodeName === 'STYLE' && child.textContent === uidc) {
+            actions.push(setTextContent(node));
+          }
+          break;
       }
     }
   }
