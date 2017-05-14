@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    id="svg8"
    version="1.1"
-   viewBox="0 0 92 64"
-   height="64mm"
-   width="92mm">
+   viewBox="0 0 60 48"
+   height="48mm"
+   width="60mm">
   <defs
      id="defs2">
     <pattern
@@ -77,7 +77,7 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(0,-233)"
+     transform="translate(0,-249)"
      id="layer1">
     <g
        id="g4654">
@@ -88,60 +88,54 @@
          height="54.786583"
          width="84.036934"
          style="fill:none;stroke:none" />
-      <text
-         id="text5422"
-         y="274.3183"
-         x="6.9439878"
-         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:32.45555496px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';stroke-width:0.26458332px;fill:#0092bf;fill-opacity:1;"
-           y="274.3183"
-           x="6.9439878"
-           id="tspan5420">&lt;  &gt;</tspan></text>
       <g
-         style="fill:none;stroke:#0092bf;stroke-opacity:1"
-         id="g5449"
-         transform="translate(-58.999861,116.49992)">
-        <path
-           id="path5447"
-           d="M 110.05692,148.5 A 5.0569243,5.0569243 0 0 1 105,153.55692 5.0569243,5.0569243 0 0 1 99.943076,148.5 5.0569243,5.0569243 0 0 1 105,143.44308 5.0569243,5.0569243 0 0 1 110.05692,148.5 Z"
-           style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      </g>
-      <g
-         transform="rotate(180,85.395498,199.49041)"
-         id="g5457">
-        <path
-           id="path5451"
-           d="m 94.386377,149.5862 a 5.0569243,5.0569243 0 0 1 -5.056924,5.05692 5.0569243,5.0569243 0 0 1 -5.056925,-5.05692 5.0569243,5.0569243 0 0 1 5.056925,-5.05693 5.0569243,5.0569243 0 0 1 5.056924,5.05693 z"
-           style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         transform="translate(-16.029897,8)"
+         id="g4681">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           x="16.765804"
+           y="274.84747"
+           id="text5422"><tspan
+             id="tspan5420"
+             x="16.765804"
+             y="274.84747"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:32.45555496px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.26458332px">&lt; &gt;</tspan></text>
         <g
-           id="g5455"
-           style="font-style:normal;font-weight:normal;font-size:41.56649399px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:1.03916228px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           transform="rotate(33.461956)"
-           aria-label="J">
+           transform="translate(-58.999998,116.5)"
+           id="g5449"
+           style="fill:none;stroke:#0092bf;stroke-opacity:1">
           <path
-             id="path5453"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono Bold';stroke-width:1.03916228px;fill:#0092bf;fill-opacity:1"
-             d="m 163.01301,77.545784 v -3.369159 q 3.28797,1.258361 6.27151,1.258361 3.26767,0 5.15521,-1.603395 1.88755,-1.623691 1.88755,-4.607224 V 48.664378 h 3.77508 v 20.519397 q 0,4.383966 -2.86176,6.981872 -2.84146,2.577609 -7.65164,2.577609 -4.40426,0 -6.57595,-1.197472 z" />
+             style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="M 110.05692,148.5 A 5.0569243,5.0569243 0 0 1 105,153.55692 5.0569243,5.0569243 0 0 1 99.943076,148.5 5.0569243,5.0569243 0 0 1 105,143.44308 5.0569243,5.0569243 0 0 1 110.05692,148.5 Z"
+             id="path5447" />
         </g>
-      </g>
-      <g
-         transform="translate(-78.790993,131.01919)"
-         id="g5465">
-        <path
-           id="path5459"
-           d="m 94.386377,149.5862 a 5.0569243,5.0569243 0 0 1 -5.056924,5.05692 5.0569243,5.0569243 0 0 1 -5.056925,-5.05692 5.0569243,5.0569243 0 0 1 5.056925,-5.05693 5.0569243,5.0569243 0 0 1 5.056924,5.05693 z"
-           style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
         <g
-           id="g5463"
-           style="font-style:normal;font-weight:normal;font-size:41.56649399px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:1.03916228px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           transform="rotate(33.461956)"
-           aria-label="J">
+           transform="translate(-37.59771,100.6249)"
+           id="g5449-3"
+           style="fill:none;stroke:#0092bf;stroke-opacity:1">
           <path
-             id="path5461"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono Bold';stroke-width:1.03916228px;fill:#0092bf;fill-opacity:1"
-             d="m 163.01301,77.545784 v -3.369159 q 3.28797,1.258361 6.27151,1.258361 3.26767,0 5.15521,-1.603395 1.88755,-1.623691 1.88755,-4.607224 V 48.664378 h 3.77508 v 20.519397 q 0,4.383966 -2.86176,6.981872 -2.84146,2.577609 -7.65164,2.577609 -4.40426,0 -6.57595,-1.197472 z" />
+             style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="M 110.05692,148.5 A 5.0569243,5.0569243 0 0 1 105,153.55692 5.0569243,5.0569243 0 0 1 99.943076,148.5 5.0569243,5.0569243 0 0 1 105,143.44308 5.0569243,5.0569243 0 0 1 110.05692,148.5 Z"
+             id="path5447-6" />
         </g>
+        <g
+           transform="translate(-79.131125,132.3751)"
+           id="g5449-3-7"
+           style="fill:none;stroke:#0092bf;stroke-opacity:1">
+          <path
+             style="fill:none;fill-opacity:1;stroke:#0092bf;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="m 108.84555,148.5 a 5.0569243,5.0569243 0 0 1 -5.05692,5.05692 5.0569243,5.0569243 0 0 1 -5.056921,-5.05692 5.0569243,5.0569243 0 0 1 5.056921,-5.05692 5.0569243,5.0569243 0 0 1 5.05692,5.05692 z"
+             id="path5447-6-5" />
+        </g>
+        <path
+           style="fill:none;fill-rule:evenodd;stroke:#0092bf;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 48.310225,260.66801 c 9.07502,-10.73781 7.399413,-10.76225 14.447636,-10.63128"
+           id="path4557" />
+        <path
+           style="fill:none;fill-rule:evenodd;stroke:#0092bf;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 43.778843,269.36898 c -9.07502,10.73781 -7.399413,10.76225 -14.447637,10.63128"
+           id="path4557-3" />
       </g>
     </g>
   </g>
