@@ -21,7 +21,7 @@ var hyperHTML = (function () {'use strict';
   // A wire ➰ is a bridge between a document fragment
   // and its inevitably lost list of rendered nodes
   //
-  // var render = hyperHTML.wire();
+  // var render = hyperHTML.wire(optObj);
   // render`
   //  <div>Hello Wired!</div>
   // `;
@@ -36,7 +36,7 @@ var hyperHTML = (function () {'use strict';
       wireContent('html') :
       (obj == null ?
         wireContent(type || 'html') :
-        (wm.get(obj) || wireWeakly(obj, type || 'html'))
+        wireWeakly(obj, type || 'html')
       );
   };
 
@@ -171,6 +171,7 @@ var hyperHTML = (function () {'use strict';
   function setAttribute(node, attribute) {
     var
       name = attribute.name,
+      isEvent = name.slice(0, 2) === 'on',
       isSpecial = name in node && !SHOULD_USE_ATTRIBUTE.test(name),
       oldValue
     ;
@@ -178,7 +179,14 @@ var hyperHTML = (function () {'use strict';
     return isSpecial ?
       function specialAttr(newValue) {
         if (oldValue !== newValue) {
-          node[name] = (oldValue = newValue);
+          oldValue = newValue;
+          if (isEvent) {
+            node[name] = 'handleEvent' in newValue ?
+              newValue.handleEvent.bind(newValue) :
+              newValue;
+          } else {
+            node[name] = newValue;
+          }
         }
       } :
       function attr(newValue) {
@@ -424,11 +432,20 @@ var hyperHTML = (function () {'use strict';
     };
   }
 
-  // get or create a wired weak reference
+  // returns or create a weak wire by ID
+  function wireByID(wires, id, type) {
+    return wires[id] || (wires[id] = wireContent(type));
+  }
+
+  // setup a weak reference if needed and return a wire by ID
   function wireWeakly(obj, type) {
-    var wire = wireContent(type);
-    wm.set(obj, wire);
-    return wire;
+    var
+      wires = wm.get(obj) || (wm.set(obj, wires = {}), wires),
+      i = type.indexOf(':')
+    ;
+    return i < 0 ?
+      wireByID(wires, type, type) :
+      wireByID(wires, type.slice(i + 1), type.slice(0, i) || 'html');
   }
 
   // -------------------------
@@ -469,35 +486,6 @@ var hyperHTML = (function () {'use strict';
     this[EXPANDO] = {s: statics, u: updates};
     return update.apply(this, arguments);
   }
-
-  // -------------------------
-  // the trash bin
-  // -------------------------
-
-  // IE used to suck.
-  /*
-  // even in a try/catch this throw an error
-  // since it's reliable though, I'll keep it around
-  function isIE() {
-    var p = document.createElement('p');
-    p.innerHTML = '<i onclick="<!---->">';
-    return p.childNodes[0].onclick == null;
-  }
-  //*/
-
-  // remove and/or add a list of nodes through a fragment
-  /* temporarily removed until it's demonstrated it's needed
-  function updateViaFragment(node, fragment, i) {
-    if (0 < i) {
-      removeNodeList(node.childNodes, i);
-      var slim = fragment.cloneNode();
-      appendNodes(slim, slice.call(fragment.childNodes, i));
-      node.appendChild(fragment, slim);
-    } else {
-      resetAndPopulate(node, fragment);
-    }
-  }
-  //*/
 
   // -------------------------
   // local variables

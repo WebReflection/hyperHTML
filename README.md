@@ -80,11 +80,11 @@ You can also check the [TodoMVC repository](https://github.com/WebReflection/hyp
 
 
 ### Wait ... there is a wire ➰ in the code!
-The helper `hyperHTML.wire(obj?)` is the solution to a common use case:
+The helper `hyperHTML.wire([obj[, type]])` is the solution to a common use case:
 using `hyperHTML` to _define not the content_ of a node, _but the node_ itself, or a list of nodes.
 
 In this case binding a `DocumentFragment` would work but it will also lose its content as soon as it's appended.
-Using `hyperHTML.wire()` will grant that render will always work as expected, without ever losing knowledge of its initial content.
+Using `hyperHTML.wire(obj)` will grant that render will always work as expected, without ever losing knowledge of its initial content.
 
 It wires render updates to whatever content is holding.
 
@@ -115,6 +115,23 @@ hyperHTML.wire(point) === hyperHTML.wire(point);
 // true
 ```
 It is also possible to define a generic template, and in such case the update won't be the single node, but an Array of nodes.
+
+#### New in 0.11
+
+An object can have multiple wires associated with it using different `:ids` as type.
+
+```js
+// item used to render an option
+hyperHTML.wire(obj, ':option')`
+  <option value="${obj.value}"> ${obj.choice} </option>`;
+
+
+// same item used to render an li
+hyperHTML.wire(obj, ':li')`
+  <li> ${obj.content} </li>`;
+```
+
+It is still possible to specify a type using `svg:id` or `html:id`.
 
 
 
