@@ -1,5 +1,7 @@
 # hyperHTML [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
 
+<img alt="hyperHTML logo" src="https://raw.githubusercontent.com/WebReflection/hyperHTML/master/logo/hyperhtml.svg" width="116" height="81">
+
 ![hyperHTML Logo](./logo/hyperhtml.png)
 
 A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
