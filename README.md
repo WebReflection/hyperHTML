@@ -1,6 +1,6 @@
 # hyperHTML [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
 
-![hyperHTML](https://github.com/WebReflection/hyperHTML/blob/master/logo/hyperhtml.svg)
+![hyperHTML](https://raw.githubusercontent.com/WebReflection/hyperHTML/master/logo/hyperhtml.svg)
 
 A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
 now [available for both client and server](https://github.com/WebReflection/viperHTML).
