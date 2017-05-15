@@ -86,10 +86,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.3496571"
-     inkscape:cx="80.298465"
-     inkscape:cy="86.531236"
+     inkscape:cx="115.02475"
+     inkscape:cy="86.216258"
      inkscape:document-units="mm"
-     inkscape:current-layer="g4681"
+     inkscape:current-layer="text5422"
      showgrid="false"
      inkscape:snap-text-baseline="false"
      inkscape:window-width="3200"
@@ -126,17 +126,22 @@
       <g
          id="g4681"
          transform="translate(-16.029897,8)">
-        <text
-           id="text5422"
-           y="271.03476"
-           x="22.95418"
+        <g
+           aria-label="&lt;  &gt;"
            style="font-style:normal;font-weight:normal;font-size:6.25301933px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:0.15632549px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           xml:space="preserve"><tspan
+           id="text5422"
+           transform="translate(5e-7,-0.018875)">
+          <path
+             d="m 33.675096,262.36439 -7.44378,2.66853 7.44378,2.6498 v 2.33145 l -9.896951,-3.88575 v -2.20973 l 9.896951,-3.89511 z"
              style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
-             y="271.03476"
-             x="22.95418"
-             id="tspan5420"
-             sodipodi:role="line">&lt;  &gt;</tspan></text>
+             id="path4506"
+             inkscape:connector-curvature="0" />
+          <path
+             d="m 58.384697,262.36439 v -2.34081 l 9.896951,3.89511 v 2.20973 l -9.896951,3.88575 v -2.33145 l 7.44378,-2.6498 z"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
+             id="path4508"
+             inkscape:connector-curvature="0" />
+        </g>
         <g
            style="fill:none;stroke:#0092bf;stroke-opacity:1"
            id="g5449"
