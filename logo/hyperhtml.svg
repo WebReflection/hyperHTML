@@ -96,14 +96,22 @@
            id="text5422"
            style="font-style:normal;font-weight:normal;font-size:6.25301933px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0092bf;fill-opacity:1;stroke:none;stroke-width:0.15632549px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
            aria-label="&lt;  &gt;">
-          <path
-             id="path4506"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
-             d="m 33.675096,262.36439 -7.44378,2.66853 7.44378,2.6498 v 2.33145 l -9.896951,-3.88575 v -2.20973 l 9.896951,-3.89511 z" />
-          <path
-             id="path4508"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
-             d="m 58.384697,262.36439 v -2.34081 l 9.896951,3.89511 v 2.20973 l -9.896951,3.88575 v -2.33145 l 7.44378,-2.6498 z" />
+          <g
+             transform="matrix(1.0653641,0,0,1.0653641,-1.0355584,-17.649226)"
+             id="g4510">
+            <g
+               transform="translate(1.24175)"
+               id="g4514">
+              <path
+                 id="path4506"
+                 style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
+                 d="m 33.675096,262.36439 -7.44378,2.66853 7.44378,2.6498 v 2.33145 l -9.896951,-3.88575 v -2.20973 l 9.896951,-3.89511 z" />
+              <path
+                 id="path4508"
+                 style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.17592621px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono Bold';fill:#0092bf;fill-opacity:1;stroke-width:0.15632549px"
+                 d="m 52.197028,262.36439 v -2.34081 l 9.896951,3.89511 v 2.20973 l -9.896951,3.88575 v -2.33145 l 7.44378,-2.6498 z" />
+            </g>
+          </g>
         </g>
         <g
            transform="translate(-58.999998,116.5)"
