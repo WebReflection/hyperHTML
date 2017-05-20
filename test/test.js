@@ -235,6 +235,30 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  tressa.log('## rendering one node');
+  var div = document.createElement('div');
+  var br = document.createElement('br');
+  var hr = document.createElement('hr');
+  hyperHTML.bind(div)`<div>${br}</div>`;
+  tressa.assert(div.firstChild.firstChild === br, 'one child is added');
+  hyperHTML.bind(div)`<div>${hr}</div>`;
+  tressa.assert(div.firstChild.firstChild === hr, 'one child is changed');
+  hyperHTML.bind(div)`<div>${[hr, br]}</div>`;
+  tressa.assert(
+    div.firstChild.childNodes[0] === hr &&
+    div.firstChild.childNodes[1] === br,
+    'more children are added'
+  );
+  hyperHTML.bind(div)`<div>${[br, hr]}</div>`;
+  tressa.assert(
+    div.firstChild.childNodes[0] === br &&
+    div.firstChild.childNodes[1] === hr,
+    'children can be swapped'
+  );
+  hyperHTML.bind(div)`<div>${br}</div>`;
+  tressa.assert(div.firstChild.firstChild === br, 'one child is kept');
+})
+.then(function () {
   if (!tressa.exitCode) {
     document.body.style.backgroundColor = '#0FA';
   }

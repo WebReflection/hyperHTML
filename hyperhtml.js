@@ -329,15 +329,14 @@ var hyperHTML = (function () {'use strict';
   function populateNode(parent, child) {
     switch (child.nodeType) {
       case 1:
-        var
-          childNodes = parent.childNodes,
-          length = childNodes.length
-        ;
-        if (0 < length && childNodes[0] === child) {
-          removeNodeList(childNodes, 1);
-        } else if (length !== 1) {
-          resetAndPopulate(parent, child);
+        var childNodes = parent.childNodes;
+        if (0 < childNodes.length) {
+          if (childNodes[0] === child) {
+            removeNodeList(childNodes, 1);
+            break;
+          }
         }
+        resetAndPopulate(parent, child);
         break;
       case 11:
         if (-1 < indexOfDiffereces(parent.childNodes, child.childNodes)) {
