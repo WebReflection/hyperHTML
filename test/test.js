@@ -257,6 +257,8 @@ tressa.async(function (done) {
   );
   hyperHTML.bind(div)`<div>${br}</div>`;
   tressa.assert(div.firstChild.firstChild === br, 'one child is kept');
+  hyperHTML.bind(div)`<div>${[]}</div>`;
+  tressa.assert(div.firstChild.childNodes.length === 0, 'dropped all children');
 })
 .then(function () {
   if (!tressa.exitCode) {
