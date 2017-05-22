@@ -6,3 +6,5 @@ git:
 branches:
   only:
     - master
+after_success:
+  - "npm run coveralls"

@@ -228,7 +228,8 @@ var hyperHTML = (function () {'use strict';
         default:
           if (Array.isArray(value)) {
             if (value.length === 0) {
-              any(value[0]);
+              removeNodeList(childNodes, 0);
+              childNodes = [];
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
             } else {
@@ -286,10 +287,7 @@ var hyperHTML = (function () {'use strict';
 
   // given two collections, find
   // the first index that has different content.
-  // If the two lists are the same, return -1
-  // to indicate no differences were found.
   function indexOfDiffereces(a, b) {
-    if (a === b) return -1;
     var
       i = 0,
       aLength = a.length,

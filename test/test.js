@@ -107,7 +107,7 @@ tressa.async(function (done) {
     var same = update();
     tressa.assert(node === same, 'same node returned');
 
-    render = hyperHTML.wire();
+    render = hyperHTML.wire(null);
     update = function () {
       return render`
         0
@@ -259,6 +259,67 @@ tressa.async(function (done) {
   tressa.assert(div.firstChild.firstChild === br, 'one child is kept');
   hyperHTML.bind(div)`<div>${[]}</div>`;
   tressa.assert(div.firstChild.childNodes.length === 0, 'dropped all children');
+})
+.then(function () {
+  tressa.log('## wire by id');
+  let ref = {};
+  let wires = {
+    a: hyperHTML.wire(ref, ':a')`<a></a>`,
+    p: hyperHTML.wire(ref, ':p')`<p></p>`
+  };
+  tressa.assert(wires.a.nodeName.toLowerCase() === 'a', '<a> is correct');
+  tressa.assert(wires.p.nodeName.toLowerCase() === 'p', '<p> is correct');
+  tressa.assert(hyperHTML.wire(ref, ':a')`<a></a>` === wires.a, 'same wire for <a>');
+  tressa.assert(hyperHTML.wire(ref, ':p')`<p></p>` === wires.p, 'same wire for <p>');
+})
+.then(function () {
+  tressa.log('## for code coverage sake');
+  let wrap = document.createElement('div');
+  let result = hyperHTML.wire()`<!--not hyprHTML-->`;
+  tressa.assert(result.nodeType === 8, 'it is a comment');
+  tressa.assert(result.textContent === 'not hyprHTML', 'correct content');
+  hyperHTML.bind(wrap)`<br>${'node before'}`;
+  tressa.assert(/^<br>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
+  hyperHTML.bind(wrap)`${'node after'}<br>`;
+  tressa.assert(/^node after<!--.+?--><br>$/i.test(wrap.innerHTML), 'node after');
+  hyperHTML.bind(wrap)`<style>${'hyper-html{}'}</style>`;
+  tressa.assert('<style>hyper-html{}</style>' === wrap.innerHTML.toLowerCase(), 'node style');
+  hyperHTML.bind(wrap)`${document.createTextNode('a')}`;
+  hyperHTML.bind(wrap)`${document.createDocumentFragment()}`;
+  hyperHTML.bind(wrap)`${document.createDocumentFragment()}`;
+  let fragment = document.createDocumentFragment();
+  fragment.appendChild(document.createTextNode('b'));
+  hyperHTML.bind(wrap)`${fragment}`;
+  hyperHTML.bind(wrap)`${123}`;
+  tressa.assert(wrap.textContent === '123', 'text as number');
+  hyperHTML.bind(wrap)`${true}`;
+  tressa.assert(wrap.textContent === 'true', 'text as boolean');
+  hyperHTML.bind(wrap)`${[1]}`;
+  tressa.assert(wrap.textContent === '1', 'text as one entry array');
+  hyperHTML.bind(wrap)`${['1', '2']}`;
+  tressa.assert(wrap.textContent === '12', 'text as multi entry array of strings');
+  let arr = [document.createTextNode('a'), document.createTextNode('b')];
+  hyperHTML.bind(wrap)`${[arr]}`;
+  tressa.assert(wrap.textContent === 'ab', 'text as multi entry array of nodes');
+  hyperHTML.bind(wrap)`${[arr]}`;
+  tressa.assert(wrap.textContent === 'ab', 'same array of nodes');
+  hyperHTML.bind(wrap)`${wrap.childNodes}`;
+  tressa.assert(wrap.textContent === 'ab', 'childNodes as list');
+  hyperHTML.bind(wrap)`[${'text'}]`;
+  hyperHTML.bind(wrap)`[${'text'}]`;
+  let onclick = (e) => {};
+  let handler = {handleEvent: onclick};
+  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
+  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
+  hyperHTML.bind(wrap)`<br>${arr[0]}<br>`;
+  hyperHTML.bind(wrap)`<br>${arr}<br>`;
+  hyperHTML.bind(wrap)`<br>${arr}<br>`;
+  hyperHTML.bind(wrap)`<br>${[]}<br>`;
+  hyperHTML.bind(wrap)`<br>${['1', '2']}<br>`;
+  hyperHTML.bind(wrap)`<br>${document.createDocumentFragment()}<br>`;
+  tressa.assert(true, 'passed various virtual content scenarios');
+  result = hyperHTML.wire(null, 'svg')`<svg></svg>`;
+  tressa.assert(result.nodeName.toLowerCase() === 'svg', 'svg content is allowed too');
 })
 .then(function () {
   if (!tressa.exitCode) {
