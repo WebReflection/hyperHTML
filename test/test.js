@@ -321,6 +321,9 @@ tressa.async(function (done) {
   result = hyperHTML.wire(null, 'svg')`<svg></svg>`;
   tressa.assert(result.nodeName.toLowerCase() === 'svg', 'svg content is allowed too');
   result = hyperHTML.wire()``;
+  tressa.assert(!result.innerHTML, 'empty content');
+  let tr = hyperHTML.wire()`<tr><td>ok</td></tr>`;
+  tressa.assert(true, 'even TR as template');
 })
 .then(function () {
   if (!tressa.exitCode) {

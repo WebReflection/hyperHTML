@@ -2,10 +2,17 @@ require('jsdom').env(
   require('fs').readFileSync(__dirname + '/index.html').toString(),
   [],
   function (err, window) {
-    global.String.prototype.trim = global.WeakMap = void 0;
     global.document = window.document;
-    global.hyperHTML = require('../hyperhtml.js');
     global.tressa = require('tressa');
+    global.hyperHTML = require('../hyperhtml.js');
     require('./test.js');
+    setTimeout(function () {
+      global.String.prototype.trim = global.WeakMap = void 0;
+      delete require.cache[require.resolve('../hyperhtml.js')];
+      delete require.cache[require.resolve('./test.js')];
+      global.document.documentMode = true;
+      global.hyperHTML = require('../hyperhtml.js');
+      require('./test.js');
+    }, 500);
   }
 );

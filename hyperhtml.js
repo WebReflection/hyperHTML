@@ -473,6 +473,7 @@ var hyperHTML = (function () {'use strict';
     ;
     if (IE) {
       IEAttributes = [];
+      removeNodeList(this.childNodes, 0);
       injectHTML(this, html.replace(no, comments));
     } else if (this.nodeType === 1) {
       this.innerHTML = html;
