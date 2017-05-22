@@ -320,6 +320,7 @@ tressa.async(function (done) {
   tressa.assert(true, 'passed various virtual content scenarios');
   result = hyperHTML.wire(null, 'svg')`<svg></svg>`;
   tressa.assert(result.nodeName.toLowerCase() === 'svg', 'svg content is allowed too');
+  result = hyperHTML.wire()``;
 })
 .then(function () {
   if (!tressa.exitCode) {
