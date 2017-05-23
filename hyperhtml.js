@@ -500,7 +500,7 @@ var hyperHTML = (function () {'use strict';
     uidc = '<!--' + uid + '-->',
     // if attributes order is shuffled, threat the browser differently
     IE = (function (p) {
-      p.innerHTML = '<i style="" class=""></i>';
+      p.innerHTML = '<i data-i="" class=""></i>';
       return /class/i.test(p.firstChild.attributes[0].name);
     }(document.createElement('p'))),
     no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),

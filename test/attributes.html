@@ -12,7 +12,7 @@
       var errors = [];
 
       try {
-        assert(p, 'style,class');
+        assert(p, 'data-x,class');
       } catch(e) {
         errors.push(e.message);
       }
@@ -41,8 +41,9 @@
           out = [],
           attr = el.attributes,
           i = 0, length = attr.length;
-          i < length;
-          out[i] = attr[i++].name);
+          i < length; i++
+        )
+          out[i] = attr[i].name;
         return out;
       }
 
@@ -50,7 +51,7 @@
     </script>
   </head>
   <body>
-    <p style="" class="">
+    <p data-x="" class="">
       some content, also an input.
       <input
         class="class"
