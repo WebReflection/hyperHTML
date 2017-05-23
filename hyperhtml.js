@@ -498,8 +498,11 @@ var hyperHTML = (function () {'use strict';
     uid = EXPANDO + ((Math.random() * new Date) | 0) + ';',
     // use comment nodes with pseudo unique content to setup
     uidc = '<!--' + uid + '-->',
-    // threat it differently
-    IE = 'documentMode' in document,
+    // if attributes order is shuffled, threat the browser differently
+    IE = (function (p) {
+      p.innerHTML = '<i style="" class=""></i>';
+      return /class/i.test(p.firstChild.attributes[0].name);
+    }(document.createElement('p'))),
     no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),
     comments = IE && function ($0, $1, $2) {
       IEAttributes.push($1.slice(1, -1));

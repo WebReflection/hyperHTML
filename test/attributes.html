@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Attributes Order</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; }</style>
+    <script>
+    this.onload = function () {
+
+      var p = document.querySelector('p');
+      var input = p.querySelector('input');
+      var errors = [];
+
+      try {
+        assert(p, 'style,class');
+      } catch(e) {
+        errors.push(e.message);
+      }
+
+      try {
+        assert(input, 'class,value,onblur,onkeypress,onkeydown');
+      } catch(e) {
+        errors.push(e.message);
+      }
+
+      if (errors.length) alert(errors.join('\n'));
+
+      function assert(el, expected) {
+        var attrs = attributes(el);
+        if (attrs.join(',') !== expected)
+          throw new Error(
+            'unexpected attributes order for node ' +
+              el.nodeName +
+            '\n' +
+              attrs.join('\n')
+          );
+      }
+
+      function attributes(el) {
+        for (var
+          out = [],
+          attr = el.attributes,
+          i = 0, length = attr.length;
+          i < length;
+          out[i] = attr[i++].name);
+        return out;
+      }
+
+    };
+    </script>
+  </head>
+  <body>
+    <p style="" class="">
+      some content, also an input.
+      <input
+        class="class"
+        value="value"
+        onblur="console.log('onblur')"
+        onkeypress="console.log('onkeypress')"
+        onkeydown="console.log('onkeydown')"
+      >
+    </p>
+  </body>
+</html>

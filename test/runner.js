@@ -10,7 +10,12 @@ require('jsdom').env(
       global.String.prototype.trim = global.WeakMap = void 0;
       delete require.cache[require.resolve('../hyperhtml.js')];
       delete require.cache[require.resolve('./test.js')];
-      global.document.documentMode = true;
+      // fake initial feature detection
+      var createElement = global.document.createElement;
+      global.document.createElement = function () {
+        global.document.createElement = createElement;
+        return {firstChild:{attributes:[{name:'class'}]}};
+      };
       global.hyperHTML = require('../hyperhtml.js');
       require('./test.js');
     }, 500);
