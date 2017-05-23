@@ -12,8 +12,14 @@ require('jsdom').env(
       delete require.cache[require.resolve('./test.js')];
       // fake initial feature detection
       var createElement = global.document.createElement;
+      var templates = 0;
       global.document.createElement = function () {
-        global.document.createElement = createElement;
+        global.document.createElement = function (name) {
+          return createElement.call(
+            global.document,
+            name === 'template' ? (++templates % 2 ? 'div' : name) : name);
+        };
+        //delete global.document.createElement('template').constructor.prototype.content;
         return {firstChild:{attributes:[{name:'class'}]}};
       };
       global.hyperHTML = require('../hyperhtml.js');
