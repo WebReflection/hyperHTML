@@ -1,5 +1,6 @@
 tressa.title('HyperHTML');
 tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
+
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;

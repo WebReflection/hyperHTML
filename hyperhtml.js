@@ -56,7 +56,9 @@ var hyperHTML = (function () {'use strict';
     for (var
       attribute,
       value = IE ? uid : uidc,
-      attributes = slice.call(node.attributes),
+      attributes = IE ?
+        mapAttributes(node.attributes) :
+        slice.call(node.attributes),
       i = 0,
       length = attributes.length;
       i < length; i++
@@ -322,6 +324,19 @@ var hyperHTML = (function () {'use strict';
       fragment,
       slice.call((template.content || template).childNodes)
     );
+  }
+
+  // IE / Edge Attributes values are resolved at runtime
+  // no attribute.value is found if these are cleaned up when special
+  // TODO: this might be used for every browser instead of slice.call
+  //       to grant both name and value are preserved.
+  //       However, this really looks just an IE/Edge bug.
+  function mapAttributes(attributes) {
+    for (var out = [], i = attributes.length; i--; out[i] = {
+      name: attributes[i].name,
+      value: attributes[i].value
+    });
+    return out;
   }
 
   // accordingly with the kind of child
