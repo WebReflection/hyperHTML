@@ -11,7 +11,7 @@
       var name = attribute.name;
       var value = attribute.value;
       // remove the attribute
-      div.removeAttribute('align');
+      div.removeAttribute(name);
       if (attribute.name !== name) alert('Attribute name compromised');
       // cry here if you are using Edge
       if (attribute.value !== value) alert('Attribute value compromised');
