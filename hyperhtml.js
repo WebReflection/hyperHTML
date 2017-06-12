@@ -213,7 +213,7 @@ var hyperHTML = (function () {'use strict';
   //       update of them all.
   function setVirtualContent(node) {
     var
-      fragment = document.createDocumentFragment(),
+      fragment = node.ownerDocument.createDocumentFragment(),
       childNodes = []
     ;
     return function any(value) {
