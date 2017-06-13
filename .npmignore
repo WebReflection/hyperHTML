@@ -1,5 +1,7 @@
+coverage/*
 dist/*
 docs/*
+logo/*
 node_modules/*
 test/*
 _config.yml
