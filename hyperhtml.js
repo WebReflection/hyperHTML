@@ -1,6 +1,6 @@
 var hyperHTML = (function () {'use strict';
 
-  /*!(c) 2017 Andrea Giammarchi @WebReflection, MIT*/
+  /*! (c) 2017 Andrea Giammarchi @WebReflection, (MIT) */
 
   // hyperHTML \o/
   //
@@ -115,7 +115,9 @@ var hyperHTML = (function () {'use strict';
           }
           break;
         case 3:
-          if (node.nodeName === 'STYLE' && child.textContent === uidc) {
+          // TODO: once SHOULD_USE_ATTRIBUTE contains more attributes
+          //       it's probably a good idea not to use it in here.
+          if (SHOULD_USE_ATTRIBUTE.test(node.nodeName) && child.textContent === uidc) {
             actions.push(setTextContent(node));
           }
           break;
@@ -508,6 +510,8 @@ var hyperHTML = (function () {'use strict';
 
   var
     // some attribute might be present on the element prototype but cannot be set directly
+    // TODO: following RegExp used in lukeTreeWalker switch too
+    //       if modified, remember to go there and remove its usage.
     SHOULD_USE_ATTRIBUTE = /^style$/i,
     // avoids WeakMap to avoid memory pressure, use CSS compatible syntax for IE
     EXPANDO = '_hyper_html: ',
