@@ -1,6 +1,6 @@
 var hyperHTML = (function () {'use strict';
 
-  /*! (C) 2017 Andrea Giammarchi @WebReflection (MIT) */
+  /*!(c) 2017 Andrea Giammarchi @WebReflection, MIT*/
 
   // hyperHTML \o/
   //
@@ -428,9 +428,9 @@ var hyperHTML = (function () {'use strict';
       if (template !== statics) {
         setup = true;
         template = statics;
-        fragment = document.createDocumentFragment();
+        fragment = hyperHTML.document.createDocumentFragment();
         container = type === 'svg' ?
-          document.createElementNS('http://www.w3.org/2000/svg', 'svg') :
+          hyperHTML.document.createElementNS('http://www.w3.org/2000/svg', 'svg') :
           fragment;
         render = hyperHTML.bind(container);
       }
@@ -519,7 +519,11 @@ var hyperHTML = (function () {'use strict';
     IE = (function (p) {
       p.innerHTML = '<i data-i="" class=""></i>';
       return /class/i.test(p.firstChild.attributes[0].name);
-    }(document.createElement('p'))),
+    }(
+      // beside the initial feature detection
+      // the document could be swap-able at runtime
+      (hyperHTML.document = document).createElement('p'))
+    ),
     no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),
     comments = IE && function ($0, $1, $2) {
       IEAttributes.push($1.slice(1, -1));
