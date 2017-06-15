@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; } .red { color: red; }</style>
+    <script src="../hyperhtml.js"></script>
+  </head>
+  <body>
+    <p>Boot speed: <span id='boot'></span></p>
+    <div id="example"></div>
+    <script>
+const renderer = hyperHTML.bind(example);
+
+const state = {
+  start: null,
+  items: []
+};
+
+function onClick() {
+  state.start = performance.now();
+  state.items.reverse();
+  render();
+  debug.textContent = performance.now() - state.start;
+}
+
+function render() {
+  renderer`
+    <div>
+      <button onclick="${ onClick }">
+        update
+      </button>
+      <p id='debug'></p>${ 
+        state.items.map((item, i) => hyperHTML.wire(item)`
+        <h1 class="${ i%2 === 0 ? 'red' : '' }">
+            ${ item.name }
+          </h1>` 
+      )}</div>
+  `
+}
+
+let amount = 1000;
+while(amount--) {
+  state.items.push({
+    name: `item-${ amount }`
+  });
+}
+
+
+onClick();
+
+    </script>
+  </body>
+</html>

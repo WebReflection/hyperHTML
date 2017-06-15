@@ -243,7 +243,7 @@ var hyperHTML = (function () {'use strict';
                 value = value.slice(i);
                 appendNodes(fragment, value);
                 parentNode.insertBefore(fragment, node);
-                childNodes.push.apply(childNodes, value);
+                childNodes = childNodes.slice(0, i).concat(value);
               }
             }
           } else {
