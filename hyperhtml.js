@@ -18,6 +18,26 @@ var hyperHTML = (function () {'use strict';
               upgrade.apply(this, arguments);
   }
 
+  // Specially useful when you have content rendered
+  // on the server and you don't want to lose it
+  // at the first time hyperHTML passes over it.
+  // To be used instead of hyperHTML.bind(node)
+  // but only if the content of the node is the equivalent
+  // of the used template literal.
+  //
+  // <body><div adopted=""> adopt me </div></body>
+  //
+  // var render = hyperHTML.adopt(document.body);
+  // render`<div adopted="${true}"> ${'new text'} </div>`;
+  hyperHTML.adopt = function adopt(node) {
+    return function (statics) {
+      return  EXPANDO in node &&
+            node[EXPANDO].s === statics ?
+              update.apply(node, arguments) :
+              remap.apply(node, arguments);
+    };
+  };
+
   // A wire ➰ is a bridge between a document fragment
   // and its inevitably lost list of rendered nodes
   //
@@ -67,10 +87,10 @@ var hyperHTML = (function () {'use strict';
       if (attribute.value === value) {
         // with IE the order doesn't really matter
         // as long as the right attribute is addressed
-        actions.push(setAttribute(node, IE ?
-          node.getAttributeNode(IEAttributes.shift()) :
-          attribute
-        ));
+        if (IE) attribute = node.getAttributeNode(IEAttributes.shift());
+        actions.push(remapping ?
+          {a:'attr', n:attribute} :
+          setAttribute(node, attribute));
       }
     }
   }
@@ -80,9 +100,7 @@ var hyperHTML = (function () {'use strict';
   //
   // <div atr="${some.attribute}">
   //    <h1>${some.HTML}</h1>
-  //    <p>
-  //      ${some.text}
-  //    </p>
+  //    <p> ${some.text} </p>
   // </div>
   function lukeTreeWalker(node, actions) {
     for (var
@@ -100,17 +118,26 @@ var hyperHTML = (function () {'use strict';
         case 8:
           if (child.textContent === uid) {
             if (length === 1) {
-              actions.push(setAnyContent(node));
-              node.removeChild(child);
+              if (remapping) {
+                actions.push({a:'any', n:node});
+              } else {
+                actions.push(setAnyContent(node));
+                node.removeChild(child);
+              }
             } else if (
               (i < 1 || childNodes[i - 1].nodeType === 1) &&
               (i + 1 === length || childNodes[i + 1].nodeType === 1)
             ) {
-              actions.push(setVirtualContent(child));
+              actions.push(remapping ?
+                {a:'vc', n:child} : setVirtualContent(child));
             } else {
-              text = node.ownerDocument.createTextNode('');
-              actions.push(setTextContent(text));
-              node.replaceChild(text, child);
+              if (remapping) {
+                actions.push({a:'text', n:child});
+              } else {
+                text = node.ownerDocument.createTextNode('');
+                actions.push(setTextContent(text));
+                node.replaceChild(text, child);
+              }
             }
           }
           break;
@@ -118,7 +145,7 @@ var hyperHTML = (function () {'use strict';
           // TODO: once SHOULD_USE_ATTRIBUTE contains more attributes
           //       it's probably a good idea not to use it in here.
           if (SHOULD_USE_ATTRIBUTE.test(node.nodeName) && child.textContent === uidc) {
-            actions.push(setTextContent(node));
+            actions.push(remapping ? {a:'text', n:node} : setTextContent(node));
           }
           break;
       }
@@ -278,15 +305,61 @@ var hyperHTML = (function () {'use strict';
   // Helpers
   // -------------------------
 
-  // it does exactly what it says
-  function appendNodes(node, childNodes) {
-    for (var
-      i = 0,
-      length = childNodes.length;
-      i < length; i++
-    ) {
-      node.appendChild(childNodes[i]);
+  // given a generic text or comment node
+  // remove the surrounding emptiness
+  function cleanAround(textNode, sibling) {
+    var adj = textNode[sibling];
+    if (adj && adj.nodeType === 3 && trim.call(adj.textContent).length < 1) {
+      textNode.parentNode.removeChild(adj);
+      cleanAround(textNode, sibling);
     }
+  }
+
+  // find a live node through a virtual one
+  function find(live, virtual) {
+    var i, length, name, parentNode, map = [];
+    switch(virtual.nodeType) {
+      case 1:
+        parentNode = virtual;
+        break;
+      case 8:
+        // clean up empty text nodes around
+        cleanAround(virtual, 'previousSibling');
+        cleanAround(virtual, 'nextSibling');
+        parentNode = virtual.parentNode;
+        map.unshift('childNodes', map.indexOf.call(parentNode.childNodes, virtual));
+        break;
+      // jsdom here does not provide a nodeType 2 ...
+      default:
+        parentNode = virtual.ownerElement;
+        map.unshift('getAttributeNode', virtual.name);
+        break;
+    }
+    virtual = parentNode;
+    while (parentNode = parentNode.parentNode) {
+      map.unshift('children', map.indexOf.call(parentNode.children, virtual));
+      virtual = parentNode;
+    }
+    for (i = 0, length = map.length; i < length; i++) {
+      switch(name = map[i++]) {
+        case 'getAttributeNode':
+          parentNode = live[name](map[i]);
+          live = parentNode || {ownerElement: live, name: map[i]};
+          break;
+        case 'childNodes':
+          parentNode = live[name][map[i]];
+          if (parentNode) live = parentNode;
+          else {
+            live.textContent = ' ';
+            live = live.firstChild;
+          }
+          break;
+        default:
+          live = live[name][map[i]];
+          break;
+      }
+    }
+    return live;
   }
 
   // given two collections, find
@@ -468,6 +541,52 @@ var hyperHTML = (function () {'use strict';
   // Template setup
   // -------------------------
 
+  // given a live node and a tagged template literal
+  // finds all needed updates without replacing,
+  // at first pass, nodes that were already there
+  function remap() {
+    remapping = true;
+    var
+      i, length, action, node, text,
+      fragment = upgrade.apply(
+        this.ownerDocument.createDocumentFragment(),
+        arguments
+      ),
+      actions = fragment[EXPANDO].u
+    ;
+    remapping = false;
+    for (i = 0, length = actions.length; i < length; i++) {
+      action = actions[i];
+      node = find(this, action.n);
+      switch (action.a) {
+        case 'any':
+          actions[i] = setAnyContent(node);
+          node.textContent = '';
+          break;
+        case 'attr':
+          actions[i] = setAttribute(node.ownerElement, node);
+          break;
+        case 'text':
+          if (action.n.nodeType === 1) {
+            actions[i] = setTextContent(node);
+          }
+          else {
+            text = node.ownerDocument.createTextNode('');
+            node.parentNode.replaceChild(text, node);
+            actions[i] = setTextContent(text);
+          }
+          break;
+        case 'vc':
+          text = node.ownerDocument.createComment(uid);
+          node.parentNode.replaceChild(text, node);
+          actions[i] = setVirtualContent(text);
+          break;
+      }
+    }
+    this[EXPANDO] = fragment[EXPANDO];
+    return update.apply(this, arguments);
+  }
+
   // each known hyperHTML update is
   // kept as simple as possible.
   function update() {
@@ -501,7 +620,7 @@ var hyperHTML = (function () {'use strict';
     }
     lukeTreeWalker(this, updates);
     this[EXPANDO] = {s: statics, u: updates};
-    return update.apply(this, arguments);
+    return remapping ? this : update.apply(this, arguments);
   }
 
   // -------------------------
@@ -528,6 +647,19 @@ var hyperHTML = (function () {'use strict';
       // the document could be swap-able at runtime
       (hyperHTML.document = document).createElement('p'))
     ),
+    appendNodes = 'append' in document ?
+      function (node, childNodes) {
+        node.append.apply(node, childNodes);
+      } :
+      function appendNodes(node, childNodes) {
+        for (var
+          i = 0,
+          length = childNodes.length;
+          i < length; i++
+        ) {
+          node.appendChild(childNodes[i]);
+        }
+      },
     no = IE && new RegExp('([^\\S][a-z]+[a-z0-9_-]*=)([\'"])' + uidc + '\\2', 'g'),
     comments = IE && function ($0, $1, $2) {
       IEAttributes.push($1.slice(1, -1));
@@ -555,6 +687,7 @@ var hyperHTML = (function () {'use strict';
         }
       } :
       new WeakMap(),
+    remapping = false,
     IEAttributes
   ;
 

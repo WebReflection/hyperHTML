@@ -7,6 +7,9 @@ require('jsdom').env(
     global.hyperHTML = require('../hyperhtml.js');
     require('./test.js');
     setTimeout(function () {
+      Object.prototype.append = function () {
+        [].forEach.call(arguments, this.appendChild, this);
+      };
       global.String.prototype.trim = global.WeakMap = void 0;
       delete require.cache[require.resolve('../hyperhtml.js')];
       delete require.cache[require.resolve('./test.js')];

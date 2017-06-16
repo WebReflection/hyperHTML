@@ -9,7 +9,8 @@
     <p>Boot speed: <span id='boot'></span></p>
     <div id="example"></div>
     <script>
-const renderer = hyperHTML.bind(example);
+
+this.renderer = hyperHTML.bind(example);
 
 const state = {
   start: null,
@@ -23,11 +24,29 @@ function onClick() {
   debug.textContent = performance.now() - state.start;
 }
 
-function render() {
+function adopt() {
+  render = () => renderer`
+    <div>
+      <button onclick="${ onClick }"> update </button>
+      <button onclick="${ adopt }"> adopt </button>
+      <p id='debug'></p>${ 
+        state.items.map((item, i) => hyperHTML.wire(item)`
+        <h1 class="${ i%2 === 0 ? 'red' : '' }">
+            ${ item.name }
+          </h1>` 
+      )}</div>
+  `;
+  renderer = hyperHTML.adopt(example);
+}
+
+var render = function () {
   renderer`
     <div>
       <button onclick="${ onClick }">
         update
+      </button>
+      <button onclick="${ adopt }">
+        adopt
       </button>
       <p id='debug'></p>${ 
         state.items.map((item, i) => hyperHTML.wire(item)`
@@ -36,9 +55,9 @@ function render() {
           </h1>` 
       )}</div>
   `
-}
+};
 
-let amount = 1000;
+let amount = 10000;
 while(amount--) {
   state.items.push({
     name: `item-${ amount }`

@@ -6,6 +6,13 @@
 A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
 now [available for both client and server](https://github.com/WebReflection/viperHTML).
 - - -
+**New Experimental .adopt(node) API**
+
+Since version _0.12_ you can `hyperHTML.adopt(node)` instead of `hyperHTML.bind(node)` in case you have already rendered
+a node on the server via [viperHTML](https://github.com/WebReflection/viperHTML) and you are sharing the same template.
+
+Adopting a node will not trash the node content, it will map it to the existent one.
+- - -
 Don't miss the [viperHTML](https://github.com/WebReflection/viperHTML) version of **Hacker News**
 
 Live: https://viperhtml-164315.appspot.com/
@@ -64,7 +71,7 @@ setInterval(tick, 1000,
 
 ## Features
 
-  * Zero dependencies and it fits in **less than 2KB** (minzipped)
+  * Zero dependencies and it fits in **less than 3KB** (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with vanilla DOM elements and vanilla JS data structures `*`

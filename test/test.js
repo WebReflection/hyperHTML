@@ -274,6 +274,53 @@ tressa.async(function (done) {
   tressa.assert(hyperHTML.wire(ref, ':p')`<p></p>` === wires.p, 'same wire for <p>');
 })
 .then(function () {
+  tressa.log('## hyperHTML.adopt(node)');
+  let wrap = document.createElement('div');
+  wrap.innerHTML = '<style>*{color:red;}</style><p></p><div test="before"> before <ul><li> lonely </li></ul>NO<hr></div>';
+  let div = wrap.lastElementChild;
+  let text = div.firstChild;
+  let ul = div.firstElementChild;
+  let hr = div.lastElementChild;
+  let model = {
+    click: function () {},
+    css: '* { color: blue; }',
+    test: 'after',
+    text: 'after',
+    list: [
+      {name: 'first'},
+      {name: 'second'}
+    ],
+    inBetween: 'OK'
+  };
+
+  let render = hyperHTML.adopt(wrap);
+  update(render, model);
+  tressa.assert(wrap.lastElementChild === div, 'structure has not changed');
+  tressa.assert(div.firstElementChild === ul, 'not even the list');
+  tressa.assert(div.lastElementChild === hr, 'or the hr');
+  model.list.push({name: 'third'});
+  model.inBetween = document.createElement('br');
+  update(render, model);
+  tressa.assert(wrap.lastElementChild === div, 'not even after model changes');
+  tressa.assert(div.firstElementChild === ul, 'including the list');
+  tressa.assert(div.lastElementChild === hr, 'and the hr');
+
+  function update(render, model) {
+    render`
+    <style>${model.css}</style>
+    <p onclick="${model.click}"> ${Math.random()} </p>
+    <div test="${model.test}">
+      ${model.text}
+      <ul>${
+        model.list.map(item => `<li> ${item.name} </li>`)
+      }</ul>${
+        model.inBetween
+      }<hr>
+    </div>
+    `;
+  }
+})
+.then(function () {
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let result = hyperHTML.wire()`<!--not hyprHTML-->`;
