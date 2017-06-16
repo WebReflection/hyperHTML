@@ -111,11 +111,11 @@ var hyperHTML = (function () {'use strict';
     ) {
       child = childNodes[i];
       switch (child.nodeType) {
-        case 1:
+        case ELEMENT_NODE:
           attributesSeeker(child, actions);
           lukeTreeWalker(child, actions);
           break;
-        case 8:
+        case COMMENT_NODE:
           if (child.textContent === uid) {
             if (length === 1) {
               if (remapping) {
@@ -125,8 +125,8 @@ var hyperHTML = (function () {'use strict';
                 node.removeChild(child);
               }
             } else if (
-              (i < 1 || childNodes[i - 1].nodeType === 1) &&
-              (i + 1 === length || childNodes[i + 1].nodeType === 1)
+              (i < 1 || childNodes[i - 1].nodeType === ELEMENT_NODE) &&
+              (i + 1 === length || childNodes[i + 1].nodeType === ELEMENT_NODE)
             ) {
               actions.push(remapping ?
                 {a:'vc', n:child} : setVirtualContent(child));
@@ -141,7 +141,7 @@ var hyperHTML = (function () {'use strict';
             }
           }
           break;
-        case 3:
+        case TEXT_NODE:
           // TODO: once SHOULD_USE_ATTRIBUTE contains more attributes
           //       it's probably a good idea not to use it in here.
           if (SHOULD_USE_ATTRIBUTE.test(node.nodeName) && child.textContent === uidc) {
@@ -275,7 +275,7 @@ var hyperHTML = (function () {'use strict';
             }
           } else {
             removeNodeList(childNodes, 0);
-            childNodes = value.nodeType === 11 ?
+            childNodes = value.nodeType === DOCUMENT_FRAGMENT_NODE ?
               slice.call(value.childNodes) :
               [value];
             parentNode.insertBefore(value, node);
@@ -308,9 +308,13 @@ var hyperHTML = (function () {'use strict';
   // given a generic text or comment node
   // remove the surrounding emptiness
   function cleanAround(textNode, sibling) {
-    var adj = textNode[sibling];
-    if (adj && adj.nodeType === 3 && trim.call(adj.textContent).length < 1) {
-      textNode.parentNode.removeChild(adj);
+    var adjacent = textNode[sibling];
+    if (
+      adjacent &&
+      adjacent.nodeType === TEXT_NODE &&
+      trim.call(adjacent.textContent).length < 1
+    ) {
+      textNode.parentNode.removeChild(adjacent);
       cleanAround(textNode, sibling);
     }
   }
@@ -319,18 +323,18 @@ var hyperHTML = (function () {'use strict';
   function find(live, virtual) {
     var i, length, name, parentNode, map = [];
     switch(virtual.nodeType) {
-      case 1:
+      case ELEMENT_NODE:
         parentNode = virtual;
         break;
-      case 8:
+      case COMMENT_NODE:
         // clean up empty text nodes around
         cleanAround(virtual, 'previousSibling');
         cleanAround(virtual, 'nextSibling');
         parentNode = virtual.parentNode;
         map.unshift('childNodes', map.indexOf.call(parentNode.childNodes, virtual));
         break;
-      // jsdom here does not provide a nodeType 2 ...
-      default:
+      case ATTRIBUTE_NODE:
+      default: // jsdom here does not provide a nodeType 2 ...
         parentNode = virtual.ownerElement;
         map.unshift('getAttributeNode', virtual.name);
         break;
@@ -418,7 +422,7 @@ var hyperHTML = (function () {'use strict';
   // it puts its content into a parent node
   function populateNode(parent, child) {
     switch (child.nodeType) {
-      case 1:
+      case ELEMENT_NODE:
         var childNodes = parent.childNodes;
         if (0 < childNodes.length) {
           if (childNodes[0] === child) {
@@ -428,12 +432,12 @@ var hyperHTML = (function () {'use strict';
         }
         resetAndPopulate(parent, child);
         break;
-      case 11:
+      case DOCUMENT_FRAGMENT_NODE:
         if (-1 < indexOfDiffereces(parent.childNodes, child.childNodes)) {
           resetAndPopulate(parent, child);
         }
         break;
-      case 3:
+      case TEXT_NODE:
         parent.textContent = child.textContent;
         break;
     }
@@ -470,7 +474,7 @@ var hyperHTML = (function () {'use strict';
     ) {
       child = childNodes[i];
       if (
-        1 === child.nodeType ||
+        child.nodeType === ELEMENT_NODE ||
         0 < trim.call(child.textContent).length
       ) {
         children.push(child);
@@ -567,7 +571,7 @@ var hyperHTML = (function () {'use strict';
           actions[i] = setAttribute(node.ownerElement, node);
           break;
         case 'text':
-          if (action.n.nodeType === 1) {
+          if (action.n.nodeType === ELEMENT_NODE) {
             actions[i] = setTextContent(node);
           }
           else {
@@ -613,7 +617,7 @@ var hyperHTML = (function () {'use strict';
       IEAttributes = [];
       removeNodeList(this.childNodes, 0);
       injectHTML(this, html.replace(no, comments));
-    } else if (this.nodeType === 1) {
+    } else if (this.nodeType === ELEMENT_NODE) {
       this.innerHTML = html;
     } else {
       injectHTML(this, html);
@@ -628,6 +632,11 @@ var hyperHTML = (function () {'use strict';
   // -------------------------
 
   var
+    ELEMENT_NODE = 1,
+    ATTRIBUTE_NODE = 2,
+    TEXT_NODE = 3,
+    COMMENT_NODE = 8,
+    DOCUMENT_FRAGMENT_NODE = 11,
     // some attribute might be present on the element prototype but cannot be set directly
     // TODO: following RegExp used in lukeTreeWalker switch too
     //       if modified, remember to go there and remove its usage.

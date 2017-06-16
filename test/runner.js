@@ -10,6 +10,7 @@ require('jsdom').env(
       Object.prototype.append = function () {
         [].forEach.call(arguments, this.appendChild, this);
       };
+      Object.prototype.nodeType = 2;
       global.String.prototype.trim = global.WeakMap = void 0;
       delete require.cache[require.resolve('../hyperhtml.js')];
       delete require.cache[require.resolve('./test.js')];
