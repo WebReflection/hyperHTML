@@ -180,7 +180,7 @@ var hyperHTML = (function () {'use strict';
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
             } else {
-              var i = indexOfDiffereces(node.childNodes, value);
+              var i = indexOfDifferences(node.childNodes, value);
               if (-1 < i) {
                 updateViaArray(node, value, i);
               }
@@ -264,7 +264,7 @@ var hyperHTML = (function () {'use strict';
             } else if(typeof value[0] === 'string') {
               any(value.join(''));
             } else {
-              i = indexOfDiffereces(childNodes, value);
+              i = indexOfDifferences(childNodes, value);
               if (-1 < i) {
                 removeNodeList(childNodes, i);
                 value = value.slice(i);
@@ -368,7 +368,7 @@ var hyperHTML = (function () {'use strict';
 
   // given two collections, find
   // the first index that has different content.
-  function indexOfDiffereces(a, b) {
+  function indexOfDifferences(a, b) {
     var
       i = 0,
       aLength = a.length,
@@ -433,7 +433,7 @@ var hyperHTML = (function () {'use strict';
         resetAndPopulate(parent, child);
         break;
       case DOCUMENT_FRAGMENT_NODE:
-        if (-1 < indexOfDiffereces(parent.childNodes, child.childNodes)) {
+        if (-1 < indexOfDifferences(parent.childNodes, child.childNodes)) {
           resetAndPopulate(parent, child);
         }
         break;
