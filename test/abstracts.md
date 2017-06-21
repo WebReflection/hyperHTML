@@ -8,6 +8,39 @@ It's rather a specification than current implementation,
 but the goal is to optimize such specification as much as possible
 and achieve best performance on top of that.
 
+
+
+### Definitions
+
+`hyperHTML` is a function tag for template literals.
+
+Its `statics` argument is a unique templateObject
+http://www.ecma-international.org/ecma-262/6.0/#sec-gettemplateobject
+
+Its `context` MUST be a DOM Element.
+
+`hyperHTML.bind(context)` creates a new tag for such `context`.
+
+A list of `paths` is an array of instructions used to address a specific target node.
+Each instruction also carry the kind of update operation the target needs.
+
+```js
+// paths example
+[
+  {type: 'text', path: ['children', 1, 'childNodes', 0]},
+  {type: 'any', path: ['children', 5]},
+  {type: 'virtual', path: ['children', 1, 'children', 3, 'childNodes', 2]}
+]
+```
+
+A list of `updates` is an aray containing functions in charge of updating each path through interpolations.
+```js
+// updates through interpolated values
+interpolations.forEach((value, i) => updates[i](value));
+```
+
+
+### Algorithm 
 ```
 hyperHTML(statics, ...interpolations)
 │
@@ -48,8 +81,6 @@ hyperHTML(statics, ...interpolations)
 
 ### Weakly referenced
 
-TODO: is an `expando` property that faster than a `WeakMap`?
-
 ```
 context
   ├▶  statics
@@ -63,45 +94,8 @@ any
 
 Template literals are _forever_, there's no reason to create extra GC pressure.
 
-TODO: is a native `Map` faster than a pair of arrays?
-
 ```
 statics
   ├▶  fragment
   └▶  paths
 ```
-
-### What is a wire ?
-
-A wire is a weakly linked document fragment content representing the node itself,
-as opposite of the container, like it is for `hyperHTML` bound `contexts`.
-
-```
-hyperHTML.wire(any, type:ID)
-│
-└▶  is `any` known?
-    │
-    ├▶  YES
-    │
-    │   is `:ID` already known ?
-    │   │
-    │   ├▶  YES
-    │   │
-    │   │   retrieve the `fragment` via `any`[`type:ID`]
-    │   │
-    │   │   return (...args) =>
-    │   │           hyperHTML.call(`fragment`, ...args).children;
-    │   │
-    │   └▶  NO  ┌─────────────────────────────────────────┐
-    │           ▼                                         │
-    │       create a `fragment`                           │
-    │                                                     │
-    │       relate `any`[`type:ID`] to the `fragment`     │
-    │                                                     │
-    └▶  NO                                                │
-                                                          │
-        if `any` is null, let it be a new `{}`.           │
-                                                          │
-        relate `any` to a new `{}` wire. ─────────────────┘
-```
-
