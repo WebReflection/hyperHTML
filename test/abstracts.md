@@ -19,21 +19,47 @@ http://www.ecma-international.org/ecma-262/6.0/#sec-gettemplateobject
 
 Its `context` MUST be a DOM Element.
 
-`hyperHTML.bind(context)` creates a new tag for such `context`.
+`hyperHTML.bind(context)` creates a new function-tag for such `context`.
+
+```js
+const render = hyperHTML.bind(context);
+render`
+   <!-- this represents the contents of the DOM node -->
+`;
+```
 
 A list of `paths` is an array of instructions used to address a specific target node.
-Each instruction also carry the kind of update operation the target needs.
+Each instruction also includes the kind of update operation to be performed on the target node.
 
 ```js
 // paths example
 [
+  {type: 'attr', path: ['children', 1, 'attributes', 2]},
   {type: 'text', path: ['children', 1, 'childNodes', 0]},
   {type: 'any', path: ['children', 5]},
   {type: 'virtual', path: ['children', 1, 'children', 3, 'childNodes', 2]}
 ]
 ```
 
-A list of `updates` is an aray containing functions in charge of updating each path through interpolations.
+Retrieving a node through a path can be done by reducing its values.
+
+Updates are similarly defined through the following procedure.
+
+```js
+paths.forEach((info, i) => {
+  const target = info.path.reduce(
+    (node, accessor) => node[accessor],
+    fragment
+  );
+  switch (info.type) {
+    case 'attr': updates[i] = setAttribute(target); break;
+    case 'any': updates[i] = setAnyContent(target); break;
+    case 'text': updates[i] = setText(target); break;
+    case 'virtual': updates[i] = setVirtualContent(target); break;
+  }
+});
+```
+The list of `updates` is an array containing functions in charge of updating each path through interpolations.
 ```js
 // updates through interpolated values
 interpolations.forEach((value, i) => updates[i](value));
