@@ -1,4 +1,4 @@
-var hyperHTML = (function (document) {'use strict';
+var hyperHTML = (function (globalDocument) {'use strict';
 
   /*! (c) 2017 Andrea Giammarchi @WebReflection, (MIT) */
 
@@ -8,7 +8,7 @@ var hyperHTML = (function (document) {'use strict';
 
   // The document must be swap-able at runtime.
   // Needed by both basicHTML and nativeHTML
-  hyperHTML.document = document;
+  hyperHTML.document = globalDocument;
 
   // hyperHTML.bind(el) ⚡️
   function hyperHTML(template) {
@@ -48,6 +48,25 @@ var hyperHTML = (function (document) {'use strict';
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - -
+
+  // ---------------------------------------------
+  // Constants
+  // ---------------------------------------------
+
+  // Node.CONSTANTS
+  // without assuming Node is globally available
+  // since this project is used on the backend too
+  var ELEMENT_NODE = 1;
+  var ATTRIBUTE_NODE = 2;
+  var TEXT_NODE = 3;
+  var COMMENT_NODE = 8;
+  var DOCUMENT_FRAGMENT_NODE = 11;
+
+  var GET_ATTRIBUTE_NODE = 'getAttributeNode';
+  var SHOULD_USE_ATTRIBUTE = /^style$/i;
+  var EXPANDO = '_hyper_html: ';
+  var UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
+  var UIDC = '<!--' + UID + '-->';
 
   // ---------------------------------------------
   // DOM Manipulation
@@ -201,7 +220,7 @@ var hyperHTML = (function (document) {'use strict';
 
   // `<li>a</li>${'virtual'}<li>c</li>`
   function setVirtualContent(node, childNodes) {
-    return function any(value) {
+    return function anyVirtual(value) {
       switch (typeof value) {
         case 'string':
         case 'number':
@@ -220,7 +239,7 @@ var hyperHTML = (function (document) {'use strict';
             } else {
               var type = typeof value[0];
               if (type === 'string') {
-                any(value.join(''));
+                anyVirtual(value.join(''));
               } else {
                 var i = indexOfDifferences(childNodes, value);
                 if (-1 < i) {
@@ -314,25 +333,6 @@ var hyperHTML = (function (document) {'use strict';
   }
 
   // ---------------------------------------------
-  // Constants
-  // ---------------------------------------------
-
-  // Node.CONSTANTS
-  // without assuming Node is globally available
-  // since this project is used on the backend too
-  var ELEMENT_NODE = 1;
-  var ATTRIBUTE_NODE = 2;
-  var TEXT_NODE = 3;
-  var COMMENT_NODE = 8;
-  var DOCUMENT_FRAGMENT_NODE = 11;
-
-  var GET_ATTRIBUTE_NODE = 'getAttributeNode';
-  var SHOULD_USE_ATTRIBUTE = /^style$/i;
-  var EXPANDO = '_hyper_html: ';
-  var UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
-  var UIDC = '<!--' + UID + '-->';
-
-  // ---------------------------------------------
   // Features detection / ugly UA sniffs
   // ---------------------------------------------
 
@@ -348,7 +348,7 @@ var hyperHTML = (function (document) {'use strict';
   var IE =  (function (p) {
               p.innerHTML = '<i data-i="" class=""></i>';
               return /class/i.test(p.firstChild.attributes[0].name);
-            }(document.createElement('p')));
+            }(globalDocument.createElement('p')));
 
   // ---------------------------------------------
   // Helpers
@@ -385,14 +385,25 @@ var hyperHTML = (function (document) {'use strict';
     var document = node.ownerDocument;
     var container = document.createElement('template');
     var hasContent = 'content' in container;
-    var fallback = false;
+    var needsTableWrap = false;
     if (!hasContent) {
-      fragment = createDocumentFragment(document);
-      fallback = /^[^\S]*?<(t(?:head|body|foot|r|d|h))/i.test(html);
+      // DO NOT MOVE THE FOLLOWING LINE ELSEWHERE
+      fragment = document.createDocumentFragment();
+      // (a jsdom + nodejs tests coverage gotcha)
+
+      // el.innerHTML = '<td></td>'; is not possible
+      // if the content is a partial internal table content
+      // it needs to be wrapped around once injected.
+      // HTMLTemplateElement does not suffer this issue.
+      needsTableWrap = /^[^\S]*?<(t(?:head|body|foot|r|d|h))/i.test(html);
     }
-    if (fallback) {
+    if (needsTableWrap) {
+      // secure the RegExp.$1 result ASAP to avoid issues
+      // in case a non-browser DOM library uses RegExp internally
+      // when HTML content is injected (basicHTML / jsdom / others...)
+      var selector = RegExp.$1;
       container.innerHTML = '<table>' + html + '</table>';
-      appendNodes(fragment, container.querySelectorAll(RegExp.$1));
+      appendNodes(fragment, container.querySelectorAll(selector));
     } else {
       container.innerHTML = html;
       if (hasContent) {
@@ -402,11 +413,6 @@ var hyperHTML = (function (document) {'use strict';
       }
     }
     return fragment;
-  }
-
-  // given a document, it does what it says
-  function createDocumentFragment(document) {
-    return document.createDocumentFragment();
   }
 
   // given a node, it does what is says
@@ -449,7 +455,7 @@ var hyperHTML = (function (document) {'use strict';
                   break;
                 }
               } while (target);
-              var fragment = createDocumentFragment(document);
+              var fragment = document.createDocumentFragment();
               if (before.length) {
                 fragment.appendChild(createText(parentNode, before));
               }
@@ -508,7 +514,7 @@ var hyperHTML = (function (document) {'use strict';
 
   // create an empty fragment from a generic node
   function emptyFragment(node) {
-    return createDocumentFragment(node.ownerDocument);
+    return node.ownerDocument.createDocumentFragment();
   }
 
   // given a node, returns text content before it or after it
@@ -620,7 +626,7 @@ var hyperHTML = (function (document) {'use strict';
   }
 
   // use native .append(...childNodes) where available
-  var appendNodes = 'append' in document ?
+  var appendNodes = 'append' in globalDocument ?
       function (node, childNodes) {
         node.append.apply(node, childNodes);
       } :
@@ -635,7 +641,7 @@ var hyperHTML = (function (document) {'use strict';
       };
 
   // returns children or retrieve them in IE/Edge
-  var getChildren = 'children' in document ?
+  var getChildren = 'children' in globalDocument ?
       function (node) { return node.children; } :
       function (node) {
         for (var
@@ -841,7 +847,7 @@ var hyperHTML = (function (document) {'use strict';
       if (template !== statics) {
         setup = true;
         template = statics;
-        fragment = createDocumentFragment(hyperHTML.document);
+        fragment = hyperHTML.document.createDocumentFragment();
         container = type === 'svg' ?
           hyperHTML.document.createElementNS('http://www.w3.org/2000/svg', 'svg') :
           fragment;
