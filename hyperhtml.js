@@ -181,7 +181,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
       name = attribute.name,
       node = attribute.ownerElement,
       isEvent = name.slice(0, 2) === 'on',
-      isSpecial = name in node && !SHOULD_USE_ATTRIBUTE.test(name),
+      isSpecial = name in node && !(
+                    // always use set attribute with SVGs
+                    'ownerSVGElement' in node ||
+                    SHOULD_USE_ATTRIBUTE.test(name)
+                  ),
       oldValue
     ;
     if (isSpecial) removeAttributes.push(node, name);
