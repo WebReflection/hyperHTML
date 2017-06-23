@@ -62,6 +62,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
   var COMMENT_NODE = 8;
   var DOCUMENT_FRAGMENT_NODE = 11;
 
+  // SVG related
+  var OWNER_SVG_ELEMENT = 'ownerSVGElement';
+  var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
   var GET_ATTRIBUTE_NODE = 'getAttributeNode';
   var SHOULD_USE_ATTRIBUTE = /^style$/i;
   var EXPANDO = '_hyper_html: ';
@@ -183,7 +187,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       isEvent = name.slice(0, 2) === 'on',
       isSpecial = name in node && !(
                     // always use set attribute with SVGs
-                    'ownerSVGElement' in node ||
+                    OWNER_SVG_ELEMENT in node ||
                     SHOULD_USE_ATTRIBUTE.test(name)
                   ),
       oldValue
@@ -385,6 +389,15 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // given a node, inject some html and return
   // the resulting template document fragment
   function createFragment(node, html) {
+    return (
+      OWNER_SVG_ELEMENT in node ?
+        createSVGFragment :
+        createHTMLFragment
+    )(node, html);
+  }
+
+  // create fragment for HTML
+  function createHTMLFragment(node, html) {
     var fragment;
     var document = node.ownerDocument;
     var container = document.createElement('template');
@@ -407,7 +420,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       // when HTML content is injected (basicHTML / jsdom / others...)
       var selector = RegExp.$1;
       container.innerHTML = '<table>' + html + '</table>';
-      appendNodes(fragment, container.querySelectorAll(selector));
+      appendNodes(fragment, slice.call(container.querySelectorAll(selector)));
     } else {
       container.innerHTML = html;
       if (hasContent) {
@@ -416,6 +429,16 @@ var hyperHTML = (function (globalDocument) {'use strict';
         appendNodes(fragment, slice.call(container.childNodes));
       }
     }
+    return fragment;
+  }
+
+  // create a fragment for SVG
+  function createSVGFragment(node, html) {
+    var document = node.ownerDocument;
+    var fragment = document.createDocumentFragment();
+    var container = document.createElementNS(SVG_NAMESPACE, 'svg');
+    container.innerHTML = html;
+    appendNodes(fragment, slice.call(container.childNodes));
     return fragment;
   }
 
@@ -853,7 +876,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
         template = statics;
         fragment = hyperHTML.document.createDocumentFragment();
         container = type === 'svg' ?
-          hyperHTML.document.createElementNS('http://www.w3.org/2000/svg', 'svg') :
+          hyperHTML.document.createElementNS(SVG_NAMESPACE, 'svg') :
           fragment;
         render = hyperHTML.bind(container);
       }

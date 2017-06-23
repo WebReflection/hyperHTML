@@ -398,6 +398,9 @@ tressa.async(function (done) {
   hyperHTML.bind(wrap)`<br>${['1', '2']}<br>`;
   hyperHTML.bind(wrap)`<br>${document.createDocumentFragment()}<br>`;
   tressa.assert(true, 'passed various virtual content scenarios');
+  let svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  if (!('ownerSVGElement' in svgContainer)) svgContainer.ownerSVGElement = null;
+  hyperHTML.bind(svgContainer)`<rect x="1" y="2" />`;
   result = hyperHTML.wire(null, 'svg')`<svg></svg>`;
   tressa.assert(result.nodeName.toLowerCase() === 'svg', 'svg content is allowed too');
   result = hyperHTML.wire()``;
