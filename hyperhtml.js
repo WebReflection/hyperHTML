@@ -17,11 +17,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
       !hyper ||
       hyper.template !== (FF ? unique(template) : template)
     ) {
-      var fragment = upgrade.apply(this, arguments);
-      if (notAdopting) {
-        resetAndPopulate(this, fragment);
-      }
-      hyper = hypers.get(this);
+      hyper = upgrade.apply(this, arguments);
+      hypers.set(this, hyper);
     }
     update.apply(hyper.updates, arguments);
     return this;
@@ -105,7 +102,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
         resetAndPopulate(parent, child);
         break;
       case DOCUMENT_FRAGMENT_NODE:
-        if (-1 < indexOfDifferences(parent.childNodes, child.childNodes)) {
+        if (indexOfDifferences(parent.childNodes, child.childNodes) !== -1) {
           resetAndPopulate(parent, child);
         }
         break;
@@ -133,7 +130,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // append childNodes to a node from a specific index
   function updateViaArray(node, childNodes, i) {
     var fragment = emptyFragment(node);
-    if (0 < i) {
+    if (i !== 0) {
       removeNodeList(node.childNodes, i);
       appendNodes(fragment, childNodes.slice(i));
       node.appendChild(fragment);
@@ -163,12 +160,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
             if (length === 1) {
               any(value[0]);
             } else {
-              if (0 < length) type = typeof value[0];
+              if (length !== 0) type = typeof value[0];
               if (type === 'string') {
                 any(value.join(''));
               } else {
                 var i = indexOfDifferences(node.childNodes, value);
-                if (-1 < i) updateViaArray(node, value, i);
+                if (i !== -1) updateViaArray(node, value, i);
               }
             }
           } else {
@@ -250,7 +247,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
                 anyVirtual(value.join(''));
               } else {
                 var i = indexOfDifferences(childNodes, value);
-                if (-1 < i) {
+                if (i !== -1) {
                   var fragment = emptyFragment(node);
                   removeNodeList(childNodes, i);
                   value = value.slice(i);
@@ -353,10 +350,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // If attributes order is shuffled, threat the browser differently
   // Usually this is a well known IE only limitation but some older FF does the same.
-  var IE =  (function (p) {
+  var IE =  (function () {
+              var p  = globalDocument.createElement('p');
               p.innerHTML = '<i data-i="" class=""></i>';
               return /class/i.test(p.firstChild.attributes[0].name);
-            }(globalDocument.createElement('p')));
+            }());
 
   // ---------------------------------------------
   // Helpers
@@ -378,7 +376,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       child = childNodes[i];
       if (
         child.nodeType === ELEMENT_NODE ||
-        0 < trim.call(child.textContent).length
+        trim.call(child.textContent).length !== 0
       ) {
         content.push(child);
       }
@@ -466,7 +464,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
           if (!parentNode.hasAttribute(name)) {
             parentNode.setAttribute(name, '');
           }
-          target = parentNode[GET_ATTRIBUTE_NODE](name);
+          target = parentNode.getAttributeNode(name);
           break;
         case 'childNodes':
           switch (info.type) {
@@ -634,8 +632,19 @@ var hyperHTML = (function (globalDocument) {'use strict';
       Map;
 
   // TODO: which browser needs these partial polyfills here?
-  var isArray = Array.isArray || function (a) { return a instanceof Array; };
-  var trim = EXPANDO.trim || function () { return this.replace(/^\s+|\s+$/g, ''); };
+  var isArray = Array.isArray ||
+                (function () {
+                  var toString = {}.toString;
+                  // I once had an engine returning [array Array]
+                  // and I've got scared since!
+                  var s = toString.call([]);
+                  return function (a) {
+                    return toString.call(a) === s;
+                  };
+                }());
+  
+  var trim = EXPANDO.trim ||
+              function () { return this.replace(/^\s+|\s+$/g, ''); };
 
   // ---------------------------------------------
   // Shared variables
@@ -843,8 +852,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // invokes each update function passing interpolated value
   function update() {
-    for (var i = 1, length = arguments.length; i < length; i++)
+    for (var i = 1, length = arguments.length; i < length; i++) {
       this[i - 1](arguments[i]);
+    }
   }
 
   // create a template, if unknown
@@ -854,12 +864,14 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var updates;
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
-    var fragment = info.fragment.cloneNode(true);
-    updates = (notAdopting ?
-      createUpdates : discoverUpdates
-    ).call(this, fragment, info.paths);
-    hypers.set(this, {template: template, updates: updates});
-    return fragment;
+    if (notAdopting) {
+      var fragment = info.fragment.cloneNode(true);
+      updates = createUpdates.call(this, fragment, info.paths);
+      resetAndPopulate(this, fragment);
+    } else {
+      updates = discoverUpdates.call(this, info.fragment, info.paths);
+    }
+    return {template: template, updates: updates};
   }
 
   // ---------------------------------------------

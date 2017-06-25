@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>416/416</span>
+        <span class='fraction'>420/420</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>217/217</span>
+        <span class='fraction'>215/215</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>59/59</span>
+        <span class='fraction'>60/60</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>407/407</span>
+        <span class='fraction'>413/413</span>
       </div>
     </div>
   </div>
@@ -962,7 +962,19 @@
 917
 918
 919
-920</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+920
+921
+922
+923
+924
+925
+926
+927
+928
+929
+930
+931
+932</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -982,9 +994,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">68×</span>
-<span class="cline-any cline-yes">68×</span>
-<span class="cline-any cline-yes">54×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">132×</span>
@@ -1320,6 +1329,7 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1568,7 +1578,7 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">108×</span>
+<span class="cline-any cline-yes">74×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">36×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1598,7 +1608,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">8×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1813,16 +1834,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">68×</span>
-<span class="cline-any cline-yes">68×</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-yes">54×</span>
+<span class="cline-any cline-yes">54×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1900,11 +1924,8 @@
       !hyper ||
       hyper.template !== (FF ? unique(template) : template)
     ) {
-      var fragment = upgrade.apply(this, arguments);
-      if (notAdopting) {
-        resetAndPopulate(this, fragment);
-      }
-      hyper = hypers.get(this);
+      hyper = upgrade.apply(this, arguments);
+      hypers.set(this, hyper);
     }
     update.apply(hyper.updates, arguments);
     return this;
@@ -1988,7 +2009,7 @@
         resetAndPopulate(parent, child);
         break;
       case DOCUMENT_FRAGMENT_NODE:
-        if (-1 &lt; indexOfDifferences(parent.childNodes, child.childNodes)) {
+        if (indexOfDifferences(parent.childNodes, child.childNodes) !== -1) {
           resetAndPopulate(parent, child);
         }
         break;
@@ -2016,7 +2037,7 @@
   // append childNodes to a node from a specific index
   function updateViaArray(node, childNodes, i) {
     var fragment = emptyFragment(node);
-    if (0 &lt; i) {
+    if (i !== 0) {
       removeNodeList(node.childNodes, i);
       appendNodes(fragment, childNodes.slice(i));
       node.appendChild(fragment);
@@ -2046,12 +2067,12 @@
             if (length === 1) {
               any(value[0]);
             } else {
-              if (0 &lt; length) type = typeof value[0];
+              if (length !== 0) type = typeof value[0];
               if (type === 'string') {
                 any(value.join(''));
               } else {
                 var i = indexOfDifferences(node.childNodes, value);
-                if (-1 &lt; i) updateViaArray(node, value, i);
+                if (i !== -1) updateViaArray(node, value, i);
               }
             }
           } else {
@@ -2133,7 +2154,7 @@
                 anyVirtual(value.join(''));
               } else {
                 var i = indexOfDifferences(childNodes, value);
-                if (-1 &lt; i) {
+                if (i !== -1) {
                   var fragment = emptyFragment(node);
                   removeNodeList(childNodes, i);
                   value = value.slice(i);
@@ -2236,10 +2257,11 @@
 &nbsp;
   // If attributes order is shuffled, threat the browser differently
   // Usually this is a well known IE only limitation but some older FF does the same.
-  var IE =  (function (p) {
+  var IE =  (function () {
+              var p  = globalDocument.createElement('p');
               p.innerHTML = '&lt;i data-i="" class=""&gt;&lt;/i&gt;';
               return /class/i.test(p.firstChild.attributes[0].name);
-            }(globalDocument.createElement('p')));
+            }());
 &nbsp;
   // ---------------------------------------------
   // Helpers
@@ -2261,7 +2283,7 @@
       child = childNodes[i];
       if (
         child.nodeType === ELEMENT_NODE ||
-        0 &lt; trim.call(child.textContent).length
+        trim.call(child.textContent).length !== 0
       ) {
         content.push(child);
       }
@@ -2349,7 +2371,7 @@
           if (!parentNode.hasAttribute(name)) {
             parentNode.setAttribute(name, '');
           }
-          target = parentNode[GET_ATTRIBUTE_NODE](name);
+          target = parentNode.getAttributeNode(name);
           break;
         case 'childNodes':
           switch (info.type) {
@@ -2517,8 +2539,19 @@
       Map;
 &nbsp;
   // TODO: which browser needs these partial polyfills here?
-  var isArray = Array.isArray || function (a) { return a instanceof Array; };
-  var trim = EXPANDO.trim || function () { return this.replace(/^\s+|\s+$/g, ''); };
+  var isArray = Array.isArray ||
+                (function () {
+                  var toString = {}.toString;
+                  // I once had an engine returning [array Array]
+                  // and I've got scared since!
+                  var s = toString.call([]);
+                  return function (a) {
+                    return toString.call(a) === s;
+                  };
+                }());
+  
+  var trim = EXPANDO.trim ||
+              function () { return this.replace(/^\s+|\s+$/g, ''); };
 &nbsp;
   // ---------------------------------------------
   // Shared variables
@@ -2726,8 +2759,9 @@
 &nbsp;
   // invokes each update function passing interpolated value
   function update() {
-    for (var i = 1, length = arguments.length; i &lt; length; i++)
+    for (var i = 1, length = arguments.length; i &lt; length; i++) {
       this[i - 1](arguments[i]);
+    }
   }
 &nbsp;
   // create a template, if unknown
@@ -2737,12 +2771,14 @@
     var updates;
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
-    var fragment = info.fragment.cloneNode(true);
-    updates = (notAdopting ?
-      createUpdates : discoverUpdates
-    ).call(this, fragment, info.paths);
-    hypers.set(this, {template: template, updates: updates});
-    return fragment;
+    if (notAdopting) {
+      var fragment = info.fragment.cloneNode(true);
+      updates = createUpdates.call(this, fragment, info.paths);
+      resetAndPopulate(this, fragment);
+    } else {
+      updates = discoverUpdates.call(this, info.fragment, info.paths);
+    }
+    return {template: template, updates: updates};
   }
 &nbsp;
   // ---------------------------------------------
@@ -2806,7 +2842,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Jun 25 2017 12:59:08 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Jun 25 2017 19:37:31 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>
