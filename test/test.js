@@ -1,6 +1,15 @@
 tressa.title('HyperHTML');
 tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
+/*
+tressa.async(function (done) {
+  var wrap = document.createElement('p');
+  hyperHTML.bind(wrap)`${1}`;
+  hyperHTML.bind(wrap)`${2}`;
+  tressa.assert(wrap.textContent == 2);
+  done();
+})
+*/
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;
@@ -321,6 +330,27 @@ tressa.async(function (done) {
   }
 })
 .then(function () {
+  tressa.log('## weird .adopt(node) cases');
+  let wrap = document.createElement('div');
+  wrap.innerHTML = '<div>text</div>';
+  hyperHTML.adopt(wrap)`<div> ${'right'}</div>`;
+  tressa.assert(wrap.innerHTML === '<div> right</div>', 'right text OK');
+  hyperHTML.adopt(wrap)`<div>${'left'} </div>`;
+  tressa.assert(wrap.innerHTML === '<div>left </div>', 'left text OK');
+  wrap.innerHTML = '';
+  hyperHTML.adopt(wrap)`${'any'}`;
+  tressa.assert(wrap.innerHTML === 'any', '`${\'virtual\'}` is like `${\'any\'}`');
+  wrap.innerHTML = '<br>';
+  hyperHTML.adopt(wrap)`<br>${'virtual'}`;
+  tressa.assert(/^<br>virtual<!--.+?-->$/.test(wrap.innerHTML), '`<br>${\'virtual\'}`');
+  wrap.innerHTML = '<hr>';
+  hyperHTML.adopt(wrap)`${'virtual'}<hr>`;
+  tressa.assert(/^virtual<!--.+?--><hr>$/.test(wrap.innerHTML), '${\'virtual\'}<hr>`');
+  wrap.innerHTML = '<br><i>before</i><hr>';
+  hyperHTML.adopt(wrap)`<br>${'<strong>after</strong>'}<hr>`;
+  tressa.assert(/^<br><strong>after<\/strong><!--.+?--><hr>$/.test(wrap.innerHTML), '<br>${\'<strong>after</strong>\'}<hr>');
+})
+.then(function () {
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let result = hyperHTML.wire()`<!--not hyprHTML-->`;
@@ -358,6 +388,8 @@ tressa.async(function (done) {
   let onclick = (e) => {};
   let handler = {handleEvent: onclick};
   hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
+  handler = {handleEvent: onclick};
+  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
   hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
   hyperHTML.bind(wrap)`<br>${arr[0]}<br>`;
   hyperHTML.bind(wrap)`<br>${arr}<br>`;
@@ -366,13 +398,24 @@ tressa.async(function (done) {
   hyperHTML.bind(wrap)`<br>${['1', '2']}<br>`;
   hyperHTML.bind(wrap)`<br>${document.createDocumentFragment()}<br>`;
   tressa.assert(true, 'passed various virtual content scenarios');
+  let svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  if (!('ownerSVGElement' in svgContainer)) svgContainer.ownerSVGElement = null;
+  hyperHTML.bind(svgContainer)`<rect x="1" y="2" />`;
   result = hyperHTML.wire(null, 'svg')`<svg></svg>`;
   tressa.assert(result.nodeName.toLowerCase() === 'svg', 'svg content is allowed too');
   result = hyperHTML.wire()``;
   tressa.assert(!result.innerHTML, 'empty content');
   let tr = hyperHTML.wire()`<tr><td>ok</td></tr>`;
   tressa.assert(true, 'even TR as template');
+
+  hyperHTML.bind(wrap)` ${1} `;
+  tressa.assert(wrap.textContent === ' 1 ', 'text in between');
+
+  hyperHTML.bind(wrap)` <br>${1}</br> `;
+  tressa.assert(/ <br>1<!--_hyper_html:\s*[0-9-]+;--><br> /.test(wrap.innerHTML), 'virtual content in between');
+
 })
+// */
 .then(function () {
   if (!tressa.exitCode) {
     document.body.style.backgroundColor = '#0FA';
