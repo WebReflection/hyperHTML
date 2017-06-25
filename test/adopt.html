@@ -2,13 +2,13 @@
 <html>
   <head>
     <script defer
-            src="https://unpkg.com/hyperhtml@latest/min.js"></script>
+            src="../hyperhtml.js"></script>
   </head>
   <body>
     <div test="before"> before
       <ul>
         <li> lonely </li>
-      </ul>NO<hr>
+      </ul><i>NO</i><hr>
     </div>
   </body>
   <script>
@@ -22,7 +22,7 @@
             {name: 'first'},
             {name: 'second'}
           ],
-          inBetween: 'YES'
+          inBetween: '<strong>YES</strong>'
         }
       );
       function update(render, model) {

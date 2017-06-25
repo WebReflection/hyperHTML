@@ -20030,7 +20030,7 @@ var render = function () {
   renderer`
     <div>
       <button onclick="${ onClick }"> update </button>
-      <p id='debug'></p>${ 
+      <p id='debug'></p>${
         state.items.map((item, i) => hyperHTML.wire(item)`
         <h1 class="${ i%2 === 0 ? 'red' : '' }">
             ${ item.name }
