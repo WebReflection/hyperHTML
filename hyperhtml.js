@@ -525,6 +525,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   childNodes[childNodes.length - 1].nextElementSibling :
                   slice.call(children, after)[0]
               );
+              if (childNodes.length === 0) {
+                removePreviousText(parentNode, target);
+              }
               break;
           }
           break;
@@ -566,6 +569,15 @@ var hyperHTML = (function (globalDocument) {'use strict';
   function removeAttributeList(list) {
     for (var i = 0, length = list.length; i < length; i++) {
       list[i++].removeAttribute(list[i]);
+    }
+  }
+
+  // remove all text nodes from a virtual space
+  function removePreviousText(parentNode, node) {
+    var previousSibling = node.previousSibling;
+    if (previousSibling && previousSibling.nodeType === TEXT_NODE) {
+      parentNode.removeChild(previousSibling);
+      removePreviousText(parentNode, node);
     }
   }
 
