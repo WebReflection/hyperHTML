@@ -351,6 +351,79 @@ tressa.async(function (done) {
   tressa.assert(/^<br><strong>after<\/strong><!--.+?--><hr>$/.test(wrap.innerHTML), '<br>${\'<strong>after</strong>\'}<hr>');
 })
 .then(function () {
+  tressa.log('## hyperHTML.wire(node, "adopt")');
+  let wrap = document.createElement('div');
+  wrap.innerHTML = '<ul><li>before</li></ul>';
+  let items = [{text: 'first'}];
+  let li = wrap.querySelector('li');
+  let result = hyperHTML.adopt(wrap)`<ul>${
+    items.map(item => hyperHTML.wire(item, 'adopt')`
+      <li> ${item.text} </li>
+    `)
+  }</ul>`;
+  let list = wrap.querySelectorAll('li');
+  tressa.assert(
+    list.length === 1 &&
+    list[0] === li &&
+    result.innerHTML === '<ul><li> first </li></ul>',
+    'one element can be adopted'
+  );
+  result = hyperHTML.adopt(wrap)`<ul>${
+    items.map(item => hyperHTML.wire(item, 'adopt')`
+      <li> ${item.text} </li>
+    `)
+  }</ul>`;
+  list = wrap.querySelectorAll('li');
+  tressa.assert(
+    list.length === 1 &&
+    list[0] === li &&
+    result.innerHTML === '<ul><li> first </li></ul>',
+    'even after multiple passes'
+  );
+  wrap = document.createElement('div');
+  wrap.innerHTML = '<ul></ul>';
+  result = hyperHTML.adopt(wrap)`<ul>${
+    [{text: 'new'}, {text: 'nodes'}].map(item => hyperHTML.wire(item, 'adopt')`
+      <li> ${item.text} </li>
+    `)
+  }</ul>`;
+  list = wrap.querySelectorAll('li');
+  tressa.assert(
+    list.length === 2 &&
+    result.innerHTML === '<ul><li> new </li><li> nodes </li></ul>',
+    'if not there, elements get created'
+  );
+
+  wrap = document.createElement('div');
+  wrap.innerHTML = '<p></p><hr>';
+  result = hyperHTML.adopt(wrap)`<p></p>${
+    hyperHTML.wire(items[0], 'adopt')`<span> ${items[0].text} </span>`
+  }<hr>`;
+  let lastResult = result.innerHTML;
+  result = hyperHTML.adopt(wrap)`<p></p>${
+    items.map(item => hyperHTML.wire(item, 'adopt')`<span> ${item.text} </span>`)
+  }<hr>`;
+  tressa.assert(
+    lastResult === result.innerHTML,
+    'virtual content can be adopted too'
+  );
+
+
+  wrap = document.createElement('div');
+  wrap.innerHTML = '<svg></svg>';
+  if (!('ownerSVGElement' in wrap.firstChild)) wrap.firstChild.ownerSVGElement = null;
+  result = hyperHTML.adopt(wrap)`<svg>${
+    [{x: 1, y: 2}].map(item => hyperHTML.wire(item, 'adopt')`
+      <rect x="${item.x}" y="${item.y}" />
+    `)
+  }</svg>`;
+  tressa.assert(
+    result.innerHTML === '<svg><rect x="1" y="2"></rect></svg>',
+    'svg content can be adopted too'
+  );
+
+})
+.then(function () {
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let result = hyperHTML.wire()`<!--not hyprHTML-->`;

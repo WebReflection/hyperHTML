@@ -30,7 +30,7 @@ function adopt() {
       <button onclick="${ onClick }"> update </button>
       <button onclick="${ adopt }"> adopt </button>
       <p id='debug'></p>${ 
-        state.items.map((item, i) => hyperHTML.wire(item)`
+        state.items.map((item, i) => hyperHTML.wire(item, 'adopt')`
         <h1 class="${ i%2 === 0 ? 'red' : '' }">
             ${ item.name }
           </h1>` 
