@@ -63,7 +63,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
   var OWNER_SVG_ELEMENT = 'ownerSVGElement';
   var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-  var GET_ATTRIBUTE_NODE = 'getAttributeNode';
   var SHOULD_USE_ATTRIBUTE = /^style$/i;
   var EXPANDO = '_hyper_html: ';
   var UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
@@ -314,7 +313,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
             // with IE the order doesn't really matter
             // as long as the right attribute is addressed
             IE ?
-              node[GET_ATTRIBUTE_NODE](IEAttributes.shift()) :
+              node.attributes[IEAttributes.shift()] :
               attribute
           )
         );
@@ -482,13 +481,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
       i < length; i++
     ) {
       switch (path[i++]) {
-        case GET_ATTRIBUTE_NODE:
         case 'attributes':
           var name = virtualNode.name;
           if (!parentNode.hasAttribute(name)) {
             parentNode.setAttribute(name, '');
           }
-          target = parentNode.getAttributeNode(name);
+          target = parentNode.attributes[name];
           break;
         case 'childNodes':
           switch (info.type) {
@@ -746,9 +744,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
             case 'children':
               parentNode = getChildren(parentNode)[path[i]];
               break;
-            case GET_ATTRIBUTE_NODE:
-              parentNode = parentNode[name](path[i]);
-              break;
             default:
               parentNode = parentNode[name][path[i]];
               break;
@@ -827,14 +822,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       case ATTRIBUTE_NODE:
       default: // jsdom here does not provide a nodeType 2 ...
         parentNode = node.ownerElement;
-        if (IE) {
-          path.unshift(GET_ATTRIBUTE_NODE, node.name);
-        } else {
-          path.unshift(
-            'attributes',
-            path.indexOf.call(parentNode.attributes, node)
-          );
-        }
+        path.unshift('attributes', node.name);
         break;
     }
     for (

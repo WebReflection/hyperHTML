@@ -22,12 +22,12 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>464/464</span>
+        <span class='fraction'>459/459</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>239/239</span>
+        <span class='fraction'>235/235</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -37,7 +37,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>456/456</span>
+        <span class='fraction'>451/451</span>
       </div>
     </div>
   </div>
@@ -1041,19 +1041,7 @@
 996
 997
 998
-999
-1000
-1001
-1002
-1003
-1004
-1005
-1006
-1007
-1008
-1009
-1010
-1011</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+999</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1118,7 +1106,6 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
@@ -1538,7 +1525,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">72×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8×</span>
 <span class="cline-any cline-yes">8×</span>
 <span class="cline-any cline-yes">6×</span>
@@ -1802,11 +1788,8 @@
 <span class="cline-any cline-yes">34×</span>
 <span class="cline-any cline-yes">34×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20×</span>
-<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-yes">30×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">46×</span>
@@ -1883,13 +1866,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20×</span>
 <span class="cline-any cline-yes">20×</span>
-<span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">70×</span>
@@ -2128,7 +2104,6 @@
   var OWNER_SVG_ELEMENT = 'ownerSVGElement';
   var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 &nbsp;
-  var GET_ATTRIBUTE_NODE = 'getAttributeNode';
   var SHOULD_USE_ATTRIBUTE = /^style$/i;
   var EXPANDO = '_hyper_html: ';
   var UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
@@ -2379,7 +2354,7 @@
             // with IE the order doesn't really matter
             // as long as the right attribute is addressed
             IE ?
-              node[GET_ATTRIBUTE_NODE](IEAttributes.shift()) :
+              node.attributes[IEAttributes.shift()] :
               attribute
           )
         );
@@ -2547,13 +2522,12 @@
       i &lt; length; i++
     ) {
       switch (path[i++]) {
-        case GET_ATTRIBUTE_NODE:
         case 'attributes':
           var name = virtualNode.name;
           if (!parentNode.hasAttribute(name)) {
             parentNode.setAttribute(name, '');
           }
-          target = parentNode.getAttributeNode(name);
+          target = parentNode.attributes[name];
           break;
         case 'childNodes':
           switch (info.type) {
@@ -2811,9 +2785,6 @@
             case 'children':
               parentNode = getChildren(parentNode)[path[i]];
               break;
-            case GET_ATTRIBUTE_NODE:
-              parentNode = parentNode[name](path[i]);
-              break;
             default:
               parentNode = parentNode[name][path[i]];
               break;
@@ -2892,14 +2863,7 @@
       case ATTRIBUTE_NODE:
       default: // jsdom here does not provide a nodeType 2 ...
         parentNode = node.ownerElement;
-        if (IE) {
-          path.unshift(GET_ATTRIBUTE_NODE, node.name);
-        } else {
-          path.unshift(
-            'attributes',
-            path.indexOf.call(parentNode.attributes, node)
-          );
-        }
+        path.unshift('attributes', node.name);
         break;
     }
     for (
@@ -3079,7 +3043,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jun 26 2017 10:19:25 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jun 27 2017 07:07:44 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>
