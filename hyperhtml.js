@@ -30,7 +30,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       notAdopting = false;
       hyperHTML.apply(node, arguments);
       notAdopting = true;
-      return this;
+      return node;
     };
   };
 
@@ -147,25 +147,37 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // `<div>${'any'}</div>`
   function setAnyContent(node) {
     return function any(value) {
-      var type = typeof value;
-      switch (type) {
+      switch (typeof value) {
         case 'string':
         case 'number':
         case 'boolean':
           node.innerHTML = value;
           break;
+        case 'function':
+          any(value(node, node.children, 0));
+          break;
         default:
           if (isArray(value)) {
-            var length = value.length;
+            var i, length = value.length;
             if (length === 1) {
               any(value[0]);
             } else {
-              if (length !== 0) type = typeof value[0];
-              if (type === 'string') {
-                any(value.join(''));
-              } else {
-                var i = indexOfDifferences(node.childNodes, value);
-                if (i !== -1) updateViaArray(node, value, i);
+              switch (length === 0 ? '' : typeof value[0]) {
+                case 'string':
+                  any(value.join(''));
+                  break;
+                case 'function':
+                  var children = slice.call(node.children);
+                  for (i = 0, length = value.length; i < length; i++) {
+                    value[i] = value[i](node, children, i);
+                  }
+                  removeNodeList(children, i);
+                  any(value.concat.apply([], value));
+                  break;
+                default:
+                  i = indexOfDifferences(node.childNodes, value);
+                  if (i !== -1) updateViaArray(node, value, i);
+                  break;
               }
             }
           } else {
@@ -235,26 +247,38 @@ var hyperHTML = (function (globalDocument) {'use strict';
           childNodes = slice.call(fragment.childNodes);
           node.parentNode.insertBefore(fragment, node);
           break;
+        case 'function':
+          anyVirtual(value(node.parentNode, childNodes, 0));
+          break;
         default:
           if (isArray(value)) {
-            var length = value.length;
+            var i, length = value.length;
             if (length === 0) {
               removeNodeList(childNodes, 0);
               childNodes = [];
             } else {
-              var type = typeof value[0];
-              if (type === 'string') {
-                anyVirtual(value.join(''));
-              } else {
-                var i = indexOfDifferences(childNodes, value);
-                if (i !== -1) {
-                  var fragment = emptyFragment(node);
-                  removeNodeList(childNodes, i);
-                  value = value.slice(i);
-                  appendNodes(fragment, value);
-                  node.parentNode.insertBefore(fragment, node);
-                  childNodes = childNodes.slice(0, i).concat(value);
-                }
+              switch (typeof value[0]) {
+                case 'string':
+                  anyVirtual(value.join(''));
+                  break;
+                case 'function':
+                  var parentNode = node.parentNode;
+                  for (i = 0, length = value.length; i < length; i++) {
+                    value[i] = value[i](parentNode, childNodes, i);
+                  }
+                  anyVirtual(value.concat.apply([], value));
+                  break;
+                default:
+                  i = indexOfDifferences(childNodes, value);
+                  if (i !== -1) {
+                    var fragment = emptyFragment(node);
+                    removeNodeList(childNodes, i);
+                    value = value.slice(i);
+                    appendNodes(fragment, value);
+                    node.parentNode.insertBefore(fragment, node);
+                    childNodes = childNodes.slice(0, i).concat(value);
+                  }
+                  break;
               }
             }
           } else {
@@ -532,8 +556,14 @@ var hyperHTML = (function (globalDocument) {'use strict';
           }
           break;
         default:
-          parentNode = getChildren(parentNode)[path[i]];
-          target = parentNode;
+          // if the node is not there, create it
+          target = getChildren(parentNode)[path[i]] ||
+                    parentNode.appendChild(
+                      parentNode.ownerDocument.createElement(
+                        getNode(virtual, path.slice(0, i + 1)).nodeName
+                      )
+                    );
+          parentNode = target;
           break;
       }
     }
@@ -892,19 +922,17 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // create a new wire for generic DOM content
   function wireContent(type) {
-    var content, container, fragment, render, setup, template;
-    return function update(statics) {
-      if (FF) statics = unique(statics);
-      if (template !== statics) {
-        setup = true;
-        template = statics;
-        fragment = hyperHTML.document.createDocumentFragment();
-        container = type === 'svg' ?
-          hyperHTML.document.createElementNS(SVG_NAMESPACE, 'svg') :
-          fragment;
-        render = hyperHTML.bind(container);
-      }
-      render.apply(null, arguments);
+    var adopter, content, container, fragment, render, setup, template;
+
+    function before(document) {
+      fragment = document.createDocumentFragment();
+      container = type === 'svg' ?
+        document.createElementNS(SVG_NAMESPACE, 'svg') :
+        fragment;
+      render = hyperHTML.bind(container);
+    }
+
+    function after() {
       if (setup) {
         setup = false;
         if (type === 'svg') {
@@ -913,7 +941,46 @@ var hyperHTML = (function (globalDocument) {'use strict';
         content = createContent(fragment);
       }
       return content;
-    };
+    }
+
+    return type === 'adopt' ?
+      function adopt(statics) {
+        var args = arguments;
+        if (FF) statics = unique(statics);
+        if (template !== statics) {
+          setup = true;
+          template = statics;
+          adopter = function (parentNode, children, i) {
+            if (setup) {
+              if (i < children.length) {
+                container = children[i];
+                fragment = {
+                  ownerDocument: container.ownerDocument,
+                  childNodes: [container],
+                  children: [container]
+                };
+                render = hyperHTML.adopt(fragment);
+              } else {
+                if (OWNER_SVG_ELEMENT in parentNode) type = 'svg';
+                before(parentNode.ownerDocument);
+              }
+            }
+            render.apply(null, args);
+            return after();
+          };
+        }
+        return adopter;
+      } :
+      function update(statics) {
+        if (FF) statics = unique(statics);
+        if (template !== statics) {
+          setup = true;
+          template = statics;
+          before(hyperHTML.document);
+        }
+        render.apply(null, arguments);
+        return after();
+      };
   }
 
   // setup a weak reference if needed and return a wire by ID
