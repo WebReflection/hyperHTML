@@ -179,6 +179,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   break;
               }
             }
+          } else if ('then' in value) {
+            value.then(any);
           } else {
             populateNode(node, value);
           }
@@ -280,6 +282,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   break;
               }
             }
+          } else if ('then' in value) {
+            value.then(anyVirtual);
           } else {
             removeNodeList(childNodes, 0);
             childNodes = value.nodeType === DOCUMENT_FRAGMENT_NODE ?

@@ -424,6 +424,24 @@ tressa.async(function (done) {
 
 })
 .then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Promises instead of nodes');
+    let wrap = document.createElement('div');
+    let render = hyperHTML.bind(wrap);
+    render`<p>${
+      new Promise(function (r) { setTimeout(r, 50, 1); })
+    }</p>${
+      new Promise(function (r) { setTimeout(r, 10, 2); })
+    }<hr>`;
+    let result = wrap.innerHTML;
+    setTimeout(function () {
+      tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
+      tressa.assert(/^<p>1<\/p>2<!--.+?--><hr>$/.test(wrap.innerHTML), 'both any and virtual content correct');
+      done();
+    }, 100);
+  });
+})
+.then(function () {
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let result = hyperHTML.wire()`<!--not hyprHTML-->`;
