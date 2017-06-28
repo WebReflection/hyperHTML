@@ -429,14 +429,24 @@ tressa.async(function (done) {
     let wrap = document.createElement('div');
     let render = hyperHTML.bind(wrap);
     render`<p>${
-      new Promise(function (r) { setTimeout(r, 50, 1); })
+      new Promise(function (r) { setTimeout(r, 50, 'any'); })
     }</p>${
-      new Promise(function (r) { setTimeout(r, 10, 2); })
-    }<hr>`;
+      new Promise(function (r) { setTimeout(r, 10, 'virtual'); })
+    }<hr><div>${[
+      new Promise(function (r) { setTimeout(r, 20, 1); }),
+      new Promise(function (r) { setTimeout(r, 10, 2); }),
+    ]}</div>${[
+      new Promise(function (r) { setTimeout(r, 20, 3); }),
+      new Promise(function (r) { setTimeout(r, 10, 4); }),
+    ]}`;
     let result = wrap.innerHTML;
     setTimeout(function () {
+      console.log(wrap.innerHTML);
       tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
-      tressa.assert(/^<p>1<\/p>2<!--.+?--><hr>$/.test(wrap.innerHTML), 'both any and virtual content correct');
+      tressa.assert(
+        /^<p>any<\/p>virtual<!--.+?--><hr><div>12<\/div>34<!--.+?-->$/.test(wrap.innerHTML),
+        'both any and virtual content correct'
+      );
       done();
     }, 100);
   });

@@ -163,6 +163,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
             } else {
               switch (length === 0 ? '' : typeof value[0]) {
                 case 'string':
+                case 'number':
+                case 'boolean':
                   any(value.join(''));
                   break;
                 case 'function':
@@ -173,13 +175,18 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   removeNodeList(children, i);
                   any(value.concat.apply([], value));
                   break;
+                case 'object':
+                  if (isPromise_ish(value[0])) {
+                    Promise.all(value).then(any);
+                    break;
+                  }
                 default:
                   i = indexOfDifferences(node.childNodes, value);
                   if (i !== -1) updateViaArray(node, value, i);
                   break;
               }
             }
-          } else if ('then' in value) {
+          } else if (isPromise_ish(value)) {
             value.then(any);
           } else {
             populateNode(node, value);
@@ -260,6 +267,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
             } else {
               switch (typeof value[0]) {
                 case 'string':
+                case 'number':
+                case 'boolean':
                   anyVirtual(value.join(''));
                   break;
                 case 'function':
@@ -269,6 +278,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   }
                   anyVirtual(value.concat.apply([], value));
                   break;
+                case 'object':
+                  if (isPromise_ish(value[0])) {
+                    Promise.all(value).then(anyVirtual);
+                    break;
+                  }
                 default:
                   i = indexOfDifferences(childNodes, value);
                   if (i !== -1) {
@@ -282,7 +296,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   break;
               }
             }
-          } else if ('then' in value) {
+          } else if (isPromise_ish(value)) {
             value.then(anyVirtual);
           } else {
             removeNodeList(childNodes, 0);
@@ -595,6 +609,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // add or remove event listeners from a node
   function handleEvent(node, action, ontype, eventListener) {
     node[action + 'EventListener'](ontype.slice(2), eventListener);
+  }
+
+  // quick and dirty Promise check
+  function isPromise_ish(value) {
+    return !!value && 'then' in value;
   }
 
   // remove a list of [node, attribute]
