@@ -613,7 +613,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // quick and dirty Promise check
   function isPromise_ish(value) {
-    return !!value && 'then' in value;
+    return value != null && 'then' in value;
   }
 
   // remove a list of [node, attribute]
