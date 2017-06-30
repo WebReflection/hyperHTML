@@ -16,9 +16,9 @@ This is the first bit to understand: each template string is unique and if the t
 
 #### How are known nodes discovered
 
-The very first time a new template is used against a node, its full content is injected into such node using a special `<!--_hyperHTML-965678965456-->` random comment instead of real values.
+The very first time a new template is used against a node or a fragment, its full content is injected into such node using a special `<!--_hyperHTML-965678965456-->` random comment instead of real values.
 
-Such comment is used to discover both attributes, text nodes, and whole fragments or HTML content, the very first time only.
+Such comment is used to discover both attributes, text nodes, and whole fragments or HTML content, but the very first time only.
 
 ```js
 // simulation of initial fake injection
@@ -41,9 +41,9 @@ console.log(
 
 As basic example, it would be now possible to drop that `comment` with a text node that will update its content when `values[0]` is passed on, and once all nodes have been mapped 1:1 to the amount of extra arguments passed along to update each sub-value, real data is used and real data will be used from that very moment on to populate nodes and attributes.
 
-At this point `hyperHTML` uses an [expando property](https://developer.mozilla.org/en-US/docs/Glossary/Expando), for the sake of wider compatibility and to avoid too much [GC pressure](https://mail.mozilla.org/pipermail/es-discuss/2014-December/040565.html) due a potentially heavily populated WeakMap, to save the list of callbacks used to update only what's needed to be updated, being specific text nodes, attributes, or fragments, and together with the static template reference.
+At this point `hyperHTML` uses a WeakMap, where available, or an [expando property](https://developer.mozilla.org/en-US/docs/Glossary/Expando), to save the list of callbacks used to update only what's needed to be updated, being specific text nodes, attributes, or fragments, and together with a reference to the static template literal it's representing.
 
-From now on, every time the same template is used, all `hyperHTML` has to do is the following:
+From now on, every time the same template literal is used, all `hyperHTML` has to do is the following:
 
 ```js
 // used when the template is known
@@ -66,9 +66,11 @@ Well, that's half of the story, 'cause [attributes are just nodes](https://dom.s
 
 This means that a generic attribute can be updated simply setting its `.value` property, like an `input` element would update its view when we set its value. It'd be silly to `input.setAttribute('value', content)` when we can just `input.value = content`, right?
 
-And that's how attributes are updated here. Trapped in a closure, a new template render will simply target the specific attribute and change its value, with the only exception of those attributes prefixed with `on`.
+And that's how attributes are updated here. Trapped in a closure, a new template render will simply target the specific attribute and change its value, with the only exception of those special attributes inherited through the prototype.
 
-These are meant to be event handlers. And since nobody likes to deal with handlers as string content, `hyperHTML` recognizes these attributes and it actually remove them from the node, but it will assign to the attribute owner, the node, the DOM Level 0 event.
+These are usually meant to be booleans or event handlers ( i.e. _onclick_ ).
+
+Since nobody likes to deal with handlers as string content, `hyperHTML` recognizes these attributes and it actually remove them from the node, but it will assign to the attribute owner, the node, the DOM Level 0 event.
 
 ```js
 // simulation of the attribute update mechanism
@@ -100,7 +102,11 @@ function update(render, state) {
 
 The performance oriented simplicity of `hyperHTML` simply looks for mutable attributes, it doesn't bother with partially mutable attributes. You can also agree with me above code is [YAGNI](https://en.wikipedia.org/wiki/You_aren't_gonna_need_it) at its best.
 
-Following **the correct way** to obtain the exact same result:
+Pretending that any attribute node can be updated partially it's a lie 'cause that's not possible.
+
+We change one sub-portion of the attribute? We change it all regardless.
+
+Accordingly, **the correct way** to obtain the exact same result is the following one:
 ```js
 function update(render, state) {
   render`
@@ -121,11 +127,11 @@ function update(render) {
   render`
     <div>
       ${'text node'}
-      <h3>${'html' || node || array}</h3>
+      <h3>${'html' || node || Promise || array}</h3>
       ${'text node'}
       <ul>${
         // no surrounding chars is HTML
-        'html' || node || array
+        'html' || node || Promise || array
       }</ul>
       <!-- everything else is text -->
       ${new Date && 'text node'}
@@ -153,7 +159,7 @@ update(hyperHTML.bind(document.body));
 ```
 
 
-## How are HTML and Document Fragments managed
+## How are HTML and Fragments managed
 
 This is "_the hard core_" bit. By this time, you should have understood how to hook yourself into HTML and fragments world.
 
@@ -188,10 +194,12 @@ Now we can return few different kind of things per each fragment:
 
   * a generic DOM `node`, probably the most common case, it will just be there where you expect it when you need it!
   * a `string`, in such case `innerHTML` will kick in like there's no tomorrow
-  * a `boolean` or a `number`, that will be injected through the cheap `textContent` instead of `innerHTML`
+  * a `boolean` or a `number`, that will be injected as text
   * a `DocumentFragment` which will be compared through its childNodes, and if already there, nothing will happen 'cause fragments are just an indirection to reach real updates, and these also lose nodes once appended
+  * a `Promise` that whenever resolves, it will update the respective bit of the DOM, being this a node, a fragment, a string, and any other regular synchronous types. Please **note** Promises are currently supported only for parts of the template that target HTML. Text nodes and attributes cannot be updated through promises at this time.
   * an `Array` of _strings_, that will be injected through `innerHTML` and a brutal `.join('')`
-  * an `Array` of _nodes_, that if not already the same on the DOM, will be replaced all at once through a runtime fragment.
+  * an `Array` of _nodes_, that if not already the same on the DOM, will be replaced all at once through a runtime 
+  * an `Array` of _promises_, that once resolved via `Promise.all` will be replaced all at once.
 
 I think I've managed to not forget any case <sup><sub>(please [file a bug](issues/) if I did!)</sub></sup>,
 but the annoying bit is when you use a fragment as a target.
