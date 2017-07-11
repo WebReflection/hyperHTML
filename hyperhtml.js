@@ -284,14 +284,14 @@ var hyperHTML = (function (globalDocument) {'use strict';
                     break;
                   }
                 default:
-                  childNodes = updateVirtualNodes(node, childNodes, value);
+                  updateVirtualNodes(node, childNodes, value);
                   break;
               }
             }
           } else if (isPromise_ish(value)) {
             value.then(anyVirtual);
           } else {
-            childNodes = updateVirtualNodes(
+            updateVirtualNodes(
               node,
               childNodes,
               value.nodeType === DOCUMENT_FRAGMENT_NODE ?
@@ -647,17 +647,18 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // update partially or fully the list of virtual nodes
+  // it modifies in place the childNodes list if necessary
   function updateVirtualNodes(node, childNodes, value) {
     var i = indexOfDifferences(childNodes, value);
     if (i !== -1) {
       var fragment = emptyFragment(node);
       removeNodeList(childNodes, i);
+      childNodes.splice(i);
       value = value.slice(i);
       appendNodes(fragment, value);
       node.parentNode.insertBefore(fragment, node);
-      childNodes = childNodes.slice(0, i).concat(value);
+      childNodes.push.apply(childNodes, value);
     }
-    return childNodes;
   }
 
   // used for common path creation.
