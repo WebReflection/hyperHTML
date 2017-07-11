@@ -441,7 +441,6 @@ tressa.async(function (done) {
     ]}`;
     let result = wrap.innerHTML;
     setTimeout(function () {
-      console.log(wrap.innerHTML);
       tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
       tressa.assert(
         /^<p>any<\/p>virtual<!--.+?--><hr><div>12<\/div>34<!--.+?-->$/.test(wrap.innerHTML),

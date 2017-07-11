@@ -260,8 +260,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
           break;
         default:
           if (isArray(value)) {
-            var i, length = value.length;
-            if (length === 0) {
+            if (value.length === 0) {
               removeNodeList(childNodes, 0);
               childNodes = [];
             } else {
@@ -273,7 +272,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   break;
                 case 'function':
                   var parentNode = node.parentNode;
-                  for (i = 0, length = value.length; i < length; i++) {
+                  for (var i = 0, length = value.length; i < length; i++) {
                     value[i] = value[i](parentNode, childNodes, i);
                   }
                   anyVirtual(value.concat.apply([], value));
