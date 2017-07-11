@@ -284,26 +284,20 @@ var hyperHTML = (function (globalDocument) {'use strict';
                     break;
                   }
                 default:
-                  i = indexOfDifferences(childNodes, value);
-                  if (i !== -1) {
-                    var fragment = emptyFragment(node);
-                    removeNodeList(childNodes, i);
-                    value = value.slice(i);
-                    appendNodes(fragment, value);
-                    node.parentNode.insertBefore(fragment, node);
-                    childNodes = childNodes.slice(0, i).concat(value);
-                  }
+                  childNodes = updateVirtualNodes(node, childNodes, value);
                   break;
               }
             }
           } else if (isPromise_ish(value)) {
             value.then(anyVirtual);
           } else {
-            removeNodeList(childNodes, 0);
-            childNodes = value.nodeType === DOCUMENT_FRAGMENT_NODE ?
-              slice.call(value.childNodes) :
-              [value];
-            node.parentNode.insertBefore(value, node);
+            childNodes = updateVirtualNodes(
+              node,
+              childNodes,
+              value.nodeType === DOCUMENT_FRAGMENT_NODE ?
+                slice.call(value.childNodes) :
+                [value]
+            );
           }
           break;
       }
@@ -650,6 +644,20 @@ var hyperHTML = (function (globalDocument) {'use strict';
         break;
     }
     return update;
+  }
+
+  // update partially or fully the list of virtual nodes
+  function updateVirtualNodes(node, childNodes, value) {
+    var i = indexOfDifferences(childNodes, value);
+    if (i !== -1) {
+      var fragment = emptyFragment(node);
+      removeNodeList(childNodes, i);
+      value = value.slice(i);
+      appendNodes(fragment, value);
+      node.parentNode.insertBefore(fragment, node);
+      childNodes = childNodes.slice(0, i).concat(value);
+    }
+    return childNodes;
   }
 
   // used for common path creation.
