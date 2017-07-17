@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/dom4/1.8.3/dom4.js">/* DOM4 */</script>
+    <script>document.write('<script src="../hyperhtml.js?_=' + Math.random() + '"><' + '/script>')</script>
+    <script>
+    this.onload = function () {
+      'use strict';
+      var _templateObject = _taggedTemplateLiteral(['\n  <div> ', ' </div>\n'], ['\n  <div> ', ' </div>\n']);
+      function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+      var text = 'I am OK';
+      try {
+        document.body.appendChild(hyperHTML.wire()(_templateObject, text));
+      } catch(e) { document.body.textContent = e.stack }
+    };
+    </script>
+  </head>
+  <body></body>
+</html>

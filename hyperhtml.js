@@ -390,6 +390,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
               return /class/i.test(p.firstChild.attributes[0].name);
             }());
 
+
+  // beside IE, old WebKit browsers don't have `children` in DocumentFragment
+  var WK = !('children' in globalDocument.createDocumentFragment());
+
   // ---------------------------------------------
   // Helpers
   // ---------------------------------------------
@@ -748,8 +752,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       };
 
   // returns children or retrieve them in IE/Edge
-  var getChildren = 'children' in globalDocument ?
-      function (node) { return node.children; } :
+  var getChildren = WK ?
       function (node) {
         for (var
           child,
@@ -763,11 +766,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
             children[j++] = child;
         }
         return children;
-      };
+      } :
+      function (node) { return node.children; };
 
   // return the correct node walking through a path
-  // fixes IE/Edge issues with attributes and children
-  var getNode = IE ?
+  // fixes IE/Edge issues with attributes and children (fixes old WebKit too)
+  var getNode = IE || WK ?
       function (parentNode, path) {
         for (var name, i = 0, length = path.length; i < length; i++) {
           name = path[i++];

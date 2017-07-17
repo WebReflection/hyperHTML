@@ -7,7 +7,7 @@ require('jsdom').env(
     global.hyperHTML = require('../hyperhtml.js');
     require('./test.js');
     setTimeout(function () {
-      var proto = global.document;
+      var proto = global.document.createDocumentFragment();
       do {
         proto = Object.getPrototypeOf(proto);
       } while(!Object.getOwnPropertyNames(proto, 'children'));
