@@ -394,21 +394,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
   var WK = !('children' in globalDocument.createDocumentFragment());
 
-  // IE/Edge gotcha
-  var nextElementSibling = IE ?
-    function (node) {
-      node = node.nextSibling;
-      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
-    } :
-    function (node) { return node.nextElementSibling; };
-
-  var previousElementSibling = IE ?
-    function (node) {
-      node = node.previousSibling;
-      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
-    } :
-    function (node) { return node.previousElementSibling; };
-
   // ---------------------------------------------
   // Helpers
   // ---------------------------------------------
@@ -817,6 +802,21 @@ var hyperHTML = (function (globalDocument) {'use strict';
           return $1 + $2 + UID + $2;
         };
   }
+
+  // IE/Edge gotcha with comment nodes
+  var nextElementSibling = IE ?
+    function (node) {
+      node = node.nextSibling;
+      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.nextElementSibling; };
+
+  var previousElementSibling = IE ?
+    function (node) {
+      node = node.previousSibling;
+      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.previousElementSibling; };
 
   // [element] = {template, updates};
   var hypers = new $WeakMap;
