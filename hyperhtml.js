@@ -394,6 +394,21 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
   var WK = !('children' in globalDocument.createDocumentFragment());
 
+  // IE/Edge gotcha
+  var nextElementSibling = IE ?
+    function (node) {
+      node = node.nextSibling;
+      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.nextElementSibling; };
+
+  var previousElementSibling = IE ?
+    function (node) {
+      node = node.previousSibling;
+      return node && node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.previousElementSibling; };
+
   // ---------------------------------------------
   // Helpers
   // ---------------------------------------------
@@ -531,9 +546,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
             case 'virtual':
               var children = getChildren(parentNode);
               var virtualChildren = getChildren(virtualNode.parentNode);
-              target = virtualNode.previousElementSibling;
+              target = previousElementSibling(virtualNode);
               var before = target ? (path.indexOf.call(virtualChildren, target) + 1) : -1;
-              target = virtualNode.nextElementSibling;
+              target = nextElementSibling(virtualNode);
               var after = target ? path.indexOf.call(virtualChildren, target) : -1;
               target = document.createComment(UID);
               switch (true) {
@@ -559,7 +574,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
               parentNode.insertBefore(
                 target,
                 childNodes.length ?
-                  childNodes[childNodes.length - 1].nextElementSibling :
+                  nextElementSibling(childNodes[childNodes.length - 1]) :
                   slice.call(children, after)[0]
               );
               if (childNodes.length === 0) {
