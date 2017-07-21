@@ -22,7 +22,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>480/480</span>
+        <span class='fraction'>482/482</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -32,12 +32,12 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>71/71</span>
+        <span class='fraction'>72/72</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>472/472</span>
+        <span class='fraction'>474/474</span>
       </div>
     </div>
   </div>
@@ -1091,7 +1091,12 @@
 1046
 1047
 1048
-1049</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1049
+1050
+1051
+1052
+1053
+1054</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1488,21 +1493,6 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6×</span>
-<span class="cline-any cline-yes">6×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1528,6 +1518,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">32×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">117×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1910,6 +1905,21 @@
 <span class="cline-any cline-yes">10×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
@@ -2533,22 +2543,7 @@
 &nbsp;
 &nbsp;
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
-  var WK = !('children' in globalDocument.createDocumentFragment());
-&nbsp;
-  // IE/Edge gotcha
-  var nextElementSibling = IE ?
-    function (node) {
-      node = node.nextSibling;
-      return node &amp;&amp; node.nodeType === ELEMENT_NODE ? node : undefined;
-    } :
-    function (node) { return node.nextElementSibling; };
-&nbsp;
-  var previousElementSibling = IE ?
-    function (node) {
-      node = node.previousSibling;
-      return node &amp;&amp; node.nodeType === ELEMENT_NODE ? node : undefined;
-    } :
-    function (node) { return node.previousElementSibling; };
+  var WK = !('children' in createDocumentFragment(globalDocument));
 &nbsp;
   // ---------------------------------------------
   // Helpers
@@ -2578,6 +2573,11 @@
     return content.length === 1 ? content[0] : content;
   }
 &nbsp;
+  // just a minifier friendly indirection
+  function createDocumentFragment(document) {
+    return document.createDocumentFragment();
+  }
+&nbsp;
   // given a node, inject some html and return
   // the resulting template document fragment
   function createFragment(node, html) {
@@ -2597,7 +2597,7 @@
     var needsTableWrap = false;
     if (!hasContent) {
       // DO NOT MOVE THE FOLLOWING LINE ELSEWHERE
-      fragment = document.createDocumentFragment();
+      fragment = createDocumentFragment(document);
       // (a jsdom + nodejs tests coverage gotcha)
 &nbsp;
       // el.innerHTML = '&lt;td&gt;&lt;/td&gt;'; is not possible
@@ -2627,7 +2627,7 @@
   // create a fragment for SVG
   function createSVGFragment(node, html) {
     var document = node.ownerDocument;
-    var fragment = document.createDocumentFragment();
+    var fragment = createDocumentFragment(document);
     var container = document.createElementNS(SVG_NAMESPACE, 'svg');
     container.innerHTML = html;
     appendNodes(fragment, slice.call(container.childNodes));
@@ -2673,7 +2673,7 @@
                   break;
                 }
               } while (target);
-              var fragment = document.createDocumentFragment();
+              var fragment = createDocumentFragment(document);
               if (before.length) {
                 fragment.appendChild(createText(parentNode, before));
               }
@@ -2741,7 +2741,7 @@
 &nbsp;
   // create an empty fragment from a generic node
   function emptyFragment(node) {
-    return node.ownerDocument.createDocumentFragment();
+    return createDocumentFragment(node.ownerDocument);
   }
 &nbsp;
   // given a node, returns text content before it or after it
@@ -2893,7 +2893,7 @@
   }
 &nbsp;
   // use native .append(...childNodes) where available
-  var appendNodes = 'append' in globalDocument ?
+  var appendNodes = 'append' in createDocumentFragment(globalDocument) ?
       function (node, childNodes) {
         node.append.apply(node, childNodes);
       } :
@@ -2958,6 +2958,21 @@
           return $1 + $2 + UID + $2;
         };
   }
+&nbsp;
+  // IE/Edge gotcha with comment nodes
+  var nextElementSibling = IE ?
+    function (node) {
+      node = node.nextSibling;
+      return node &amp;&amp; node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.nextElementSibling; };
+&nbsp;
+  var previousElementSibling = IE ?
+    function (node) {
+      node = node.previousSibling;
+      return node &amp;&amp; node.nodeType === ELEMENT_NODE ? node : undefined;
+    } :
+    function (node) { return node.previousElementSibling; };
 &nbsp;
   // [element] = {template, updates};
   var hypers = new $WeakMap;
@@ -3104,7 +3119,7 @@
     var adopter, content, container, fragment, render, setup, template;
 &nbsp;
     function before(document) {
-      fragment = document.createDocumentFragment();
+      fragment = createDocumentFragment(document);
       container = type === 'svg' ?
         document.createElementNS(SVG_NAMESPACE, 'svg') :
         fragment;
@@ -3193,7 +3208,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jul 20 2017 13:51:26 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Jul 22 2017 00:01:29 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>

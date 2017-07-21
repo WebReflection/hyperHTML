@@ -392,7 +392,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
 
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
-  var WK = !('children' in globalDocument.createDocumentFragment());
+  var WK = !('children' in createDocumentFragment(globalDocument));
 
   // ---------------------------------------------
   // Helpers
@@ -422,6 +422,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
     return content.length === 1 ? content[0] : content;
   }
 
+  // just a minifier friendly indirection
+  function createDocumentFragment(document) {
+    return document.createDocumentFragment();
+  }
+
   // given a node, inject some html and return
   // the resulting template document fragment
   function createFragment(node, html) {
@@ -441,7 +446,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var needsTableWrap = false;
     if (!hasContent) {
       // DO NOT MOVE THE FOLLOWING LINE ELSEWHERE
-      fragment = document.createDocumentFragment();
+      fragment = createDocumentFragment(document);
       // (a jsdom + nodejs tests coverage gotcha)
 
       // el.innerHTML = '<td></td>'; is not possible
@@ -471,7 +476,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // create a fragment for SVG
   function createSVGFragment(node, html) {
     var document = node.ownerDocument;
-    var fragment = document.createDocumentFragment();
+    var fragment = createDocumentFragment(document);
     var container = document.createElementNS(SVG_NAMESPACE, 'svg');
     container.innerHTML = html;
     appendNodes(fragment, slice.call(container.childNodes));
@@ -517,7 +522,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   break;
                 }
               } while (target);
-              var fragment = document.createDocumentFragment();
+              var fragment = createDocumentFragment(document);
               if (before.length) {
                 fragment.appendChild(createText(parentNode, before));
               }
@@ -585,7 +590,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // create an empty fragment from a generic node
   function emptyFragment(node) {
-    return node.ownerDocument.createDocumentFragment();
+    return createDocumentFragment(node.ownerDocument);
   }
 
   // given a node, returns text content before it or after it
@@ -737,7 +742,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // use native .append(...childNodes) where available
-  var appendNodes = 'append' in globalDocument ?
+  var appendNodes = 'append' in createDocumentFragment(globalDocument) ?
       function (node, childNodes) {
         node.append.apply(node, childNodes);
       } :
@@ -963,7 +968,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var adopter, content, container, fragment, render, setup, template;
 
     function before(document) {
-      fragment = document.createDocumentFragment();
+      fragment = createDocumentFragment(document);
       container = type === 'svg' ?
         document.createElementNS(SVG_NAMESPACE, 'svg') :
         fragment;
