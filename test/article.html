@@ -14,25 +14,25 @@
       <h3>${state.title}</h3>
       List of ${state.paragraphs.length} paragraphs:
       <ul>${
-        state.paragraphs
-          .map(p => `<li>${p.title}</li>`)
+        state.paragraphs.map(
+          p => hyperHTML.wire(p)`
+          <li> ${p.title} </li>`)
       }</ul>
     </article>
     `;
   }
 
-  var articleElement = document.querySelector('article');
-  update(
-    hyperHTML.bind(articleElement),
-    {
-      title: 'True story',
-      magic: true,
-      paragraphs: [
-        {title: 'touching'},
-        {title: 'incredible'},
-        {title: 'doge'}
-      ]
-    }
-  );
+  const articleElement = document.querySelector('article');
+  const state = {
+    title: 'True story',
+    magic: true,
+    paragraphs: [
+      {title: 'touching'},
+      {title: 'incredible'},
+      {title: 'doge'}
+    ]
+  };
+  const render = hyperHTML.bind(articleElement);
+  update(render, state);
   </script>
 </html>
