@@ -66,24 +66,31 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     tressa.log('## function attributes');
     var render = hyperHTML.bind(div);
+    var times = 0;
     update(function (e) {
+      console.log(e.type);
+      if (++times > 1) {
+        return tressa.assert(false, 'events are broken');
+      }
       if (e) {
         e.preventDefault();
         e.stopPropagation();
       }
       tressa.assert(true, 'onclick invoked');
       tressa.assert(!a.hasAttribute('onclick'), 'no attribute');
+      update(null);
+      e = document.createEvent('Event');
+      e.initEvent('click', false, false);
+      a.dispatchEvent(e);
       done(div);
     });
     function update(click) {
       return render`<a href="#" onclick="${click}">click</a>`;
     }
     var a = div.querySelector('a');
-    if (typeof CustomEvent === 'undefined') {
-      a.onclick();
-    } else {
-      a.dispatchEvent(new CustomEvent('click'));
-    }
+    var e = document.createEvent('Event');
+    e.initEvent('click', false, false);
+    a.dispatchEvent(e);
   });
 })
 .then(function (div) {
@@ -101,6 +108,14 @@ tressa.async(function (done) {
     tressa.assert(html === div.innerHTML, 'new HTML returned');
     done(div);
   });
+})
+.then(function () {
+    tressa.log('## custom events');
+    var render = hyperHTML.bind(document.createElement('p'));
+    (render`<span oncustom="${function (e) {
+      tressa.assert(e.type === 'custom', 'event triggered');
+    }}">how cool</span>`
+    ).firstElementChild.custom();
 })
 .then(function () {
   return tressa.async(function (done) {

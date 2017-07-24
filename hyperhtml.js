@@ -197,39 +197,55 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // `<div class="${'attr'}"></div>`
+  // `<div onclick="${function () {... }}"></div>`
+  // `<div onclick="${{handleEvent(){ ... }}}"></div>`
+  // `<div contenteditable="${true}"></div>`
   function setAttribute(attribute, removeAttributes) {
     var
       name = attribute.name,
       node = attribute.ownerElement,
-      isEvent = name.slice(0, 2) === 'on',
+      isEvent = /^on/.test(name),
       isSpecial = name in node && !(
                     // always use set attribute with SVGs
                     OWNER_SVG_ELEMENT in node ||
                     SHOULD_USE_ATTRIBUTE.test(name)
                   ),
+      type = isEvent ? name.slice(2) : '',
       oldValue
     ;
-    if (isSpecial) removeAttributes.push(node, name);
-    return isSpecial ?
-      function specialAttr(newValue) {
+    if (isSpecial || isEvent) removeAttributes.push(node, name);
+    if (isEvent && !(type in node))
+      node[type] = function syntheticDispatch(detail) {
+        return this.dispatchEvent(
+          new $CustomEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            detail: detail
+          })
+        );
+      };
+    return isEvent ?
+      function eventAttr(newValue) {
         if (oldValue !== newValue) {
-          if (isEvent && oldValue && ('handleEvent' in oldValue)) {
-            handleEvent(node, 'remove', name, oldValue);
-          }
+          if (oldValue) node.removeEventListener(type, oldValue);
           oldValue = newValue;
-          if (isEvent && newValue && ('handleEvent' in newValue)) {
-            handleEvent(node, 'add', name, newValue);
-          } else {
-            node[name] = newValue;
-          }
+          if (newValue) node.addEventListener(type, newValue);
         }
       } :
-      function attr(newValue) {
-        if (oldValue !== newValue) {
-          oldValue = newValue;
-          attribute.value = newValue;
+      (isSpecial ?
+        function specialAttr(newValue) {
+          if (oldValue !== newValue) {
+            oldValue = newValue;
+            node[name] = newValue;
+          }
+        } :
+        function normalAttr(newValue) {
+          if (oldValue !== newValue) {
+            oldValue = newValue;
+            attribute.value = newValue;
+          }
         }
-      };
+      );
   }
 
   // `<div> ${'text'} </div>`
@@ -608,11 +624,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
     } while (true);
   }
 
-  // add or remove event listeners from a node
-  function handleEvent(node, action, ontype, eventListener) {
-    node[action + 'EventListener'](ontype.slice(2), eventListener);
-  }
-
   // quick and dirty Promise check
   function isPromise_ish(value) {
     return value != null && 'then' in value;
@@ -712,6 +723,17 @@ var hyperHTML = (function (globalDocument) {'use strict';
       Map;
 
   // TODO: which browser needs these partial polyfills here?
+  // PhantomJS needs CustomEvent
+  var $CustomEvent = typeof CustomEvent === typeof $CustomEvent ?
+      function (type, init) {
+        var e = document.createEvent('Event');
+        e.initEvent(type, init.bubbles, init.cancelable);
+        e.detail = init.detail;
+        return e;
+      } :
+      CustomEvent;
+
+  // BB7 and webOS need this
   var isArray = Array.isArray ||
                 (function () {
                   var toString = {}.toString;
@@ -722,7 +744,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
                     return toString.call(a) === s;
                   };
                 }());
-  
+
+  // older WebKit need this
   var trim = EXPANDO.trim ||
               function () { return this.replace(/^\s+|\s+$/g, ''); };
 
