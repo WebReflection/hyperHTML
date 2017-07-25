@@ -214,22 +214,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
       oldValue
     ;
     if (isSpecial || isEvent) removeAttributes.push(node, name);
-    if (isEvent && !(type in node))
-      node[type] = function syntheticDispatch(detail) {
-        return this.dispatchEvent(
-          new $CustomEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            detail: detail
-          })
-        );
-      };
     return isEvent ?
       function eventAttr(newValue) {
         if (oldValue !== newValue) {
-          if (oldValue) node.removeEventListener(type, oldValue);
+          if (oldValue) node.removeEventListener(type, oldValue, false);
           oldValue = newValue;
-          if (newValue) node.addEventListener(type, newValue);
+          if (newValue) node.addEventListener(type, newValue, false);
         }
       } :
       (isSpecial ?
@@ -723,15 +713,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
       Map;
 
   // TODO: which browser needs these partial polyfills here?
-  // PhantomJS needs CustomEvent
-  var $CustomEvent = typeof CustomEvent === typeof $CustomEvent ?
-      function (type, init) {
-        var e = document.createEvent('Event');
-        e.initEvent(type, init.bubbles, init.cancelable);
-        e.detail = init.detail;
-        return e;
-      } :
-      CustomEvent;
 
   // BB7 and webOS need this
   var isArray = Array.isArray ||

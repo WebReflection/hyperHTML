@@ -2,6 +2,7 @@ require('jsdom').env(
   require('fs').readFileSync(__dirname + '/index.html').toString(),
   [],
   function (err, window) {
+    /*
     if (!global.CustomEvent) {
       global.CustomEvent = function (type, init) {
         var e = document.createEvent('Event');
@@ -10,6 +11,7 @@ require('jsdom').env(
         return e;
       };
     }
+    //*/
     global.document = window.document;
     global.tressa = require('tressa');
     global.hyperHTML = require('../hyperhtml.js');
@@ -28,8 +30,8 @@ require('jsdom').env(
       };
       Object.prototype.nodeType = 2;
       var $Map = global.Map;
-      var $CustomEvent = global.CustomEvent;
-      global.String.prototype.trim = global.WeakMap = global.Map = global.CustomEvent = void 0;
+      // var $CustomEvent = global.CustomEvent;
+      global.String.prototype.trim = global.WeakMap = global.Map = void 0;
       delete require.cache[require.resolve('../hyperhtml.js')];
       delete require.cache[require.resolve('./test.js')];
       // fake initial feature detection

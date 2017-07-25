@@ -112,10 +112,12 @@ tressa.async(function (done) {
 .then(function () {
     tressa.log('## custom events');
     var render = hyperHTML.bind(document.createElement('p'));
+    var e = document.createEvent('Event');
+    e.initEvent('custom', true, true);
     (render`<span oncustom="${function (e) {
       tressa.assert(e.type === 'custom', 'event triggered');
     }}">how cool</span>`
-    ).firstElementChild.custom();
+    ).firstElementChild.dispatchEvent(e);
 })
 .then(function () {
   return tressa.async(function (done) {
