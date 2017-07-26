@@ -34,6 +34,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
     };
   };
 
+  // hyperHTML.escape('<html>') => '&lt;text&gt;'
+  hyperHTML.escape = function escape(html) {
+    return html.replace(reEscape, fnEscape);
+  };
+
   // hyperHTML.wire(obj, 'type:ID') ➰
   hyperHTML.wire = function wire(obj, type) {
     return arguments.length < 1 ?
@@ -406,6 +411,19 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // used to convert childNodes to Array
   var slice = [].slice;
+
+  // used to sanitize html
+  var reEscape = /[&<>'"]/g;
+  var oEscape = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  };
+  function fnEscape(m) {
+    return oEscape[m];
+  }
 
   // return a single node or an Array or nodes
   function createContent(node) {
