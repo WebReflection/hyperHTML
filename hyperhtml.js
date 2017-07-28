@@ -778,6 +778,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
         }
       };
 
+  // traps function bind once (useful in destructuring)
+  var bind = hyperHTML.bind;
+  hyperHTML.bind = function () { return bind.apply(hyperHTML, arguments); };
+
   // returns children or retrieve them in IE/Edge
   var getChildren = WK ?
       function (node) {
