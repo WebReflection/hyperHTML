@@ -48,7 +48,22 @@ require('jsdom').env(
       };
       var isArray = Array.isArray;
       delete Array.isArray;
+
+      // forcing once IE11 shenanigans with fragments
+      var createDocumentFragment = global.document.createDocumentFragment;
+      global.document.createDocumentFragment = function () {
+        this.createDocumentFragment = createDocumentFragment;
+        var featureDetection = createDocumentFragment.call(global.document);
+        var appendChild = featureDetection.appendChild;
+        featureDetection.appendChild = function (child) {
+          if (child.textContent.length) appendChild.call(this, child);
+          else featureDetection.appendChild = appendChild;
+          return this;
+        };
+        return featureDetection;
+      };
       global.hyperHTML = require('../hyperhtml.js');
+
       Array.isArray = isArray;
       Map = $Map;
       require('./test.js');

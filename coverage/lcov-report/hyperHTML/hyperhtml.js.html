@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>491/491</span>
+        <span class='fraction'>500/500</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>267/267</span>
+        <span class='fraction'>269/269</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>75/75</span>
+        <span class='fraction'>78/78</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>480/480</span>
+        <span class='fraction'>489/489</span>
       </div>
     </div>
   </div>
@@ -1122,7 +1122,30 @@
 1077
 1078
 1079
-1080</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1080
+1081
+1082
+1083
+1084
+1085
+1086
+1087
+1088
+1089
+1090
+1091
+1092
+1093
+1094
+1095
+1096
+1097
+1098
+1099
+1100
+1101
+1102
+1103</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1509,6 +1532,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1572,7 +1596,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">118×</span>
+<span class="cline-any cline-yes">116×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1633,7 +1657,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">62×</span>
+<span class="cline-any cline-yes">66×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1984,6 +2008,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">67×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2588,6 +2634,7 @@
   // ---------------------------------------------
   // Features detection / ugly UA sniffs
   // ---------------------------------------------
+  var featureFragment = createDocumentFragment(globalDocument);
 &nbsp;
   // Firefox &lt; 55 has non standard template literals.
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1108941
@@ -2606,7 +2653,7 @@
 &nbsp;
 &nbsp;
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
-  var WK = !('children' in createDocumentFragment(globalDocument));
+  var WK = !('children' in featureFragment);
 &nbsp;
   // ---------------------------------------------
   // Helpers
@@ -2967,7 +3014,7 @@
   }
 &nbsp;
   // use native .append(...childNodes) where available
-  var appendNodes = 'append' in createDocumentFragment(globalDocument) ?
+  var appendNodes = 'append' in featureFragment ?
       function (node, childNodes) {
         node.append.apply(node, childNodes);
       } :
@@ -3063,6 +3110,28 @@
 &nbsp;
   // internal signal to switch adoption
   var notAdopting = true;
+&nbsp;
+  // IE 11 has problems with cloning templates too
+  // it "forgets" empty childNodes
+  var cloneNode = (function () {
+    featureFragment.appendChild(createText(featureFragment, 'g'));
+    featureFragment.appendChild(createText(featureFragment, ''));
+    return featureFragment.cloneNode(true).childNodes.length === 1 ?
+      function (node) {
+        for (var
+          clone = node.cloneNode(),
+          childNodes = node.childNodes || [],
+          i = 0, length = childNodes.length;
+          i &lt; length; i++
+        ) {
+          clone.appendChild(cloneNode(childNodes[i]));
+        }
+        return clone;
+      } :
+      function (fragment) {
+        return fragment.cloneNode(true);
+      };
+  }());
 &nbsp;
   // ---------------------------------------------
   // Template related utilities
@@ -3179,7 +3248,7 @@
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
     if (notAdopting) {
-      var fragment = info.fragment.cloneNode(true);
+      var fragment = cloneNode(info.fragment);
       updates = createUpdates.call(this, fragment, info.paths);
       resetAndPopulate(this, fragment);
     } else {
@@ -3286,7 +3355,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Jul 28 2017 11:35:55 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Jul 29 2017 12:33:25 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>

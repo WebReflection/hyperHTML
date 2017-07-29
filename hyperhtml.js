@@ -385,6 +385,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // ---------------------------------------------
   // Features detection / ugly UA sniffs
   // ---------------------------------------------
+  var featureFragment = createDocumentFragment(globalDocument);
 
   // Firefox < 55 has non standard template literals.
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1108941
@@ -403,7 +404,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
 
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
-  var WK = !('children' in createDocumentFragment(globalDocument));
+  var WK = !('children' in featureFragment);
 
   // ---------------------------------------------
   // Helpers
@@ -764,7 +765,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // use native .append(...childNodes) where available
-  var appendNodes = 'append' in createDocumentFragment(globalDocument) ?
+  var appendNodes = 'append' in featureFragment ?
       function (node, childNodes) {
         node.append.apply(node, childNodes);
       } :
@@ -860,6 +861,28 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // internal signal to switch adoption
   var notAdopting = true;
+
+  // IE 11 has problems with cloning templates too
+  // it "forgets" empty childNodes
+  var cloneNode = (function () {
+    featureFragment.appendChild(createText(featureFragment, 'g'));
+    featureFragment.appendChild(createText(featureFragment, ''));
+    return featureFragment.cloneNode(true).childNodes.length === 1 ?
+      function (node) {
+        for (var
+          clone = node.cloneNode(),
+          childNodes = node.childNodes || [],
+          i = 0, length = childNodes.length;
+          i < length; i++
+        ) {
+          clone.appendChild(cloneNode(childNodes[i]));
+        }
+        return clone;
+      } :
+      function (fragment) {
+        return fragment.cloneNode(true);
+      };
+  }());
 
   // ---------------------------------------------
   // Template related utilities
@@ -976,7 +999,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
     if (notAdopting) {
-      var fragment = info.fragment.cloneNode(true);
+      var fragment = cloneNode(info.fragment);
       updates = createUpdates.call(this, fragment, info.paths);
       resetAndPopulate(this, fragment);
     } else {
