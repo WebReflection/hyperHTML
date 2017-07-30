@@ -536,6 +536,20 @@ tressa.async(function (done) {
   tressa.assert(/ <br>1<!--_hyper_html:\s*[0-9-]+;--><br> /.test(wrap.innerHTML), 'virtual content in between');
 
 })
+.then(function () {
+  tressa.log('## no WebKit backfire');
+  var div = document.createElement('div');
+  function update(value, attr) {
+    return hyperHTML.bind(div)`
+    <input value="${value}" shaka="${attr}">`;
+  }
+  var input = update('', '').firstElementChild;
+  input.value = '456';
+  input.attributes.shaka.value = 'laka';
+  update('123', 'laka');
+  tressa.assert(input.value === '123', 'correct input');
+  tressa.assert(input.value === '123', 'correct attribute');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {

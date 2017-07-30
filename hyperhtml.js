@@ -231,13 +231,21 @@ var hyperHTML = (function (globalDocument) {'use strict';
         function specialAttr(newValue) {
           if (oldValue !== newValue) {
             oldValue = newValue;
-            node[name] = newValue;
+            // WebKit moves the cursor if input.value
+            // is set again, even if same value
+            if (node[name] !== newValue) {
+              node[name] = newValue;
+            }
           }
         } :
         function normalAttr(newValue) {
           if (oldValue !== newValue) {
             oldValue = newValue;
-            attribute.value = newValue;
+            // WebKit moves the cursor if input.value
+            // is set again, even if same value
+            if (attribute.value !== newValue) {
+              attribute.value = newValue;
+            }
           }
         }
       );
