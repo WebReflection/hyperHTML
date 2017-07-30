@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <script>document.write('<script src="../hyperhtml.js?_=' + Math.random() + '"><' + '/script>')</script>
+  </head>
+  <body></body>
+  <script>
+  (function update() {
+    var employees = [
+      {first: 'Bob', last: 'Li'},
+      {first: 'Ayesha', last: 'Johnson'}
+    ];
+    hyperHTML.bind(document.body)`${
+      employees.map(
+        employee => hyperHTML.wire(employee)`
+        <div>First name: ${employee.first}</div>
+        <p></p>`
+      )
+    }`;
+  }(''));
+  </script>
+</html>

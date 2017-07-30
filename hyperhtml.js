@@ -181,6 +181,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   any(value.concat.apply([], value));
                   break;
                 case 'object':
+                  if (isArray(value[0])) {
+                    value = value.concat.apply([], value);
+                  }
                   if (isPromise_ish(value[0])) {
                     Promise.all(value).then(any);
                     break;
@@ -297,6 +300,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   anyVirtual(value.concat.apply([], value));
                   break;
                 case 'object':
+                  if (isArray(value[0])) {
+                    value = value.concat.apply([], value);
+                  }
                   if (isPromise_ish(value[0])) {
                     Promise.all(value).then(anyVirtual);
                     break;

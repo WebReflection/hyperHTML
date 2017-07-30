@@ -550,6 +550,31 @@ tressa.async(function (done) {
   tressa.assert(input.value === '123', 'correct input');
   tressa.assert(input.value === '123', 'correct attribute');
 })
+.then(function () {
+  tressa.log('## wired arrays are rendered properly');
+  var div = document.createElement('div');
+  var employees = [
+    {first: 'Bob', last: 'Li'},
+    {first: 'Ayesha', last: 'Johnson'}
+  ];
+  hyperHTML.bind(div)`${
+    employees.map(
+      employee => hyperHTML.wire(employee)`
+      <div>First name: ${employee.first}</div>
+      <p></p>`
+    )
+  }`;
+  tressa.assert(div.childElementCount === 4, 'correct elements as setAny');
+  hyperHTML.bind(div)`
+    <p></p>${
+    employees.map(
+      employee => hyperHTML.wire(employee)`
+      <div>First name: ${employee.first}</div>
+      <p></p>`
+    )
+  }`;
+  tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {
