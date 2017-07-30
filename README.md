@@ -6,7 +6,8 @@
 <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
 
 A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
-now [available for both client and server](https://github.com/WebReflection/viperHTML).
+now [available for both client, server](https://github.com/WebReflection/viperHTML)
+and also [simplified for Custom Elements](https://github.com/WebReflection/hyperHTML-Element).
 - - -
 **New Experimental .adopt(node) API**
 
