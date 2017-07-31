@@ -23,7 +23,7 @@
     "diff"
   ],
   "author": "Andrea Giammarchi",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/WebReflection/hyperhtml/issues"
   },
