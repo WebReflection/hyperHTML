@@ -1,6 +1,6 @@
 var hyperHTML = (function (globalDocument) {'use strict';
 
-  /*! (c) 2017 Andrea Giammarchi @WebReflection, (MIT) */
+  /*! (c) 2017 Andrea Giammarchi @WebReflection, (ISC) */
 
   // ---------------------------------------------
   // hyperHTML Public API
