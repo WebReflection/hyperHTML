@@ -129,6 +129,51 @@ hyperHTML.wire(point) === hyperHTML.wire(point);
 ```
 It is also possible to define a generic template, and in such case the update won't be the single node, but an Array of nodes.
 
+Following example illustrates a common usecase for `wire`:
+
+```js
+
+const root = document.getElementById('root');
+
+// We want to get a li element, without caring about any root
+const Item = ({ name, value }) => hyperHTML.wire()`
+  <li>Lib: ${name}, size: ${value}</li>
+`
+
+const UnorderedList = ({ root, items }) => root`
+  <ul>${
+    items.map(Item)
+  }</ul>
+`
+
+const OrderedList = ({ root, items }) => root`
+  <ol>${
+    items.map(Item)
+  }</ol>
+`
+
+UnorderedList({
+  root: hyperHTML.bind(root.appendChild(document.createElement('div'))),
+  items: [
+    { name: 'hyperHTML', value: '5KB' },
+    { name: 'document-register-element polyfill', value: '12KB' },
+    { name: 'app', value: '20KB' }
+  ]
+})
+
+OrderedList({
+  root: hyperHTML.bind(root.appendChild(document.createElement('div'))),
+  items: [
+    { name: 'hyperHTML', value: '5KB' },
+    { name: 'vue', value: '25KB' },
+    { name: 'others', value: '...' }
+  ]
+})
+
+```
+
+We can see that `Item` is used to render `li` element, without root or its parent element.
+
 #### New in 0.11
 
 An object can have multiple wires associated with it using different `:ids` as type.
