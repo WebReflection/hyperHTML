@@ -136,8 +136,8 @@ Following example illustrates a common usecase for `wire`:
 const root = document.getElementById('root');
 
 // We want to get a li element, without caring about any root
-const Item = ({ name, value }) => hyperHTML.wire()`
-  <li>Lib: ${name}, size: ${value}</li>
+const Item = (item) => hyperHTML.wire(item)`
+  <li>Lib: ${item.name}, size: ${item.value}</li>
 `
 
 const UnorderedList = ({ root, items }) => root`
