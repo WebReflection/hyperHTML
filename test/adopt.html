@@ -29,11 +29,11 @@
         render`
         <div test="${model.test}">
           ${model.text}
-          <ul>${
-            model.list.map(item => `<li> ${item.name} </li>`)
-          }</ul>${
-            model.inBetween
-          }<hr>
+          <ul>
+            ${model.list.map(item => `<li> ${item.name} </li>`)}
+          </ul>
+          ${model.inBetween}
+          <hr>
         </div>
         `;
       }

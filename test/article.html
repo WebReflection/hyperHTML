@@ -13,11 +13,11 @@
     <article data-magic="${state.magic}">
       <h3>${state.title}</h3>
       List of ${state.paragraphs.length} paragraphs:
-      <ul>${
-        state.paragraphs.map(
+      <ul>
+        ${state.paragraphs.map(
           p => hyperHTML.wire(p)`
-          <li> ${p.title} </li>`)
-      }</ul>
+          <li> ${p.title} </li>`)}
+      </ul>
     </article>
     `;
   }

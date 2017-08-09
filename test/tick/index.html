@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; }</style>
+    <!--[if lte IE 9]><script>(function(f){window.setTimeout=f(window.setTimeout);window.setInterval=f(window.setInterval)})(function(f){return function(c,t){var a=[].slice.call(arguments,2);return f(function(){c.apply(this,a)},t)}});</script><![endif]-->
+    <script>
+    Function.bind||document.write([
+      '<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"><',
+      '<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"><',
+    ''].join('/script>'));
+    </script>
+    <script src="../../min.js"></script>
+  </head>
+  <body></body>
+  <script>
+  var _templateObject = _taggedTemplateLiteral(["\n      <div>\n        <h1>Hello, world!</h1>\n        <h2>It is ", ".</h2>\n      </div>\n    "], ["\n      <div>\n        <h1>Hello, world!</h1>\n        <h2>It is ", ".</h2>\n      </div>\n    "]);
+  function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+  setInterval(
+    function tick(render) {
+      render(_templateObject, new Date().toLocaleTimeString());
+    },
+    1000,
+    hyperHTML.bind(document.body)
+  );
+  </script>
+</html>
