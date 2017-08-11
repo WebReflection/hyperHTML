@@ -372,7 +372,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
           }
           break;
         case TEXT_NODE:
-          if (SHOULD_USE_ATTRIBUTE.test(node.nodeName) && child.textContent === UIDC) {
+          if (
+            SHOULD_USE_ATTRIBUTE.test(node.nodeName) &&
+            trim.call(child.textContent) === UIDC
+          ) {
             paths.push(Path('any', node));
           }
           break;
