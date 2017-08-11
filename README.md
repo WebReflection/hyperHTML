@@ -9,28 +9,74 @@ A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebR
 now [available for both client, server](https://github.com/WebReflection/viperHTML)
 and also [simplified for Custom Elements](https://github.com/WebReflection/hyperHTML-Element).
 - - -
-**New Experimental .adopt(node) API**
 
-Since version _0.12_ you can `hyperHTML.adopt(node)` instead of `hyperHTML.bind(node)` in case you have already rendered
-a node on the server via [viperHTML](https://github.com/WebReflection/viperHTML) and you are sharing the same template.
+## hyperHTML V1
 
-Adopting a node will not trash the node content, it will map it to the existent one.
+Thanks to all developers involved in this release.
+There has been quite some effort to remove painful parts of the API
+and bring in some missing feature.
+
+**Breaking changes**
+
+  * semantics based on spaces around interpolations have been removed
+  * this means text content will always be set as `textContent`
+
+**New features**
+
+  * attributes don't need quotes anymore
+  * explicit HTML intent as `${['array']}` or as `${{html}}`
+  * explicit text intent as `${{text}}`
+  * explicit _any_ intent as `${{any}}`, resolved as text or other kind of values (Array, Promise, DOM node)
+  * `placeholder` with any kind of content for promises
+  * new `hyperHTML.define(transformer, callback)` to extend functionalities through your own code
+  * compatibility brought down to IE9+ now [100% code covered](https://webreflection.github.io/hyperHTML/test/ie/)
+  * experimental `adopt` method a part, everything else has been tested on [UC Browser](https://webreflection.github.io/hyperHTML/test/ie/?noadopt) too
+  * most basic functionalities compatible down to Android 2 and every other old mobile browser
+
+#### New semantics examples
+
+```js
+// implicit and explicit declarative intents
+function html(render) {
+  return render`
+    <!-- text by default for strings -->
+    <p>Hello ${'World'}</p>
+    <!-- text as explicit intent -->
+    <p>Hello ${{text: 'World'}}</p>
+    <!-- attributes without quotes -->
+    <select onchange=${callback}>
+      <!-- arrays as intent for HTML, Promises or DOM nodes -->
+      ${['a', 'b'].map(v => `<option value="${v}">${v}</option>`)}
+    </select>
+    <!-- html as explicit intent -->
+    <p>Hello ${{html: '<strong>World</strong>'}}</p>
+    <!-- any as explicit intent -->
+    <p>Hello ${{any: fetch('thing').then(b => b.text())}}</p>
+  `;
+}
+
+
+// transformers
+hyperHTML.define('encode', encodeURIComponent);
+var entry = 'a b c d';
+render`
+  The function <code>encodeURIComponent</code>
+  transform text ${entry} as ${{encode: entry}}
+`;
+
+
+// placeholders
+render`
+ <div class="login">
+  ${{
+    text: fetch('credentials').then(b => b.text()),
+    placeholder: 'Loading credentials ...'
+  }}
+ </div>
+`;
+```
+
 - - -
-Don't miss the [viperHTML](https://github.com/WebReflection/viperHTML) version of **Hacker News**
-
-Live: https://viperhtml-164315.appspot.com/
-
-Repo: https://github.com/WebReflection/viper-news
-- - -
-
-## How To Define _hyperHTML_ Templates
-There are two basic but fundamental rules to remember:
-
-  1. **attributes**, as well as eventual **callbacks**, must be defined inside single or double quoted attributes
-  2. if there's any char different from `>` and `<` surrounding the interpolation, that content will be text, instead of HTML
-
-Please read the [Getting Started](https://github.com/WebReflection/hyperHTML/blob/master/GETTING_STARTED.md#how-to-define-hyperhtml-templates) for more examples.
-
 
 ## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
@@ -65,23 +111,13 @@ setInterval(tick, 1000,
 );
 ```
 
-## Compatibility
-
-  * every modern browser (Chrome, Edge, Firefox, Safari)
-  * IE9 to IE11 on both Mobile and Desktop
-  * every other Mobile or Desktop browser compatible with Babel transpilation
-
-
 ## Features
 
-  * Zero dependencies and it fits in **less than 3KB** (minzipped)
+  * Zero dependencies and it fits in **less than 4KB** (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
-  * Compatible with vanilla DOM elements and vanilla JS data structures `*`
+  * Compatible with vanilla DOM elements and vanilla JS data structures
   * Also compatible with Babel transpiled output, hence suitable for every browser you can think of
-
-`*` <sup><sub> actually, this is just a 100% vanilla JS utility, that's why is most likely the fastest and also the smallest. I also feel like I'm writing Assembly these days ... anyway ...</sub></sup>
-
 
 ## Usage
 You have a `hyperHTML` function that is suitable for parsing template literals but it needs a DOM node context to operate.
@@ -197,14 +233,12 @@ It is still possible to specify a type using `svg:id` or `html:id`.
 
   * _will input lose focus?_ Nope, as [you can test](https://webreflection.github.io/hyperHTML/test/form.html), only what needs to be updated will be updated.
 
-  * _are events stringified?_ Nope, even if visually set as `<a onclick="${help.click}">` events are treated differently from other attributes. That `help.click` will be indeed directly assigned as `a.onclick = help.click` so don't worry 😉
+  * _are events stringified?_ Nope, even if visually set as `<a onclick=${help.click}>` events are treated differently from other attributes. That `help.click` will be indeed directly assigned as `a.addEventListener('click', help.click)` so don't worry 😉
 
   * _how can I differentiate between textContent only and HTML or DOM nodes?_
-    If there's any space or char around the value, that'd be a textContent.
-    Otherwise it can be strings, used as html, or DOM nodes.
-    As summary: ```render`<p>This is: ${'text'}</p>`;``` for text, and ```render`<p>${'html' || node || array}</p>`;``` for other cases.
-    An array will result into html, if its content has strings, or a document fragment, if it contains nodes.
-    I've thought a pinch of extra handy magic would've been nice there 😉.
+    Text will always be injected as `textContent` but if you want to be sure 100% text will be forced as text,
+    you can explicitly declare the intent. ```render`<p>This is: ${'text'} and so ${{text: 'is this'}}</p>`;```
+    HTML can be explicitly declared as ```${{html: '<b>content</b>'}}``` or as an Array of strings.
 
   * _can I use different renders for a single node?_
     Sure thing. However, the best performance gain is reached with nodes that always use the same template string.
@@ -217,9 +251,6 @@ It is still possible to specify a type using `svg:id` or `html:id`.
     You can directly test [hyperHTML DBMonster](https://webreflection.github.io/hyperHTML/test/dbmonster.html) benchmark and see it goes _N_ times faster than `yo-yo` version on both Desktop and Mobile browsers 🎉.
 
 
-For all other deeper dirty details, please check the [DeepDive](https://github.com/WebReflection/hyperHTML/blob/master/DEEPDIVE.md) page.
-
-
 ### ... wait, WAT?
 [ES6 Template literals](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Template_literals) come with a special feature that is not commonly used: prefixed transformers.
 
@@ -229,17 +260,18 @@ Following [an example](https://webreflection.github.io/hyperHTML/test/article.ht
 ```js
 function update(render, state) {
   render`
-  <article data-magic="${state.magic}">
+  <article data-magic=${state.magic}>
     <h3> ${state.title} </h3>
     List of ${state.paragraphs.length} paragraphs:
-    <ul>${
+    <ul>
+    ${
       // if you want to create wired node instead
       // .map(p => hyperHTML.wire(p)`<li>${p.title}</li>`)
       // otherwise it will be just injected as array of strings
-      // without any special power, simply generated via literals
       state.paragraphs
         .map(p => `<li>${p.title}</li>`)
-    }</ul>
+    }
+    </ul>
   </article>
   `;
 }
@@ -264,18 +296,6 @@ Since most of the time templates are 70% static text and 30% or less dynamic, `h
 ### Caveats
 
 Following a list of `hyperHTML` caveats.
-
-#### Quotes are mandatory for dynamic attributes
-To achieve best performance at setup time, a special `<!-- comment -->` is used the first time as template values.
-
-This makes it possible to quickly walk through the DOM tree and setup behaviors, but it's also the value looked for within attributes.
-
-Unfortunately, if you have html such `<div attr=<!-- comment --> class="any"></div>` the result is broken, while using single or double quotes will grant a successful operation. This is the biggest, and so far only, real caveat.
-
-In summary, always write `<p attr="${'OK'}"></p>` instead of `<p attr=${'OK'}></p>`, or the layout will break, even if the attribute is a number or a boolean.
-
-In this way you'll also ensure whatever value you'll pass later on won't ever break the layout. It's a bit annoying, yet a win.
-
 
 #### Attributes resolved offline might show warnings
 Attributes like image `src` or `srcset` might involve failing network requests or some overly-scary console error even if nothing would be really compromised.
@@ -304,9 +324,8 @@ function toImage(alt) {
 }
 ```
 
-
-
 ## Compatibility
-If your string literals are transpiled, this project should be compatible with every single browser, old or new.
 
-If you don't transpile string literals, check the [test page](https://webreflection.github.io/hyperHTML/test/) and wait 'till it's green.
+  * [100% code coverage](https://webreflection.github.io/hyperHTML/test/) for browsers natively compatible with string literals
+  * [100% code coverage](https://webreflection.github.io/hyperHTML/test/ie/) for IE9 or browsers that need transpiled code
+  * [coverage without adopt node](https://webreflection.github.io/hyperHTML/test/ie/?noadopt) for browsers that have issues with current adopt logic (will be eventually fixed)
