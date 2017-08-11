@@ -10,6 +10,10 @@ now [available for both client, server](https://github.com/WebReflection/viperHT
 and also [simplified for Custom Elements](https://github.com/WebReflection/hyperHTML-Element).
 - - -
 
+## New [Documentation](https://viperhtml.js.org/hyperhtml/documentation/) Available
+
+- - -
+
 ## hyperHTML V1
 
 Thanks to all developers involved in this release.
