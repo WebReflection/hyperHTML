@@ -31,7 +31,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject27 = _taggedTemplateLiteral(['<p>', '</p>', '<hr><div>', '</div>', ''], ['<p>', '</p>', '<hr><div>', '</div>', '']),
     _templateObject28 = _taggedTemplateLiteral(['<!--not hyprHTML-->'], ['<!--not hyprHTML-->']),
     _templateObject29 = _taggedTemplateLiteral(['', '<br>'], ['', '<br>']),
-    _templateObject30 = _taggedTemplateLiteral(['<style>', '</style>'], ['<style>', '</style>']),
+    _templateObject30 = _taggedTemplateLiteral(['<style> ', ' </style>'], ['<style> ', ' </style>']),
     _templateObject31 = _taggedTemplateLiteral(['a=', ''], ['a=', '']),
     _templateObject32 = _taggedTemplateLiteral(['[', ']'], ['[', ']']),
     _templateObject33 = _taggedTemplateLiteral(['<p onclick="', '" onmouseover="', '" align="', '"></p>'], ['<p onclick="', '" onmouseover="', '" align="', '"></p>']),

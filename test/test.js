@@ -492,7 +492,7 @@ tressa.async(function (done) {
   tressa.assert(/^<br>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
   hyperHTML.bind(wrap)`${'node after'}<br>`;
   tressa.assert(/^node after<!--.+?--><br>$/i.test(wrap.innerHTML), 'node after');
-  hyperHTML.bind(wrap)`<style>${'hyper-html{}'}</style>`;
+  hyperHTML.bind(wrap)`<style> ${'hyper-html{}'} </style>`;
   tressa.assert('<style>hyper-html{}</style>' === wrap.innerHTML.toLowerCase(), 'node style');
   hyperHTML.bind(wrap)`${document.createTextNode('a')}`;
   hyperHTML.bind(wrap)`${document.createDocumentFragment()}`;
