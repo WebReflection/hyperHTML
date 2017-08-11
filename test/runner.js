@@ -62,7 +62,10 @@ require('jsdom').env(
         };
         return featureDetection;
       };
+      var bind = Function.prototype.bind;
+      delete Function.prototype.bind;
       global.hyperHTML = require('../hyperhtml.js');
+      Function.prototype.bind = bind;
 
       Array.isArray = isArray;
       Map = $Map;

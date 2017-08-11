@@ -781,9 +781,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // normalize Firefox issue with template literals
   var templateObjects, unique;
   if (FF) {
-    templateObjects = Object.create(null);
+    templateObjects = {};
     unique = function (template) {
-      var key = template.join(UIDC);
+      var key = '_' + template.join(UIDC);
       return templateObjects[key] ||
             (templateObjects[key] = template);
     };
@@ -804,9 +804,13 @@ var hyperHTML = (function (globalDocument) {'use strict';
         }
       };
 
-  // traps function bind once (useful in destructuring)
-  var bind = hyperHTML.bind;
-  hyperHTML.bind = function () { return bind.apply(hyperHTML, arguments); };
+  // redefine bind to always point at hyperHTML
+  // (useful in destructuring)
+  hyperHTML.bind = function (context) {
+    return function () {
+      return hyperHTML.apply(context, arguments);
+    };
+  };
 
   // returns children or retrieve them in IE/Edge
   var getChildren = WK || IE ?
