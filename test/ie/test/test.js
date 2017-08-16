@@ -46,7 +46,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject42 = _taggedTemplateLiteral(['\n    <p></p>', ''], ['\n    <p></p>', '']),
     _templateObject43 = _taggedTemplateLiteral(['<p test=', '></p>'], ['<p test=', '></p>']),
     _templateObject44 = _taggedTemplateLiteral(['a ', ''], ['a ', '']),
-    _templateObject45 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']);
+    _templateObject45 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']),
+    _templateObject46 = _taggedTemplateLiteral(['<input name=', '>'], ['<input name=', '>']);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -578,6 +579,10 @@ tressa.async(function (done) {
   tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '2', 'but can be also reassigned');
   hyperHTML.bind(div)(_templateObject45, '3');
   tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '3', 'many other times');
+  hyperHTML.bind(div)(_templateObject46, 'test');
+  tressa.assert(div.firstChild.hasAttribute('name') && div.firstChild.name === 'test', 'special attributes are set too');
+  hyperHTML.bind(div)(_templateObject46, null);
+  tressa.assert(!div.firstChild.hasAttribute('name') && !div.firstChild.name, 'but can also be removed');
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## placeholder');

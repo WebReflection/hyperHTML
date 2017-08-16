@@ -660,6 +660,18 @@ tressa.async(function (done) {
     div.firstChild.getAttribute('any-attr') === '3',
     'many other times'
   );
+  hyperHTML.bind(div)`<input name=${'test'}>`;
+  tressa.assert(
+    div.firstChild.hasAttribute('name') &&
+    div.firstChild.name === 'test',
+    'special attributes are set too'
+  );
+  hyperHTML.bind(div)`<input name=${null}>`;
+  tressa.assert(
+    !div.firstChild.hasAttribute('name') &&
+    !div.firstChild.name,
+    'but can also be removed'
+  );
 })
 .then(function () {return tressa.async(function (done) {
   tressa.log('## placeholder');

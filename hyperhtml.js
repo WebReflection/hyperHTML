@@ -187,15 +187,21 @@ var hyperHTML = (function (globalDocument) {'use strict';
             // WebKit moves the cursor if input.value
             // is set again, even if same value
             if (node[name] !== newValue) {
+              // let the browser handle the case
+              // input.value = null;
+              // input.value; // ''
               node[name] = newValue;
+              if (newValue == null) {
+                node.removeAttribute(name);
+              }
             }
           }
         } :
         function normalAttr(newValue) {
           if (oldValue !== newValue) {
             oldValue = newValue;
-            // WebKit moves the cursor if input.value
-            // is set again, even if same value
+            // avoid triggering again attributeChangeCallback
+            // if the value was identical
             if (attribute.value !== newValue) {
               if (newValue == null) {
                 if (!noOwner) {
