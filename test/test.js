@@ -672,6 +672,12 @@ tressa.async(function (done) {
     !div.firstChild.name,
     'but can also be removed'
   );
+  hyperHTML.bind(div)`<input name=${undefined}>`;
+  tressa.assert(
+    !div.firstChild.hasAttribute('name') &&
+    !div.firstChild.name,
+    'with either null or undefined'
+  );
 })
 .then(function () {return tressa.async(function (done) {
   tressa.log('## placeholder');

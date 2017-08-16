@@ -583,6 +583,8 @@ tressa.async(function (done) {
   tressa.assert(div.firstChild.hasAttribute('name') && div.firstChild.name === 'test', 'special attributes are set too');
   hyperHTML.bind(div)(_templateObject46, null);
   tressa.assert(!div.firstChild.hasAttribute('name') && !div.firstChild.name, 'but can also be removed');
+  hyperHTML.bind(div)(_templateObject46, undefined);
+  tressa.assert(!div.firstChild.hasAttribute('name') && !div.firstChild.name, 'with either null or undefined');
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## placeholder');
