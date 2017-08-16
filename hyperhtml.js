@@ -168,9 +168,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
                     SHOULD_USE_ATTRIBUTE.test(name)
                   ),
       type = isEvent ? name.slice(2) : '',
+      noOwner = isEvent || isSpecial,
       oldValue
     ;
-    if (isSpecial || isEvent) removeAttributes.push(node, name);
+    if (noOwner) removeAttributes.push(node, name);
     return isEvent ?
       function eventAttr(newValue) {
         if (oldValue !== newValue) {
@@ -196,7 +197,18 @@ var hyperHTML = (function (globalDocument) {'use strict';
             // WebKit moves the cursor if input.value
             // is set again, even if same value
             if (attribute.value !== newValue) {
-              attribute.value = newValue;
+              if (newValue == null) {
+                if (!noOwner) {
+                  noOwner = true;
+                  node.removeAttributeNode(attribute);
+                }
+              } else {
+                attribute.value = newValue;
+                if (noOwner) {
+                  noOwner = false;
+                  node.setAttributeNode(attribute);
+                }
+              }
             }
           }
         }

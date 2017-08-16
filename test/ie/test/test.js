@@ -45,7 +45,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject41 = _taggedTemplateLiteral(['\n      <div>First name: ', '</div>\n      <p></p>'], ['\n      <div>First name: ', '</div>\n      <p></p>']),
     _templateObject42 = _taggedTemplateLiteral(['\n    <p></p>', ''], ['\n    <p></p>', '']),
     _templateObject43 = _taggedTemplateLiteral(['<p test=', '></p>'], ['<p test=', '></p>']),
-    _templateObject44 = _taggedTemplateLiteral(['a ', ''], ['a ', '']);
+    _templateObject44 = _taggedTemplateLiteral(['a ', ''], ['a ', '']),
+    _templateObject45 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -564,6 +565,19 @@ tressa.async(function (done) {
   tressa.assert(/a=b%20c<[^>]+?>/.test(div.innerHTML), 'expected virtual layout');
   hyperHTML.bind(div)(_templateObject2, { eUC: 'b c' });
   tressa.assert(/<p>b%20c<\/p>/.test(div.innerHTML), 'expected layout');
+}).then(function () {
+  tressa.log('## attributes with null values');
+  var div = document.createElement('div');
+  hyperHTML.bind(div)(_templateObject45, '1');
+  tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '1', 'regular attribute');
+  hyperHTML.bind(div)(_templateObject45, null);
+  tressa.assert(!div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') == null, 'can be removed');
+  hyperHTML.bind(div)(_templateObject45, undefined);
+  tressa.assert(!div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') == null, 'multiple times');
+  hyperHTML.bind(div)(_templateObject45, '2');
+  tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '2', 'but can be also reassigned');
+  hyperHTML.bind(div)(_templateObject45, '3');
+  tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '3', 'many other times');
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## placeholder');

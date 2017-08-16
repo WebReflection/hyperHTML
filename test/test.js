@@ -627,6 +627,40 @@ tressa.async(function (done) {
   hyperHTML.bind(div)`<p>${{eUC: 'b c'}}</p>`;
   tressa.assert(/<p>b%20c<\/p>/.test(div.innerHTML), 'expected layout');
 })
+.then(function () {
+  tressa.log('## attributes with null values');
+  var div = document.createElement('div');
+  hyperHTML.bind(div)`<p any-attr=${'1'}>any content</p>`;
+  tressa.assert(
+    div.firstChild.hasAttribute('any-attr') &&
+    div.firstChild.getAttribute('any-attr') === '1',
+    'regular attribute'
+  );
+  hyperHTML.bind(div)`<p any-attr=${null}>any content</p>`;
+  tressa.assert(
+    !div.firstChild.hasAttribute('any-attr') &&
+    div.firstChild.getAttribute('any-attr') == null,
+    'can be removed'
+  );
+  hyperHTML.bind(div)`<p any-attr=${undefined}>any content</p>`;
+  tressa.assert(
+    !div.firstChild.hasAttribute('any-attr') &&
+    div.firstChild.getAttribute('any-attr') == null,
+    'multiple times'
+  );
+  hyperHTML.bind(div)`<p any-attr=${'2'}>any content</p>`;
+  tressa.assert(
+    div.firstChild.hasAttribute('any-attr') &&
+    div.firstChild.getAttribute('any-attr') === '2',
+    'but can be also reassigned'
+  );
+  hyperHTML.bind(div)`<p any-attr=${'3'}>any content</p>`;
+  tressa.assert(
+    div.firstChild.hasAttribute('any-attr') &&
+    div.firstChild.getAttribute('any-attr') === '3',
+    'many other times'
+  );
+})
 .then(function () {return tressa.async(function (done) {
   tressa.log('## placeholder');
   var div = document.createElement('div');
