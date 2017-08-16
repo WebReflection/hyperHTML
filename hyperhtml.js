@@ -190,9 +190,13 @@ var hyperHTML = (function (globalDocument) {'use strict';
               // let the browser handle the case
               // input.value = null;
               // input.value; // ''
-              node[name] = newValue;
               if (newValue == null) {
+                // reflect the null intent,
+                // do not pass undefined!
+                node[name] = null;
                 node.removeAttribute(name);
+              } else {
+                node[name] = newValue;
               }
             }
           }
@@ -205,6 +209,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
             if (attribute.value !== newValue) {
               if (newValue == null) {
                 if (!noOwner) {
+                  // TODO: should attribute.value = null here?
                   noOwner = true;
                   node.removeAttributeNode(attribute);
                 }
