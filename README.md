@@ -117,7 +117,7 @@ setInterval(tick, 1000,
 
 ## Features
 
-  * Zero dependencies and it fits in **less than 4KB** (minzipped)
+  * Zero dependencies and it fits in about **4KB** (minzipped)
   * Uses directly native DOM instead of inventing new syntax/APIs, DOM diffing, or virtual DOM
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with vanilla DOM elements and vanilla JS data structures

@@ -51,6 +51,23 @@ tressa.async(function (done) {
 })
 .then(function () {
   return tressa.async(function (done) {
+    tressa.log('## perf: same virtual text twice');
+    var div = document.body.appendChild(document.createElement('div'));
+    var render = hyperHTML.bind(div);
+    var html = (update('hello').innerHTML, update('hello').innerHTML);
+    function update(text) {
+      return render`<p>${text} world</p>`;
+    }
+    tressa.assert(
+      update('hello').innerHTML ===
+      update('hello').innerHTML,
+      'same text'
+    );
+    done(div);
+  });
+})
+.then(function () {
+  return tressa.async(function (done) {
     tressa.log('## injecting HTML');
     var div = document.body.appendChild(document.createElement('div'));
     var render = hyperHTML.bind(div);

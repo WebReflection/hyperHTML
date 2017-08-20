@@ -229,6 +229,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // `<p>${'any'}</p>`
   // `<li>a</li>${'virtual'}<li>c</li>`
   function setVirtualContent(node, childNodes) {
+    var oldValue;
     var justContent = !childNodes;
     return function anyVirtual(value) {
       switch (typeof value) {
@@ -236,13 +237,20 @@ var hyperHTML = (function (globalDocument) {'use strict';
         case 'number':
         case 'boolean':
           if (justContent) {
-            node.textContent = value;
+            if (oldValue !== value) {
+              oldValue = value;
+              node.textContent = value;
+            }
           } else if (
             childNodes.length === 1 &&
             childNodes[0].nodeType === TEXT_NODE
           ) {
-            childNodes[0].textContent = value;
+            if (oldValue !== value) {
+              oldValue = value;
+              childNodes[0].textContent = value;
+            }
           } else {
+            oldValue = value;
             removeNodeList(childNodes, 0);
             childNodes = [createText(node, value)];
             node.parentNode.insertBefore(childNodes[0], node);
@@ -321,6 +329,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
             anyVirtual(value.any);
           } else if ('html' in value) {
             var html = [].concat(value.html).join('');
+            // TODO: should it trash the layout each time?
+            //       should it use oldValue instead?
             if (justContent) node.innerHTML = html;
             else {
               removeNodeList(childNodes, 0);
