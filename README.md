@@ -12,6 +12,8 @@ and also [simplified for Custom Elements](https://github.com/WebReflection/hyper
 
 ## New [Documentation](https://viperhtml.js.org/hyperhtml/documentation/) Available
 
+### New [hyperHTML vs lit-html](https://gist.github.com/WebReflection/fadcc419f5ccaae92bc167d8ff5c611b) comparison.
+
 - - -
 
 ## hyperHTML V1
