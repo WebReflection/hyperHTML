@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <script>document.write('<script src="../hyperhtml.js?_=' + Math.random() + '"><' + '/script>')</script>
+  </head>
+  <body></body>
+  <script>
+  const element = () => hyperHTML.wire()`<span>Element</span>`
+  let condition = true;
+  
+  const render = hyperHTML.bind(document.body);
+  
+  function update() {
+    return render`
+      <div>
+        <button onclick=${toggle}>Click a couple times</button>
+        <br>
+        <br>
+        This works: ${condition ? element() : ''}
+        <br>
+        This Doesn't: <span>${condition ? element() : ''}</span>
+        <br>
+        Am I supposed to do this?: <span>${[condition ? element() : '']}</span>
+      </div>
+    `
+    
+    function toggle() {
+      condition = !condition;
+      update();
+    }
+  }
+  
+  update();
+  </script>
+</html>

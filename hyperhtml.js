@@ -266,10 +266,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
         case 'object':
         case 'undefined':
           if (value == null) {
+            oldValue = value;
             anyVirtual('');
             break;
           }
         default:
+          oldValue = value;
           if (isArray(value)) {
             var length = value.length;
             if (length === 0 && !justContent) {
