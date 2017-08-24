@@ -891,8 +891,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // fixes IE problems with comments and sanitizes other browsers
   var IEAttributes;
-  var no = new RegExp('(<[a-z]+[a-z0-9:_-]*)((?:[^\\S]+[a-z0-9:_-]+(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)', 'g');
-  var findAttributes = new RegExp('([^\\S][a-z]+[a-z0-9:_-]*=)([\'"]?)' + UIDC + '\\2', 'g');
+  var no = /(<[a-z]+[a-z0-9:_-]*)((?:[^\S]+[a-z0-9:_-]+(?:=(?:'.*?'|".*?"|<.+?>|\S+))?)+)([^\S]*\/?>)/gi;
+  var findAttributes = new RegExp('([^\\S][a-z]+[a-z0-9:_-]*=)([\'"]?)' + UIDC + '\\2', 'gi');
   var comments = function ($0, $1, $2, $3) {
     return $1 + $2.replace(
       findAttributes,
