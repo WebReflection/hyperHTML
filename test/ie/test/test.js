@@ -48,7 +48,12 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject44 = _taggedTemplateLiteral(['<p test=', '></p>'], ['<p test=', '></p>']),
     _templateObject45 = _taggedTemplateLiteral(['a ', ''], ['a ', '']),
     _templateObject46 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']),
-    _templateObject47 = _taggedTemplateLiteral(['<input name=', '>'], ['<input name=', '>']);
+    _templateObject47 = _taggedTemplateLiteral(['<input name=', '>'], ['<input name=', '>']),
+    _templateObject48 = _taggedTemplateLiteral(['abc'], ['abc']),
+    _templateObject49 = _taggedTemplateLiteral(['<p>a', 'c</p>'], ['<p>a', 'c</p>']),
+    _templateObject50 = _taggedTemplateLiteral(['a', 'c'], ['a', 'c']),
+    _templateObject51 = _taggedTemplateLiteral(['<rect />'], ['<rect />']),
+    _templateObject52 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -625,6 +630,27 @@ tressa.async(function (done) {
       }, 10);
     }, 10);
   });
+}).then(function () {
+  tressa.log('## hyper(...)');
+  var hyper = hyperHTML.hyper;
+  tressa.assert(typeof hyper() === 'function', 'empty hyper() is a wire tag');
+  tressa.assert(hyper(_templateObject48).textContent === 'abc', 'hyper`abc`');
+  tressa.assert(hyper(_templateObject49, 2).textContent === 'a2c', 'hyper`<p>a${2}c</p>`');
+  tressa.assert(hyper(document.createElement('div'))(_templateObject48).textContent === 'abc', 'hyper(div)`abc`');
+  tressa.assert(hyper(document.createElement('div'))(_templateObject50, 'b').textContent === 'abc', 'hyper(div)`a${"b"}c`');
+  // WFT jsdom ?!
+  delete Object.prototype.nodeType;
+  tressa.assert(hyper({})(_templateObject48).textContent === 'abc', 'hyper({})`abc`');
+  tressa.assert(hyper({})(_templateObject49, 'b').textContent === 'abc', 'hyper({})`<p>a${\'b\'}c</p>`');
+  tressa.assert(hyper({}, ':id')(_templateObject48).textContent === 'abc', 'hyper({}, \':id\')`abc`');
+  tressa.assert(hyper({}, ':id')(_templateObject49, 'b').textContent === 'abc', 'hyper({}, \':id\')`<p>a${\'b\'}c</p>`');
+  tressa.assert(hyper('svg')(_templateObject51), 'hyper("svg")`<rect />`');
+}).then(function () {
+  tressa.log('## data=${anyContent}');
+  var obj = { rand: Math.random() };
+  var div = hyperHTML.wire()(_templateObject52, obj);
+  tressa.assert(div.data === obj, 'data available without serialization');
+  tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
 })
 // */
 .then(function () {
