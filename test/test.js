@@ -131,14 +131,17 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  return tressa.async(function (done) {
     tressa.log('## custom events');
     var render = hyperHTML.bind(document.createElement('p'));
     var e = document.createEvent('Event');
-    e.initEvent('custom', true, true);
-    (render`<span oncustom="${function (e) {
-      tressa.assert(e.type === 'custom', 'event triggered');
+    e.initEvent('Custom-EVENT', true, true);
+    (render`<span onCustom-EVENT="${function (e) {
+      tressa.assert(e.type === 'Custom-EVENT', 'event triggered');
+      done();
     }}">how cool</span>`
     ).firstElementChild.dispatchEvent(e);
+  });
 })
 .then(function () {
   tressa.log('## hyperHTML.escape(html)');

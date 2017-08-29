@@ -56,7 +56,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // hyperHTML.escape('<html>') => '&lt;text&gt;' 🏃
   hyper.escape = function escape(html) {
-    return html.replace(reEscape, fnEscape);
+    return html.replace(/[&<>'"]/g, fnEscape);
   };
 
   // hyperHTML.wire(obj, 'type:ID') ➰
@@ -187,9 +187,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // `<div onclick="${function () {... }}"></div>`
   // `<div onclick="${{handleEvent(){ ... }}}"></div>`
   // `<div contenteditable="${true}"></div>`
-  function setAttribute(attribute, removeAttributes) {
+  function setAttribute(attribute, removeAttributes, name) {
     var
-      name = attribute.name,
       node = attribute.ownerElement,
       isEvent = /^on/.test(name),
       isSpecial = name === 'data' || (name in node && !(
@@ -385,8 +384,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // ---------------------------------------------
 
   // look for attributes that contains the comment text
-  function attributesSeeker(node, paths) {
+  function attributesSeeker(node, paths, parts) {
     for (var
+      name,
       attribute,
       value = UID,
       attributes = node.attributes,
@@ -395,14 +395,14 @@ var hyperHTML = (function (globalDocument) {'use strict';
     ) {
       attribute = attributes[i];
       if (attribute.value === value) {
+        name = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
         paths.push(
           Path(
             'attr',
-            // with IE the order doesn't really matter
-            // as long as the right attribute is addressed
-            IE ?
-              node.attributes[IEAttributes.shift()] :
-              attribute
+            // this is needed in both jsdom
+            // and in not-so-standard browsers/engines
+            node.attributes[name.toLowerCase()],
+            name
           )
         );
       }
@@ -410,7 +410,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // walk the fragment tree in search of comments
-  function hyperSeeker(node, paths) {
+  function hyperSeeker(node, paths, parts) {
     for (var
       child,
       childNodes = node.childNodes,
@@ -420,11 +420,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
       child = childNodes[i];
       switch (child.nodeType) {
         case ELEMENT_NODE:
-          attributesSeeker(child, paths);
-          hyperSeeker(child, paths);
+          attributesSeeker(child, paths, parts);
+          hyperSeeker(child, paths, parts);
           break;
         case COMMENT_NODE:
           if (child.textContent === UID) {
+            parts.shift();
             if (length === 1 || (
               noContent(child, 'previous') &&
               noContent(child, 'next')
@@ -441,6 +442,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
             SHOULD_USE_ATTRIBUTE.test(node.nodeName) &&
             trim.call(child.textContent) === UIDC
           ) {
+            parts.shift();
             paths.push(Path('any', node));
           }
           break;
@@ -480,7 +482,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
   var slice = [].slice;
 
   // used to sanitize html
-  var reEscape = /[&<>'"]/g;
   var oEscape = {
     '&': '&amp;',
     '<': '&lt;',
@@ -526,7 +527,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // given a node, inject some html and return
   // the resulting template document fragment
   function createFragment(node, html) {
-    IEAttributes = [];
     return (
       OWNER_SVG_ELEMENT in node ?
         createSVGFragment :
@@ -745,14 +745,14 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // specify the content to update
-  function setContent(type, target, removeAttributes, childNodes) {
+  function setContent(info, target, removeAttributes, childNodes) {
     var update;
-    switch (type) {
+    switch (info.type) {
       case 'any':
         update = setVirtualContent(target, null);
         break;
       case 'attr':
-        update = setAttribute(target, removeAttributes);
+        update = setAttribute(target, removeAttributes, info.name);
         break;
       case 'virtual':
         update = setVirtualContent(target, childNodes);
@@ -777,8 +777,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
   }
 
   // used for common path creation.
-  function Path(type, node) {
-    return {type: type, path: createPath(node)};
+  function Path(type, node, name) {
+    return {type: type, path: createPath(node), name: name};
   }
 
   // ---------------------------------------------
@@ -911,22 +911,13 @@ var hyperHTML = (function (globalDocument) {'use strict';
         return parentNode;
       };
 
-  // fixes IE problems with comments and sanitizes other browsers
-  var IEAttributes;
+  // sanitizes interpolations as comments
   var no = /(<[a-z]+[a-z0-9:_-]*)((?:[^\S]+[a-z0-9:_-]+(?:=(?:'.*?'|".*?"|<.+?>|\S+))?)+)([^\S]*\/?>)/gi;
   var findAttributes = new RegExp('([^\\S][a-z]+[a-z0-9:_-]*=)([\'"]?)' + UIDC + '\\2', 'gi');
   var comments = function ($0, $1, $2, $3) {
-    return $1 + $2.replace(
-      findAttributes,
-      IE ?
-        function ($0, $1, $2) {
-          IEAttributes.push($1.slice(1, -1));
-          return replaceAttributes($0, $1, $2);
-        } :
-        replaceAttributes
-    ) + $3;
+    return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
   };
-  
+
   var replaceAttributes = function ($0, $1, $2) {
     return $1 + ($2 || '"') + UID + ($2 || '"');
   };
@@ -994,7 +985,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var paths = [];
     var fragment = createFragment(this, template.join(UIDC));
     var info = {fragment: fragment, paths: paths};
-    hyperSeeker(fragment, paths);
+    hyperSeeker(fragment, paths, template.slice());
     templates.set(template, info);
     return info;
   }
@@ -1050,7 +1041,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
         removeNodeList(target.childNodes, 0);
         target = this;
       }
-      updates[i] = setContent(info.type, target, removeAttributes, []);
+      updates[i] = setContent(info, target, removeAttributes, []);
     }
     removeAttributeList(removeAttributes);
     return updates;
@@ -1068,7 +1059,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       childNodes = [];
       info = paths[i];
       updates[i] = setContent(
-        info.type,
+        info,
         discoverNode(this, fragment, info, childNodes),
         removeAttributes,
         childNodes

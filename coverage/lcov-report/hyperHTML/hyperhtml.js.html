@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>533/533</span>
+        <span class='fraction'>531/531</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>311/311</span>
+        <span class='fraction'>307/307</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>83/83</span>
+        <span class='fraction'>82/82</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>517/517</span>
+        <span class='fraction'>515/515</span>
       </div>
     </div>
   </div>
@@ -1230,16 +1230,7 @@
 1185
 1186
 1187
-1188
-1189
-1190
-1191
-1192
-1193
-1194
-1195
-1196
-1197</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1188</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1430,7 +1421,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">34×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1634,10 +1624,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">40×</span>
 <span class="cline-any cline-yes">40×</span>
 <span class="cline-any cline-yes">34×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">34×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1667,6 +1658,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">66×</span>
 <span class="cline-any cline-yes">64×</span>
+<span class="cline-any cline-yes">64×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1682,6 +1674,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">110×</span>
@@ -1721,7 +1714,6 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1767,7 +1759,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">110×</span>
 <span class="cline-any cline-yes">110×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2156,16 +2147,7 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">28×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17×</span>
-<span class="cline-any cline-yes">17×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
@@ -2493,7 +2475,7 @@
 &nbsp;
   // hyperHTML.escape('&lt;html&gt;') =&gt; '&amp;lt;text&amp;gt;' 🏃
   hyper.escape = function escape(html) {
-    return html.replace(reEscape, fnEscape);
+    return html.replace(/[&amp;&lt;&gt;'"]/g, fnEscape);
   };
 &nbsp;
   // hyperHTML.wire(obj, 'type:ID') ➰
@@ -2624,9 +2606,8 @@
   // `&lt;div onclick="${function () {... }}"&gt;&lt;/div&gt;`
   // `&lt;div onclick="${{handleEvent(){ ... }}}"&gt;&lt;/div&gt;`
   // `&lt;div contenteditable="${true}"&gt;&lt;/div&gt;`
-  function setAttribute(attribute, removeAttributes) {
+  function setAttribute(attribute, removeAttributes, name) {
     var
-      name = attribute.name,
       node = attribute.ownerElement,
       isEvent = /^on/.test(name),
       isSpecial = name === 'data' || (name in node &amp;&amp; !(
@@ -2822,8 +2803,9 @@
   // ---------------------------------------------
 &nbsp;
   // look for attributes that contains the comment text
-  function attributesSeeker(node, paths) {
+  function attributesSeeker(node, paths, parts) {
     for (var
+      name,
       attribute,
       value = UID,
       attributes = node.attributes,
@@ -2832,14 +2814,14 @@
     ) {
       attribute = attributes[i];
       if (attribute.value === value) {
+        name = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
         paths.push(
           Path(
             'attr',
-            // with IE the order doesn't really matter
-            // as long as the right attribute is addressed
-            IE ?
-              node.attributes[IEAttributes.shift()] :
-              attribute
+            // this is needed in both jsdom
+            // and in not-so-standard browsers/engines
+            node.attributes[name.toLowerCase()],
+            name
           )
         );
       }
@@ -2847,7 +2829,7 @@
   }
 &nbsp;
   // walk the fragment tree in search of comments
-  function hyperSeeker(node, paths) {
+  function hyperSeeker(node, paths, parts) {
     for (var
       child,
       childNodes = node.childNodes,
@@ -2857,11 +2839,12 @@
       child = childNodes[i];
       switch (child.nodeType) {
         case ELEMENT_NODE:
-          attributesSeeker(child, paths);
-          hyperSeeker(child, paths);
+          attributesSeeker(child, paths, parts);
+          hyperSeeker(child, paths, parts);
           break;
         case COMMENT_NODE:
           if (child.textContent === UID) {
+            parts.shift();
             if (length === 1 || (
               noContent(child, 'previous') &amp;&amp;
               noContent(child, 'next')
@@ -2878,6 +2861,7 @@
             SHOULD_USE_ATTRIBUTE.test(node.nodeName) &amp;&amp;
             trim.call(child.textContent) === UIDC
           ) {
+            parts.shift();
             paths.push(Path('any', node));
           }
           break;
@@ -2917,7 +2901,6 @@
   var slice = [].slice;
 &nbsp;
   // used to sanitize html
-  var reEscape = /[&amp;&lt;&gt;'"]/g;
   var oEscape = {
     '&amp;': '&amp;amp;',
     '&lt;': '&amp;lt;',
@@ -2963,7 +2946,6 @@
   // given a node, inject some html and return
   // the resulting template document fragment
   function createFragment(node, html) {
-    IEAttributes = [];
     return (
       OWNER_SVG_ELEMENT in node ?
         createSVGFragment :
@@ -3182,14 +3164,14 @@
   }
 &nbsp;
   // specify the content to update
-  function setContent(type, target, removeAttributes, childNodes) {
+  function setContent(info, target, removeAttributes, childNodes) {
     var update;
-    switch (type) {
+    switch (info.type) {
       case 'any':
         update = setVirtualContent(target, null);
         break;
       case 'attr':
-        update = setAttribute(target, removeAttributes);
+        update = setAttribute(target, removeAttributes, info.name);
         break;
       case 'virtual':
         update = setVirtualContent(target, childNodes);
@@ -3214,8 +3196,8 @@
   }
 &nbsp;
   // used for common path creation.
-  function Path(type, node) {
-    return {type: type, path: createPath(node)};
+  function Path(type, node, name) {
+    return {type: type, path: createPath(node), name: name};
   }
 &nbsp;
   // ---------------------------------------------
@@ -3348,22 +3330,13 @@
         return parentNode;
       };
 &nbsp;
-  // fixes IE problems with comments and sanitizes other browsers
-  var IEAttributes;
+  // sanitizes interpolations as comments
   var no = /(&lt;[a-z]+[a-z0-9:_-]*)((?:[^\S]+[a-z0-9:_-]+(?:=(?:'.*?'|".*?"|&lt;.+?&gt;|\S+))?)+)([^\S]*\/?&gt;)/gi;
   var findAttributes = new RegExp('([^\\S][a-z]+[a-z0-9:_-]*=)([\'"]?)' + UIDC + '\\2', 'gi');
   var comments = function ($0, $1, $2, $3) {
-    return $1 + $2.replace(
-      findAttributes,
-      IE ?
-        function ($0, $1, $2) {
-          IEAttributes.push($1.slice(1, -1));
-          return replaceAttributes($0, $1, $2);
-        } :
-        replaceAttributes
-    ) + $3;
+    return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
   };
-  
+&nbsp;
   var replaceAttributes = function ($0, $1, $2) {
     return $1 + ($2 || '"') + UID + ($2 || '"');
   };
@@ -3431,7 +3404,7 @@
     var paths = [];
     var fragment = createFragment(this, template.join(UIDC));
     var info = {fragment: fragment, paths: paths};
-    hyperSeeker(fragment, paths);
+    hyperSeeker(fragment, paths, template.slice());
     templates.set(template, info);
     return info;
   }
@@ -3487,7 +3460,7 @@
         removeNodeList(target.childNodes, 0);
         target = this;
       }
-      updates[i] = setContent(info.type, target, removeAttributes, []);
+      updates[i] = setContent(info, target, removeAttributes, []);
     }
     removeAttributeList(removeAttributes);
     return updates;
@@ -3505,7 +3478,7 @@
       childNodes = [];
       info = paths[i];
       updates[i] = setContent(
-        info.type,
+        info,
         discoverNode(this, fragment, info, childNodes),
         removeAttributes,
         childNodes
@@ -3637,7 +3610,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Aug 29 2017 09:03:04 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Aug 29 2017 18:53:54 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>

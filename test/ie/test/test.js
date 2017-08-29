@@ -6,7 +6,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject2 = _taggedTemplateLiteral(['<p>', ' world</p>'], ['<p>', ' world</p>']),
     _templateObject3 = _taggedTemplateLiteral(['<p>', '</p>'], ['<p>', '</p>']),
     _templateObject4 = _taggedTemplateLiteral(['<a href="#" onclick="', '">click</a>'], ['<a href="#" onclick="', '">click</a>']),
-    _templateObject5 = _taggedTemplateLiteral(['<span oncustom="', '">how cool</span>'], ['<span oncustom="', '">how cool</span>']),
+    _templateObject5 = _taggedTemplateLiteral(['<span onCustom-EVENT="', '">how cool</span>'], ['<span onCustom-EVENT="', '">how cool</span>']),
     _templateObject6 = _taggedTemplateLiteral(['\n        <p>1</p>\n      '], ['\n        <p>1</p>\n      ']),
     _templateObject7 = _taggedTemplateLiteral(['\n        0\n        <p>1</p>\n      '], ['\n        0\n        <p>1</p>\n      ']),
     _templateObject8 = _taggedTemplateLiteral(['', ''], ['', '']),
@@ -183,13 +183,16 @@ tressa.async(function (done) {
     done(div);
   });
 }).then(function () {
-  tressa.log('## custom events');
-  var render = hyperHTML.bind(document.createElement('p'));
-  var e = document.createEvent('Event');
-  e.initEvent('custom', true, true);
-  render(_templateObject5, function (e) {
-    tressa.assert(e.type === 'custom', 'event triggered');
-  }).firstElementChild.dispatchEvent(e);
+  return tressa.async(function (done) {
+    tressa.log('## custom events');
+    var render = hyperHTML.bind(document.createElement('p'));
+    var e = document.createEvent('Event');
+    e.initEvent('Custom-EVENT', true, true);
+    render(_templateObject5, function (e) {
+      tressa.assert(e.type === 'Custom-EVENT', 'event triggered');
+      done();
+    }).firstElementChild.dispatchEvent(e);
+  });
 }).then(function () {
   tressa.log('## hyperHTML.escape(html)');
   tressa.assert(hyperHTML.escape('<html>') === '&lt;html&gt;', 'escape as expected');
