@@ -62,12 +62,15 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // hyperHTML.wire(obj, 'type:ID') ➰
   hyper.wire = wire;
   function wire(obj, type) {
-    return arguments.length < 1 ?
-      wireContent('html') :
-      (obj == null ?
-        wireContent(type || 'html') :
-        wireWeakly(obj, type || 'html')
-      );
+    switch (true) {
+      case obj == null:
+        return wireContent(type || 'html');
+      case typeof obj === 'object':
+      case typeof obj === 'function':
+        return wireWeakly(obj, type || 'html');
+      default:
+        return wireWeakly(wire, (type || 'html') + ':' + obj);
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - -

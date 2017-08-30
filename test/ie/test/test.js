@@ -655,6 +655,10 @@ tressa.async(function (done) {
   var div = hyperHTML.wire()(_templateObject52, obj);
   tressa.assert(div.data === obj, 'data available without serialization');
   tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
+}).then(function () {
+  tressa.log('## wire(primitive)');
+  tressa.assert(hyperHTML.wire(1) === hyperHTML.wire(1), 'same primitive, same wire');
+  tressa.assert(hyperHTML.wire(2, 'svg') === hyperHTML.wire(2, 'svg'), 'even with SVGs');
 })
 // */
 .then(function () {
