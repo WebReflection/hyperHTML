@@ -1,5 +1,7 @@
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n      Time: ', '\n    </p>\n    '], ['\n    <p data-counter="', '">\n      Time: ', '\n    </p>\n    ']),
@@ -53,7 +55,16 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject49 = _taggedTemplateLiteral(['<p>a', 'c</p>'], ['<p>a', 'c</p>']),
     _templateObject50 = _taggedTemplateLiteral(['a', 'c'], ['a', 'c']),
     _templateObject51 = _taggedTemplateLiteral(['<rect />'], ['<rect />']),
-    _templateObject52 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']);
+    _templateObject52 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']),
+    _templateObject53 = _taggedTemplateLiteral(['\n      <button>hello</button>'], ['\n      <button>hello</button>']),
+    _templateObject54 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
+    _templateObject55 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -655,6 +666,89 @@ tressa.async(function (done) {
   var div = hyperHTML.wire()(_templateObject52, obj);
   tressa.assert(div.data === obj, 'data available without serialization');
   tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
+}).then(function () {
+  tressa.log('## hyper.Component');
+
+  var Button = function (_hyperHTML$Component) {
+    _inherits(Button, _hyperHTML$Component);
+
+    function Button() {
+      _classCallCheck(this, Button);
+
+      return _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).apply(this, arguments));
+    }
+
+    _createClass(Button, [{
+      key: 'render',
+      value: function render() {
+        return this.html(_templateObject53);
+      }
+    }]);
+
+    return Button;
+  }(hyperHTML.Component);
+
+  var Rect = function (_hyperHTML$Component2) {
+    _inherits(Rect, _hyperHTML$Component2);
+
+    function Rect(state) {
+      var _this2;
+
+      _classCallCheck(this, Rect);
+
+      (_this2 = _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this)), _this2).setState(state);
+      return _this2;
+    }
+
+    _createClass(Rect, [{
+      key: 'render',
+      value: function render() {
+        return this.svg(_templateObject54, this.state.x, this.state.y);
+      }
+    }]);
+
+    return Rect;
+  }(hyperHTML.Component);
+
+  var Paragraph = function (_hyperHTML$Component3) {
+    _inherits(Paragraph, _hyperHTML$Component3);
+
+    function Paragraph(state) {
+      var _this3;
+
+      _classCallCheck(this, Paragraph);
+
+      (_this3 = _possibleConstructorReturn(this, (Paragraph.__proto__ || Object.getPrototypeOf(Paragraph)).call(this)), _this3).setState(state);
+      return _this3;
+    }
+
+    _createClass(Paragraph, [{
+      key: 'onclick',
+      value: function onclick() {
+        this.clicked = true;
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        return this.html(_templateObject55, this.state.attr, this);
+      }
+    }]);
+
+    return Paragraph;
+  }(hyperHTML.Component);
+
+  var div = document.createElement('div');
+  var render = hyperHTML.bind(div);
+  render(_templateObject8, [new Button(), new Rect({ x: 123, y: 456 })]);
+  tressa.assert(div.querySelector('button'), 'the <button> exists');
+  tressa.assert(div.querySelector('rect'), 'the <rect /> exists');
+  var p = new Paragraph(function () {
+    return { attr: 'test' };
+  });
+  render(_templateObject8, p);
+  tressa.assert(div.querySelector('p').getAttribute('attr') === 'test', 'the <p attr=test> is defined');
+  p.render().click();
+  tressa.assert(p.clicked, 'the event worked');
 })
 // */
 .then(function () {

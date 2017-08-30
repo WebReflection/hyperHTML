@@ -32,7 +32,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       ).apply(null, arguments);
   }
 
-  // hyperHTML.adopt(el) 🐣
+  // hyper.adopt(el) 🐣
   // import an already live DOM structure
   // described as TL
   hyper.adopt = function adopt(node) {
@@ -44,22 +44,23 @@ var hyperHTML = (function (globalDocument) {'use strict';
     };
   };
 
-  // hyperHTML.bind(el) ⚡️
+  // hyper.bind(el) ⚡️
   // render TL inside a DOM node used as context
   hyper.bind = bind;
   function bind(context) { return render.bind(context); }
 
-  // hyperHTML.define('transformer', callback) 🌀
+  // hyper.define('transformer', callback) 🌀
   hyper.define = function define(transformer, callback) {
     transformers[transformer] = callback;
   };
 
-  // hyperHTML.escape('<html>') => '&lt;text&gt;' 🏃
+  // hyper.escape('<html>') => '&lt;text&gt;' 🏃
   hyper.escape = function escape(html) {
     return html.replace(/[&<>'"]/g, fnEscape);
   };
 
-  // hyperHTML.wire(obj, 'type:ID') ➰
+  // hyper.wire(obj, 'type:ID') ➰
+  // relate a renderer to a generic object
   hyper.wire = wire;
   function wire(obj, type) {
     return arguments.length < 1 ?
@@ -69,6 +70,46 @@ var hyperHTML = (function (globalDocument) {'use strict';
         wireWeakly(obj, type || 'html')
       );
   }
+
+  // hyper.Component([initialState]) 🍻
+  // An overly-simplified Component class.
+  // For full Custom Elements support
+  // see HyperHTMLElement instead.
+  hyper.Component = Component;
+  function Component() {}
+  function addRender(self, type, secret) {
+    return defineProperty(self, secret, {value: wireContent(type)})[secret];
+  }
+  Object.defineProperties(
+    Component.prototype,
+    {
+      // same as HyperHTMLElement get defaultState
+      defaultState: {get: function () { return {}; }},
+      // returns its own HTML wire or create it once on comp.render()
+      html: {get: function () {
+        return this._html$ || addRender(this, 'html', '_html$');
+      }},
+      // returns its own SVG wire or create it once on comp.render()
+      svg: {get: function () {
+        return this._svg$ || addRender(this, 'svg', '_svg$');
+      }},
+      // same as HyperHTMLElement handleEvent
+      handleEvent: {value: function (e) {
+        this[(e.currentTarget.dataset || {}).call || ('on' + e.type)](e);
+      }},
+      // same as HyperHTMLElement setState
+      setState: {value: function (state) {
+        var target = this.state || this.defaultState;
+        var source = typeof state === 'function' ? state.call(this, target) : state;
+        for (var key in source) target[key] = source[key];
+        this.state = target;
+        this.render();
+      }}
+      // the render must be defined when extending hyper.Component
+      // the render **must** return either comp.html or comp.svg wire
+      // render() { return this.html`<p>that's it</p>`; }
+    }
+  );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -299,6 +340,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
             oldValue = value;
             anyVirtual('');
             break;
+          } else if (value instanceof Component) {
+            value = value.render();
           }
         default:
           oldValue = value;
@@ -331,6 +374,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
                   if (isPromise_ish(value[0])) {
                     Promise.all(value).then(anyVirtual);
                     break;
+                  } else {
+                    for (var i = 0, length = value.length; i < length; i++) {
+                      if (value[i] instanceof Component) {
+                        value[i] = value[i].render();
+                      }
+                    }
                   }
                 default:
                   if (justContent) {
@@ -840,6 +889,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // ---------------------------------------------
   // Shared variables
   // ---------------------------------------------
+
+  // recycled defineProperty shortcut
+  var defineProperty = Object.defineProperty;
 
   // transformers registry
   var transformers = {};
