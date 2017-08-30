@@ -200,6 +200,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       noOwner = isEvent || isSpecial,
       oldValue
     ;
+    if (isEvent && name.toLowerCase() in node) type = type.toLowerCase();
     if (noOwner) removeAttributes.push(node, name);
     return isEvent ?
       function eventAttr(newValue) {

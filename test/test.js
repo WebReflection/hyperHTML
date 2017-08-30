@@ -106,7 +106,8 @@ tressa.async(function (done) {
       done(div);
     });
     function update(click) {
-      return render`<a href="#" onclick="${click}">click</a>`;
+      // also test case-insensitive builtin events
+      return render`<a href="#" onClick="${click}">click</a>`;
     }
     var a = div.querySelector('a');
     var e = document.createEvent('Event');
