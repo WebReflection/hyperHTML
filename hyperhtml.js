@@ -549,7 +549,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       // if the content is a partial internal table content
       // it needs to be wrapped around once injected.
       // HTMLTemplateElement does not suffer this issue.
-      needsTableWrap = /^[^\S]*?<(t(?:head|body|foot|r|d|h))/i.test(html);
+      needsTableWrap = /^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html);
     }
     if (needsTableWrap) {
       // secure the RegExp.$1 result ASAP to avoid issues
