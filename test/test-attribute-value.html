@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Attribute Nodes Shenanigans</title>
+    <script>
+    this.onload = function () {
+      var div = document.querySelector('div');
+      // grab first attribute
+      var attribute = div.attributes[0];
+      // trap attribute name and value
+      var name = attribute.name;
+      var value = attribute.value;
+      // remove the attribute
+      div.removeAttribute(name);
+      if (attribute.name !== name) alert('Attribute name compromised');
+      // cry here if you are using Edge
+      if (attribute.value !== value) alert('Attribute value compromised');
+      // see the emptiness as value if you are using Edge
+      div.appendChild(
+        document.createTextNode(
+          [attribute.name, attribute.value].join(': ')
+        )
+      );
+
+      // do the same with the body
+      div = document.body;
+      attribute = document.body.attributes[0];
+      name = attribute.name;
+      value = attribute.value;
+      div.removeAttribute('align');
+      if (attribute.name !== name) alert('Body attribute name compromised');
+      // cry louder since it does NOT happen this time
+      if (attribute.value !== value) alert('Body attribute value compromised');
+      div.appendChild(
+        document.createTextNode(
+          [attribute.name, attribute.value].join(': ')
+        )
+      );
+    };
+    </script>
+  </head>
+  <body align="right">
+    <div align="right"></div>
+  </body>
+</html>

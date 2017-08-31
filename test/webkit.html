@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <script>document.write('<script src="../hyperhtml.js?_=' + Math.random() + '"><' + '/script>')</script>
+  </head>
+  <body></body>
+  <script>
+  (function update(value) {
+    console.log(value);
+    hyperHTML.bind(document.body)`
+    <input
+      style="color:ButtonText"
+      oninput="${e => update(e.target.value)}"
+      value="${value}">`;
+  }(''));
+  </script>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: sans-serif; text-align: center; }
+      body.passed { background-color: #0FA;  }
+      h1 { font-size: 1.2em; }
+    </style>
+    <!--[if lte IE 9]><script>(function(f){window.setTimeout=f(window.setTimeout);window.setInterval=f(window.setInterval)})(function(f){return function(c,t){var a=[].slice.call(arguments,2);return f(function(){c.apply(this,a)},t)}});</script><![endif]-->
+    <script>
+    Function.bind||document.write([
+      '<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"><', '/script>',
+      '<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"><', '/script>'
+    ].join(''))
+    </script>
+    <script>window.module = {};</script>
+    <script>window.Promise||document.write('<script src="https://unpkg.com/es6-promise@4.1.1"><'+'/script>')</script>
+  </head>
+  <body>
+    <h1>results in console</h1>
+  </body>
+  <script>
+  if (!console.time) {
+    (function (console) {
+      window.console = {
+        time: function () {},
+        timeEnd: function () {},
+        assert: function (condition, comment) {
+          if (console.assert) console.assert(condition, comment || '');
+          else if (condition) console.log(comment);
+          else console.error(comment);
+        },
+        log: function () {
+          console.log([].slice.call(arguments, 0));
+        },
+        info: function () {
+          console.info([].slice.call(arguments, 0));
+        },
+        error: function () {
+          console.error([].slice.call(arguments, 0));
+        },
+        warn: function () {
+          console.warn([].slice.call(arguments, 0));
+        }
+      };
+    }(console));
+  }
+  if (!window.Promise) window.Promise = ES6Promise;
+  </script>
+  <script src="https://unpkg.com/tressa@0.3.1"></script>
+  <script>document.write('<script src="../../hyperhtml.js?_=' + Math.random() + '"><'+'/script>')</script>
+  <script>document.write('<script src="./test/test.js?_=' + Math.random() + '"><'+'/script>')</script>
+</html>

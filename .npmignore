@@ -1,6 +1,9 @@
+coverage/*
 dist/*
 docs/*
+logo/*
 node_modules/*
+repl/*
 test/*
 _config.yml
 .DS_Store

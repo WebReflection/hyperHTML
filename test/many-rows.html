@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { font-family: sans-serif; } .red { color: red; }</style>
+    <script src="../hyperhtml.js"></script>
+  </head>
+  <body>
+    <p>Boot speed: <span id='boot'></span></p>
+    <div id="example"></div>
+    <script>
+
+this.renderer = hyperHTML.bind(example);
+
+const state = {
+  start: null,
+  items: []
+};
+
+function onClick() {
+  state.start = performance.now();
+  state.items.reverse();
+  render();
+  debug.textContent = performance.now() - state.start;
+}
+
+function adopt() {
+  render = () => renderer`
+    <div>
+      <button onclick="${ onClick }"> update </button>
+      <button onclick="${ adopt }"> adopt </button>
+      <p id='debug'></p>${ 
+        state.items.map((item, i) => hyperHTML.wire(item, 'adopt')`
+        <h1 class="${ i%2 === 0 ? 'red' : '' }">
+            ${ item.name }
+          </h1>` 
+      )}</div>
+  `;
+  renderer = hyperHTML.adopt(example);
+}
+
+var render = function () {
+  renderer`
+    <div>
+      <button onclick="${ onClick }">
+        update
+      </button>
+      <button onclick="${ adopt }">
+        adopt
+      </button>
+      <p id='debug'></p>${ 
+        state.items.map((item, i) => hyperHTML.wire(item)`
+        <h1 class="${ i%2 === 0 ? 'red' : '' }">
+            ${ item.name }
+          </h1>` 
+      )}</div>
+  `
+};
+
+let amount = 10000;
+while(amount--) {
+  state.items.push({
+    name: `item-${ amount }`
+  });
+}
+
+
+onClick();
+
+    </script>
+  </body>
+</html>

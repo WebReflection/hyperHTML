@@ -1,0 +1,65 @@
+<!doctype html>
+<script src="https://unpkg.com/introspected@latest/min.js"></script>
+<script src="../min.js"></script>
+<script>
+this.onload = function () {
+  'use strict';
+
+  class Foo {
+  
+    constructor(root) {
+
+      this.render = hyperHTML.bind(root);
+
+      this.state = Introspected(
+        {
+          items: [
+            { id: 1, text: 'foo' },
+            { id: 2, text: 'bar' },
+            { id: 3, text: 'baz' }
+          ]
+        },
+        state => this.update(state)
+      );
+
+      // any change to the introspected state will update
+      this.state.selectedItem = this.state.items[0];
+    }
+
+    // any object with an handleEvent method can be used for any event
+    // like it is already for DOM Level 3 via addEventListener
+    handleEvent(e) {
+      switch (e.type) {
+        case 'change':
+          this.state.selectedItem = this.state.items.find(
+            item => +e.target.value === item.id
+          );
+          break;
+      }
+    }
+
+    update(state) {
+      this.render`
+        <select onchange="${this}">${
+          state.items.map(item => hyperHTML.wire(item, ':option')`
+          <option value="${item.id}">
+            ${item.text}
+          </option>
+        `)}</select>
+
+        <p>Selected: ${state.selectedItem.text}</p>
+
+        <ul>${state.items.map(item => hyperHTML.wire(item, ':li')`
+            <li> ${item.id} / ${item.text} </li>
+        `)}</ul>
+      `;
+    }
+
+  }
+
+  const foo = new Foo(document.body);
+
+  setTimeout(() => foo.state.items.push({id: 4, text: 'minions'}), 3000);
+
+};
+</script>

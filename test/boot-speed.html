@@ -44,11 +44,11 @@ function update() {
     </button>
     <p>
       ${Date.now() - start}
-    </p>${
-    items.map((item, i) =>
+    </p>
+    ${items.map((item, i) =>
       `<h1 class="${i % 2 ? 'red' : ''}">${item.name}</h1>`
-    )
-  }<div>`;
+    )}
+    <div>`;
 }
 
 function onclick() {

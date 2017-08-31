@@ -1,0 +1,6 @@
+button {
+  cursor: pointer;
+  outline: none;
+  font-family: sans-serif;
+  font-weight: bold;
+}

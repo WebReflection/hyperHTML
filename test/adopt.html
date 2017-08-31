@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <script defer
+            src="../hyperhtml.js"></script>
+  </head>
+  <body>
+    <div test="before"> before
+      <ul>
+        <li> lonely </li>
+      </ul>NO<hr>
+    </div>
+  </body>
+  <script>
+  this.onload = function () {
+      update(
+        hyperHTML.adopt(document.body),
+        {
+          test: 'after',
+          text: 'after',
+          list: [
+            {name: 'first'},
+            {name: 'second'}
+          ],
+          inBetween: 'YES'
+        }
+      );
+      function update(render, model) {
+        render`
+        <div test="${model.test}">
+          ${model.text}
+          <ul>
+            ${model.list.map(item => `<li> ${item.name} </li>`)}
+          </ul>
+          ${model.inBetween}
+          <hr>
+        </div>
+        `;
+      }
+  };
+  </script>
+</html>

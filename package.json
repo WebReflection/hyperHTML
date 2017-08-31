@@ -1,14 +1,16 @@
 {
   "name": "hyperhtml",
-  "version": "0.8.4",
+  "version": "1.6.1",
   "description": "A Fast & Light Virtual DOM Alternative",
   "main": "hyperhtml.js",
   "scripts": {
+    "build": "npm run minify && npm run ie && npm test && npm run size",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "es5": "babel ./test/js/* --out-dir ./dist --presets=es2015; cp ./dist/test/js/* ./test/dist",
-    "build": "npm run minify && npm test && npm run size",
-    "test": "node test/runner.js",
+    "ie": "babel ./test/test.js --out-dir ./test/ie --presets=es2015",
     "minify": "uglifyjs hyperhtml.js --comments=/^!/ --compress --mangle -o min.js",
-    "size": "cat hyperhtml.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c"
+    "size": "cat hyperhtml.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
+    "test": "istanbul cover test/runner.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +24,7 @@
     "diff"
   ],
   "author": "Andrea Giammarchi",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/WebReflection/hyperhtml/issues"
   },
@@ -30,7 +32,9 @@
   "devDependencies": {
     "babel-cli": "^6.23.0",
     "babel-preset-es2015": "^6.22.0",
-    "jsdom": "^9.11.0",
+    "coveralls": "^2.13.1",
+    "istanbul": "^0.4.5",
+    "jsdom": "^9.12.0",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.5"
   }
