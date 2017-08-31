@@ -16,19 +16,19 @@ var hyperHTML = (function (globalDocument) {'use strict';
   function hyper(HTML) {
     return arguments.length < 2 ?
       (HTML == null ?
-        wireContent('html') :
+        wireContent() :
         (typeof HTML === 'string' ?
           wire(null, HTML) :
           ('raw' in HTML ?
-            wireContent('html')(HTML) :
+            wireContent()(HTML) :
             ('nodeType' in HTML ?
               bind(HTML) :
-              wireWeakly(HTML, 'html')
+              wireWeakly(HTML)
             )
           )
         )) :
       ('raw' in HTML ?
-        wireContent('html') : wire
+        wireContent() : wire
       ).apply(null, arguments);
   }
 
@@ -64,10 +64,10 @@ var hyperHTML = (function (globalDocument) {'use strict';
   hyper.wire = wire;
   function wire(obj, type) {
     return arguments.length < 1 ?
-      wireContent('html') :
+      wireContent() :
       (obj == null ?
-        wireContent(type || 'html') :
-        wireWeakly(obj, type || 'html')
+        wireContent(type) :
+        wireWeakly(obj, type)
       );
   }
 
@@ -1238,7 +1238,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var id = type;
     if (-1 < i) {
       id = type.slice(i + 1);
-      type = type.slice(0, i) || 'html';
+      type = type.slice(0, i);
     }
     if (!wire) {
       wire = {};
