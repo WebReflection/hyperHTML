@@ -83,8 +83,6 @@ var hyperHTML = (function (globalDocument) {'use strict';
   Object.defineProperties(
     Component.prototype,
     {
-      // same as HyperHTMLElement get defaultState
-      defaultState: {get: function () { return {}; }},
       // returns its own HTML wire or create it once on comp.render()
       html: {get: function () {
         return this._html$ || addRender(this, 'html', '_html$');
@@ -97,12 +95,22 @@ var hyperHTML = (function (globalDocument) {'use strict';
       handleEvent: {value: function (e) {
         this[(e.currentTarget.dataset || {}).call || ('on' + e.type)](e);
       }},
+      // same as HyperHTMLElement get defaultState
+      defaultState: {get: function () { return {}; }},
+      // same as HyperHTMLElement state
+      state: {
+        get: function () {
+          return this._state$ || (this._state$ = this.defaultState);
+        },
+        set: function (value) {
+          defineProperty(this, '_state$', {configurable: true, value: value});
+        }
+      },
       // same as HyperHTMLElement setState
       setState: {value: function (state) {
-        var target = this.state || this.defaultState;
+        var target = this.state;
         var source = typeof state === 'function' ? state.call(this, target) : state;
         for (var key in source) target[key] = source[key];
-        this.state = target;
         this.render();
       }}
       // the render must be defined when extending hyper.Component

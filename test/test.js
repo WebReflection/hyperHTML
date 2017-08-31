@@ -817,6 +817,24 @@ tressa.async(function (done) {
   tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
   tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
 })
+.then(function () {
+  tressa.log('## hyper.Component state');
+  class DefaultState extends hyperHTML.Component {
+    get defaultState() { return {a: 'a'}; }
+    render() {}
+  }
+  class State extends hyperHTML.Component {}
+  var ds = new DefaultState;
+  var o = ds.state;
+  tressa.assert(o.a === 'a', 'default state retrieved');
+  var s = new State;
+  s.state = o;
+  tressa.assert(s.state === o, 'state can be set too');
+  ds.setState({b: 'b'});
+  tressa.assert(o.a === 'a' && o.b === 'b', 'state was updated');
+  s.state = {z: 123};
+  tressa.assert(s.state.z === 123 && !s.state.a, 'state can be re-set too');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {

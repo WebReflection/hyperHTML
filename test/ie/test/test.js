@@ -777,6 +777,53 @@ tressa.async(function (done) {
   });
   tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
   tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
+}).then(function () {
+  tressa.log('## hyper.Component state');
+
+  var DefaultState = function (_hyperHTML$Component4) {
+    _inherits(DefaultState, _hyperHTML$Component4);
+
+    function DefaultState() {
+      _classCallCheck(this, DefaultState);
+
+      return _possibleConstructorReturn(this, (DefaultState.__proto__ || Object.getPrototypeOf(DefaultState)).apply(this, arguments));
+    }
+
+    _createClass(DefaultState, [{
+      key: 'render',
+      value: function render() {}
+    }, {
+      key: 'defaultState',
+      get: function get() {
+        return { a: 'a' };
+      }
+    }]);
+
+    return DefaultState;
+  }(hyperHTML.Component);
+
+  var State = function (_hyperHTML$Component5) {
+    _inherits(State, _hyperHTML$Component5);
+
+    function State() {
+      _classCallCheck(this, State);
+
+      return _possibleConstructorReturn(this, (State.__proto__ || Object.getPrototypeOf(State)).apply(this, arguments));
+    }
+
+    return State;
+  }(hyperHTML.Component);
+
+  var ds = new DefaultState();
+  var o = ds.state;
+  tressa.assert(o.a === 'a', 'default state retrieved');
+  var s = new State();
+  s.state = o;
+  tressa.assert(s.state === o, 'state can be set too');
+  ds.setState({ b: 'b' });
+  tressa.assert(o.a === 'a' && o.b === 'b', 'state was updated');
+  s.state = { z: 123 };
+  tressa.assert(s.state.z === 123 && !s.state.a, 'state can be re-set too');
 })
 // */
 .then(function () {
