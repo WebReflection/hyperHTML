@@ -750,6 +750,44 @@ tressa.async(function (done) {
   tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
 })
 .then(function () {
+  tressa.log('## hyper.Component');
+  class Button extends hyperHTML.Component {
+    render() { return this.html`
+      <button>hello</button>`;
+    }
+  }
+  class Rect extends hyperHTML.Component {
+    constructor(state) {
+      super().setState(state);
+    }
+    render() { return this.svg`
+      <rect x=${this.state.x} y=${this.state.y} />`;
+    }
+  }
+  class Paragraph extends hyperHTML.Component {
+    constructor(state) {
+      super().setState(state);
+    }
+    onclick() { this.clicked = true; }
+    render() { return this.html`
+      <p attr=${this.state.attr} onclick=${this}>hello</p>`;
+    }
+  }
+  var div = document.createElement('div');
+  var render = hyperHTML.bind(div);
+  render`${[
+    new Button,
+    new Rect({x: 123, y: 456})
+  ]}`;
+  tressa.assert(div.querySelector('button'), 'the <button> exists');
+  tressa.assert(div.querySelector('rect'), 'the <rect /> exists');
+  var p = new Paragraph(() => ({attr: 'test'}));
+  render`${p}`;
+  tressa.assert(div.querySelector('p').getAttribute('attr') === 'test', 'the <p attr=test> is defined');
+  p.render().click();
+  tressa.assert(p.clicked, 'the event worked');
+})
+.then(function () {
   tressa.log('## Custom Element attributes');
   var global = document.defaultView;
   var registry = global.customElements;
