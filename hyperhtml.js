@@ -724,7 +724,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   function getCEClass(node) {
     var doc = hyper.document;
     var ce = doc.customElements || doc.defaultView.customElements;
-    return ce && ce.get(node.nodeName);
+    return ce && ce.get(node.nodeName.toLowerCase());
   }
 
   // avoid errors on obsolete platforms
