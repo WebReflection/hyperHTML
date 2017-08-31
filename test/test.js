@@ -787,6 +787,36 @@ tressa.async(function (done) {
   p.render().click();
   tressa.assert(p.clicked, 'the event worked');
 })
+.then(function () {
+  tressa.log('## Custom Element attributes');
+  var global = document.defaultView;
+  var registry = global.customElements;
+  var customElements = {
+    _: Object.create(null),
+    define: function (name, Class) {
+      this._[name.toLowerCase()] = Class;
+    },
+    get: function (name) {
+      return this._[name.toLowerCase()];
+    }
+  };
+  Object.defineProperty(global, 'customElements', {
+    configurable: true,
+    value: customElements
+  });
+  function DumbElement() {}
+  DumbElement.prototype.dumb = null;
+  customElements.define('dumb-element', DumbElement);
+  var div = hyperHTML.wire()`<div>
+    <dumb-element dumb=${true}></dumb-element><dumber-element dumb=${true}></dumber-element>
+  </div>`;
+  Object.defineProperty(global, 'customElements', {
+    configurable: true,
+    value: registry
+  });
+  tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
+  tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {
