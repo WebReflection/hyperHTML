@@ -53,7 +53,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject49 = _taggedTemplateLiteral(['<p>a', 'c</p>'], ['<p>a', 'c</p>']),
     _templateObject50 = _taggedTemplateLiteral(['a', 'c'], ['a', 'c']),
     _templateObject51 = _taggedTemplateLiteral(['<rect />'], ['<rect />']),
-    _templateObject52 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']);
+    _templateObject52 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']),
+    _templateObject53 = _taggedTemplateLiteral(['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>'], ['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>']);
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -655,6 +656,33 @@ tressa.async(function (done) {
   var div = hyperHTML.wire()(_templateObject52, obj);
   tressa.assert(div.data === obj, 'data available without serialization');
   tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
+}).then(function () {
+  tressa.log('## Custom Element attributes');
+  var global = document.defaultView;
+  var registry = global.customElements;
+  var customElements = {
+    _: Object.create(null),
+    define: function define(name, Class) {
+      this._[name.toLowerCase()] = Class;
+    },
+    get: function get(name) {
+      return this._[name.toLowerCase()];
+    }
+  };
+  Object.defineProperty(global, 'customElements', {
+    configurable: true,
+    value: customElements
+  });
+  function DumbElement() {}
+  DumbElement.prototype.dumb = null;
+  customElements.define('dumb-element', DumbElement);
+  var div = hyperHTML.wire()(_templateObject53, true, true);
+  Object.defineProperty(global, 'customElements', {
+    configurable: true,
+    value: registry
+  });
+  tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
+  tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
 })
 // */
 .then(function () {

@@ -191,11 +191,9 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var
       node = attribute.ownerElement,
       isEvent = /^on/.test(name),
-      isSpecial = name === 'data' || (name in node && !(
-                    // always use set attribute with SVGs
-                    OWNER_SVG_ELEMENT in node ||
-                    SHOULD_USE_ATTRIBUTE.test(name)
-                  )),
+      isSpecial = name === 'data' ||
+                  (isSpecialAttribute(node, name) &&
+                  !SHOULD_USE_ATTRIBUTE.test(name)),
       type = isEvent ? name.slice(2) : '',
       noOwner = isEvent || isSpecial,
       oldValue
@@ -672,12 +670,32 @@ var hyperHTML = (function (globalDocument) {'use strict';
     return target;
   }
 
+  // returns current customElements reference
+  // compatible with basicHTML too
+  function getCEClass(node) {
+    var doc = hyper.document;
+    var ce = doc.customElements || doc.defaultView.customElements;
+    return ce && ce.get(node.nodeName);
+  }
+
+  // avoid errors on obsolete platforms
   function insertBefore(parentNode, target, after) {
     if (after) {
       parentNode.insertBefore(target, after);
     } else {
       parentNode.appendChild(target);
     }
+  }
+
+  // verify that an attribute has
+  // a special meaning for the node
+  function isSpecialAttribute(node, name) {
+    var notSVG = !(OWNER_SVG_ELEMENT in node);
+    if (notSVG && /-/.test(node.nodeName)) {
+      var Class = getCEClass(node);
+      if (Class) node = Class.prototype;
+    }
+    return notSVG && name in node;
   }
 
   // create an empty fragment from a generic node
