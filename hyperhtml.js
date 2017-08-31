@@ -23,7 +23,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
             wireContent()(HTML) :
             ('nodeType' in HTML ?
               bind(HTML) :
-              wireWeakly(HTML, 'html')
+              wireWeakly(HTML)
             )
           )
         )) :
@@ -66,8 +66,8 @@ var hyperHTML = (function (globalDocument) {'use strict';
     return arguments.length < 1 ?
       wireContent() :
       (obj == null ?
-        wireContent(type || 'html') :
-        wireWeakly(obj, type || 'html')
+        wireContent(type) :
+        wireWeakly(obj, type)
       );
   }
 
@@ -1238,7 +1238,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var id = type;
     if (-1 < i) {
       id = type.slice(i + 1);
-      type = type.slice(0, i) || 'html';
+      type = type.slice(0, i);
     }
     if (!wire) {
       wire = {};
