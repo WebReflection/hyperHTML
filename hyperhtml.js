@@ -100,7 +100,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
       // same as HyperHTMLElement state
       state: {
         get: function () {
-          return this._state$ || (this._state$ = this.defaultState);
+          return this._state$ || (this.state = this.defaultState);
         },
         set: function (value) {
           defineProperty(this, '_state$', {configurable: true, value: value});

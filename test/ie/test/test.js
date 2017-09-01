@@ -816,6 +816,8 @@ tressa.async(function (done) {
 
   var ds = new DefaultState();
   var o = ds.state;
+  tressa.assert(!ds.propertyIsEnumerable('state'), 'states are not enumerable');
+  tressa.assert(!ds.propertyIsEnumerable('_state$'), 'neither their secret');
   tressa.assert(o.a === 'a', 'default state retrieved');
   var s = new State();
   s.state = o;
