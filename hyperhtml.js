@@ -77,35 +77,21 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // see HyperHTMLElement instead.
   hyper.Component = Component;
   function Component() {}
-  function addRender(self, type, secret) {
-    return defineProperty(self, secret, {value: wireContent(type)})[secret];
-  }
   Object.defineProperties(
     Component.prototype,
     {
-      // returns its own HTML wire or create it once on comp.render()
-      html: {get: function () {
-        return this._html$ || addRender(this, 'html', '_html$');
-      }},
-      // returns its own SVG wire or create it once on comp.render()
-      svg: {get: function () {
-        return this._svg$ || addRender(this, 'svg', '_svg$');
-      }},
       // same as HyperHTMLElement handleEvent
       handleEvent: {value: function (e) {
         this[(e.currentTarget.dataset || {}).call || ('on' + e.type)](e);
       }},
+      // returns its own HTML wire or create it once on comp.render()
+      html: lazyGetter('html', wireContent),
+      // returns its own SVG wire or create it once on comp.render()
+      svg: lazyGetter('svg', wireContent),
+      // same as HyperHTMLElement state
+      state: lazyGetter('state', function () { return this.defaultState; }),
       // same as HyperHTMLElement get defaultState
       defaultState: {get: function () { return {}; }},
-      // same as HyperHTMLElement state
-      state: {
-        get: function () {
-          return this._state$ || (this.state = this.defaultState);
-        },
-        set: function (value) {
-          defineProperty(this, '_state$', {configurable: true, value: value});
-        }
-      },
       // same as HyperHTMLElement setState
       setState: {value: function (state) {
         var target = this.state;
@@ -791,6 +777,20 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // quick and dirty Promise check
   function isPromise_ish(value) {
     return value != null && 'then' in value;
+  }
+
+  // return a descriptor that lazily initialize a property
+  // unless it hasn't be previously set directly
+  function lazyGetter(type, fn) {
+    var secret = '_' + type + '$';
+    return {
+      get: function () {
+        return this[secret] || (this[type] = fn.call(this, type));
+      },
+      set: function (value) {
+        defineProperty(this, secret, {configurable: true, value: value});
+      }
+    };
   }
 
   // given a node and a direction

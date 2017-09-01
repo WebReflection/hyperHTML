@@ -27,12 +27,12 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>337/337</span>
+        <span class='fraction'>333/333</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>93/93</span>
+        <span class='fraction'>92/92</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -1388,35 +1388,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6×</span>
@@ -2107,6 +2093,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">40×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">68×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2654,35 +2654,21 @@
   // see HyperHTMLElement instead.
   hyper.Component = Component;
   function Component() {}
-  function addRender(self, type, secret) {
-    return defineProperty(self, secret, {value: wireContent(type)})[secret];
-  }
   Object.defineProperties(
     Component.prototype,
     {
-      // returns its own HTML wire or create it once on comp.render()
-      html: {get: function () {
-        return this._html$ || addRender(this, 'html', '_html$');
-      }},
-      // returns its own SVG wire or create it once on comp.render()
-      svg: {get: function () {
-        return this._svg$ || addRender(this, 'svg', '_svg$');
-      }},
       // same as HyperHTMLElement handleEvent
       handleEvent: {value: function (e) {
         this[(e.currentTarget.dataset || {}).call || ('on' + e.type)](e);
       }},
+      // returns its own HTML wire or create it once on comp.render()
+      html: lazyGetter('html', wireContent),
+      // returns its own SVG wire or create it once on comp.render()
+      svg: lazyGetter('svg', wireContent),
+      // same as HyperHTMLElement state
+      state: lazyGetter('state', function () { return this.defaultState; }),
       // same as HyperHTMLElement get defaultState
       defaultState: {get: function () { return {}; }},
-      // same as HyperHTMLElement state
-      state: {
-        get: function () {
-          return this._state$ || (this.state = this.defaultState);
-        },
-        set: function (value) {
-          defineProperty(this, '_state$', {configurable: true, value: value});
-        }
-      },
       // same as HyperHTMLElement setState
       setState: {value: function (state) {
         var target = this.state;
@@ -3370,6 +3356,20 @@
     return value != null &amp;&amp; 'then' in value;
   }
 &nbsp;
+  // return a descriptor that lazily initialize a property
+  // unless it hasn't be previously set directly
+  function lazyGetter(type, fn) {
+    var secret = '_' + type + '$';
+    return {
+      get: function () {
+        return this[secret] || (this[type] = fn.call(this, type));
+      },
+      set: function (value) {
+        defineProperty(this, secret, {configurable: true, value: value});
+      }
+    };
+  }
+&nbsp;
   // given a node and a direction
   // returns true if there's no content
   function noContent(node, direction) {
@@ -3847,7 +3847,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Sep 01 2017 10:03:54 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Sep 01 2017 21:52:15 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>
