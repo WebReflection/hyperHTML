@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenExchangeRates hyperHTML Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css">
+    <script defer src="https://unpkg.com/hyperhtml@latest/min.js"></script>
+    <script defer src="OpenExchangeRates.js"></script>
+    <script>
+    addEventListener('DOMContentLoaded', () => {
+      var hyper = hyperHTML;
+      var oer = OpenExchangeRates(API_KEY);
+      var render = hyper(document.querySelector('#exchange'));
+      var db = JSON.parse(localStorage.getItem('exchange') ||
+                          '{"from": "USD", "to": "EUR"}');
+      update();
+      addEventListener('beforeunload', () => {
+        localStorage.setItem('exchange', JSON.stringify(db)); 
+      });
+
+      function convert(amount, from, to) {
+        oer.convert(
+          parseFloat(db.amount = amount),
+          db.from = from,
+          db.to = to
+        ).then(value => update(db.converted = value));
+      }
+
+      function options(selected) {
+        return oer.currencies().then(currencies =>
+          Object.keys(currencies).map(currency => hyper`
+            <option value=${currency} selected=${currency === selected}>
+              ${currency}
+            </option>`
+          ));
+      }
+
+      function update() {
+        render`
+        <div class="field has-addons">
+          <p class="control">
+            <input
+              value=${db.amount}
+              oninput=${e => convert(e.currentTarget.value, db.from, db.to)}
+              class="input" type="text" placeholder="amount">
+          </p>
+          <p class="control">
+            <span class="select">
+              <select disabled
+                onchange=${e => convert(db.amount, e.currentTarget.value, db.to)}>
+              ${options(db.from)}
+              </select>
+            </span>
+          </p>
+        </div>
+        <div class="field has-addons">
+          <p class="control">
+            <input value=${db.converted}
+              class="input" type="text" placeholder="converted">
+          </p>
+          <p class="control">
+            <span class="select">
+              <select
+                onchange=${e => convert(db.amount, db.from, e.currentTarget.value)}>
+              ${options(db.to)}
+              </select>
+            </span>
+          </p>
+        </div>`;
+      }
+    }, {once: true});
+    </script>
+    <style>
+      section {
+        position: absolute;
+        right: 0;
+        left: 0;
+        bottom: 25%;
+      }
+      #exchange {
+        display: inline-block;
+      }
+      p.logo {
+        margin-top: 25%;
+      }
+    </style>
+  </head>
+  <body class="has-text-centered">
+    <span id="logo"></span>
+    <p class="logo is-size-1">💱</p>
+    <p class="is-size-7 has-text-grey-light">
+        powered by <a href="https://viperhtml.js.org/">hyper(HTML)</a>
+    </p>
+    <section>
+      <div id="exchange" class="container"></div>
+    </section>
+    <script>Object.defineProperty(this,'API_KEY',
+            {get:()=>atob('MGQxOTU1NWU1N2NiNDJjZGFkOTk4YmQwNjNiMzczN2I=')})</script>
+  </body>
+</html>
