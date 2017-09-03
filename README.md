@@ -5,9 +5,7 @@
 
 <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
 
-A Fast & Light Virtual DOM Alternative - [release post](https://medium.com/@WebReflection/hyperhtml-a-virtual-dom-alternative-279db455ee0e#.lc65pz9vd),
-[available for both client, server](https://github.com/WebReflection/viperHTML)
-and also [simplified for Custom Elements](https://github.com/WebReflection/hyperHTML-Element).
+A Fast & Light Virtual DOM Alternative available for [NodeJS](https://viperhtml.js.org/viper.html) and [NativeScript](https://viperhtml.js.org/native.html) too.
 - - -
 
 ## Basic Example
