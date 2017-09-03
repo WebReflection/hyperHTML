@@ -59,7 +59,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject53 = _taggedTemplateLiteral(['\n      <button>hello</button>'], ['\n      <button>hello</button>']),
     _templateObject54 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
     _templateObject55 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
-    _templateObject56 = _taggedTemplateLiteral(['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>'], ['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>']);
+    _templateObject56 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
+    _templateObject57 = _taggedTemplateLiteral(['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>'], ['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -751,6 +752,73 @@ tressa.async(function (done) {
   p.render().click();
   tressa.assert(p.clicked, 'the event worked');
 }).then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Component method via data-call');
+
+    var Paragraph = function (_hyperHTML$Component4) {
+      _inherits(Paragraph, _hyperHTML$Component4);
+
+      function Paragraph() {
+        _classCallCheck(this, Paragraph);
+
+        return _possibleConstructorReturn(this, (Paragraph.__proto__ || Object.getPrototypeOf(Paragraph)).apply(this, arguments));
+      }
+
+      _createClass(Paragraph, [{
+        key: 'globally',
+        value: function globally(e) {
+          tressa.assert(e.type === 'click', 'data-call invoked globall');
+          done();
+        }
+      }, {
+        key: 'test',
+        value: function test(e) {
+          tressa.assert(e.type === 'click', 'data-call invoked locally');
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          return this.html(_templateObject56, this);
+        }
+      }]);
+
+      return Paragraph;
+    }(hyperHTML.Component);
+
+    var GlobalEvent = function (_hyperHTML$Component5) {
+      _inherits(GlobalEvent, _hyperHTML$Component5);
+
+      function GlobalEvent() {
+        _classCallCheck(this, GlobalEvent);
+
+        return _possibleConstructorReturn(this, (GlobalEvent.__proto__ || Object.getPrototypeOf(GlobalEvent)).apply(this, arguments));
+      }
+
+      _createClass(GlobalEvent, [{
+        key: 'onclick',
+        value: function onclick(e) {
+          tressa.assert(e.type === 'click', 'click invoked globally');
+          document.removeEventListener('click', this);
+          done();
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          document.addEventListener('click', this);
+          return document;
+        }
+      }]);
+
+      return GlobalEvent;
+    }(hyperHTML.Component);
+
+    var p = new Paragraph();
+    p.render().click();
+    var e = document.createEvent('Event');
+    e.initEvent('click', true, true);
+    new GlobalEvent().render().dispatchEvent(e);
+  });
+}).then(function () {
   tressa.log('## Custom Element attributes');
   var global = document.defaultView;
   var registry = global.customElements;
@@ -770,7 +838,7 @@ tressa.async(function (done) {
   function DumbElement() {}
   DumbElement.prototype.dumb = null;
   customElements.define('dumb-element', DumbElement);
-  var div = hyperHTML.wire()(_templateObject56, true, true);
+  var div = hyperHTML.wire()(_templateObject57, true, true);
   Object.defineProperty(global, 'customElements', {
     configurable: true,
     value: registry
@@ -780,8 +848,8 @@ tressa.async(function (done) {
 }).then(function () {
   tressa.log('## hyper.Component state');
 
-  var DefaultState = function (_hyperHTML$Component4) {
-    _inherits(DefaultState, _hyperHTML$Component4);
+  var DefaultState = function (_hyperHTML$Component6) {
+    _inherits(DefaultState, _hyperHTML$Component6);
 
     function DefaultState() {
       _classCallCheck(this, DefaultState);
@@ -802,8 +870,8 @@ tressa.async(function (done) {
     return DefaultState;
   }(hyperHTML.Component);
 
-  var State = function (_hyperHTML$Component5) {
-    _inherits(State, _hyperHTML$Component5);
+  var State = function (_hyperHTML$Component7) {
+    _inherits(State, _hyperHTML$Component7);
 
     function State() {
       _classCallCheck(this, State);

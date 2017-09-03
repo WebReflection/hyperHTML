@@ -788,6 +788,39 @@ tressa.async(function (done) {
   tressa.assert(p.clicked, 'the event worked');
 })
 .then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Component method via data-call');
+    class Paragraph extends hyperHTML.Component {
+      globally(e) {
+        tressa.assert(e.type === 'click', 'data-call invoked globall');
+        done();
+      }
+      test(e) {
+        tressa.assert(e.type === 'click', 'data-call invoked locally');
+      }
+      render() { return this.html`
+        <p data-call="test" onclick=${this}>hello</p>`;
+      }
+    }
+    class GlobalEvent extends hyperHTML.Component {
+      onclick(e) {
+        tressa.assert(e.type === 'click', 'click invoked globally');
+        document.removeEventListener('click', this);
+        done();
+      }
+      render() {
+        document.addEventListener('click', this);
+        return document;
+      }
+    }
+    var p = new Paragraph();
+    p.render().click();
+    var e = document.createEvent('Event');
+    e.initEvent('click', true, true);
+    (new GlobalEvent).render().dispatchEvent(e);
+  });
+})
+.then(function () {
   tressa.log('## Custom Element attributes');
   var global = document.defaultView;
   var registry = global.customElements;

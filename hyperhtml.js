@@ -82,7 +82,12 @@ var hyperHTML = (function (globalDocument) {'use strict';
     {
       // same as HyperHTMLElement handleEvent
       handleEvent: {value: function (e) {
-        this[(e.currentTarget.dataset || {}).call || ('on' + e.type)](e);
+        // both IE < 11 and JSDOM lack dataset
+        var ct = e.currentTarget;
+        this[
+          ('getAttribute' in ct && ct.getAttribute('data-call')) ||
+          ('on' + e.type)
+        ](e);
       }},
       // returns its own HTML wire or create it once on comp.render()
       html: lazyGetter('html', wireContent),
