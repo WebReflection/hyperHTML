@@ -9,3 +9,5 @@ _config.yml
 .DS_Store
 .gitignore
 .travis.yml
+majinbuu.js
+hyperhtml.js

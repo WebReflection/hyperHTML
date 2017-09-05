@@ -2,14 +2,15 @@
   "name": "hyperhtml",
   "version": "1.6.6",
   "description": "A Fast & Light Virtual DOM Alternative",
-  "main": "hyperhtml.js",
+  "main": "index.js",
   "scripts": {
-    "build": "npm run minify && npm run ie && npm test && npm run size",
+    "majinbuu": "node majinbuu.js",
+    "build": "npm run majinbuu && npm run minify && npm run ie && npm test && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "es5": "babel ./test/js/* --out-dir ./dist --presets=es2015; cp ./dist/test/js/* ./test/dist",
     "ie": "babel ./test/test.js --out-dir ./test/ie --presets=es2015",
-    "minify": "uglifyjs hyperhtml.js --comments=/^!/ --compress --mangle -o min.js",
-    "size": "cat hyperhtml.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
+    "minify": "uglifyjs index.js --comments=/^!/ --compress --mangle -o min.js",
+    "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
     "test": "istanbul cover test/runner.js"
   },
   "repository": {
@@ -35,6 +36,7 @@
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
     "jsdom": "^9.12.0",
+    "majinbuu": "^0.3.1",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.5"
   }
