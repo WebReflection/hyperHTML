@@ -214,7 +214,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     var hyper = hypers.get(this);
     if (
       !hyper ||
-      hyper.template !== (FF ? unique(template) : template)
+      hyper.template !== TL(template)
     ) {
       hyper = upgrade.apply(this, arguments);
       hypers.set(this, hyper);
@@ -520,6 +520,15 @@ var hyperHTML = (function (globalDocument) {'use strict';
 
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
   var WK = !('children' in featureFragment);
+
+  // both Firefox < 55 and TypeScript have issues with template literals
+  // this lazy defined callback should spot issues right away
+  // and in the best case scenario become a no-op
+  var TL = function (template) {
+    if (template.propertyIsEnumerable('raw') || FF) TL = unique;
+    else TL = function (t) { return t; };
+    return TL(template);
+  };
 
   // ---------------------------------------------
   // Helpers
@@ -928,14 +937,11 @@ var hyperHTML = (function (globalDocument) {'use strict';
   var transformers = {};
 
   // normalize Firefox issue with template literals
-  var templateObjects, unique;
-  if (FF) {
-    templateObjects = {};
-    unique = function (template) {
-      var key = '_' + template.join(UIDC);
-      return templateObjects[key] ||
-            (templateObjects[key] = template);
-    };
+  var templateObjects = {}, unique;
+  function unique(template) {
+    var key = '_' + template.join(UIDC);
+    return templateObjects[key] ||
+          (templateObjects[key] = template);
   }
 
   // use native .append(...childNodes) where available
@@ -1163,7 +1169,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
   // create a template, if unknown
   // upgrade a node to use such template for future updates
   function upgrade(template) {
-    if (FF) template = unique(template);
+    template = TL(template);
     var updates;
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
@@ -1207,7 +1213,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
     return type === 'adopt' ?
       function adopt(statics) {
         var args = arguments;
-        if (FF) statics = unique(statics);
+        statics = TL(statics);
         if (template !== statics) {
           setup = true;
           template = statics;
@@ -1233,7 +1239,7 @@ var hyperHTML = (function (globalDocument) {'use strict';
         return adopter;
       } :
       function update(statics) {
-        if (FF) statics = unique(statics);
+        statics = TL(statics);
         if (template !== statics) {
           setup = true;
           template = statics;
