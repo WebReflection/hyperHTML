@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Infinite Scroll</title>
+    <script defer src="../min.js"></script>
+    <script>
+    addEventListener('DOMContentLoaded', () => {
+      var view = document.querySelector('.infinite');
+      var scrollTop = 0;
+      view.addEventListener('mousewheel', (e) => {
+        scrollTop += e.deltaY;
+        if (scrollTop < 0) scrollTop = 0;
+        update();
+      }, {passive: true});
+      var render = hyperHTML.bind(view);
+      var list = [];
+      var sampleHeight = 60;
+      var colors = [];
+      update();
+      function color(i) {
+        return colors[i] || (colors[i] = `rgb(${[
+          Math.round(Math.random() * 155 + 150),
+          Math.round(Math.random() * 155 + 150),
+          Math.round(Math.random() * 155 + 150)
+        ].join(',')})`);
+      }
+      function update() {
+        var i = Math.max(0, Math.floor(scrollTop / sampleHeight));
+        var count = 0;
+        var newList = [];
+        var clientHeight = view.clientHeight;
+        while ((count * sampleHeight) < (clientHeight + sampleHeight)) {
+          newList[count] = list[i] || (list[i] = hyperHTML
+          `<p style="${'background:' + color(i)}">Value ${Math.random()}</p>`);
+          count++;
+          i++;
+        }
+        render`${newList}`;
+        view.scrollTop = scrollTop % sampleHeight;
+      }
+    }, {once: true});
+    </script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      div {
+        margin: auto;
+        height: 100vh;
+        max-width: 320px;
+        background: #eee;
+      }
+      .infinite {
+        padding: 0;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+      .infinite > p {
+        text-align: center;
+        line-height: 48px;
+        padding: 0;
+        margin: 0;
+        border: 8px solid silver;
+        vertical-align: middle;
+        border-bottom: none;
+        height: 60px;
+        font-family: sans-serif;
+      }
+      .infinite > *,
+      .infinite > *:before,
+      .infinite > *:after {
+        box-sizing: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="infinite"></div>
+  </body>
+</html>

@@ -1193,7 +1193,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   // changes needed to show the a new list
   // where there was another one.
   // There is a limit, in terms of performance,
-  // on how bug can the optimal computation be,
+  // on how big can the optimal computation be,
   // so if you change this value be sure your
   // target hardware is good enough.
   hyper.MAX_LIST_SIZE = 1000;
