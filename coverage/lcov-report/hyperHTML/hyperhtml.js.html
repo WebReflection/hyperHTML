@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>567/567</span>
+        <span class='fraction'>568/568</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>332/332</span>
+        <span class='fraction'>326/326</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>92/92</span>
+        <span class='fraction'>94/94</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>548/548</span>
+        <span class='fraction'>550/550</span>
       </div>
     </div>
   </div>
@@ -1314,7 +1314,12 @@
 1269
 1270
 1271
-1272</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1272
+1273
+1274
+1275
+1276
+1277</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1840,6 +1845,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">203×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
@@ -2245,12 +2259,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">203×</span>
 <span class="cline-any cline-yes">203×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2584,8 +2595,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">var hyperHTML = (function (globalDocument) {'use strict';
+<span class="cline-any cline-yes">2×</span></td><td class="text"><pre class="prettyprint lang-js">var hyperHTML = (function (globalDocument) {'use strict';
 &nbsp;
   /*! (c) 2017 Andrea Giammarchi @WebReflection, (ISC) */
 &nbsp;
@@ -2801,7 +2811,7 @@
     var hyper = hypers.get(this);
     if (
       !hyper ||
-      hyper.template !== (FF ? unique(template) : template)
+      hyper.template !== TL(template)
     ) {
       hyper = upgrade.apply(this, arguments);
       hypers.set(this, hyper);
@@ -3107,6 +3117,15 @@
 &nbsp;
   // beside IE, old WebKit browsers don't have `children` in DocumentFragment
   var WK = !('children' in featureFragment);
+&nbsp;
+  // both Firefox &lt; 55 and TypeScript have issues with template literals
+  // this lazy defined callback should spot issues right away
+  // and in the best case scenario become a no-op
+  var TL = function (template) {
+    if (template.propertyIsEnumerable('raw') || FF) TL = unique;
+    else TL = function (t) { return t; };
+    return TL(template);
+  };
 &nbsp;
   // ---------------------------------------------
   // Helpers
@@ -3515,14 +3534,11 @@
   var transformers = {};
 &nbsp;
   // normalize Firefox issue with template literals
-  var templateObjects, unique;
-  if (FF) {
-    templateObjects = {};
-    unique = function (template) {
-      var key = '_' + template.join(UIDC);
-      return templateObjects[key] ||
-            (templateObjects[key] = template);
-    };
+  var templateObjects = {}, unique;
+  function unique(template) {
+    var key = '_' + template.join(UIDC);
+    return templateObjects[key] ||
+          (templateObjects[key] = template);
   }
 &nbsp;
   // use native .append(...childNodes) where available
@@ -3750,7 +3766,7 @@
   // create a template, if unknown
   // upgrade a node to use such template for future updates
   function upgrade(template) {
-    if (FF) template = unique(template);
+    template = TL(template);
     var updates;
     var info =  templates.get(template) ||
                 createTemplate.call(this, template);
@@ -3794,7 +3810,7 @@
     return type === 'adopt' ?
       function adopt(statics) {
         var args = arguments;
-        if (FF) statics = unique(statics);
+        statics = TL(statics);
         if (template !== statics) {
           setup = true;
           template = statics;
@@ -3820,7 +3836,7 @@
         return adopter;
       } :
       function update(statics) {
-        if (FF) statics = unique(statics);
+        statics = TL(statics);
         if (template !== statics) {
           setup = true;
           template = statics;
@@ -3855,14 +3871,13 @@
 }(document));
 &nbsp;
 // umd.KISS
-try { module.exports = hyperHTML; } catch(o_O) {}
-&nbsp;</pre></td></tr>
+try { module.exports = hyperHTML; } catch(o_O) {}</pre></td></tr>
 </table></pre>
 <div class='push'></div><!-- for sticky footer -->
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Sep 03 2017 10:41:35 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Sep 07 2017 09:41:12 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>
