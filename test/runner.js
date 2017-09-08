@@ -14,7 +14,10 @@ require('jsdom').env(
     //*/
     global.document = window.document;
     global.tressa = require('tressa');
-    global.hyperHTML = require('../hyperhtml.js');
+    var Int32Array = global.Int32Array;
+    global.Int32Array = void 0;
+    global.hyperHTML = require('../index.js');
+    global.Int32Array = Int32Array;
     require('./test.js');
     setTimeout(function () {
       var proto = global.document.createDocumentFragment();
@@ -32,7 +35,7 @@ require('jsdom').env(
       var $Map = global.Map;
       // var $CustomEvent = global.CustomEvent;
       global.String.prototype.trim = global.WeakMap = global.Map = void 0;
-      delete require.cache[require.resolve('../hyperhtml.js')];
+      delete require.cache[require.resolve('../index.js')];
       delete require.cache[require.resolve('./test.js')];
       // fake initial feature detection
       var createElement = global.document.createElement;
@@ -64,7 +67,9 @@ require('jsdom').env(
       };
       var bind = Function.prototype.bind;
       delete Function.prototype.bind;
-      global.hyperHTML = require('../hyperhtml.js');
+
+      global.hyperHTML = require('../index.js');
+      
       Function.prototype.bind = bind;
 
       Array.isArray = isArray;

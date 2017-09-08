@@ -76,7 +76,7 @@ tressa.title('HyperHTML');
 tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
 try {
-  tressa.log(1);
+  tressa.log('');
 } catch (e) {
   tressa.log = console.log.bind(console);
 }
@@ -91,35 +91,42 @@ tressa.async(function (done) {
 })
 */
 tressa.async(function (done) {
-  tressa.log('## injecting text and attributes');
-  var i = 0;
-  var div = document.body.appendChild(document.createElement('div'));
-  var render = hyperHTML.bind(div);
-  function update(i) {
-    return render(_templateObject, i,
-    // IE Edge mobile did something funny here
-    // as template string returned xxx.xxxx
-    // but as innerHTML returned xxx.xx
-    (Math.random() * new Date()).toFixed(2));
-  }
-  function compare(html) {
-    return (/^\s*<p data-counter="\d">\s*Time: \d+\.\d+<[^>]+?>\s*<\/p>\s*$/i.test(html)
-    );
-  }
-  var html = update(i++).innerHTML;
-  var p = div.querySelector('p');
-  var attr = p.attributes[0];
-  tressa.assert(compare(html), 'correct HTML');
-  tressa.assert(html === div.innerHTML, 'correctly returned');
-  setTimeout(function () {
-    tressa.log('## updating same nodes');
+  try {
+    var update = function update(i) {
+      return render(_templateObject, i,
+      // IE Edge mobile did something funny here
+      // as template string returned xxx.xxxx
+      // but as innerHTML returned xxx.xx
+      (Math.random() * new Date()).toFixed(2));
+    };
+
+    var compare = function compare(html) {
+      return (/^\s*<p data-counter="\d">\s*Time: \d+\.\d+<[^>]+?>\s*<\/p>\s*$/i.test(html)
+      );
+    };
+
+    tressa.log('## injecting text and attributes');
+    var i = 0;
+    var div = document.body.appendChild(document.createElement('div'));
+    var render = hyperHTML.bind(div);
+
     var html = update(i++).innerHTML;
-    tressa.assert(compare(html), 'correct HTML update');
-    tressa.assert(html === div.innerHTML, 'update applied');
-    tressa.assert(p === div.querySelector('p'), 'no node was changed');
-    tressa.assert(attr === p.attributes[0], 'no attribute was changed');
-    done();
-  });
+    var p = div.querySelector('p');
+    var attr = p.attributes[0];
+    tressa.assert(compare(html), 'correct HTML');
+    tressa.assert(html === div.innerHTML, 'correctly returned');
+    setTimeout(function () {
+      tressa.log('## updating same nodes');
+      var html = update(i++).innerHTML;
+      tressa.assert(compare(html), 'correct HTML update');
+      tressa.assert(html === div.innerHTML, 'update applied');
+      tressa.assert(p === div.querySelector('p'), 'no node was changed');
+      tressa.assert(attr === p.attributes[0], 'no attribute was changed');
+      done();
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## perf: same virtual text twice');
@@ -142,7 +149,7 @@ tressa.async(function (done) {
       return render(_templateObject3, ['<strong>' + text + '</strong>']);
     }
     function compare(html) {
-      return (/^<p><strong>\w+<\/strong><\/p>$/i.test(html)
+      return (/^<p><strong>\w+<\/strong><!--.+?--><\/p>$/i.test(html)
       );
     }
     tressa.assert(compare(html), 'HTML injected');
@@ -189,7 +196,7 @@ tressa.async(function (done) {
       return render(_templateObject3, { any: ['<em>' + text + '</em>'] });
     }
     function compare(html) {
-      return (/^<p><em>\w+<\/em><\/p>$/i.test(html)
+      return (/^<p><em>\w+<\/em><!--.+?--><\/p>$/i.test(html)
       );
     }
     tressa.assert(compare(html), 'new HTML injected');
@@ -237,7 +244,7 @@ tressa.async(function (done) {
     render = hyperHTML.bind(div);
     render(_templateObject8, node);
     same = div.childNodes;
-    tressa.assert(node.length === same.length && node[0] && node.every(function (n, i) {
+    tressa.assert(node[0] && node.every(function (n, i) {
       return same[i] === n;
     }), 'same list applied');
 
@@ -334,6 +341,7 @@ tressa.async(function (done) {
   tressa.assert(div.firstChild.firstChild === br, 'one child is added');
   hyperHTML.bind(div)(_templateObject14, hr);
   tressa.assert(div.firstChild.firstChild === hr, 'one child is changed');
+  debugger;
   hyperHTML.bind(div)(_templateObject14, [hr, br]);
   tressa.assert(div.firstChild.childNodes[0] === hr && div.firstChild.childNodes[1] === br, 'more children are added');
   hyperHTML.bind(div)(_templateObject14, [br, hr]);
@@ -341,7 +349,7 @@ tressa.async(function (done) {
   hyperHTML.bind(div)(_templateObject14, br);
   tressa.assert(div.firstChild.firstChild === br, 'one child is kept');
   hyperHTML.bind(div)(_templateObject14, []);
-  tressa.assert(div.firstChild.childNodes.length === 0, 'dropped all children');
+  tressa.assert(/<div><!--.+?--><\/div>/.test(div.innerHTML), 'dropped all children');
 }).then(function () {
   tressa.log('## wire by id');
   var ref = {};
@@ -389,16 +397,18 @@ tressa.async(function (done) {
     }), model.inBetween);
   }
 }).then(function () {
+  if (SKIP_ADOPT) return;
   tressa.log('## weird .adopt(node) cases');
   var wrap = document.createElement('div');
   wrap.innerHTML = '<div>text</div>';
   hyperHTML.adopt(wrap)(_templateObject14, ' right');
-  tressa.assert(wrap.innerHTML === '<div> right</div>', 'right text OK');
+  tressa.assert(/<div> right<!--.+?--><\/div>/.test(wrap.innerHTML), 'right text OK');
+  wrap.innerHTML = '<div>text</div>';
   hyperHTML.adopt(wrap)(_templateObject18, 'left ');
-  tressa.assert(wrap.innerHTML === '<div>left </div>', 'left text OK');
+  tressa.assert(/<div>left <!--.+?--><\/div>/.test(wrap.innerHTML), 'left text OK');
   wrap.innerHTML = '';
   hyperHTML.adopt(wrap)(_templateObject8, 'any');
-  tressa.assert(wrap.innerHTML === 'any', '`${\'virtual\'}` is like `${\'any\'}`');
+  tressa.assert(/any<!--.+?-->/.test(wrap.innerHTML), '`${\'virtual\'}` is like `${\'any\'}`');
   wrap.innerHTML = '<br>';
   hyperHTML.adopt(wrap)(_templateObject19, 'virtual');
   if (SKIP_ADOPT) return;
@@ -420,19 +430,19 @@ tressa.async(function (done) {
     return hyperHTML.wire(item, 'adopt')(_templateObject23, item.text);
   }));
   var list = wrap.querySelectorAll('li');
-  tressa.assert(list.length === 1 && list[0] === li && result.innerHTML === '<ul><li>first</li></ul>', 'one element can be adopted');
+  tressa.assert(list.length === 1 && list[0] === li && /<ul><li>first<!--.+?--><\/li><!--.+?--><\/ul>/.test(result.innerHTML), 'one element can be adopted');
   result = hyperHTML.adopt(wrap)(_templateObject22, items.map(function (item) {
     return hyperHTML.wire(item, 'adopt')(_templateObject23, item.text);
   }));
   list = wrap.querySelectorAll('li');
-  tressa.assert(list.length === 1 && list[0] === li && result.innerHTML === '<ul><li>first</li></ul>', 'even after multiple passes');
+  tressa.assert(list.length === 1 && list[0] === li && /<ul><li>first<!--.+?--><\/li><!--.+?--><\/ul>/.test(result.innerHTML), 'even after multiple passes');
   wrap = document.createElement('div');
   wrap.innerHTML = '<ul></ul>';
   result = hyperHTML.adopt(wrap)(_templateObject22, [{ text: 'new' }, { text: 'nodes' }].map(function (item) {
     return hyperHTML.wire(item, 'adopt')(_templateObject23, item.text);
   }));
   list = wrap.querySelectorAll('li');
-  tressa.assert(list.length === 2 && result.innerHTML === '<ul><li>new</li><li>nodes</li></ul>', 'if not there, elements get created');
+  tressa.assert(list.length === 2 && /<ul><li>new<!--.+?--><\/li><li>nodes<!--.+?--><\/li><!--.+?--><\/ul>/.test(result.innerHTML), 'if not there, elements get created');
 
   wrap = document.createElement('div');
   wrap.innerHTML = '<p></p><hr>';
@@ -449,7 +459,7 @@ tressa.async(function (done) {
   result = hyperHTML.adopt(wrap)(_templateObject26, [{ x: 1, y: 2 }].map(function (item) {
     return hyperHTML.wire(item, 'adopt')(_templateObject27, item.x, item.y);
   }));
-  tressa.assert(/<svg(?: xmlns=[^>]+?)?>\s*<rect [xy]="[12]" [xy]="[12]">\s*<\/rect>\s*<\/svg>/.test(result.innerHTML) && result.querySelector('rect').getAttribute('x') == 1 && result.querySelector('rect').getAttribute('y') == 2, 'svg content can be adopted too');
+  tressa.assert(/<svg(?: xmlns=[^>]+?)?>\s*<rect [xy]="[12]" [xy]="[12]">\s*<\/rect>\s*<!--.+?--><\/svg>/.test(result.innerHTML) && result.querySelector('rect').getAttribute('x') == 1 && result.querySelector('rect').getAttribute('y') == 2, 'svg content can be adopted too');
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## Promises instead of nodes');
@@ -471,13 +481,23 @@ tressa.async(function (done) {
     var result = wrap.innerHTML;
     setTimeout(function () {
       tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
-      tressa.assert(/^<p>any<\/p>virtual<!--.+?--><hr><div>12<\/div>34<!--.+?-->$/.test(wrap.innerHTML), 'both any and virtual content correct');
+      tressa.assert(/^<p>any<!--.+?--><\/p>virtual<!--.+?--><hr><div>12<!--.+?--><\/div>34<!--.+?-->$/.test(wrap.innerHTML), 'both any and virtual content correct');
       done();
     }, 100);
   });
 }).then(function () {
   tressa.log('## for code coverage sake');
+  hyperHTML.MAX_LIST_SIZE = 0;
   var wrap = document.createElement('div');
+  var text = [document.createTextNode('a'), document.createTextNode('b'), document.createTextNode('c')];
+  var testingMajinBuu = hyperHTML.bind(wrap);
+  testingMajinBuu(_templateObject8, [text]);
+  tressa.assert(wrap.textContent === 'abc');
+  text[0] = document.createTextNode('c');
+  text[2] = document.createTextNode('a');
+  testingMajinBuu(_templateObject8, [text]);
+  tressa.assert(wrap.textContent === 'cba');
+
   var result = hyperHTML.wire()(_templateObject29);
   tressa.assert(result.nodeType === 8, 'it is a comment');
   tressa.assert(result.textContent === 'not hyprHTML', 'correct content');
@@ -573,13 +593,13 @@ tressa.async(function (done) {
   tressa.log('## any content extras');
   var div = document.createElement('div');
   hyperHTML.bind(div)(_templateObject3, undefined);
-  tressa.assert(div.innerHTML === '<p></p>', 'expected layout');
+  tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
   hyperHTML.bind(div)(_templateObject3, { text: '<img>' });
-  tressa.assert(div.innerHTML === '<p>&lt;img&gt;</p>', 'expected text');
+  tressa.assert(/<p>&lt;img&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
   hyperHTML.bind(div)(_templateObject3, function () {
     return '<b>';
   });
-  tressa.assert(div.innerHTML === '<p>&lt;b&gt;</p>', 'expected callback');
+  tressa.assert(/<p>&lt;b&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected callback');
 }).then(function () {
   tressa.log('## virtual content extras');
   var div = document.createElement('div');
@@ -600,7 +620,7 @@ tressa.async(function (done) {
   hyperHTML.bind(div)(_templateObject32, { eUC: 'b c' });
   tressa.assert(/a=b%20c<[^>]+?>/.test(div.innerHTML), 'expected virtual layout');
   hyperHTML.bind(div)(_templateObject3, { eUC: 'b c' });
-  tressa.assert(/<p>b%20c<\/p>/.test(div.innerHTML), 'expected layout');
+  tressa.assert(/<p>b%20c<!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
 }).then(function () {
   tressa.log('## attributes with null values');
   var div = document.createElement('div');
@@ -627,20 +647,20 @@ tressa.async(function (done) {
     var vdiv = document.createElement('div');
     hyperHTML.bind(div)(_templateObject3, { eUC: 'b c', placeholder: 'z' });
     hyperHTML.bind(vdiv)(_templateObject32, { eUC: 'b c', placeholder: 'z' });
-    tressa.assert(/<p>z<\/p>/.test(div.innerHTML), 'expected inner placeholder layout');
+    tressa.assert(/<p>z<!--.+?--><\/p>/.test(div.innerHTML), 'expected inner placeholder layout');
     tressa.assert(/a=z<[^>]+?>/.test(vdiv.innerHTML), 'expected virtual placeholder layout');
     setTimeout(function () {
-      tressa.assert(/<p>b%20c<\/p>/.test(div.innerHTML), 'expected inner resolved layout');
+      tressa.assert(/<p>b%20c<!--.+?--><\/p>/.test(div.innerHTML), 'expected inner resolved layout');
       tressa.assert(/a=b%20c<[^>]+?>/.test(vdiv.innerHTML), 'expected virtual resolved layout');
       hyperHTML.bind(div)(_templateObject3, { text: 1, placeholder: '9' });
       setTimeout(function () {
-        tressa.assert(/<p>1<\/p>/.test(div.innerHTML), 'placeholder with text');
+        tressa.assert(/<p>1<!--.+?--><\/p>/.test(div.innerHTML), 'placeholder with text');
         hyperHTML.bind(div)(_templateObject3, { any: [1, 2], placeholder: '9' });
         setTimeout(function () {
-          tressa.assert(/<p>12<\/p>/.test(div.innerHTML), 'placeholder with any');
+          tressa.assert(/<p>12<!--.+?--><\/p>/.test(div.innerHTML), 'placeholder with any');
           hyperHTML.bind(div)(_templateObject3, { html: '<b>3</b>', placeholder: '9' });
           setTimeout(function () {
-            tressa.assert(/<p><b>3<\/b><\/p>/.test(div.innerHTML), 'placeholder with html');
+            tressa.assert(/<p><b>3<\/b><!--.+?--><\/p>/.test(div.innerHTML), 'placeholder with html');
             done();
           }, 10);
         }, 10);
