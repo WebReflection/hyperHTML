@@ -341,7 +341,6 @@ tressa.async(function (done) {
   tressa.assert(div.firstChild.firstChild === br, 'one child is added');
   hyperHTML.bind(div)(_templateObject14, hr);
   tressa.assert(div.firstChild.firstChild === hr, 'one child is changed');
-  debugger;
   hyperHTML.bind(div)(_templateObject14, [hr, br]);
   tressa.assert(div.firstChild.childNodes[0] === hr && div.firstChild.childNodes[1] === br, 'more children are added');
   hyperHTML.bind(div)(_templateObject14, [br, hr]);

@@ -4,10 +4,8 @@
   "description": "A Fast & Light Virtual DOM Alternative",
   "main": "index.js",
   "scripts": {
-    "majinbuu": "node majinbuu.js",
-    "build": "npm run majinbuu && npm run minify && npm run ie && npm test && npm run size",
+    "build": "node bundler.js dependencies && npm run minify && node bundler.js && npm run ie && npm test && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "es5": "babel ./test/js/* --out-dir ./dist --presets=es2015; cp ./dist/test/js/* ./test/dist",
     "ie": "babel ./test/test.js --out-dir ./test/ie --presets=es2015",
     "minify": "uglifyjs index.js --comments=/^!/ --compress --mangle -o min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
@@ -31,7 +29,7 @@
   },
   "homepage": "https://github.com/WebReflection/hyperhtml#readme",
   "devDependencies": {
-    "babel-cli": "^6.23.0",
+    "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.22.0",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",

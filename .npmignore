@@ -9,5 +9,6 @@ _config.yml
 .DS_Store
 .gitignore
 .travis.yml
-majinbuu.js
+bundler.js
 hyperhtml.js
+package-lock.json
