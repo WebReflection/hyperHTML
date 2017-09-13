@@ -3,6 +3,7 @@
   "version": "1.7.2",
   "description": "A Fast & Light Virtual DOM Alternative",
   "browser": "min.js",
+  "homepage": "https://viperhtml.js.org/hyper.html",
   "main": "index.js",
   "scripts": {
     "build": "node bundler.js dependencies && npm run minify && node bundler.js && npm run ie && npm test && npm run size",
