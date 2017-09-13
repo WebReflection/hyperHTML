@@ -2,6 +2,7 @@
   "name": "hyperhtml",
   "version": "1.7.1",
   "description": "A Fast & Light Virtual DOM Alternative",
+  "browser": "min.js",
   "main": "index.js",
   "scripts": {
     "build": "node bundler.js dependencies && npm run minify && node bundler.js && npm run ie && npm test && npm run size",
