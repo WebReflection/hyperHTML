@@ -596,6 +596,11 @@ tressa.async(function (done) {
   update('123', 'laka');
   tressa.assert(input.value === '123', 'correct input');
   tressa.assert(input.value === '123', 'correct attribute');
+  update('', '');
+  input.value = '123';
+  input.attributes.shaka.value = 'laka';
+  update('123', 'laka');
+  tressa.assert(input.value === '123', 'input.value was not reassigned');
 })
 .then(function () {
   tressa.log('## wired arrays are rendered properly');
@@ -853,15 +858,25 @@ tressa.async(function (done) {
   function DumbElement() {}
   DumbElement.prototype.dumb = null;
   customElements.define('dumb-element', DumbElement);
-  var div = hyperHTML.wire()`<div>
-    <dumb-element dumb=${true}></dumb-element><dumber-element dumb=${true}></dumber-element>
-  </div>`;
+  function update(wire) {
+    return wire`<div>
+      <dumb-element dumb=${true}></dumb-element><dumber-element dumb=${true}></dumber-element>
+    </div>`;
+  }
+  var wire = hyperHTML.wire();
+  var div = update(wire);
+  if (!(div.firstElementChild instanceof DumbElement)) {
+    tressa.assert(div.firstElementChild.dumb !== true, 'not upgraded elements have no special attributes');
+    tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements never have special attributes');
+    div.firstElementChild.constructor.prototype.dumb = null;
+  }
+  update(wire);
+  tressa.assert(div.firstElementChild.dumb === true, 'upgraded elements have special attributes');
+  delete div.firstElementChild.constructor.prototype.dumb;
   Object.defineProperty(global, 'customElements', {
     configurable: true,
     value: registry
   });
-  tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
-  tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
 })
 .then(function () {
   tressa.log('## hyper.Component state');

@@ -1,0 +1,71 @@
+<!doctype html>
+<script src="../index.js"></script>
+<script>
+class EValidator extends HTMLElement {
+  constructor() {
+    super();
+    this._iconName = null;
+  }
+
+  connectedCallback() {
+    this._render();
+  }
+  
+  attributeChangedCallback(name, oldValue, newValue) {
+    this[name] = newValue;
+  }
+
+  static get observedAttributes() {
+    return ['header'];
+  }
+
+  set header(value) {
+    this._iconName = value;
+    this._render();
+  }
+
+  _render() {
+    hyperHTML.bind(this)`<e-icon icon="${this._iconName}"></e-icon>`;
+  }
+};
+
+class EIcon extends HTMLElement {
+	constructor() {
+  	super();
+    this._state = {};
+    this._state.icon = 'cog';
+  }
+
+
+  connectedCallback() {
+    this._render();
+  }
+  
+  static get observedAttributes() {
+    return ['icon'];
+  }
+  
+  attributeChangedCallback(name, oldValue, newValue) {
+    this[name] = newValue;
+  }
+  
+  get icon() {
+    return this._state.icon;
+  }
+
+  set icon(value) {
+    debugger;
+  	console.log('setter called');
+  	this._state.icon = value;
+    this._render();
+  }
+  
+  _render() {
+    hyperHTML.bind(this)`${this._state.icon}`;
+  }
+};
+
+customElements.define('e-icon', EIcon);
+customElements.define('e-validator', EValidator);
+</script>
+<e-validator header="working"></e-validator>
