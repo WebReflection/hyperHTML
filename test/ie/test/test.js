@@ -60,7 +60,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject54 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
     _templateObject55 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
     _templateObject56 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
-    _templateObject57 = _taggedTemplateLiteral(['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>'], ['<div>\n    <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n  </div>']);
+    _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -571,6 +571,11 @@ tressa.async(function (done) {
   update('123', 'laka');
   tressa.assert(input.value === '123', 'correct input');
   tressa.assert(input.value === '123', 'correct attribute');
+  update('', '');
+  input.value = '123';
+  input.attributes.shaka.value = 'laka';
+  update('123', 'laka');
+  tressa.assert(input.value === '123', 'input.value was not reassigned');
 }).then(function () {
   tressa.log('## wired arrays are rendered properly');
   var div = document.createElement('div');
@@ -857,13 +862,23 @@ tressa.async(function (done) {
   function DumbElement() {}
   DumbElement.prototype.dumb = null;
   customElements.define('dumb-element', DumbElement);
-  var div = hyperHTML.wire()(_templateObject57, true, true);
+  function update(wire) {
+    return wire(_templateObject57, true, true);
+  }
+  var wire = hyperHTML.wire();
+  var div = update(wire);
+  if (!(div.firstElementChild instanceof DumbElement)) {
+    tressa.assert(div.firstElementChild.dumb !== true, 'not upgraded elements have no special attributes');
+    tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements never have special attributes');
+    div.firstElementChild.constructor.prototype.dumb = null;
+  }
+  update(wire);
+  tressa.assert(div.firstElementChild.dumb === true, 'upgraded elements have special attributes');
+  delete div.firstElementChild.constructor.prototype.dumb;
   Object.defineProperty(global, 'customElements', {
     configurable: true,
     value: registry
   });
-  tressa.assert(div.firstElementChild.dumb === true, 'known elements can have special attributes');
-  tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements wouldn\'t');
 }).then(function () {
   tressa.log('## hyper.Component state');
 

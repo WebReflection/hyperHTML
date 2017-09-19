@@ -198,16 +198,22 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   function setAttribute(attribute, removeAttributes, name) {
     var
       node = attribute.ownerElement,
-      isEvent = /^on/.test(name),
-      isSpecial = name === 'data' ||
+      isData = name === 'data',
+      isEvent = !isData && /^on/.test(name),
+      isSpecial = isData ||
                   (isSpecialAttribute(node, name) &&
                   !SHOULD_USE_ATTRIBUTE.test(name)),
       type = isEvent ? name.slice(2) : '',
-      noOwner = isEvent || isSpecial,
+      noOwner = isSpecial || isEvent,
+      wontUpgrade = isSpecial && (isData || name in node),
       oldValue
     ;
-    if (isEvent && name.toLowerCase() in node) type = type.toLowerCase();
-    if (noOwner) removeAttributes.push(node, name);
+    if (isEvent || isData) {
+      removeAttributes.push(node, name);
+      if (isEvent && name.toLowerCase() in node) {
+        type = type.toLowerCase();
+      }
+    }
     return isEvent ?
       function eventAttr(newValue) {
         if (oldValue !== newValue) {
@@ -218,22 +224,31 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
       } :
       (isSpecial ?
         function specialAttr(newValue) {
-          if (oldValue !== newValue) {
-            oldValue = newValue;
-            // WebKit moves the cursor if input.value
-            // is set again, even if same value
-            if (node[name] !== newValue) {
-              // let the browser handle the case
-              // input.value = null;
-              // input.value; // ''
-              if (newValue == null) {
-                // reflect the null intent,
-                // do not pass undefined!
-                node[name] = null;
-                node.removeAttribute(name);
-              } else {
-                node[name] = newValue;
+          if (wontUpgrade) {
+            if (oldValue !== newValue) {
+              oldValue = newValue;
+              // WebKit moves the cursor if input.value
+              // is set again, even if same value
+              if (node[name] !== newValue) {
+                // let the browser handle the case
+                // input.value = null;
+                // input.value; // ''
+                if (newValue == null) {
+                  // reflect the null intent,
+                  // do not pass undefined!
+                  node[name] = null;
+                  node.removeAttribute(name);
+                } else {
+                  node[name] = newValue;
+                }
               }
+            }
+          } else {
+            wontUpgrade = name in node;
+            if (wontUpgrade) {
+              specialAttr(newValue);
+            } else {
+              attribute.value = newValue;
             }
           }
         } :
