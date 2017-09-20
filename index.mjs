@@ -144,18 +144,23 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     return majinbuu.aura(this, childNodes);
   }
 
-  Aura.prototype.splice = function splice(start, deleteCount) {
+  Aura.prototype.splice = function splice(start) {
     for (var
       tmp,
-      i = start,
       ph = this.node,
       cn = this.childNodes,
+      target = cn[start + (arguments[1] || 0)] || ph,
+      result = cn.splice.apply(cn, arguments),
       pn = ph.parentNode,
-      length = cn.length,
-      end = deleteCount == null ? length : (start + deleteCount);
-      i < length && i < end; i++
+      i = 0,
+      length = result.length;
+      i < length; i++
     ) {
-      pn.removeChild(cn[i]);
+      tmp = result[i];
+      // TODO: this is not optimal (but necessary)
+      if (cn.indexOf(tmp) < 0) {
+        pn.removeChild(tmp);
+      }
     }
     i = 2;
     length = arguments.length;
@@ -168,9 +173,9 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
           tmp.appendChild(arguments[i++]);
         }
       }
-      pn.insertBefore(tmp, cn[end] || ph);
+      pn.insertBefore(tmp, target);
     }
-    return cn.splice.apply(cn, arguments);
+    return result;
   };
 
   // ---------------------------------------------

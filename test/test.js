@@ -898,6 +898,27 @@ tressa.async(function (done) {
   s.state = {z: 123};
   tressa.assert(s.state.z === 123 && !s.state.a, 'state can be re-set too');
 })
+.then(function () {
+  tressa.log('## splice and sort');
+  var todo = [
+    {id: 0, text: 'write documentation'},
+    {id: 1, text: 'publish online'},
+    {id: 2, text: 'create Code Pen'}
+  ];
+  var div = document.createElement('div');
+  update();
+  todo.sort(function(a, b) { return a.text < b.text ? -1 : 1; });
+  update();
+  tressa.assert(div.textContent.replace(/^\s+|\s+$/g, '') === 'create Code Penpublish onlinewrite documentation', 'correct order');
+  function update() {
+    hyperHTML.bind(div)`<ul>
+      ${todo.map(function (item) {
+        return hyperHTML.wire(item)
+        `<li data-id=${item.id}>${item.text}</li>`;
+      })}
+    </ul>`;
+  }
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {
