@@ -60,7 +60,9 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject54 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
     _templateObject55 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
     _templateObject56 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
-    _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']);
+    _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
+    _templateObject58 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
+    _templateObject59 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -928,6 +930,21 @@ tressa.async(function (done) {
   tressa.assert(o.a === 'a' && o.b === 'b', 'state was updated');
   s.state = { z: 123 };
   tressa.assert(s.state.z === 123 && !s.state.a, 'state can be re-set too');
+}).then(function () {
+  tressa.log('## splice and sort');
+  var todo = [{ id: 0, text: 'write documentation' }, { id: 1, text: 'publish online' }, { id: 2, text: 'create Code Pen' }];
+  var div = document.createElement('div');
+  update();
+  todo.sort(function (a, b) {
+    return a.text < b.text ? -1 : 1;
+  });
+  update();
+  tressa.assert(div.textContent.replace(/^\s+|\s+$/g, '') === 'create Code Penpublish onlinewrite documentation', 'correct order');
+  function update() {
+    hyperHTML.bind(div)(_templateObject58, todo.map(function (item) {
+      return hyperHTML.wire(item)(_templateObject59, item.id, item.text);
+    }));
+  }
 })
 // */
 .then(function () {
