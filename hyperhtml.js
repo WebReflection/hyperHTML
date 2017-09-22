@@ -51,7 +51,11 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
 
   // hyper.define('transformer', callback) 🌀
   hyper.define = function define(transformer, callback) {
-    transformers[transformer] = callback;
+    if (!(transformer in transformers)) {
+      transformers[transformer] = callback;
+      transformersKeys.push(transformer);
+    }
+    // TODO: else throw ? console.warn ? who cares ?
   };
 
   // hyper.escape('<html>') => '&lt;text&gt;' 🏃
@@ -654,7 +658,8 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
 
   // last attempt to transform content
   function invokeTransformer(object) {
-    for (var key in transformers) {
+    for (var key, i = 0, length = transformersKeys.length; i < length; i++) {
+      key = transformersKeys[i];
       if (object.hasOwnProperty(key)) {
         return transformers[key](object[key]);
       }
@@ -779,6 +784,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
 
   // transformers registry
   var transformers = {};
+  var transformersKeys = [];
 
   // normalize Firefox issue with template literals
   var templateObjects = {}, unique;

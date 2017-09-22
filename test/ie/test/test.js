@@ -627,6 +627,11 @@ tressa.async(function (done) {
   tressa.assert(/a=b%20c<[^>]+?>/.test(div.innerHTML), 'expected virtual layout');
   hyperHTML.bind(div)(_templateObject3, { eUC: 'b c' });
   tressa.assert(/<p>b%20c<!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
+  // TODO: for coverage sake
+  //       defined transformer ... so what?
+  hyperHTML.define('eUC', encodeURIComponent);
+  //       non existent one ... so what?
+  hyperHTML.bind(div)(_templateObject32, { nOPE: 'b c' });
 }).then(function () {
   tressa.log('## attributes with null values');
   var div = document.createElement('div');

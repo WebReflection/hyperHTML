@@ -665,6 +665,11 @@ tressa.async(function (done) {
   tressa.assert(/a=b%20c<[^>]+?>/.test(div.innerHTML), 'expected virtual layout');
   hyperHTML.bind(div)`<p>${{eUC: 'b c'}}</p>`;
   tressa.assert(/<p>b%20c<!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
+  // TODO: for coverage sake
+  //       defined transformer ... so what?
+  hyperHTML.define('eUC', encodeURIComponent);
+  //       non existent one ... so what?
+  hyperHTML.bind(div)`a=${{nOPE: 'b c'}}`;
 })
 .then(function () {
   tressa.log('## attributes with null values');
