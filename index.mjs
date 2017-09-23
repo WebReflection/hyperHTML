@@ -52,9 +52,9 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   // hyper.define('transformer', callback) 🌀
   hyper.define = function define(transformer, callback) {
     if (!(transformer in transformers)) {
-      transformers[transformer] = callback;
       transformersKeys.push(transformer);
     }
+    transformers[transformer] = callback;
     // TODO: else throw ? console.warn ? who cares ?
   };
 
