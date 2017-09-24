@@ -217,7 +217,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
       wontUpgrade = isSpecial && (isData || name in node),
       oldValue
     ;
-    if (isEvent || isData) {
+    if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
       if (isEvent && name.toLowerCase() in node) {
         type = type.toLowerCase();
@@ -253,11 +253,10 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
+            attribute.value = newValue;
             wontUpgrade = name in node;
             if (wontUpgrade) {
               specialAttr(newValue);
-            } else {
-              attribute.value = newValue;
             }
           }
         } :
