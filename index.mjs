@@ -219,8 +219,13 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
-      if (isEvent && name.toLowerCase() in node) {
-        type = type.toLowerCase();
+      if (isEvent) {
+        if (type === CONNECTED || type === DISCONNECTED) {
+          components.add(node);
+        }
+        else if (name.toLowerCase() in node) {
+          type = type.toLowerCase();
+        }
       }
     }
     return isEvent ?
@@ -622,6 +627,20 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     return node.ownerDocument.createTextNode(text);
   }
 
+  // dispatch same event through a list of nodes
+  function dispatchAll(nodes, type) {
+    for (var
+      e, node,
+      i = 0, length = nodes.length;
+      i < length; i++
+    ) {
+      node = nodes[i];
+      if (components.has(node)) {
+        node.dispatchEvent(e || (e = new $Event(type)));
+      }
+    }
+  }
+
   // returns current customElements reference
   // compatible with basicHTML too
   function getCEClass(node) {
@@ -723,6 +742,38 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   // Hybrid Shims
   // ---------------------------------------------
 
+  var CONNECTED = 'connected';
+  var DISCONNECTED = 'dis' + CONNECTED;
+  var $Event;
+
+  try {
+    new Event(CONNECTED);
+    $Event = Event;
+  } catch(o_O) {
+    $Event = function (type) {
+      var e = hyper.document.createEvent('Event');
+      e.initEvent(type, false, false);
+      return e;
+    };
+  }
+
+  try {
+    (new MutationObserver(function (records) {
+      for (var record, i = 0, length = records.length; i < length; i++) {
+        record = records[i];
+        dispatchAll(record.removedNodes, DISCONNECTED);
+        dispatchAll(record.addedNodes, CONNECTED);
+      }
+    })).observe(globalDocument, {subtree: true, childList: true});
+  } catch(o_O) {
+    globalDocument.addEventListener('DOMNodeInserted', function (e) {
+      dispatchAll([e.target], CONNECTED);
+    }, false);
+    globalDocument.addEventListener('DOMNodeRemoved', function (e) {
+      dispatchAll([e.target], DISCONNECTED);
+    }, false);
+  }
+
   // WeakMap with partial EXPANDO fallback
   var $WeakMap = typeof WeakMap === typeof $WeakMap ?
       function () {
@@ -737,6 +788,16 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
         };
       } :
       WeakMap;
+
+  var $WeakSet = typeof WeakSet === typeof $WeakSet ?
+      function () {
+        var wm = new $WeakMap;
+        return {
+          add: function (obj) { wm.set(obj, true); },
+          has: function (obj) { return wm.get(obj) === true; }
+        };
+      } :
+      WeakSet;
 
   // Map with partial double Array fallback
   var $Map = typeof Map === typeof $Map ?
@@ -860,6 +921,9 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   var replaceAttributes = function ($0, $1, $2) {
     return $1 + ($2 || '"') + UID + ($2 || '"');
   };
+
+  // list of components with connected/disconnected
+  var components = new $WeakSet;
 
   // [element] = {template, updates};
   var hypers = new $WeakMap;

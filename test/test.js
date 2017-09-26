@@ -924,6 +924,42 @@ tressa.async(function (done) {
     </ul>`;
   }
 })
+.then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Component connected/disconnected');
+    class Paragraph extends hyperHTML.Component {
+      onconnected(e) {
+        tressa.assert(e.type === 'connected', 'component connected');
+        e.currentTarget.parentNode.removeChild(e.currentTarget);
+      }
+      ondisconnected(e) {
+        tressa.assert(e.type === 'disconnected', 'component disconnected');
+        done();
+      }
+      render() { return this.html`
+        <p onconnected=${this} ondisconnected=${this}>hello</p>`;
+      }
+    }
+    var p = new Paragraph().render();
+    document.body.appendChild(p);
+    setTimeout(function () {
+      if (p.parentNode) {
+        var e = document.createEvent('Event');
+        e.initEvent('DOMNodeInserted', false, false);
+        Object.defineProperty(e, 'target', {value: p});
+        document.dispatchEvent(e);
+        setTimeout(function () {
+          e = document.createEvent('Event');
+          e.initEvent('DOMNodeRemoved', false, false);
+          Object.defineProperty(e, 'target', {value: p});
+          document.dispatchEvent(e);
+          delete p.disconnected;
+          document.dispatchEvent(e);
+        }, 100);
+      }
+    }, 100);
+  });
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {

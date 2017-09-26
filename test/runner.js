@@ -34,7 +34,7 @@ require('jsdom').env(
       Object.prototype.nodeType = 2;
       var $Map = global.Map;
       // var $CustomEvent = global.CustomEvent;
-      global.String.prototype.trim = global.WeakMap = global.Map = void 0;
+      global.String.prototype.trim = global.WeakMap = global.WeakSet = global.Map = void 0;
       delete require.cache[require.resolve('../index.js')];
       delete require.cache[require.resolve('./test.js')];
       // fake initial feature detection
@@ -68,6 +68,27 @@ require('jsdom').env(
       var bind = Function.prototype.bind;
       delete Function.prototype.bind;
 
+      global.Event = function (type) {
+        var e = global.document.createEvent('Event');
+        e.initEvent(type, false, false);
+        return e;
+      };
+      global.MutationObserver = function (fn) {
+        return {observe: function (document) {
+          document.addEventListener('DOMNodeInserted', function (e) {
+            fn([{
+              addedNodes: [e.target],
+              removedNodes: []
+            }]);
+          }, false);
+          document.addEventListener('DOMNodeRemoved', function (e) {
+            fn([{
+              addedNodes: [],
+              removedNodes: [e.target]
+            }]);
+          }, false);
+        }};
+      };  
       global.hyperHTML = require('../index.js');
       
       Function.prototype.bind = bind;

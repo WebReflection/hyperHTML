@@ -62,7 +62,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject56 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
     _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
     _templateObject58 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
-    _templateObject59 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']);
+    _templateObject59 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
+    _templateObject60 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -950,6 +951,60 @@ tressa.async(function (done) {
       return hyperHTML.wire(item)(_templateObject59, item.id, item.text);
     }));
   }
+}).then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Component connected/disconnected');
+
+    var Paragraph = function (_hyperHTML$Component8) {
+      _inherits(Paragraph, _hyperHTML$Component8);
+
+      function Paragraph() {
+        _classCallCheck(this, Paragraph);
+
+        return _possibleConstructorReturn(this, (Paragraph.__proto__ || Object.getPrototypeOf(Paragraph)).apply(this, arguments));
+      }
+
+      _createClass(Paragraph, [{
+        key: 'onconnected',
+        value: function onconnected(e) {
+          tressa.assert(e.type === 'connected', 'component connected');
+          e.currentTarget.parentNode.removeChild(e.currentTarget);
+        }
+      }, {
+        key: 'ondisconnected',
+        value: function ondisconnected(e) {
+          tressa.assert(e.type === 'disconnected', 'component disconnected');
+          done();
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          return this.html(_templateObject60, this, this);
+        }
+      }]);
+
+      return Paragraph;
+    }(hyperHTML.Component);
+
+    var p = new Paragraph().render();
+    document.body.appendChild(p);
+    setTimeout(function () {
+      if (p.parentNode) {
+        var e = document.createEvent('Event');
+        e.initEvent('DOMNodeInserted', false, false);
+        Object.defineProperty(e, 'target', { value: p });
+        document.dispatchEvent(e);
+        setTimeout(function () {
+          e = document.createEvent('Event');
+          e.initEvent('DOMNodeRemoved', false, false);
+          Object.defineProperty(e, 'target', { value: p });
+          document.dispatchEvent(e);
+          delete p.disconnected;
+          document.dispatchEvent(e);
+        }, 100);
+      }
+    }, 100);
+  });
 })
 // */
 .then(function () {
