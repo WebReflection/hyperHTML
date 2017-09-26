@@ -421,7 +421,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   // look for attributes that contains the comment text
   function attributesSeeker(node, paths, parts) {
     for (var
-      name,
+      name, attrs,
       attribute,
       value = UID,
       attributes = node.attributes,
@@ -431,12 +431,13 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       attribute = attributes[i];
       if (attribute.value === value) {
         name = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
+        attrs = node.attributes;
         paths.push(
           Path(
             'attr',
-            // this is needed in both jsdom
+            // fallback is needed in both jsdom
             // and in not-so-standard browsers/engines
-            node.attributes[name.toLowerCase()],
+            attrs[name] || attrs[name.toLowerCase()],
             name
           )
         );

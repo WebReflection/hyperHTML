@@ -960,6 +960,11 @@ tressa.async(function (done) {
     }, 100);
   });
 })
+.then(function () {
+  var output = document.createElement('div');
+  hyperHTML.bind(output)`<svg viewBox=${'0 0 50 50'}></svg>`;
+  tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {
