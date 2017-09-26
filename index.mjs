@@ -215,7 +215,8 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial && (isData || name in node),
-      oldValue
+      timer = 0,
+      oldValue, Class
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -258,13 +259,27 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
-            wontUpgrade = name in node;
-            if (wontUpgrade) {
-              specialAttr(newValue);
-            } else {
-              attribute.value = newValue;
-              node[name] = newValue;
-            }
+            // only Custom Elements can end up here
+            if (!Class) Class = getCEClass(node);
+            clearTimeout(timer);
+            // CE might need some time before these upgrade
+            (function upgraded() {
+              // only the instanceof can tell if the CE was upgraded
+              wontUpgrade = node instanceof Class;
+              // in such case, drop direct attribute and starts regular
+              if (wontUpgrade) {
+                delete node[name];
+                specialAttr(newValue);
+              }
+              // otherwise set attribute value
+              // and the property directly
+              else {
+                attribute.value = newValue;
+                node[name] = newValue;
+                // also check again promotion happened
+                timer = setTimeout(upgraded);
+              }
+            }());
           }
         } :
         function normalAttr(newValue) {

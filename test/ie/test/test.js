@@ -879,11 +879,12 @@ tressa.async(function (done) {
   if (!(div.firstElementChild instanceof DumbElement)) {
     tressa.assert(div.firstElementChild.dumb === true, 'not upgraded elements still have special attributes');
     tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements never have special attributes');
-    div.firstElementChild.constructor.prototype.dumb = null;
+    delete div.firstElementChild.dumb;
+    // simulate an upgrade
+    div.firstElementChild.__proto__ = DumbElement.prototype;
   }
   update(wire);
   tressa.assert(div.firstElementChild.dumb === true, 'upgraded elements have special attributes');
-  delete div.firstElementChild.constructor.prototype.dumb;
   Object.defineProperty(global, 'customElements', {
     configurable: true,
     value: registry

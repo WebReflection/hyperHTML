@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>652/652</span>
+        <span class='fraction'>658/658</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>358/358</span>
+        <span class='fraction'>360/360</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>106/106</span>
+        <span class='fraction'>107/107</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>640/640</span>
+        <span class='fraction'>645/645</span>
       </div>
     </div>
   </div>
@@ -1539,7 +1539,22 @@
 1494
 1495
 1496
-1497</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1497
+1498
+1499
+1500
+1501
+1502
+1503
+1504
+1505
+1506
+1507
+1508
+1509
+1510
+1511
+1512</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1758,6 +1773,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62×</span>
 <span class="cline-any cline-yes">26×</span>
 <span class="cline-any cline-yes">26×</span>
@@ -1788,23 +1804,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">16×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2188,9 +2218,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3252,7 +3282,8 @@
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial &amp;&amp; (isData || name in node),
-      oldValue
+      timer = 0,
+      oldValue, Class
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -3295,13 +3326,27 @@
               }
             }
           } else {
-            wontUpgrade = name in node;
-            if (wontUpgrade) {
-              specialAttr(newValue);
-            } else {
-              attribute.value = newValue;
-              node[name] = newValue;
-            }
+            // only Custom Elements can end up here
+            if (!Class) Class = getCEClass(node);
+            clearTimeout(timer);
+            // CE might need some time before these upgrade
+            (function upgraded() {
+              // only the instanceof can tell if the CE was upgraded
+              wontUpgrade = node instanceof Class;
+              // in such case, drop direct attribute and starts regular
+              if (wontUpgrade) {
+                delete node[name];
+                specialAttr(newValue);
+              }
+              // otherwise set attribute value
+              // and the property directly
+              else {
+                attribute.value = newValue;
+                node[name] = newValue;
+                // also check again promotion happened
+                timer = setTimeout(upgraded);
+              }
+            }());
           }
         } :
         function normalAttr(newValue) {
@@ -4537,7 +4582,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}</pre></td></tr>
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Sep 26 2017 21:19:40 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Sep 26 2017 22:44:49 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>
