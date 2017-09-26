@@ -258,10 +258,12 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
-            attribute.value = newValue;
             wontUpgrade = name in node;
             if (wontUpgrade) {
               specialAttr(newValue);
+            } else {
+              attribute.value = newValue;
+              node[name] = newValue;
             }
           }
         } :

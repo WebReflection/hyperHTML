@@ -871,7 +871,7 @@ tressa.async(function (done) {
   var wire = hyperHTML.wire();
   var div = update(wire);
   if (!(div.firstElementChild instanceof DumbElement)) {
-    tressa.assert(div.firstElementChild.dumb !== true, 'not upgraded elements have no special attributes');
+    tressa.assert(div.firstElementChild.dumb === true, 'not upgraded elements still have special attributes');
     tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements never have special attributes');
     div.firstElementChild.constructor.prototype.dumb = null;
   }
