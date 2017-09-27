@@ -95,6 +95,27 @@ require('jsdom').env(
 
       Array.isArray = isArray;
       Map = $Map;
+
+      // how to reproduce the lovely double viewPort fucktard IE9 behavior?
+      var div = global.document.createElement('div');
+      div.innerHTML = '<svg></svg>';
+      var removeAttributeNode = div.firstChild.constructor.prototype.removeAttributeNode;
+      var lastRemovedNode;
+      div.firstChild.constructor.prototype.removeAttributeNode = function (attribute) {
+        lastRemovedNode = attribute;
+        return removeAttributeNode.apply(this, arguments);
+      };
+      var create = Object.create;
+      Object.create = function (proto) {
+        if (proto === null && arguments.length < 2) {
+          return {get viewBox() {
+            return lastRemovedNode;
+          }};
+        }
+        else {
+          return create.apply(null, arguments);
+        }
+      };
       require('./test.js');
     }, 500);
   }

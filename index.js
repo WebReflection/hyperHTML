@@ -430,26 +430,38 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   // look for attributes that contains the comment text
   function attributesSeeker(node, paths, parts) {
     for (var
-      name, attrs,
+      name, realName, attrs,
       attribute,
-      value = UID,
+      cache = Object.create(null),
       attributes = node.attributes,
       i = 0, length = attributes.length;
       i < length; i++
     ) {
       attribute = attributes[i];
-      if (attribute.value === value) {
-        name = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
-        attrs = node.attributes;
-        paths.push(
-          Path(
-            'attr',
-            // fallback is needed in both jsdom
-            // and in not-so-standard browsers/engines
-            attrs[name] || attrs[name.toLowerCase()],
-            name
-          )
-        );
+      if (attribute.value === UID) {
+        name = attribute.name;
+        // this is an IE < 11 thing only
+        if (name in cache) {
+          // attributes with unrecognized values
+          // are duplicated, even if same attribute, across the node
+          // to fix it, you need to remove it
+          node.removeAttributeNode(attribute);
+          // put a value that won't (hopefully) bother IE
+          cache[name].value = '';
+          // and place the node back
+          node.setAttributeNode(cache[name]);
+          // this will decrease attributes count by 1
+          length--;
+          // so the loop should be decreased by 1 too
+          i--;
+        } else {
+          realName = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
+          attrs = node.attributes;
+          // fallback is needed in both jsdom
+          // and in not-so-standard browsers/engines
+          cache[name] = attrs[realName] || attrs[realName.toLowerCase()];
+          paths.push(Path('attr', cache[name], realName));
+        }
       }
     }
   }
