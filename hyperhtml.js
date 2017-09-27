@@ -387,17 +387,16 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
                     }
                   }
                 default:
-                  majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+                  optimist(aura, value);
                   break;
               }
             }
           } else if (isNode_ish(value)) {
-            majinbuu(
+            optimist(
               aura,
               value.nodeType === DOCUMENT_FRAGMENT_NODE ?
                 slice.call(value.childNodes) :
-                [value],
-              hyper.MAX_LIST_SIZE
+                [value]
             );
           } else if (isPromise_ish(value)) {
             value.then(anyContent);
@@ -728,6 +727,22 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
         defineProperty(this, secret, {configurable: true, value: value});
       }
     };
+  }
+
+  // uses majinbuu only if the two lists are different
+  function optimist(aura, value) {
+    var i = 0, length = aura.length;
+    if (value.length !== length) {
+      majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+      return;
+    }
+    while (i < length) {
+      if (aura[i] !== value[i]) {
+        majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+        return;
+      }
+      i++;
+    }
   }
 
   // remove a list of [node, attribute]

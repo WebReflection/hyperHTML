@@ -12,7 +12,11 @@ if (process.argv.pop() === 'dependencies') {
         return  fs.readFileSync(require.resolve($1))
                   .toString()
                   .replace(/^.+?(function\s*\()/, ', $1')
-                  .replace(/(}\(\));[\s\S]*$/, '$1');
+                  .replace(/(}\(\));[\s\S]*$/, '$1')
+                  // the following majinbuu parts cannot be covered in here
+                  // however, these are covered in majinbuu project itself
+                  .replace(/(\s+)if \(toLength \|\| TOO_MANY\) \{/, '$1/* istanbul ignore next */$1if (toLength || TOO_MANY) {')
+                  .replace(/(\s+)if \(length\) \{/, '$1/* istanbul ignore else */$1if (length) {');
       })
   );
 } else {
