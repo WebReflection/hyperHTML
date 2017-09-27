@@ -387,17 +387,16 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
                     }
                   }
                 default:
-                  majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+                  optimist(aura, value);
                   break;
               }
             }
           } else if (isNode_ish(value)) {
-            majinbuu(
+            optimist(
               aura,
               value.nodeType === DOCUMENT_FRAGMENT_NODE ?
                 slice.call(value.childNodes) :
-                [value],
-              hyper.MAX_LIST_SIZE
+                [value]
             );
           } else if (isPromise_ish(value)) {
             value.then(anyContent);
@@ -728,6 +727,22 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
         defineProperty(this, secret, {configurable: true, value: value});
       }
     };
+  }
+
+  // uses majinbuu only if the two lists are different
+  function optimist(aura, value) {
+    var i = 0, length = aura.length;
+    if (value.length !== length) {
+      majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+      return;
+    }
+    while (i < length) {
+      if (aura[i] !== value[i]) {
+        majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+        return;
+      }
+      i++;
+    }
   }
 
   // remove a list of [node, attribute]
@@ -1332,15 +1347,14 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     TypedArray = /^u/.test(typeof Int32Array) ? Array : Int32Array
   ;
 
-  // readapted from:
-  // http://webreflection.blogspot.co.uk/2009/02/levenshtein-algorithm-revisited-25.html
   function majinbuu(from, to, MAX_SIZE) {
     var
       fromLength = from.length,
       toLength = to.length,
-      TOO_MANY = (MAX_SIZE || Infinity) < Math.sqrt(fromLength * toLength)
+      TOO_MANY = (MAX_SIZE || Infinity) < Math.sqrt((fromLength || 1) * (toLength || 1))
     ;
     if (fromLength < 1 || TOO_MANY) {
+      /* istanbul ignore next */
       if (toLength || TOO_MANY) {
         from.splice.apply(from, [0, fromLength].concat(to));
       }
@@ -1397,8 +1411,8 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     while (++x < toLength) grid[x] = x;
     while (++y < fromLength) {
       X = x = 0;
+      prow = crow;
       crow = y * toLength;
-      prow = Y * toLength;
       grid[crow + x] = y;
       while (++x < toLength) {
         del = grid[prow + x] + 1;
@@ -1411,7 +1425,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
                             ins : sub);
         ++X;
       };
-      ++Y;
+      Y = y;
     }
     return grid;
   }
@@ -1439,12 +1453,12 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       crow, prow
     ;
     while (x && y) {
-      crow = y * XL;
-      prow = (y - 1) * XL;
-      cell = grid[crow + x];
-      top = grid[prow + x];
-      left = grid[crow + x - 1];
-      diagonal = grid[prow + x - 1];
+      crow = y * XL + x;
+      prow = crow - XL;
+      cell = grid[crow];
+      top = grid[prow];
+      left = grid[crow - 1];
+      diagonal = grid[prow - 1];
       if (diagonal <= left && diagonal <= top && diagonal <= cell) {
         x--;
         y--;
@@ -1478,6 +1492,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       length = operations.length,
       curr, prev, op
     ;
+    /* istanbul ignore else */
     if (length) {
       op = (prev = operations[0]);
       while (i < length) {
