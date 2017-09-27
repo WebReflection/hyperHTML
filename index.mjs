@@ -258,6 +258,13 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
+            // TODO: need to find out use cases for this.
+            //       Basically until a node is upgraded,
+            //       its accessors in the prototype are useless.
+            //       Removing the name per each invocation fixes this.
+            //       However this is not really a bullet-proof mechanism.
+            //       Find out if there is a better way to observe CE upgrades.
+            delete node[name];
             wontUpgrade = name in node;
             if (wontUpgrade) {
               specialAttr(newValue);
