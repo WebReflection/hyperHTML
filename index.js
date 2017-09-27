@@ -215,8 +215,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial && (isData || name in node),
-      timer = 0,
-      oldValue, Class
+      oldValue
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -259,27 +258,20 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
-            // only Custom Elements can end up here
-            if (!Class) Class = getCEClass(node);
-            clearTimeout(timer);
-            // CE might need some time before these upgrade
-            (function upgraded() {
-              // only the instanceof can tell if the CE was upgraded
-              wontUpgrade = node instanceof Class;
-              // in such case, drop direct attribute and starts regular
-              if (wontUpgrade) {
-                delete node[name];
-                specialAttr(newValue);
-              }
-              // otherwise set attribute value
-              // and the property directly
-              else {
-                attribute.value = newValue;
-                node[name] = newValue;
-                // also check again promotion happened
-                timer = setTimeout(upgraded);
-              }
-            }());
+            // TODO: need to find out use cases for this.
+            //       Basically until a node is upgraded,
+            //       its accessors in the prototype are useless.
+            //       Removing the name per each invocation fixes this.
+            //       However this is not really a bullet-proof mechanism.
+            //       Find out if there is a better way to observe CE upgrades.
+            delete node[name];
+            wontUpgrade = name in node;
+            if (wontUpgrade) {
+              specialAttr(newValue);
+            } else {
+              attribute.value = newValue;
+              node[name] = newValue;
+            }
           }
         } :
         function normalAttr(newValue) {
