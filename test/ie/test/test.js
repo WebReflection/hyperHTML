@@ -60,7 +60,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject54 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
     _templateObject55 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
     _templateObject56 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
-    _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
+    _templateObject57 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
     _templateObject58 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
     _templateObject59 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
     _templateObject60 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']),
@@ -95,42 +95,35 @@ tressa.async(function (done) {
 })
 */
 tressa.async(function (done) {
-  try {
-    var update = function update(i) {
-      return render(_templateObject, i,
-      // IE Edge mobile did something funny here
-      // as template string returned xxx.xxxx
-      // but as innerHTML returned xxx.xx
-      (Math.random() * new Date()).toFixed(2));
-    };
-
-    var compare = function compare(html) {
-      return (/^\s*<p data-counter="\d">\s*Time: \d+\.\d+<[^>]+?>\s*<\/p>\s*$/i.test(html)
-      );
-    };
-
-    tressa.log('## injecting text and attributes');
-    var i = 0;
-    var div = document.body.appendChild(document.createElement('div'));
-    var render = hyperHTML.bind(div);
-
-    var html = update(i++).innerHTML;
-    var p = div.querySelector('p');
-    var attr = p.attributes[0];
-    tressa.assert(compare(html), 'correct HTML');
-    tressa.assert(html === div.innerHTML, 'correctly returned');
-    setTimeout(function () {
-      tressa.log('## updating same nodes');
-      var html = update(i++).innerHTML;
-      tressa.assert(compare(html), 'correct HTML update');
-      tressa.assert(html === div.innerHTML, 'update applied');
-      tressa.assert(p === div.querySelector('p'), 'no node was changed');
-      tressa.assert(attr === p.attributes[0], 'no attribute was changed');
-      done();
-    });
-  } catch (e) {
-    console.error(e);
+  tressa.log('## injecting text and attributes');
+  var i = 0;
+  var div = document.body.appendChild(document.createElement('div'));
+  var render = hyperHTML.bind(div);
+  function update(i) {
+    return render(_templateObject, i,
+    // IE Edge mobile did something funny here
+    // as template string returned xxx.xxxx
+    // but as innerHTML returned xxx.xx
+    (Math.random() * new Date()).toFixed(2));
   }
+  function compare(html) {
+    return (/^\s*<p data-counter="\d">\s*Time: \d+\.\d+<[^>]+?>\s*<\/p>\s*$/i.test(html)
+    );
+  }
+  var html = update(i++).innerHTML;
+  var p = div.querySelector('p');
+  var attr = p.attributes[0];
+  tressa.assert(compare(html), 'correct HTML');
+  tressa.assert(html === div.innerHTML, 'correctly returned');
+  setTimeout(function () {
+    tressa.log('## updating same nodes');
+    var html = update(i++).innerHTML;
+    tressa.assert(compare(html), 'correct HTML update');
+    tressa.assert(html === div.innerHTML, 'update applied');
+    tressa.assert(p === div.querySelector('p'), 'no node was changed');
+    tressa.assert(attr === p.attributes[0], 'no attribute was changed');
+    done();
+  });
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## perf: same virtual text twice');
@@ -871,9 +864,10 @@ tressa.async(function (done) {
     });
     function DumbElement() {}
     DumbElement.prototype.dumb = null;
+    DumbElement.prototype.asd = null;
     customElements.define('dumb-element', DumbElement);
     function update(wire) {
-      return wire(_templateObject57, true, true);
+      return wire(_templateObject57, true, 'qwe', true);
     }
     var wire = hyperHTML.wire();
     var div = update(wire);

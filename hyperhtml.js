@@ -215,7 +215,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial && (isData || name in node),
-      oldValue, onupgrade
+      oldValue, specialAttr, upgrade
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -228,6 +228,56 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
         }
       }
     }
+    if (isSpecial) {
+      if (!wontUpgrade) {
+        upgrade = toBeUpgraded.get(node);
+        if (!upgrade) {
+          upgrade = {
+            _: Object.create(null),
+            $: function () {
+              toBeUpgraded.delete(node);
+              for (var name in this._) {
+                this._[name].$();
+              }
+            }
+          };
+          toBeUpgraded.set(node, upgrade);
+        }
+        upgrade._[name] = {
+          _: null,
+          $: function () {
+            wontUpgrade = true;
+            specialAttr(this._);
+          }
+        };
+      }
+      specialAttr = function specialAttr(newValue) {
+        if (wontUpgrade) {
+          if (oldValue !== newValue) {
+            oldValue = newValue;
+            // WebKit moves the cursor if input.value
+            // is set again, even if same value
+            if (node[name] !== newValue) {
+              // let the browser handle the case
+              // input.value = null;
+              // input.value; // ''
+              if (newValue == null) {
+                // reflect the null intent,
+                // do not pass undefined!
+                node[name] = null;
+                node.removeAttribute(name);
+              } else {
+                node[name] = newValue;
+              }
+            }
+          }
+        } else {
+          attribute.value = newValue;
+          toBeUpgraded.get(node)._[name]._ = newValue;
+          if (name in node) toBeUpgraded.get(node).$();
+        }
+      };
+    }
     return isEvent ?
       function eventAttr(newValue) {
         if (oldValue !== newValue) {
@@ -237,37 +287,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
         }
       } :
       (isSpecial ?
-        function specialAttr(newValue) {
-          if (wontUpgrade) {
-            if (oldValue !== newValue) {
-              oldValue = newValue;
-              // WebKit moves the cursor if input.value
-              // is set again, even if same value
-              if (node[name] !== newValue) {
-                // let the browser handle the case
-                // input.value = null;
-                // input.value; // ''
-                if (newValue == null) {
-                  // reflect the null intent,
-                  // do not pass undefined!
-                  node[name] = null;
-                  node.removeAttribute(name);
-                } else {
-                  node[name] = newValue;
-                }
-              }
-            }
-          } else {
-            attribute.value = newValue;
-            onupgrade = function () {
-              wontUpgrade = true;
-              toBeUpgraded.delete(node);
-              specialAttr(newValue);
-            };
-            toBeUpgraded.set(node, onupgrade);
-            if (name in node) onupgrade();
-          }
-        } :
+        specialAttr :
         function normalAttr(newValue) {
           if (oldValue !== newValue) {
             oldValue = newValue;
@@ -645,20 +665,36 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   // dispatch same event through a list of nodes
   function dispatchAll(nodes, type) {
     for (var
-      e, node,
+      e,
       isConnected = type === CONNECTED,
       i = 0, length = nodes.length;
       i < length; i++
     ) {
-      node = nodes[i];
-      /* istanbul ignore else */
+      e = dispatchTarget(nodes[i], isConnected, type, e);
+    }
+  }
+
+  // per each inserted element, check initialization
+  function dispatchTarget(node, isConnected, type, e) {
+    /* istanbul ignore next */
+    if (node.nodeType === ELEMENT_NODE) {
       if (components.has(node)) {
         node.dispatchEvent(e || (e = new $Event(type)));
       }
       else if (isConnected && toBeUpgraded.has(node)) {
-        toBeUpgraded.get(node)();
+        toBeUpgraded.get(node).$();
+      }
+      else {
+        for (var
+          nodes = getChildren(node),
+          i = 0, length = nodes.length;
+          i < length; i++
+        ) {
+          e = dispatchTarget(nodes[i], isConnected, type, e);
+        }
       }
     }
+    return e;
   }
 
   // returns current customElements reference
@@ -832,6 +868,8 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   var $WeakSet = typeof WeakSet === typeof $WeakSet ?
       function () {
         var wm = new $WeakMap;
+        // NOT A POLYFILL: simplified ad-hoc for this library cases
+        /* istanbul ignore next */
         return {
           add: function (obj) { wm.set(obj, true); },
           has: function (obj) { return wm.get(obj) === true; }

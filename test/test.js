@@ -15,7 +15,6 @@ tressa.async(function (done) {
 })
 */
 tressa.async(function (done) {
-  try {
   tressa.log('## injecting text and attributes');
   var i = 0;
   var div = document.body.appendChild(document.createElement('div'));
@@ -49,7 +48,6 @@ tressa.async(function (done) {
     tressa.assert(attr === p.attributes[0], 'no attribute was changed');
     done();
   });
-  } catch(e) { console.error(e); }
 })
 .then(function () {
   return tressa.async(function (done) {
@@ -862,10 +860,11 @@ tressa.async(function (done) {
   });
   function DumbElement() {}
   DumbElement.prototype.dumb = null;
+  DumbElement.prototype.asd = null;
   customElements.define('dumb-element', DumbElement);
   function update(wire) {
     return wire`<div>
-      <dumb-element dumb=${true}></dumb-element><dumber-element dumb=${true}></dumber-element>
+      <dumb-element dumb=${true} asd=${'qwe'}></dumb-element><dumber-element dumb=${true}></dumber-element>
     </div>`;
   }
   var wire = hyperHTML.wire();
