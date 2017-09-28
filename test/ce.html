@@ -1,0 +1,35 @@
+<!doctype html>
+<script src="../min.js"></script>
+<script>
+class TestCase extends HTMLElement {
+  static get observedAttributes() { return ['with']; }
+  attributeChangedCallback() {
+    document.body.appendChild(document.createTextNode('with value is: ' + this.getAttribute('with')));
+    document.body.appendChild(document.createElement('br'));
+  }
+  connectedCallback() {
+    document.body.appendChild(document.createTextNode('test-case connected'));
+    document.body.appendChild(document.createElement('br'));
+  }
+  get direct() {
+    return this._direct;
+  }
+  set direct(value) {
+    this._direct = value;
+  }
+}
+customElements.define('test-case', TestCase);
+
+this.onload = function () {
+  var rand = Math.random();
+  var el = hyperHTML.wire()`<test-case with=${'attribute'} direct=${rand}></test-case>`;
+  setTimeout(function () {
+    document.body.appendChild(el);
+    setTimeout(function () {
+      if (el.direct === el._direct && el.direct === rand) {
+        document.body.appendChild(document.createTextNode('everything is fine'));
+      }
+    }, 10);
+  }, 10);
+};
+</script>

@@ -22,25 +22,25 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>671/671</span>
+        <span class='fraction'>678/678</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>368/368</span>
+        <span class='fraction'>372/372</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>107/107</span>
+        <span class='fraction'>110/110</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>659/659</span>
+        <span class='fraction'>665/665</span>
       </div>
       <div class='fl pad1y'>
-        <span class="strong">3 branches</span>
+        <span class="strong">2 statements, 1 function, 4 branches</span>
         <span class="quiet">Ignored</span>  &nbsp;&nbsp;&nbsp;&nbsp;
       </div>
     </div>
@@ -1577,7 +1577,13 @@
 1528
 1529
 1530
-1531</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
+1531
+1532
+1533
+1534
+1535
+1536
+1537</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1837,20 +1843,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2234,9 +2234,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11×</span>
 <span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2393,10 +2398,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">202×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">108×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">202×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2537,6 +2546,9 @@
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">56×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
@@ -3324,7 +3336,7 @@
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial &amp;&amp; (isData || name in node),
-      oldValue
+      oldValue, onupgrade
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -3367,20 +3379,14 @@
               }
             }
           } else {
-            // TODO: need to find out use cases for this.
-            //       Basically until a node is upgraded,
-            //       its accessors in the prototype are useless.
-            //       Removing the name per each invocation fixes this.
-            //       However this is not really a bullet-proof mechanism.
-            //       Find out if there is a better way to observe CE upgrades.
-            delete node[name];
-            wontUpgrade = name in node;
-            if (wontUpgrade) {
+            attribute.value = newValue;
+            onupgrade = function () {
+              wontUpgrade = true;
+              toBeUpgraded.delete(node);
               specialAttr(newValue);
-            } else {
-              attribute.value = newValue;
-              node[name] = newValue;
-            }
+            };
+            toBeUpgraded.set(node, onupgrade);
+            if (name in node) onupgrade();
           }
         } :
         function normalAttr(newValue) {
@@ -3761,12 +3767,17 @@
   function dispatchAll(nodes, type) {
     for (var
       e, node,
+      isConnected = type === CONNECTED,
       i = 0, length = nodes.length;
       i &lt; length; i++
     ) {
       node = nodes[i];
+      /* istanbul ignore else */
       if (components.has(node)) {
         node.dispatchEvent(e || (e = new $Event(type)));
+      }
+      else <span class="skip-if-branch" title="if path not taken" >I</span>if (isConnected &amp;&amp; toBeUpgraded.has(node)) {
+<span class="cstat-skip" title="statement not covered" >        toBeUpgraded.get(node)();</span>
       }
     }
   }
@@ -3920,13 +3931,17 @@
     }, false);
   }
 &nbsp;
-  // WeakMap with partial EXPANDO fallback
+  // WeakMap with partial UID fallback
   var $WeakMap = typeof WeakMap === typeof $WeakMap ?
       function () {
+        // NOT A POLYFILL: simplified ad-hoc for this library cases
+        /* istanbul ignore next */
         return {
-          get: function (obj) { return obj[EXPANDO]; },
+          delete: function (obj) { delete obj[UID]; },
+          get: function (obj) { return obj[UID]; },
+          has: <span class="fstat-skip" title="function not covered" >function (obj) {</span> <span class="cstat-skip" title="statement not covered" >return UID in obj; </span>},
           set: function (obj, value) {
-            Object.defineProperty(obj, EXPANDO, {
+            Object.defineProperty(obj, UID, {
               configurable: true,
               value: value
             });
@@ -4079,6 +4094,9 @@
 &nbsp;
   // [template] = {fragment, paths};
   var templates = new $Map;
+&nbsp;
+  // [node] = onupgrade
+  var toBeUpgraded = new $WeakMap;
 &nbsp;
   // internal signal to switch adoption
   var notAdopting = true;
@@ -4643,7 +4661,7 @@ try { module.exports = hyperHTML; } catch(o_O) {}</pre></td></tr>
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Sep 27 2017 18:01:24 GMT+0100 (BST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Sep 28 2017 14:25:46 GMT+0100 (BST)
 </div>
 </div>
 <script src="../prettify.js"></script>

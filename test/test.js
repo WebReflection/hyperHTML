@@ -843,7 +843,7 @@ tressa.async(function (done) {
     (new GlobalEvent).render().dispatchEvent(e);
   });
 })
-.then(function () {
+.then(function () { return tressa.async(function (done) {
   tressa.log('## Custom Element attributes');
   var global = document.defaultView;
   var registry = global.customElements;
@@ -871,19 +871,20 @@ tressa.async(function (done) {
   var wire = hyperHTML.wire();
   var div = update(wire);
   if (!(div.firstElementChild instanceof DumbElement)) {
-    tressa.assert(div.firstElementChild.dumb === true, 'not upgraded elements still have special attributes');
+    tressa.assert(div.firstElementChild.dumb !== true, 'not upgraded elements does not have special attributes');
     tressa.assert(div.lastElementChild.dumb !== true, 'unknown elements never have special attributes');
-    delete div.firstElementChild.dumb;
     // simulate an upgrade
-    div.firstElementChild.__proto__ = DumbElement.prototype;
+    div.firstElementChild.constructor.prototype.dumb = null;
   }
   update(wire);
+  delete div.firstElementChild.constructor.prototype.dumb;
   tressa.assert(div.firstElementChild.dumb === true, 'upgraded elements have special attributes');
   Object.defineProperty(global, 'customElements', {
     configurable: true,
     value: registry
   });
-})
+  done();
+}); })
 .then(function () {
   tressa.log('## hyper.Component state');
   class DefaultState extends hyperHTML.Component {
@@ -966,7 +967,7 @@ tressa.async(function (done) {
 // WARNING THESE TEST MUST BE AT THE VERY END
 .then(function () {
   // WARNING THESE TEST MUST BE AT THE VERY END
-  tressa.log('## IE9 double viewBox');
+  tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
     hyperHTML.bind(output)`<svg viewBox=${'0 0 50 50'}></svg>`;
