@@ -273,8 +273,8 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
           }
         } else {
           attribute.value = newValue;
-          toBeUpgraded.get(node)._[name]._ = newValue;
-          if (name in node) toBeUpgraded.get(node).$();
+          upgrade._[name]._ = newValue;
+          if (name in node) upgrade.$();
         }
       };
     }
