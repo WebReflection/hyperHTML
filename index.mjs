@@ -215,7 +215,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       type = isEvent ? name.slice(2) : '',
       noOwner = isSpecial || isEvent,
       wontUpgrade = isSpecial && (isData || name in node),
-      oldValue
+      oldValue, onupgrade
     ;
     if (isEvent || wontUpgrade) {
       removeAttributes.push(node, name);
@@ -258,20 +258,14 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
               }
             }
           } else {
-            // TODO: need to find out use cases for this.
-            //       Basically until a node is upgraded,
-            //       its accessors in the prototype are useless.
-            //       Removing the name per each invocation fixes this.
-            //       However this is not really a bullet-proof mechanism.
-            //       Find out if there is a better way to observe CE upgrades.
-            delete node[name];
-            wontUpgrade = name in node;
-            if (wontUpgrade) {
+            attribute.value = newValue;
+            onupgrade = function () {
+              wontUpgrade = true;
+              toBeUpgraded.delete(node);
               specialAttr(newValue);
-            } else {
-              attribute.value = newValue;
-              node[name] = newValue;
-            }
+            };
+            toBeUpgraded.set(node, onupgrade);
+            if (name in node) onupgrade();
           }
         } :
         function normalAttr(newValue) {
@@ -652,12 +646,17 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   function dispatchAll(nodes, type) {
     for (var
       e, node,
+      isConnected = type === CONNECTED,
       i = 0, length = nodes.length;
       i < length; i++
     ) {
       node = nodes[i];
+      /* istanbul ignore else */
       if (components.has(node)) {
         node.dispatchEvent(e || (e = new $Event(type)));
+      }
+      else if (isConnected && toBeUpgraded.has(node)) {
+        toBeUpgraded.get(node)();
       }
     }
   }
@@ -811,13 +810,17 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     }, false);
   }
 
-  // WeakMap with partial EXPANDO fallback
+  // WeakMap with partial UID fallback
   var $WeakMap = typeof WeakMap === typeof $WeakMap ?
       function () {
+        // NOT A POLYFILL: simplified ad-hoc for this library cases
+        /* istanbul ignore next */
         return {
-          get: function (obj) { return obj[EXPANDO]; },
+          delete: function (obj) { delete obj[UID]; },
+          get: function (obj) { return obj[UID]; },
+          has: function (obj) { return UID in obj; },
           set: function (obj, value) {
-            Object.defineProperty(obj, EXPANDO, {
+            Object.defineProperty(obj, UID, {
               configurable: true,
               value: value
             });
@@ -970,6 +973,9 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
 
   // [template] = {fragment, paths};
   var templates = new $Map;
+
+  // [node] = onupgrade
+  var toBeUpgraded = new $WeakMap;
 
   // internal signal to switch adoption
   var notAdopting = true;
