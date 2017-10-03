@@ -665,33 +665,35 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   // dispatch same event through a list of nodes
   function dispatchAll(nodes, type) {
     for (var
-      e,
+      e, node,
       isConnected = type === CONNECTED,
       i = 0, length = nodes.length;
       i < length; i++
     ) {
-      e = dispatchTarget(nodes[i], isConnected, type, e);
+      node = nodes[i];
+      /* istanbul ignore else */
+      if (node.nodeType === ELEMENT_NODE) {
+        e = dispatchTarget(node, isConnected, type, e);
+      }
     }
   }
 
   // per each inserted element, check initialization
   function dispatchTarget(node, isConnected, type, e) {
     /* istanbul ignore next */
-    if (node.nodeType === ELEMENT_NODE) {
-      if (components.has(node)) {
-        node.dispatchEvent(e || (e = new $Event(type)));
-      }
-      else if (isConnected && toBeUpgraded.has(node)) {
-        toBeUpgraded.get(node).$();
-      }
-      else {
-        for (var
-          nodes = getChildren(node),
-          i = 0, length = nodes.length;
-          i < length; i++
-        ) {
-          e = dispatchTarget(nodes[i], isConnected, type, e);
-        }
+    if (components.has(node)) {
+      node.dispatchEvent(e || (e = new $Event(type)));
+    }
+    else if (isConnected && toBeUpgraded.has(node)) {
+      toBeUpgraded.get(node).$();
+    }
+    else {
+      for (var
+        nodes = getChildren(node),
+        i = 0, length = nodes.length;
+        i < length; i++
+      ) {
+        e = dispatchTarget(nodes[i], isConnected, type, e);
       }
     }
     return e;
