@@ -771,14 +771,13 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
     var i = 0, length = aura.length;
     if (value.length !== length) {
       majinbuu(aura, value, hyper.MAX_LIST_SIZE);
-      return;
-    }
-    while (i < length) {
-      if (aura[i] !== value[i]) {
-        majinbuu(aura, value, hyper.MAX_LIST_SIZE);
-        return;
+    } else {
+      for (; i < length--; i++) {
+        if (aura[length] !== value[length] || aura[i] !== value[i]) {
+          majinbuu(aura, value, hyper.MAX_LIST_SIZE);
+          return;
+        }
       }
-      i++;
     }
   }
 
