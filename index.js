@@ -415,7 +415,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
           } else if (isPromise_ish(value)) {
             value.then(anyContent);
           } else if ('placeholder' in value) {
-            invokeAtDistance(anyContent, value);
+            invokeAtDistance(value, anyContent);
           } else if ('text' in value) {
             anyContent(String(value.text));
           } else if ('any' in value) {
@@ -429,7 +429,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
           } else if ('length' in value) {
             anyContent(slice.call(value));
           } else {
-            anyContent(invokeTransformer(value));
+            anyContent(invokeTransformer(value, anyContent));
           }
           break;
       }
@@ -719,7 +719,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   }
 
   // use a placeholder and resolve with the right callback
-  function invokeAtDistance(callback, value) {
+  function invokeAtDistance(value, callback) {
     callback(value.placeholder);
     if ('text' in value) {
       Promise.resolve(value.text).then(String).then(callback);
@@ -728,16 +728,16 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
     } else if ('html' in value) {
       Promise.resolve(value.html).then(asHTML).then(callback);
     } else {
-      Promise.resolve(invokeTransformer(value)).then(callback);
+      Promise.resolve(invokeTransformer(value, callback)).then(callback);
     }
   }
 
   // last attempt to transform content
-  function invokeTransformer(object) {
+  function invokeTransformer(object, callback) {
     for (var key, i = 0, length = transformersKeys.length; i < length; i++) {
       key = transformersKeys[i];
       if (object.hasOwnProperty(key)) {
-        return transformers[key](object[key]);
+        return transformers[key](object[key], callback);
       }
     }
   }
