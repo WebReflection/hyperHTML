@@ -134,6 +134,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
   var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
   var SHOULD_USE_ATTRIBUTE = /^style$/i;
+  var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
   var EXPANDO = '_hyper: ';
   var UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
   var UIDC = '<!--' + UID + '-->';
@@ -501,7 +502,7 @@ var hyperHTML = (function (globalDocument, majinbuu) {'use strict';
           break;
         case TEXT_NODE:
           if (
-            SHOULD_USE_ATTRIBUTE.test(node.nodeName) &&
+            SHOULD_USE_TEXT_CONTENT.test(node.nodeName) &&
             trim.call(child.textContent) === UIDC
           ) {
             parts.shift();
