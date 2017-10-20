@@ -626,6 +626,12 @@ tressa.async(function (done) {
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
 })
 .then(function () {
+  tressa.log('## attributes with weird chars');
+  var div = document.createElement('div');
+  hyperHTML.bind(div)`<p $foo=${'bar'}></p>`;
+  tressa.assert(div.firstChild.getAttribute('$foo') === 'bar', 'OK');
+})
+.then(function () {
   tressa.log('## attributes without quotes');
   var div = document.createElement('div');
   hyperHTML.bind(div)`<p test=${'a"b'}></p>`;
