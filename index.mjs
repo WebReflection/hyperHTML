@@ -194,10 +194,10 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
       !hyper ||
       hyper.template !== TL(template)
     ) {
-      hyper = upgrade.apply(this, arguments);
-      hypers.set(this, hyper);
+      upgrade.apply(this, arguments);
+    } else {
+      update.apply(hyper.updates, arguments);
     }
-    update.apply(hyper.updates, arguments);
     return this;
   }
 
@@ -1275,12 +1275,15 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     if (notAdopting) {
       var fragment = cloneNode(info.fragment);
       updates = createUpdates.call(this, fragment, info.paths);
+      hypers.set(this, {template: template, updates: updates});
+      update.apply(updates, arguments);
       this.textContent = '';
       this.appendChild(fragment);
     } else {
       updates = discoverUpdates.call(this, info.fragment, info.paths);
+      hypers.set(this, {template: template, updates: updates});
+      update.apply(updates, arguments);
     }
-    return {template: template, updates: updates};
   }
 
   // ---------------------------------------------
