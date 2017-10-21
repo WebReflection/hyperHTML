@@ -65,7 +65,8 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject59 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
     _templateObject60 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
     _templateObject61 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']),
-    _templateObject62 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']);
+    _templateObject62 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject63 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1024,6 +1025,10 @@ tressa.async(function (done) {
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
+}).then(function () {
+  tressa.log('## A-Frame compatibility');
+  var output = hyperHTML.wire()(_templateObject63);
+  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */
 .then(function () {

@@ -981,6 +981,11 @@ tressa.async(function (done) {
     tressa.assert(true, 'code coverage caveat');
   }
 })
+.then(function () {
+  tressa.log('## A-Frame compatibility');
+  var output = hyperHTML.wire()`<a-scene></a-scene>`;
+  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
+})
 // */
 .then(function () {
   if (!tressa.exitCode) {
