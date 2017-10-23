@@ -5,6 +5,7 @@
   "browser": "min.js",
   "homepage": "https://viperhtml.js.org/hyper.html",
   "main": "index.js",
+  "module": "index.mjs",
   "scripts": {
     "build": "node bundler.js dependencies && npm run minify && node bundler.js && npm run ie && npm test && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
