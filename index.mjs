@@ -613,7 +613,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     var container = document.createElement(
       // TODO: this is a work around for A-Frame V0 based components
       //       see: https://stackoverflow.com/questions/46797635/aframe-content-not-rendering-on-chrome-with-hyperhtml/46817370
-      /<(a-\w+)[\s\S]*?>[\s\S]*?<\/\1>/.test(html) ?
+      /<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)[\s\S]*?>[\s\S]*?<\/\1>/i.test(html) ?
         'div' : 'template'
     );
     var hasContent = 'content' in container;
