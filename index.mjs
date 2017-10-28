@@ -516,6 +516,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   // ---------------------------------------------
   // Features detection / ugly UA sniffs
   // ---------------------------------------------
+  /*
   var importNode = 'importNode' in globalDocument ?
     function (doc, node) {
       return doc.importNode(node, true);
@@ -523,6 +524,7 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     function (doc, node) {
       return node;
     };
+  */
 
   var featureFragment = createDocumentFragment(globalDocument);
 
@@ -618,7 +620,15 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
   function createHTMLFragment(node, html) {
     var fragment;
     var document = node.ownerDocument;
-    var container = document.createElement('template');
+    var container = document.createElement(
+      // TODO: this is a work around for A-Frame V0 based components
+      //       see: https://stackoverflow.com/questions/46797635/aframe-content-not-rendering-on-chrome-with-hyperhtml/46817370
+      // TODO: the following RegExp breaks: https://github.com/WebReflection/hyperHTML/issues/135
+      // /<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)[\s\S]*?>[\s\S]*?<\/\1>/i.test(html) ?
+      /<(a-\w+)[\s\S]*?>[\s\S]*?<\/\1>/.test(html) ?
+      'div' : 'template'
+    );
+    // var container = document.createElement('template');
     var hasContent = 'content' in container;
     var needsTableWrap = false;
     if (!hasContent) {
@@ -642,7 +652,8 @@ var $ = (function (globalDocument, majinbuu) {'use strict';
     } else {
       container.innerHTML = html;
       if (hasContent) {
-        fragment = importNode(document, container.content);
+        fragment = container.content;
+        // fragment = importNode(document, container.content);
       } else {
         appendNodes(fragment, slice.call(container.childNodes));
       }
