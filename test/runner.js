@@ -37,6 +37,8 @@ require('jsdom').env(
       global.String.prototype.trim = global.WeakMap = global.WeakSet = global.Map = void 0;
       delete require.cache[require.resolve('../index.js')];
       delete require.cache[require.resolve('./test.js')];
+      delete global.document.importNode;
+      delete Object.getPrototypeOf(global.document).importNode;
       // fake initial feature detection
       var createElement = global.document.createElement;
       var templates = 0;
@@ -88,7 +90,7 @@ require('jsdom').env(
             }]);
           }, false);
         }};
-      };  
+      };
       global.hyperHTML = require('../index.js');
       
       Function.prototype.bind = bind;
