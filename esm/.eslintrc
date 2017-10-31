@@ -1,0 +1,9 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-case-declarations": 0
+  }
+}
