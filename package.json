@@ -2,18 +2,18 @@
   "name": "hyperhtml",
   "version": "1.12.5",
   "description": "A Fast & Light Virtual DOM Alternative",
-  "browser": "min.js",
   "homepage": "https://viperhtml.js.org/hyper.html",
+  "browser": "min.js",
   "main": "cjs/main.js",
   "module": "esm/main.js",
   "scripts": {
     "cjs": "ascjs ./esm ./cjs",
-    "max": "echo \"const hyperHTML = $(asbundle ./esm/main.js)\" | babel --out-file ./index.js --presets=es2015",
-    "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
+    "max": "echo \"const hyperHTML = $(asbundle ./esm/main.js)\" | babel --out-file ./index.v2.js --presets=es2015",
+    "min": "uglifyjs index.v2.js --support-ie8 --comments=/^!/ -c -m -o min.v2.js",
     "build": "npm run cjs && npm run max && npm run min && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "ie": "babel ./test/test.js --out-dir ./test/ie --presets=es2015",
-    "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
+    "size": "cat index.v2.js | wc -c;cat min.v2.js | wc -c;gzip -c min.v2.js | wc -c",
     "test": "echo 'coming soon' && exit 0"
   },
   "repository": {
