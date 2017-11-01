@@ -8,6 +8,13 @@
 A **Fast & Light Virtual DOM Alternative** available for [NodeJS](https://viperhtml.js.org/viper.html) and [NativeScript](https://viperhtml.js.org/native.html) too.
 - - -
 
+### Warning
+
+Current **master** branch is currently under heavy refactoring.
+
+Please use the [official site](https://viperhtml.js.org) to check examples on Code Pen and/or read the documentation.
+
+
 ## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
 ```js
