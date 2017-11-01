@@ -8,7 +8,7 @@ const slice = [].slice;
 // to a generic node/fragment
 export const append = hasAppend ?
   (node, childNodes) => {
-    node.append(...childNodes);
+    node.append.apply(node, childNodes);
   } :
   (node, childNodes) => {
     const length = childNodes.length;

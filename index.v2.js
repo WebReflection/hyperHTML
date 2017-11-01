@@ -1,7 +1,3 @@
-'use strict';
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var hyperHTML = function (cache, modules) {
   function require(i) {
     return cache[i] || get(i);
@@ -438,7 +434,7 @@ var hyperHTML = function (cache, modules) {
   // appends an array of nodes
   // to a generic node/fragment
   var append = hasAppend ? function (node, childNodes) {
-    node.append.apply(node, _toConsumableArray(childNodes));
+    node.append.apply(node, childNodes);
   } : function (node, childNodes) {
     var length = childNodes.length;
     for (var i = 0; i < length; i++) {
