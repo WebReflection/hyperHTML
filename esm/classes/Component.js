@@ -1,10 +1,5 @@
 import wire from '../hyper/wire.js';
 
-// no need for a transpiled class here
-// Component needs lazy prototype accessors
-// using modern syntax to define it won't be enough
-export default Component;
-
 const lazyGetter = (type, fn) => {
   const secret = '_' + type + '$';
   return {
@@ -12,11 +7,14 @@ const lazyGetter = (type, fn) => {
       return this[secret] || (this[type] = fn.call(this, type));
     },
     set(value) {
-      Object.defineProperty(this, secret, {configurable: true, value: value});
+      Object.defineProperty(this, secret, {configurable: true, value});
     }
   };
 };
 
+// no need for a transpiled class here
+// Component needs lazy prototype accessors.
+// Using modern syntax to define it won't be enough
 function Component() {}
 Object.defineProperties(
   Component.prototype,
@@ -50,3 +48,5 @@ Object.defineProperties(
     // render() { return this.html`<p>that's it</p>`; }
   }
 );
+
+export default Component;

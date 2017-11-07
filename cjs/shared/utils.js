@@ -1,6 +1,11 @@
 'use strict';
-const {ELEMENT_NODE, SVG_NAMESPACE, UID, UIDC} = require('./constants.js');
-const {hasAppend, hasChildren, hasContent} = require('./features-detection.js');
+const {
+  OWNER_SVG_ELEMENT,
+  SVG_NAMESPACE,
+  UID,
+  UIDC
+} = require('./constants.js');
+const {hasAppend, hasContent, hasDoomedCloneNode, hasImportNode} = require('./features-detection.js');
 const {create, doc, fragment} = require('./easy-dom.js');
 
 const slice = [].slice;
@@ -19,27 +24,9 @@ const append = hasAppend ?
   };
 exports.append = append;
 
-// given a node/fragment, returns its children
-const children = hasChildren ?
-  node => node.children :
-  node => {
-    const children = [];
-    const childNodes = node.childNodes;
-    const length = childNodes.length;
-    for (let j = 0, i = 0; i < length; i++) {
-      const child = childNodes[i];
-      if (child.nodeType === ELEMENT_NODE) {
-        children[j++] = child;
-      }
-    }
-    return children;
-  };
-exports.children = children;
-
 // remove comments parts from attributes to avoid issues
 // with either old browsers or SVG elements
-const cleanAttributes = html => html.replace(no, comments);
-exports.cleanAttributes = cleanAttributes;
+// export const cleanAttributes = html => html.replace(no, comments);
 const attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
 const no = new RegExp(
   '(<[a-z]+[a-z0-9:_-]*)((?:' +
@@ -52,27 +39,24 @@ const comments = ($0, $1, $2, $3) =>
   $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 const replaceAttributes = ($0, $1, $2) => $1 + ($2 || '"') + UID + ($2 || '"');
 
-// given a node/fragment and a path
-// returns the target path, if any
-const node = hasChildren ?
-  (parentNode, path) => {
-    const length = path.length;
+
+const cloneNode = hasDoomedCloneNode ?
+  node => {
+    const clone = node.cloneNode();
+    const childNodes = node.childNodes || [];
+    const length = childNodes.length;
     for (let i = 0; i < length; i++) {
-      parentNode = parentNode[path[i++]][path[i]];
+      clone.appendChild(cloneNode(childNodes[i]));
     }
-    return parentNode;
+    return clone;
   } :
-  (parentNode, path) => {
-    const length = path.length;
-    for (let i = 0; i < length; i++) {
-      let name = path[i++];
-      parentNode = name === 'children' ?
-        children(parentNode)[path[i]] :
-        parentNode[name][path[i]];
-    }
-    return parentNode;
-  };
-exports.node = node;
+  node => node.cloneNode(true);
+exports.cloneNode = cloneNode;
+
+const importNode = hasImportNode ?
+  (doc, node) => doc.importNode(node, true) :
+  (doc, node) => cloneNode(node)
+exports.importNode = importNode
 
 // lazy evaluated
 const unique = template => TL(template);
@@ -106,6 +90,14 @@ let TL = template => {
   }
   return TL(template);
 };
+
+const createFragment = (node, html) =>
+  (OWNER_SVG_ELEMENT in node ?
+    SVGFragment :
+    HTMLFragment
+  )(node, html.replace(no, comments));
+exports.createFragment = createFragment;
+
 
 const HTMLFragment = hasContent ?
   (node, html) => {

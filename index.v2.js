@@ -8,30 +8,35 @@ var hyperHTML = function (cache, modules) {
     modules[i].call(exports, window, require, module, exports);
     return cache[i] = module.exports;
   }
-  var main = require(0);
-  return main.__esModule ? main.default : main;
+  require.E = function (exports) {
+    return Object.defineProperty(exports, '__esModule', { value: true });
+  };
+  require.I = function (m) {
+    return m.__esModule ? m.default : m;
+  };
+  return require.I(require(0));
 }([], [function (global, require, module, exports) {
   // main.js
   'use strict';
 
   require(1);
   require(3);
-  require(5);
+  var Path = require.I(require(5));
 
   var hyper = function hyper() {};
-  Object.defineProperty(exports, '__esModule', { value: true }).default = hyper;
+  require.E(exports).default = hyper;
+
+  exports.Path = Path;
 }, function (global, require, module, exports) {
   // classes/Aura.js
   'use strict';
 
-  var majinbuu = function (m) {
-    return m.__esModule ? m.default : m;
-  }(require(2));
+  var majinbuu = require.I(require(2));
 
   // used as class but it returns a modified childNodes
   // it's not worth to use Babel class transpilation
   // for an utility facade with a context for convenience
-  Object.defineProperty(exports, '__esModule', { value: true }).default = Aura;
+  require.E(exports).default = Aura;
 
   function Aura(node, childNodes) {
     this.node = node;
@@ -255,21 +260,14 @@ var hyperHTML = function (cache, modules) {
 
   majinbuu.aura = aura;
 
-  Object.defineProperty(exports, '__esModule', { value: true }).default = majinbuu;
+  require.E(exports).default = majinbuu;
   exports.aura = aura;
   exports.majinbuu = majinbuu;
 }, function (global, require, module, exports) {
   // classes/Component.js
   'use strict';
 
-  var wire = function (m) {
-    return m.__esModule ? m.default : m;
-  }(require(4));
-
-  // no need for a transpiled class here
-  // Component needs lazy prototype accessors
-  // using modern syntax to define it won't be enough
-  Object.defineProperty(exports, '__esModule', { value: true }).default = Component;
+  var wire = require.I(require(4));
 
   var lazyGetter = function lazyGetter(type, fn) {
     var secret = '_' + type + '$';
@@ -283,6 +281,9 @@ var hyperHTML = function (cache, modules) {
     };
   };
 
+  // no need for a transpiled class here
+  // Component needs lazy prototype accessors.
+  // Using modern syntax to define it won't be enough
   function Component() {}
   Object.defineProperties(Component.prototype, {
     // same as HyperHTMLElement handleEvent
@@ -321,15 +322,17 @@ var hyperHTML = function (cache, modules) {
     // the render **must** return either comp.html or comp.svg wire
     // render() { return this.html`<p>that's it</p>`; }
   });
+
+  require.E(exports).default = Component;
 }, function (global, require, module, exports) {
   // hyper/wire.js
   'use strict';
 
   var wire = {};
 
-  Object.defineProperty(exports, '__esModule', { value: true }).default = wire;
+  require.E(exports).default = wire;
 }, function (global, require, module, exports) {
-  // classes/Path.js
+  // objects/Path.js
   'use strict';
 
   var _require = require(6),
@@ -338,8 +341,16 @@ var hyperHTML = function (cache, modules) {
       DOCUMENT_FRAGMENT_NODE = _require.DOCUMENT_FRAGMENT_NODE,
       ELEMENT_NODE = _require.ELEMENT_NODE;
 
-  var _require2 = require(7),
-      children = _require2.children;
+  // always use childNodes
+  // as it turned out retrieving them
+  // is just as fast as retrieving children
+  // if not faster (it also makes sense)
+  // https://jsperf.com/child-ren-nodes/1
+
+
+  var prepend = function prepend(path, parent, node) {
+    path.unshift('childNodes', path.indexOf.call(parent.childNodes, node));
+  };
 
   var createPath = function createPath(node) {
     var path = [];
@@ -351,7 +362,7 @@ var hyperHTML = function (cache, modules) {
         break;
       case COMMENT_NODE:
         parentNode = node.parentNode;
-        path.unshift('childNodes', path.indexOf.call(parentNode.childNodes, node));
+        prepend(path, parentNode, node);
         break;
       case ATTRIBUTE_NODE:
       default:
@@ -361,15 +372,29 @@ var hyperHTML = function (cache, modules) {
         break;
     }
     for (node = parentNode; parentNode = parentNode.parentNode; node = parentNode) {
-      path.unshift('children', path.indexOf.call(children(parentNode), node));
+      prepend(path, parentNode, node);
     }
     return path;
   };
 
-  function Path(type, node, name) {
-    return { type: type, name: name, path: createPath(node) };
-  }
-  Object.defineProperty(exports, '__esModule', { value: true }).default = Path;
+  var Path = {
+    create: function create(type, node, name) {
+      return { type: type, name: name, path: createPath(node) };
+    },
+    find: function find(node, path) {
+      var length = path.length;
+      for (var i = 0; i < length; i++) {
+        var key = path[i++];
+        if (key === 'attributes') {
+          node.setAttributeNode(node.ownerDocument.createAttribute(path[i]));
+        }
+        node = node[key][path[i]];
+      }
+      return node;
+    }
+  };
+
+  require.E(exports).default = Path;
 }, function (global, require, module, exports) {
   // shared/constants.js
   'use strict';
@@ -409,212 +434,4 @@ var hyperHTML = function (cache, modules) {
   exports.UID = UID;
   var UIDC = '<!--' + UID + '-->';
   exports.UIDC = UIDC;
-}, function (global, require, module, exports) {
-  // shared/utils.js
-  'use strict';
-
-  var _require3 = require(6),
-      ELEMENT_NODE = _require3.ELEMENT_NODE,
-      SVG_NAMESPACE = _require3.SVG_NAMESPACE,
-      UID = _require3.UID,
-      UIDC = _require3.UIDC;
-
-  var _require4 = require(8),
-      hasAppend = _require4.hasAppend,
-      hasChildren = _require4.hasChildren,
-      hasContent = _require4.hasContent;
-
-  var _require5 = require(9),
-      create = _require5.create,
-      doc = _require5.doc,
-      fragment = _require5.fragment;
-
-  var slice = [].slice;
-
-  // appends an array of nodes
-  // to a generic node/fragment
-  var append = hasAppend ? function (node, childNodes) {
-    node.append.apply(node, childNodes);
-  } : function (node, childNodes) {
-    var length = childNodes.length;
-    for (var i = 0; i < length; i++) {
-      node.appendChild(childNodes[i]);
-    }
-  };
-  exports.append = append;
-
-  // given a node/fragment, returns its children
-  var children = hasChildren ? function (node) {
-    return node.children;
-  } : function (node) {
-    var children = [];
-    var childNodes = node.childNodes;
-    var length = childNodes.length;
-    for (var j = 0, i = 0; i < length; i++) {
-      var child = childNodes[i];
-      if (child.nodeType === ELEMENT_NODE) {
-        children[j++] = child;
-      }
-    }
-    return children;
-  };
-  exports.children = children;
-
-  // remove comments parts from attributes to avoid issues
-  // with either old browsers or SVG elements
-  var cleanAttributes = function cleanAttributes(html) {
-    return html.replace(no, comments);
-  };
-  exports.cleanAttributes = cleanAttributes;
-  var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
-  var no = new RegExp('(<[a-z]+[a-z0-9:_-]*)((?:' + attrName + '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)', 'gi');
-  var findAttributes = new RegExp('(' + attrName + '=)([\'"]?)' + UIDC + '\\2', 'gi');
-  var comments = function comments($0, $1, $2, $3) {
-    return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
-  };
-  var replaceAttributes = function replaceAttributes($0, $1, $2) {
-    return $1 + ($2 || '"') + UID + ($2 || '"');
-  };
-
-  // given a node/fragment and a path
-  // returns the target path, if any
-  var node = hasChildren ? function (parentNode, path) {
-    var length = path.length;
-    for (var i = 0; i < length; i++) {
-      parentNode = parentNode[path[i++]][path[i]];
-    }
-    return parentNode;
-  } : function (parentNode, path) {
-    var length = path.length;
-    for (var i = 0; i < length; i++) {
-      var name = path[i++];
-      parentNode = name === 'children' ? children(parentNode)[path[i]] : parentNode[name][path[i]];
-    }
-    return parentNode;
-  };
-  exports.node = node;
-
-  // lazy evaluated
-  var unique = function unique(template) {
-    return _TL(template);
-  };
-  exports.unique = unique;
-  // TL returns a unique version of the template
-  // it needs lazy feature detection
-  // (cannot trust literals with transpiled code)
-  var _TL = function TL(template) {
-    if (
-    // TypeScript template literals are not standard
-    template.propertyIsEnumerable('raw') ||
-    // Firefox < 55 has not standard implementation neither
-    /Firefox\/(\d+)/.test((global.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-      // in these cases, address templates once
-      var templateObjects = {};
-      // but always return the same template
-      _TL = function TL(template) {
-        var key = '_' + template.join(UID);
-        return templateObjects[key] || (templateObjects[key] = template);
-      };
-    } else {
-      // make TL an identity like function
-      _TL = function TL(template) {
-        return template;
-      };
-    }
-    return _TL(template);
-  };
-
-  var HTMLFragment = hasContent ? function (node, html) {
-    var container = create(node, 'template');
-    container.innerHTML = html;
-    return container.content;
-  } : function (node, html) {
-    var container = create(node, 'template');
-    var content = fragment(node);
-    if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
-      var selector = RegExp.$1;
-      container.innerHTML = '<table>' + html + '</table>';
-      append(content, slice.call(container.querySelectorAll(selector)));
-    } else {
-      container.innerHTML = html;
-      append(content, slice.call(container.childNodes));
-    }
-    return content;
-  };
-  exports.HTMLFragment = HTMLFragment;
-
-  var SVGFragment = hasContent ? function (node, html) {
-    var content = fragment(node);
-    var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
-    container.innerHTML = html;
-    append(content, slice.call(container.childNodes));
-    return content;
-  } : function (node, html) {
-    var content = fragment(node);
-    var container = create(node, 'div');
-    container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
-    append(content, slice.call(container.firstChild.childNodes));
-    return content;
-  };
-  exports.SVGFragment = SVGFragment;
-}, function (global, require, module, exports) {
-  // shared/features-detection.js
-  'use strict';
-
-  var _require6 = require(9),
-      create = _require6.create,
-      fragment = _require6.fragment,
-      text = _require6.text;
-
-  var testFragment = fragment(document);
-
-  // DOM4 node.append(...many)
-  var hasAppend = 'append' in testFragment;
-  exports.hasAppend = hasAppend;
-
-  // beside IE, old WebKit browsers don't have `children` in DocumentFragment
-  var hasChildren = 'children' in testFragment;
-  exports.hasChildren = hasChildren;
-
-  // detect old browsers without HTMLTemplateElement content support
-  var hasContent = 'content' in create(document, 'template');
-  exports.hasContent = hasContent;
-
-  // If attributes order is shuffled, threat the browser differently
-  // Usually this is a well known IE/Edge only issue but some older FF does the same.
-  var p = create(document, 'p');
-  p.innerHTML = '<i data-i="" class=""></i>';
-  var hasDoomedAttributes = /class/i.test(p.firstChild.attributes[0].name);
-  exports.hasDoomedAttributes = hasDoomedAttributes;
-
-  // IE 11 has problems with cloning templates: it "forgets" empty childNodes
-  testFragment.appendChild(text(testFragment, 'g'));
-  testFragment.appendChild(text(testFragment, ''));
-  var hasDoomedCloneNode = testFragment.cloneNode(true).childNodes.length === 1;
-  exports.hasDoomedCloneNode = hasDoomedCloneNode;
-
-  // old browsers need to fallback to cloneNode
-  // Custom Elements V0 and V1 will work polyfilled
-  var hasImportNode = 'importNode' in document;
-  exports.hasImportNode = hasImportNode;
-}, function (global, require, module, exports) {
-  // shared/easy-dom.js
-  'use strict';
-
-  var create = function create(node, type) {
-    return doc(node).createElement(type);
-  };
-  exports.create = create;
-  var doc = function doc(node) {
-    return node.ownerDocument || node;
-  };
-  exports.doc = doc;
-  var fragment = function fragment(node) {
-    return doc(node).createDocumentFragment();
-  };
-  exports.fragment = fragment;
-  var text = function text(node, _text) {
-    return doc(node).createTextNode(_text);
-  };
-  exports.text = text;
 }]);

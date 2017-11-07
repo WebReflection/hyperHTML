@@ -6,6 +6,11 @@ const {
   ELEMENT_NODE
 } = require('../shared/constants.js');
 
+// always use childNodes
+// as it turned out retrieving them
+// is just as fast as retrieving children
+// if not faster (it also makes sense)
+// https://jsperf.com/child-ren-nodes/1
 const prepend = (path, parent, node) => {
   path.unshift(
     'childNodes',
@@ -41,15 +46,19 @@ const createPath = node => {
   return path;
 };
 
-function Path(type, node, name) {
-  return {type, name, path: createPath(node)};
-}
-Object.defineProperty(exports, '__esModule', {value: true}).default = Path
-
-Path.finder = (parent, path) => {
-  const length = path.length;
-  for (let i = 0; i < length; i++) {
-    parent = parent[path[i++]][path[i]];
+const Path = {
+  create: (type, node, name) => ({type, name, path: createPath(node)}),
+  find: (node, path) => {
+    const length = path.length;
+    for (let i = 0; i < length; i++) {
+      let key = path[i++];
+      if (key === 'attributes') {
+        node.setAttributeNode(node.ownerDocument.createAttribute(path[i]));
+      }
+      node = node[key][path[i]];
+    }
+    return node;
   }
-  return parent;
 };
+
+Object.defineProperty(exports, '__esModule', {value: true}).default = Path;

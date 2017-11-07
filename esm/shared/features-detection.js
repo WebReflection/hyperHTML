@@ -5,9 +5,6 @@ const testFragment = fragment(document);
 // DOM4 node.append(...many)
 export const hasAppend = 'append' in testFragment;
 
-// beside IE, old WebKit browsers don't have `children` in DocumentFragment
-export const hasChildren = 'children' in testFragment;
-
 // detect old browsers without HTMLTemplateElement content support
 export const hasContent = 'content' in create(document, 'template');
 
