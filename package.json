@@ -11,11 +11,11 @@
     "majinclean": "sed -i \"s/Object.defineProperty(exports, '__esModule', { value: true }).default/require.E(exports).default/\" index.v2.js",
     "max": "echo \"const hyperHTML = $(asbundle ./esm/main.js)\" | babel --out-file ./index.v2.js --plugins=check-es2015-constants,transform-es2015-arrow-functions,transform-es2015-block-scoped-functions,transform-es2015-block-scoping,transform-es2015-computed-properties,transform-es2015-destructuring,transform-es2015-duplicate-keys,transform-es2015-for-of,transform-es2015-function-name,transform-es2015-literals,transform-es2015-parameters,transform-es2015-shorthand-properties,transform-es2015-spread \n\n#\u001b[1m I know, right? ... neither .babelrc nor package.json worked\u001b[0m",
     "min": "uglifyjs index.v2.js --support-ie8 --comments=/^!/ -c -m -o min.v2.js",
-    "build": "npm run cjs && npm run max && npm run majinclean && npm run min && npm run size",
+    "build": "npm run cjs && npm run max && npm run majinclean && npm run min && npm test && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "ie": "babel ./test/test.js --out-dir ./test/ie --presets=es2015",
     "size": "cat index.v2.js | wc -c;cat min.v2.js | wc -c;gzip -c min.v2.js | wc -c",
-    "test": "echo 'coming soon' && exit 0"
+    "test": "istanbul cover test/shared/main.js"
   },
   "repository": {
     "type": "git",
@@ -55,10 +55,9 @@
     "babel-plugin-transform-es2015-parameters": "^6.24.1",
     "babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
-    "bundle": "^0.2.3",
+    "basichtml": "^0.9.3",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
-    "jsdom": "^9.12.0",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.29"
   },
