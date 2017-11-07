@@ -34,14 +34,17 @@ function upgrade(template) {
 }
 
 function update() {
-
+  const length = arguments.length;
+  for (let i = 1; i < length; i++) {
+    this[i - 1](arguments[i]);
+  }
 }
 
 function createTemplate(template) {
   const paths = [];
   const fragment = createFragment(this, template.join(UIDC));
-  const info = {fragment, paths};
   Updates.find(fragment, paths, template.slice());
+  const info = {fragment, paths};
   templates.set(template, info);
   return info;
 }

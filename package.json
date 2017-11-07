@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "asbundle": "^2.3.0",
-    "ascjs": "^2.3.0",
+    "ascjs": "^2.4.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-check-es2015-constants": "^6.22.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
@@ -55,6 +55,7 @@
     "babel-plugin-transform-es2015-parameters": "^6.24.1",
     "babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
+    "bundle": "^0.2.3",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
     "jsdom": "^9.12.0",

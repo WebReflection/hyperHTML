@@ -46,7 +46,7 @@ const createPath = node => {
   return path;
 };
 
-const Path = {
+Object.defineProperty(exports, '__esModule', {value: true}).default = {
   create: (type, node, name) => ({type, name, path: createPath(node)}),
   find: (node, path) => {
     const length = path.length;
@@ -59,6 +59,4 @@ const Path = {
     }
     return node;
   }
-};
-
-Object.defineProperty(exports, '__esModule', {value: true}).default = Path;
+}

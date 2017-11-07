@@ -1,12 +1,10 @@
 import Path from './Path.js';
 
-const Updates = {
+export default {
   create: (node, paths) => {
 
   },
   find: (node, paths, parts) => {
 
   }
-};
-
-export default Updates;
+}

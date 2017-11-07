@@ -45,7 +45,7 @@ const createPath = node => {
   return path;
 };
 
-const Path = {
+export default {
   create: (type, node, name) => ({type, name, path: createPath(node)}),
   find: (node, path) => {
     const length = path.length;
@@ -58,6 +58,4 @@ const Path = {
     }
     return node;
   }
-};
-
-export default Path;
+}
