@@ -6,7 +6,11 @@ import render from './hyper/render.js';
 const bind = (hyper.bind = context => render.bind(context));
 const define = (hyper.define = Transformer.define);
 
-export {Component, bind, define};
+// it couldn't be more!
+hyper.hyper = hyper;
+hyper.wire = wire;
+
+export {Component, bind, define, hyper, wire};
 
 export default function hyper(HTML) {
   return arguments.length < 2 ?

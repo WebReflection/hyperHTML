@@ -8,9 +8,15 @@ const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'))
 const bind = (hyper.bind = context => render.bind(context));
 const define = (hyper.define = Transformer.define);
 
+// it couldn't be more!
+hyper.hyper = hyper;
+hyper.wire = wire;
+
 exports.Component = Component;
 exports.bind = bind;
 exports.define = define;
+exports.hyper = hyper;
+exports.wire = wire;
 
 function hyper(HTML) {
   return arguments.length < 2 ?

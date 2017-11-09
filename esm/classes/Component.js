@@ -1,4 +1,4 @@
-import wire from '../hyper/wire.js';
+import {content} from '../hyper/wire.js';
 
 const lazyGetter = (type, fn) => {
   const secret = '_' + type + '$';
@@ -29,9 +29,9 @@ Object.defineProperties(
       ](e);
     }},
     // returns its own HTML wire or create it once on comp.render()
-    html: lazyGetter('html', wire.content),
+    html: lazyGetter('html', content),
     // returns its own SVG wire or create it once on comp.render()
-    svg: lazyGetter('svg', wire.content),
+    svg: lazyGetter('svg', content),
     // same as HyperHTMLElement state
     state: lazyGetter('state', function () { return this.defaultState; }),
     // same as HyperHTMLElement get defaultState

@@ -12,7 +12,7 @@ function Aura(node, childNodes) {
 }
 
 // reflected through hyperHTML.MAX_LIST_SIZE
-Aura.MAX_LIST_SIZE = 1000;
+Aura.MAX_LIST_SIZE = 999;
 
 // wraps childNodes splice to pass through the Aura
 Aura.prototype.splice = function splice() {

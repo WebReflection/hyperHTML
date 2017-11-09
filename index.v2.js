@@ -20,23 +20,29 @@ var hyperHTML = function (cache, modules) {
   'use strict';
 
   var Component = require.I(require(1));
-  var Transformer = require.I(require(3));
+  var Transformer = require.I(require(13));
   var wire = require.I(require(2));
 
   var _require = require(2),
       content = _require.content,
       weakly = _require.weakly;
 
-  var render = require.I(require(4));
+  var render = require.I(require(8));
 
   var bind = hyper.bind = function (context) {
     return render.bind(context);
   };
   var define = hyper.define = Transformer.define;
 
+  // it couldn't be more!
+  hyper.hyper = hyper;
+  hyper.wire = wire;
+
   exports.Component = Component;
   exports.bind = bind;
   exports.define = define;
+  exports.hyper = hyper;
+  exports.wire = wire;
 
   function hyper(HTML) {
     return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : wire).apply(null, arguments);
@@ -46,7 +52,8 @@ var hyperHTML = function (cache, modules) {
   // classes/Component.js
   'use strict';
 
-  var wire = require.I(require(2));
+  var _require2 = require(2),
+      content = _require2.content;
 
   var lazyGetter = function lazyGetter(type, fn) {
     var secret = '_' + type + '$';
@@ -74,9 +81,9 @@ var hyperHTML = function (cache, modules) {
       }
     },
     // returns its own HTML wire or create it once on comp.render()
-    html: lazyGetter('html', wire.content),
+    html: lazyGetter('html', content),
     // returns its own SVG wire or create it once on comp.render()
-    svg: lazyGetter('svg', wire.content),
+    svg: lazyGetter('svg', content),
     // same as HyperHTMLElement state
     state: lazyGetter('state', function () {
       return this.defaultState;
@@ -107,98 +114,84 @@ var hyperHTML = function (cache, modules) {
   // hyper/wire.js
   'use strict';
 
-  var wire = function wire() {};
-  var content = function content() {};
-  var weakly = function weakly() {};
+  var _require3 = require(3),
+      ELEMENT_NODE = _require3.ELEMENT_NODE,
+      SVG_NAMESPACE = _require3.SVG_NAMESPACE;
+
+  var _require4 = require(4),
+      WeakMap = _require4.WeakMap,
+      trim = _require4.trim;
+
+  var _require5 = require(5),
+      fragment = _require5.fragment;
+
+  var _require6 = require(6),
+      append = _require6.append,
+      slice = _require6.slice,
+      unique = _require6.unique;
+
+  var render = require.I(require(8));
+
+  var wires = new WeakMap();
+
+  var wire = function wire(obj, type) {
+    return obj == null ? content(type || 'html') : weakly(obj, type || 'html');
+  };
+
+  var content = function content(type) {
+    var wire = void 0,
+        container = void 0,
+        content = void 0,
+        template = void 0,
+        updates = void 0;
+    return function (statics) {
+      statics = unique(statics);
+      var setup = template !== statics;
+      if (setup) {
+        template = statics;
+        content = fragment(document);
+        container = type === 'svg' ? document.createElementNS(SVG_NAMESPACE, 'svg') : content;
+        updates = render.bind(container);
+      }
+      updates.apply(null, arguments);
+      if (setup) {
+        if (type === 'svg') {
+          append(content, slice.call(container.childNodes));
+        }
+        wire = wireContent(content);
+      }
+      return wire;
+    };
+  };
+
+  var weakly = function weakly(obj, type) {
+    var i = type.indexOf(':');
+    var wire = wires.get(obj);
+    var id = type;
+    if (-1 < i) {
+      id = type.slice(i + 1);
+      type = type.slice(0, i) || 'html';
+    }
+    if (!wire) wires.set(obj, wire = {});
+    return wire[id] || (wire[id] = content(type));
+  };
+
+  var wireContent = function wireContent(node) {
+    var childNodes = node.childNodes;
+    var length = childNodes.length;
+    var wire = [];
+    for (var i = 0; i < length; i++) {
+      var child = childNodes[i];
+      if (child.nodeType === ELEMENT_NODE || trim.call(child.textContent).length !== 0) {
+        wire.push(child);
+      }
+    }
+    return wire.length === 1 ? wire[0] : wire;
+  };
 
   exports.content = content;
   exports.weakly = weakly;
   require.E(exports).default = wire;
-}, function (global, require, module, exports) {
-  // objects/Transformer.js
-  'use strict';
-
-  var transformers = {};
-  var transformersKeys = [];
-  var hasOwnProperty = transformers.hasOwnProperty;
-
-  var length = 0;
-
-  require.E(exports).default = {
-    define: function define(transformer, callback) {
-      if (!(transformer in transformers)) {
-        length = transformersKeys.push(transformer);
-      }
-      transformers[transformer] = callback;
-    },
-    invoke: function invoke(object, callback) {
-      for (var i = 0; i < length; i++) {
-        var key = transformersKeys[i];
-        if (hasOwnProperty.call(object, key)) {
-          return transformers[key](object[key], callback);
-        }
-      }
-    }
-  };
-}, function (global, require, module, exports) {
-  // hyper/render.js
-  'use strict';
-
-  var _require2 = require(5),
-      UIDC = _require2.UIDC;
-
-  var _require3 = require(6),
-      Map = _require3.Map,
-      WeakMap = _require3.WeakMap;
-
-  var Updates = require.I(require(7));
-
-  var _require4 = require(13),
-      createFragment = _require4.createFragment,
-      importNode = _require4.importNode,
-      unique = _require4.unique;
-
-  var bewitched = new WeakMap();
-  var templates = new Map();
-
-  function render(template) {
-    var wicked = bewitched.get(this);
-    if (wicked && wicked.template === unique(template)) {
-      update.apply(wicked.updates, arguments);
-    } else {
-      upgrade.apply(this, arguments);
-    }
-    return this;
-  }
-
-  function upgrade(template) {
-    template = unique(template);
-    var info = templates.get(template) || createTemplate.call(this, template);
-    var fragment = importNode(this.ownerDocument, info.fragment);
-    var updates = Updates.create(fragment, info.paths);
-    bewitched.set(this, { template: template, updates: updates });
-    update.apply(updates, arguments);
-    this.textContent = '';
-    this.appendChild(fragment);
-  }
-
-  function update() {
-    var length = arguments.length;
-    for (var i = 1; i < length; i++) {
-      this[i - 1](arguments[i]);
-    }
-  }
-
-  function createTemplate(template) {
-    var paths = [];
-    var fragment = createFragment(this, template.join(UIDC));
-    Updates.find(fragment, paths, template.slice());
-    var info = { fragment: fragment, paths: paths };
-    templates.set(template, info);
-    return info;
-  }
-
-  require.E(exports).default = render;
 }, function (global, require, module, exports) {
   // shared/constants.js
   'use strict';
@@ -242,8 +235,8 @@ var hyperHTML = function (cache, modules) {
   // shared/poorlyfills.js
   'use strict';
 
-  var _require5 = require(5),
-      UID = _require5.UID;
+  var _require7 = require(3),
+      UID = _require7.UID;
 
   var Event = global.Event;
   try {
@@ -318,40 +311,293 @@ var hyperHTML = function (cache, modules) {
   };
   exports.trim = trim;
 }, function (global, require, module, exports) {
+  // shared/easy-dom.js
+  'use strict';
+
+  var create = function create(node, type) {
+    return doc(node).createElement(type);
+  };
+  exports.create = create;
+  var doc = function doc(node) {
+    return node.ownerDocument || node;
+  };
+  exports.doc = doc;
+  var fragment = function fragment(node) {
+    return doc(node).createDocumentFragment();
+  };
+  exports.fragment = fragment;
+  var text = function text(node, _text) {
+    return doc(node).createTextNode(_text);
+  };
+  exports.text = text;
+}, function (global, require, module, exports) {
+  // shared/utils.js
+  'use strict';
+
+  var _require8 = require(3),
+      OWNER_SVG_ELEMENT = _require8.OWNER_SVG_ELEMENT,
+      SVG_NAMESPACE = _require8.SVG_NAMESPACE,
+      UID = _require8.UID,
+      UIDC = _require8.UIDC;
+
+  var _require9 = require(7),
+      hasAppend = _require9.hasAppend,
+      hasContent = _require9.hasContent,
+      hasDoomedCloneNode = _require9.hasDoomedCloneNode,
+      hasImportNode = _require9.hasImportNode;
+
+  var _require10 = require(5),
+      create = _require10.create,
+      doc = _require10.doc,
+      fragment = _require10.fragment;
+
+  // appends an array of nodes
+  // to a generic node/fragment
+
+
+  var append = hasAppend ? function (node, childNodes) {
+    node.append.apply(node, childNodes);
+  } : function (node, childNodes) {
+    var length = childNodes.length;
+    for (var i = 0; i < length; i++) {
+      node.appendChild(childNodes[i]);
+    }
+  };
+  exports.append = append;
+
+  // remove comments parts from attributes to avoid issues
+  // with either old browsers or SVG elements
+  // export const cleanAttributes = html => html.replace(no, comments);
+  var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
+  var no = new RegExp('(<[a-z]+[a-z0-9:_-]*)((?:' + attrName + '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)', 'gi');
+  var findAttributes = new RegExp('(' + attrName + '=)([\'"]?)' + UIDC + '\\2', 'gi');
+  var comments = function comments($0, $1, $2, $3) {
+    return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
+  };
+  var replaceAttributes = function replaceAttributes($0, $1, $2) {
+    return $1 + ($2 || '"') + UID + ($2 || '"');
+  };
+
+  var cloneNode = hasDoomedCloneNode ? function (node) {
+    var clone = node.cloneNode();
+    var childNodes = node.childNodes || [];
+    var length = childNodes.length;
+    for (var i = 0; i < length; i++) {
+      clone.appendChild(cloneNode(childNodes[i]));
+    }
+    return clone;
+  } : function (node) {
+    return node.cloneNode(true);
+  };
+  exports.cloneNode = cloneNode;
+
+  var createFragment = function createFragment(node, html) {
+    return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
+  };
+  exports.createFragment = createFragment;
+
+  var importNode = hasImportNode ? function (doc, node) {
+    return doc.importNode(node, true);
+  } : function (doc, node) {
+    return cloneNode(node);
+  };
+  exports.importNode = importNode;
+
+  var slice = [].slice;
+  exports.slice = slice;
+
+  // lazy evaluated
+  var unique = function unique(template) {
+    return _TL(template);
+  };
+  exports.unique = unique;
+  // TL returns a unique version of the template
+  // it needs lazy feature detection
+  // (cannot trust literals with transpiled code)
+  var _TL = function TL(template) {
+    if (
+    // TypeScript template literals are not standard
+    template.propertyIsEnumerable('raw') ||
+    // Firefox < 55 has not standard implementation neither
+    /Firefox\/(\d+)/.test((global.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
+      // in these cases, address templates once
+      var templateObjects = {};
+      // but always return the same template
+      _TL = function TL(template) {
+        var key = '_' + template.join(UID);
+        return templateObjects[key] || (templateObjects[key] = template);
+      };
+    } else {
+      // make TL an identity like function
+      _TL = function TL(template) {
+        return template;
+      };
+    }
+    return _TL(template);
+  };
+
+  var HTMLFragment = hasContent ? function (node, html) {
+    var container = create(node, 'template');
+    container.innerHTML = html;
+    return container.content;
+  } : function (node, html) {
+    var container = create(node, 'template');
+    var content = fragment(node);
+    if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
+      var selector = RegExp.$1;
+      container.innerHTML = '<table>' + html + '</table>';
+      append(content, slice.call(container.querySelectorAll(selector)));
+    } else {
+      container.innerHTML = html;
+      append(content, slice.call(container.childNodes));
+    }
+    return content;
+  };
+  exports.HTMLFragment = HTMLFragment;
+
+  var SVGFragment = hasContent ? function (node, html) {
+    var content = fragment(node);
+    var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
+    container.innerHTML = html;
+    append(content, slice.call(container.childNodes));
+    return content;
+  } : function (node, html) {
+    var content = fragment(node);
+    var container = create(node, 'div');
+    container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
+    append(content, slice.call(container.firstChild.childNodes));
+    return content;
+  };
+  exports.SVGFragment = SVGFragment;
+}, function (global, require, module, exports) {
+  // shared/features-detection.js
+  'use strict';
+
+  var _require11 = require(5),
+      create = _require11.create,
+      fragment = _require11.fragment,
+      text = _require11.text;
+
+  var testFragment = fragment(document);
+
+  // DOM4 node.append(...many)
+  var hasAppend = 'append' in testFragment;
+  exports.hasAppend = hasAppend;
+
+  // detect old browsers without HTMLTemplateElement content support
+  var hasContent = 'content' in create(document, 'template');
+  exports.hasContent = hasContent;
+
+  // If attributes order is shuffled, threat the browser differently
+  // Usually this is a well known IE/Edge only issue but some older FF does the same.
+  var p = create(document, 'p');
+  p.innerHTML = '<i data-i="" class=""></i>';
+  var hasDoomedAttributes = /class/i.test(p.firstChild.attributes[0].name);
+  exports.hasDoomedAttributes = hasDoomedAttributes;
+
+  // IE 11 has problems with cloning templates: it "forgets" empty childNodes
+  testFragment.appendChild(text(testFragment, 'g'));
+  testFragment.appendChild(text(testFragment, ''));
+  var hasDoomedCloneNode = testFragment.cloneNode(true).childNodes.length === 1;
+  exports.hasDoomedCloneNode = hasDoomedCloneNode;
+
+  // old browsers need to fallback to cloneNode
+  // Custom Elements V0 and V1 will work polyfilled
+  var hasImportNode = 'importNode' in document;
+  exports.hasImportNode = hasImportNode;
+}, function (global, require, module, exports) {
+  // hyper/render.js
+  'use strict';
+
+  var _require12 = require(3),
+      UIDC = _require12.UIDC;
+
+  var _require13 = require(4),
+      Map = _require13.Map,
+      WeakMap = _require13.WeakMap;
+
+  var Updates = require.I(require(9));
+
+  var _require14 = require(6),
+      createFragment = _require14.createFragment,
+      importNode = _require14.importNode,
+      unique = _require14.unique;
+
+  var bewitched = new WeakMap();
+  var templates = new Map();
+
+  function render(template) {
+    var wicked = bewitched.get(this);
+    if (wicked && wicked.template === unique(template)) {
+      update.apply(wicked.updates, arguments);
+    } else {
+      upgrade.apply(this, arguments);
+    }
+    return this;
+  }
+
+  function upgrade(template) {
+    template = unique(template);
+    var info = templates.get(template) || createTemplate.call(this, template);
+    var fragment = importNode(this.ownerDocument, info.fragment);
+    var updates = Updates.create(fragment, info.paths);
+    bewitched.set(this, { template: template, updates: updates });
+    update.apply(updates, arguments);
+    this.textContent = '';
+    this.appendChild(fragment);
+  }
+
+  function update() {
+    var length = arguments.length;
+    for (var i = 1; i < length; i++) {
+      this[i - 1](arguments[i]);
+    }
+  }
+
+  function createTemplate(template) {
+    var paths = [];
+    var fragment = createFragment(this, template.join(UIDC));
+    Updates.find(fragment, paths, template.slice());
+    var info = { fragment: fragment, paths: paths };
+    templates.set(template, info);
+    return info;
+  }
+
+  require.E(exports).default = render;
+}, function (global, require, module, exports) {
   // objects/Updates.js
   'use strict';
 
-  var majinbuu = require.I(require(8));
+  var majinbuu = require.I(require(10));
 
-  var _require6 = require(5),
-      CONNECTED = _require6.CONNECTED,
-      DISCONNECTED = _require6.DISCONNECTED,
-      COMMENT_NODE = _require6.COMMENT_NODE,
-      DOCUMENT_FRAGMENT_NODE = _require6.DOCUMENT_FRAGMENT_NODE,
-      ELEMENT_NODE = _require6.ELEMENT_NODE,
-      TEXT_NODE = _require6.TEXT_NODE,
-      OWNER_SVG_ELEMENT = _require6.OWNER_SVG_ELEMENT,
-      SHOULD_USE_ATTRIBUTE = _require6.SHOULD_USE_ATTRIBUTE,
-      SHOULD_USE_TEXT_CONTENT = _require6.SHOULD_USE_TEXT_CONTENT,
-      UID = _require6.UID,
-      UIDC = _require6.UIDC;
+  var _require15 = require(3),
+      CONNECTED = _require15.CONNECTED,
+      DISCONNECTED = _require15.DISCONNECTED,
+      COMMENT_NODE = _require15.COMMENT_NODE,
+      DOCUMENT_FRAGMENT_NODE = _require15.DOCUMENT_FRAGMENT_NODE,
+      ELEMENT_NODE = _require15.ELEMENT_NODE,
+      TEXT_NODE = _require15.TEXT_NODE,
+      OWNER_SVG_ELEMENT = _require15.OWNER_SVG_ELEMENT,
+      SHOULD_USE_ATTRIBUTE = _require15.SHOULD_USE_ATTRIBUTE,
+      SHOULD_USE_TEXT_CONTENT = _require15.SHOULD_USE_TEXT_CONTENT,
+      UID = _require15.UID,
+      UIDC = _require15.UIDC;
 
-  var Aura = require.I(require(9));
+  var Aura = require.I(require(11));
   var Component = require.I(require(1));
-  var Dictionary = require.I(require(10));
-  var Path = require.I(require(11));
-  var Transformer = require.I(require(3));
+  var Path = require.I(require(12));
+  var Transformer = require.I(require(13));
 
-  var _require7 = require(12),
-      text = _require7.text;
+  var _require16 = require(5),
+      text = _require16.text;
 
-  var _require8 = require(6),
-      isArray = _require8.isArray,
-      trim = _require8.trim,
-      WeakSet = _require8.WeakSet;
+  var _require17 = require(4),
+      isArray = _require17.isArray,
+      trim = _require17.trim,
+      WeakSet = _require17.WeakSet;
 
-  var _require9 = require(13),
-      createFragment = _require9.createFragment;
+  var _require18 = require(6),
+      createFragment = _require18.createFragment;
 
   var Promise = global.Promise;
   var components = new WeakSet();
@@ -404,8 +650,11 @@ var hyperHTML = function (cache, modules) {
     }
   };
 
+  function Cache() {}
+  Cache.prototype = Object.create(null);
+
   var findAttributes = function findAttributes(node, paths, parts) {
-    var cache = new Dictionary();
+    var cache = new Cache();
     var attributes = node.attributes;
     var array = slice.call(attributes);
     var length = array.length;
@@ -785,7 +1034,7 @@ var hyperHTML = function (cache, modules) {
   // classes/Aura.js
   'use strict';
 
-  var majinbuu = require.I(require(8));
+  var majinbuu = require.I(require(10));
 
   // used as class but it returns a modified childNodes
   // it's not worth to use Babel class transpilation
@@ -798,7 +1047,7 @@ var hyperHTML = function (cache, modules) {
   }
 
   // reflected through hyperHTML.MAX_LIST_SIZE
-  Aura.MAX_LIST_SIZE = 1000;
+  Aura.MAX_LIST_SIZE = 999;
 
   // wraps childNodes splice to pass through the Aura
   Aura.prototype.splice = function splice() {
@@ -845,22 +1094,14 @@ var hyperHTML = function (cache, modules) {
 
   require.E(exports).default = Aura;
 }, function (global, require, module, exports) {
-  // classes/Dictionary.js
-  'use strict';
-
-  function Dictionary() {}
-  Dictionary.prototype = Object.create(null);
-
-  require.E(exports).default = Dictionary;
-}, function (global, require, module, exports) {
   // objects/Path.js
   'use strict';
 
-  var _require10 = require(5),
-      ATTRIBUTE_NODE = _require10.ATTRIBUTE_NODE,
-      COMMENT_NODE = _require10.COMMENT_NODE,
-      DOCUMENT_FRAGMENT_NODE = _require10.DOCUMENT_FRAGMENT_NODE,
-      ELEMENT_NODE = _require10.ELEMENT_NODE;
+  var _require19 = require(3),
+      ATTRIBUTE_NODE = _require19.ATTRIBUTE_NODE,
+      COMMENT_NODE = _require19.COMMENT_NODE,
+      DOCUMENT_FRAGMENT_NODE = _require19.DOCUMENT_FRAGMENT_NODE,
+      ELEMENT_NODE = _require19.ELEMENT_NODE;
 
   // always use childNodes
   // as it turned out retrieving them
@@ -912,198 +1153,29 @@ var hyperHTML = function (cache, modules) {
     }
   };
 }, function (global, require, module, exports) {
-  // shared/easy-dom.js
+  // objects/Transformer.js
   'use strict';
 
-  var create = function create(node, type) {
-    return doc(node).createElement(type);
-  };
-  exports.create = create;
-  var doc = function doc(node) {
-    return node.ownerDocument || node;
-  };
-  exports.doc = doc;
-  var fragment = function fragment(node) {
-    return doc(node).createDocumentFragment();
-  };
-  exports.fragment = fragment;
-  var text = function text(node, _text) {
-    return doc(node).createTextNode(_text);
-  };
-  exports.text = text;
-}, function (global, require, module, exports) {
-  // shared/utils.js
-  'use strict';
+  var transformers = {};
+  var transformersKeys = [];
+  var hasOwnProperty = transformers.hasOwnProperty;
 
-  var _require11 = require(5),
-      OWNER_SVG_ELEMENT = _require11.OWNER_SVG_ELEMENT,
-      SVG_NAMESPACE = _require11.SVG_NAMESPACE,
-      UID = _require11.UID,
-      UIDC = _require11.UIDC;
+  var length = 0;
 
-  var _require12 = require(14),
-      hasAppend = _require12.hasAppend,
-      hasContent = _require12.hasContent,
-      hasDoomedCloneNode = _require12.hasDoomedCloneNode,
-      hasImportNode = _require12.hasImportNode;
-
-  var _require13 = require(12),
-      create = _require13.create,
-      doc = _require13.doc,
-      fragment = _require13.fragment;
-
-  // appends an array of nodes
-  // to a generic node/fragment
-
-
-  var append = hasAppend ? function (node, childNodes) {
-    node.append.apply(node, childNodes);
-  } : function (node, childNodes) {
-    var length = childNodes.length;
-    for (var i = 0; i < length; i++) {
-      node.appendChild(childNodes[i]);
+  require.E(exports).default = {
+    define: function define(transformer, callback) {
+      if (!(transformer in transformers)) {
+        length = transformersKeys.push(transformer);
+      }
+      transformers[transformer] = callback;
+    },
+    invoke: function invoke(object, callback) {
+      for (var i = 0; i < length; i++) {
+        var key = transformersKeys[i];
+        if (hasOwnProperty.call(object, key)) {
+          return transformers[key](object[key], callback);
+        }
+      }
     }
   };
-  exports.append = append;
-
-  // remove comments parts from attributes to avoid issues
-  // with either old browsers or SVG elements
-  // export const cleanAttributes = html => html.replace(no, comments);
-  var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
-  var no = new RegExp('(<[a-z]+[a-z0-9:_-]*)((?:' + attrName + '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)', 'gi');
-  var findAttributes = new RegExp('(' + attrName + '=)([\'"]?)' + UIDC + '\\2', 'gi');
-  var comments = function comments($0, $1, $2, $3) {
-    return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
-  };
-  var replaceAttributes = function replaceAttributes($0, $1, $2) {
-    return $1 + ($2 || '"') + UID + ($2 || '"');
-  };
-
-  var cloneNode = hasDoomedCloneNode ? function (node) {
-    var clone = node.cloneNode();
-    var childNodes = node.childNodes || [];
-    var length = childNodes.length;
-    for (var i = 0; i < length; i++) {
-      clone.appendChild(cloneNode(childNodes[i]));
-    }
-    return clone;
-  } : function (node) {
-    return node.cloneNode(true);
-  };
-  exports.cloneNode = cloneNode;
-
-  var createFragment = function createFragment(node, html) {
-    return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
-  };
-  exports.createFragment = createFragment;
-
-  var importNode = hasImportNode ? function (doc, node) {
-    return doc.importNode(node, true);
-  } : function (doc, node) {
-    return cloneNode(node);
-  };
-  exports.importNode = importNode;
-
-  var slice = [].slice;
-  exports.slice = slice;
-
-  // lazy evaluated
-  var unique = function unique(template) {
-    return _TL(template);
-  };
-  exports.unique = unique;
-  // TL returns a unique version of the template
-  // it needs lazy feature detection
-  // (cannot trust literals with transpiled code)
-  var _TL = function TL(template) {
-    if (
-    // TypeScript template literals are not standard
-    template.propertyIsEnumerable('raw') ||
-    // Firefox < 55 has not standard implementation neither
-    /Firefox\/(\d+)/.test((global.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-      // in these cases, address templates once
-      var templateObjects = {};
-      // but always return the same template
-      _TL = function TL(template) {
-        var key = '_' + template.join(UID);
-        return templateObjects[key] || (templateObjects[key] = template);
-      };
-    } else {
-      // make TL an identity like function
-      _TL = function TL(template) {
-        return template;
-      };
-    }
-    return _TL(template);
-  };
-
-  var HTMLFragment = hasContent ? function (node, html) {
-    var container = create(node, 'template');
-    container.innerHTML = html;
-    return container.content;
-  } : function (node, html) {
-    var container = create(node, 'template');
-    var content = fragment(node);
-    if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
-      var selector = RegExp.$1;
-      container.innerHTML = '<table>' + html + '</table>';
-      append(content, slice.call(container.querySelectorAll(selector)));
-    } else {
-      container.innerHTML = html;
-      append(content, slice.call(container.childNodes));
-    }
-    return content;
-  };
-  exports.HTMLFragment = HTMLFragment;
-
-  var SVGFragment = hasContent ? function (node, html) {
-    var content = fragment(node);
-    var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
-    container.innerHTML = html;
-    append(content, slice.call(container.childNodes));
-    return content;
-  } : function (node, html) {
-    var content = fragment(node);
-    var container = create(node, 'div');
-    container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
-    append(content, slice.call(container.firstChild.childNodes));
-    return content;
-  };
-  exports.SVGFragment = SVGFragment;
-}, function (global, require, module, exports) {
-  // shared/features-detection.js
-  'use strict';
-
-  var _require14 = require(12),
-      create = _require14.create,
-      fragment = _require14.fragment,
-      text = _require14.text;
-
-  var testFragment = fragment(document);
-
-  // DOM4 node.append(...many)
-  var hasAppend = 'append' in testFragment;
-  exports.hasAppend = hasAppend;
-
-  // detect old browsers without HTMLTemplateElement content support
-  var hasContent = 'content' in create(document, 'template');
-  exports.hasContent = hasContent;
-
-  // If attributes order is shuffled, threat the browser differently
-  // Usually this is a well known IE/Edge only issue but some older FF does the same.
-  var p = create(document, 'p');
-  p.innerHTML = '<i data-i="" class=""></i>';
-  var hasDoomedAttributes = /class/i.test(p.firstChild.attributes[0].name);
-  exports.hasDoomedAttributes = hasDoomedAttributes;
-
-  // IE 11 has problems with cloning templates: it "forgets" empty childNodes
-  testFragment.appendChild(text(testFragment, 'g'));
-  testFragment.appendChild(text(testFragment, ''));
-  var hasDoomedCloneNode = testFragment.cloneNode(true).childNodes.length === 1;
-  exports.hasDoomedCloneNode = hasDoomedCloneNode;
-
-  // old browsers need to fallback to cloneNode
-  // Custom Elements V0 and V1 will work polyfilled
-  var hasImportNode = 'importNode' in document;
-  exports.hasImportNode = hasImportNode;
 }]);

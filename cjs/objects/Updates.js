@@ -7,7 +7,6 @@ const {
 
 const Aura = (m => m.__esModule ? m.default : m)(require('../classes/Aura.js'));
 const Component = (m => m.__esModule ? m.default : m)(require('../classes/Component.js'));
-const Dictionary = (m => m.__esModule ? m.default : m)(require('../classes/Dictionary.js'));
 const Path = (m => m.__esModule ? m.default : m)(require('./Path.js'));
 const Transformer = (m => m.__esModule ? m.default : m)(require('./Transformer.js'));
 const {text} = require('../shared/easy-dom.js');
@@ -68,8 +67,11 @@ const find = (node, paths, parts) => {
   }
 };
 
+function Cache() {}
+Cache.prototype = Object.create(null);
+
 const findAttributes = (node, paths, parts) => {
-  const cache = new Dictionary;
+  const cache = new Cache;
   const attributes = node.attributes;
   const array = slice.call(attributes);
   const length = array.length;

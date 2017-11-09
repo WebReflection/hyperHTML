@@ -11,7 +11,6 @@ import {
 
 import Aura from '../classes/Aura.js';
 import Component from '../classes/Component.js';
-import Dictionary from '../classes/Dictionary.js';
 import Path from './Path.js';
 import Transformer from './Transformer.js';
 import {text} from '../shared/easy-dom.js';
@@ -72,8 +71,11 @@ const find = (node, paths, parts) => {
   }
 };
 
+function Cache() {}
+Cache.prototype = Object.create(null);
+
 const findAttributes = (node, paths, parts) => {
-  const cache = new Dictionary;
+  const cache = new Cache;
   const attributes = node.attributes;
   const array = slice.call(attributes);
   const length = array.length;
