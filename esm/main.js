@@ -1,4 +1,4 @@
-import Component from './classes/Component.js';
+import Component, {setup} from './classes/Component.js';
 import Transformer from './objects/Transformer.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
@@ -6,9 +6,11 @@ import render from './hyper/render.js';
 const bind = (hyper.bind = context => render.bind(context));
 const define = (hyper.define = Transformer.define);
 
-// it couldn't be more!
 hyper.hyper = hyper;
 hyper.wire = wire;
+hyper.Component = Component;
+
+setup(content);
 
 export {Component, bind, define, hyper, wire};
 

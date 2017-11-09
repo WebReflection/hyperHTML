@@ -20,23 +20,29 @@ var hyperHTML = function (cache, modules) {
   'use strict';
 
   var Component = require.I(require(1));
-  var Transformer = require.I(require(13));
-  var wire = require.I(require(2));
 
-  var _require = require(2),
-      content = _require.content,
-      weakly = _require.weakly;
+  var _require = require(1),
+      setup = _require.setup;
 
-  var render = require.I(require(8));
+  var Transformer = require.I(require(2));
+  var wire = require.I(require(3));
+
+  var _require2 = require(3),
+      content = _require2.content,
+      weakly = _require2.weakly;
+
+  var render = require.I(require(9));
 
   var bind = hyper.bind = function (context) {
     return render.bind(context);
   };
   var define = hyper.define = Transformer.define;
 
-  // it couldn't be more!
   hyper.hyper = hyper;
   hyper.wire = wire;
+  hyper.Component = Component;
+
+  setup(content);
 
   exports.Component = Component;
   exports.bind = bind;
@@ -52,8 +58,39 @@ var hyperHTML = function (cache, modules) {
   // classes/Component.js
   'use strict';
 
-  var _require2 = require(2),
-      content = _require2.content;
+  function Component() {}
+  require.E(exports).default = Component;
+
+  function setup(content) {
+    Object.defineProperties(Component.prototype, {
+      handleEvent: {
+        value: function value(e) {
+          var ct = e.currentTarget;
+          this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
+        }
+      },
+      html: lazyGetter('html', content),
+      svg: lazyGetter('svg', content),
+      state: lazyGetter('state', function () {
+        return this.defaultState;
+      }),
+      defaultState: {
+        get: function get() {
+          return {};
+        }
+      },
+      setState: {
+        value: function value(state) {
+          var target = this.state;
+          var source = typeof state === 'function' ? state.call(this, target) : state;
+          for (var key in source) {
+            target[key] = source[key];
+          }this.render();
+        }
+      }
+    });
+  }
+  exports.setup = setup;
 
   var lazyGetter = function lazyGetter(type, fn) {
     var secret = '_' + type + '$';
@@ -66,58 +103,53 @@ var hyperHTML = function (cache, modules) {
       }
     };
   };
+}, function (global, require, module, exports) {
+  // objects/Transformer.js
+  'use strict';
 
-  function Component() {}
-  Object.defineProperties(Component.prototype, {
-    handleEvent: {
-      value: function value(e) {
-        var ct = e.currentTarget;
-        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
+  var transformers = {};
+  var transformersKeys = [];
+  var hasOwnProperty = transformers.hasOwnProperty;
+
+  var length = 0;
+
+  require.E(exports).default = {
+    define: function define(transformer, callback) {
+      if (!(transformer in transformers)) {
+        length = transformersKeys.push(transformer);
       }
+      transformers[transformer] = callback;
     },
-    html: lazyGetter('html', content),
-    svg: lazyGetter('svg', content),
-    state: lazyGetter('state', function () {
-      return this.defaultState;
-    }),
-    defaultState: {
-      get: function get() {
-        return {};
-      }
-    },
-    setState: {
-      value: function value(state) {
-        var target = this.state;
-        var source = typeof state === 'function' ? state.call(this, target) : state;
-        for (var key in source) {
-          target[key] = source[key];
-        }this.render();
+    invoke: function invoke(object, callback) {
+      for (var i = 0; i < length; i++) {
+        var key = transformersKeys[i];
+        if (hasOwnProperty.call(object, key)) {
+          return transformers[key](object[key], callback);
+        }
       }
     }
-  });
-
-  require.E(exports).default = Component;
+  };
 }, function (global, require, module, exports) {
   // hyper/wire.js
   'use strict';
 
-  var _require3 = require(3),
+  var _require3 = require(4),
       ELEMENT_NODE = _require3.ELEMENT_NODE,
       SVG_NAMESPACE = _require3.SVG_NAMESPACE;
 
-  var _require4 = require(4),
+  var _require4 = require(5),
       WeakMap = _require4.WeakMap,
       trim = _require4.trim;
 
-  var _require5 = require(5),
+  var _require5 = require(6),
       fragment = _require5.fragment;
 
-  var _require6 = require(6),
+  var _require6 = require(7),
       append = _require6.append,
       slice = _require6.slice,
       unique = _require6.unique;
 
-  var render = require.I(require(8));
+  var render = require.I(require(9));
 
   var wires = new WeakMap();
 
@@ -222,7 +254,7 @@ var hyperHTML = function (cache, modules) {
   // shared/poorlyfills.js
   'use strict';
 
-  var _require7 = require(3),
+  var _require7 = require(4),
       UID = _require7.UID;
 
   var Event = global.Event;
@@ -321,19 +353,19 @@ var hyperHTML = function (cache, modules) {
   // shared/utils.js
   'use strict';
 
-  var _require8 = require(3),
+  var _require8 = require(4),
       OWNER_SVG_ELEMENT = _require8.OWNER_SVG_ELEMENT,
       SVG_NAMESPACE = _require8.SVG_NAMESPACE,
       UID = _require8.UID,
       UIDC = _require8.UIDC;
 
-  var _require9 = require(7),
+  var _require9 = require(8),
       hasAppend = _require9.hasAppend,
       hasContent = _require9.hasContent,
       hasDoomedCloneNode = _require9.hasDoomedCloneNode,
       hasImportNode = _require9.hasImportNode;
 
-  var _require10 = require(5),
+  var _require10 = require(6),
       create = _require10.create,
       doc = _require10.doc,
       fragment = _require10.fragment;
@@ -460,7 +492,7 @@ var hyperHTML = function (cache, modules) {
   // shared/features-detection.js
   'use strict';
 
-  var _require11 = require(5),
+  var _require11 = require(6),
       create = _require11.create,
       fragment = _require11.fragment,
       text = _require11.text;
@@ -496,16 +528,16 @@ var hyperHTML = function (cache, modules) {
   // hyper/render.js
   'use strict';
 
-  var _require12 = require(4),
+  var _require12 = require(5),
       Map = _require12.Map,
       WeakMap = _require12.WeakMap;
 
-  var _require13 = require(3),
+  var _require13 = require(4),
       UIDC = _require13.UIDC;
 
-  var Updates = require.I(require(9));
+  var Updates = require.I(require(10));
 
-  var _require14 = require(6),
+  var _require14 = require(7),
       createFragment = _require14.createFragment,
       importNode = _require14.importNode,
       unique = _require14.unique;
@@ -555,9 +587,9 @@ var hyperHTML = function (cache, modules) {
   // objects/Updates.js
   'use strict';
 
-  var majinbuu = require.I(require(10));
+  var majinbuu = require.I(require(11));
 
-  var _require15 = require(3),
+  var _require15 = require(4),
       CONNECTED = _require15.CONNECTED,
       DISCONNECTED = _require15.DISCONNECTED,
       COMMENT_NODE = _require15.COMMENT_NODE,
@@ -570,25 +602,32 @@ var hyperHTML = function (cache, modules) {
       UID = _require15.UID,
       UIDC = _require15.UIDC;
 
-  var Aura = require.I(require(11));
+  var Aura = require.I(require(12));
   var Component = require.I(require(1));
-  var Path = require.I(require(12));
-  var Transformer = require.I(require(13));
+  var Path = require.I(require(13));
+  var Transformer = require.I(require(2));
 
-  var _require16 = require(5),
+  var _require16 = require(6),
       text = _require16.text;
 
-  var _require17 = require(4),
+  var _require17 = require(5),
       isArray = _require17.isArray,
       trim = _require17.trim,
       WeakSet = _require17.WeakSet;
 
-  var _require18 = require(6),
-      createFragment = _require18.createFragment;
+  var _require18 = require(7),
+      createFragment = _require18.createFragment,
+      slice = _require18.slice;
 
   var Promise = global.Promise;
   var components = new WeakSet();
-  var slice = [].slice;
+
+  function Cache() {}
+  Cache.prototype = Object.create(null);
+
+  var asHTML = function asHTML(html) {
+    return { html: html };
+  };
 
   var create = function create(root, paths) {
     var updates = [];
@@ -637,9 +676,6 @@ var hyperHTML = function (cache, modules) {
     }
   };
 
-  function Cache() {}
-  Cache.prototype = Object.create(null);
-
   var findAttributes = function findAttributes(node, paths, parts) {
     var cache = new Cache();
     var attributes = node.attributes;
@@ -655,6 +691,43 @@ var hyperHTML = function (cache, modules) {
           paths.push(Path.create('attr', cache[name], realName));
         }
         node.removeAttributeNode(attribute);
+      }
+    }
+  };
+
+  var invokeAtDistance = function invokeAtDistance(value, callback) {
+    callback(value.placeholder);
+    if ('text' in value) {
+      Promise.resolve(value.text).then(String).then(callback);
+    } else if ('any' in value) {
+      Promise.resolve(value.any).then(callback);
+    } else if ('html' in value) {
+      Promise.resolve(value.html).then(asHTML).then(callback);
+    } else {
+      Promise.resolve(Transformer.invoke(value, callback)).then(callback);
+    }
+  };
+
+  var isNode_ish = function isNode_ish(value) {
+    return 'ELEMENT_NODE' in value;
+  };
+  var isPromise_ish = function isPromise_ish(value) {
+    return value != null && 'then' in value;
+  };
+  var isSpecial = function isSpecial(node, name) {
+    return !(OWNER_SVG_ELEMENT in node) && name in node;
+  };
+
+  var optimist = function optimist(aura, value) {
+    var length = aura.length;
+    if (value.length !== length) {
+      majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+    } else {
+      for (var i = 0; i < length--; i++) {
+        if (aura[length] !== value[length] || aura[i] !== value[i]) {
+          majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+          return;
+        }
       }
     }
   };
@@ -748,95 +821,55 @@ var hyperHTML = function (cache, modules) {
     return anyContent;
   };
 
-  var asHTML = function asHTML(html) {
-    return { html: html };
-  };
-
-  var isNode_ish = function isNode_ish(value) {
-    return 'ELEMENT_NODE' in value;
-  };
-  var isPromise_ish = function isPromise_ish(value) {
-    return value != null && 'then' in value;
-  };
-
-  var invokeAtDistance = function invokeAtDistance(value, callback) {
-    callback(value.placeholder);
-    if ('text' in value) {
-      Promise.resolve(value.text).then(String).then(callback);
-    } else if ('any' in value) {
-      Promise.resolve(value.any).then(callback);
-    } else if ('html' in value) {
-      Promise.resolve(value.html).then(asHTML).then(callback);
-    } else {
-      Promise.resolve(Transformer.invoke(value, callback)).then(callback);
-    }
-  };
-
-  var isSpecialAttribute = function isSpecialAttribute(node, name) {
-    return !(OWNER_SVG_ELEMENT in node) && name in node;
-  };
-  var setAttribute = function setAttribute(attribute, name) {
-    var node = attribute.ownerElement;
+  var setAttribute = function setAttribute(node, name) {
     var isData = name === 'data';
-    var isEvent = !isData && /^on/.test(name);
-    var isSpecial = isData || isSpecialAttribute(node, name) && !SHOULD_USE_ATTRIBUTE.test(name);
-    var noOwner = isSpecial || isEvent;
-    var oldValue = void 0,
-        type = void 0;
-    if (isEvent) {
-      type = name.slice(2);
+    var oldValue = void 0;
+    if (!isData && /^on/.test(name)) {
+      var type = name.slice(2);
       if (type === CONNECTED || type === DISCONNECTED) {
         components.add(node);
       } else if (name.toLowerCase() in node) {
         type = type.toLowerCase();
       }
-    }
-    if (!noOwner) node.setAttributeNode(attribute);
-    return isEvent ? function (newValue) {
-      if (oldValue !== newValue) {
-        if (oldValue) node.removeEventListener(type, oldValue, false);
-        oldValue = newValue;
-        if (newValue) node.addEventListener(type, newValue, false);
-      }
-    } : isSpecial ? function (newValue) {
-      if (oldValue !== newValue) {
-        oldValue = newValue;
-        if (node[name] !== newValue) {
-          node[name] = newValue;
+      return function (newValue) {
+        if (oldValue !== newValue) {
+          if (oldValue) node.removeEventListener(type, oldValue, false);
+          oldValue = newValue;
+          if (newValue) node.addEventListener(type, newValue, false);
         }
-      }
-    } : function (newValue) {
-      if (oldValue !== newValue) {
-        oldValue = newValue;
-        if (attribute.value !== newValue) {
-          if (newValue == null) {
-            if (!noOwner) {
-              noOwner = true;
-              node.removeAttributeNode(attribute);
-            }
-          } else {
-            attribute.value = newValue;
-            if (noOwner) {
-              noOwner = false;
-              node.setAttributeNode(attribute);
+      };
+    } else if (isData || isSpecial(node, name) && !SHOULD_USE_ATTRIBUTE.test(name)) {
+      return function (newValue) {
+        if (oldValue !== newValue) {
+          oldValue = newValue;
+          if (node[name] !== newValue) {
+            node[name] = newValue;
+          }
+        }
+      };
+    } else {
+      var noOwner = false;
+      var attribute = node.ownerDocument.createAttributeNode(name);
+      node.setAttributeNode(attribute);
+      return function (newValue) {
+        if (oldValue !== newValue) {
+          oldValue = newValue;
+          if (attribute.value !== newValue) {
+            if (newValue == null) {
+              if (!noOwner) {
+                noOwner = true;
+                node.removeAttributeNode(attribute);
+              }
+            } else {
+              attribute.value = newValue;
+              if (noOwner) {
+                noOwner = false;
+                node.setAttributeNode(attribute);
+              }
             }
           }
         }
-      }
-    };
-  };
-
-  var optimist = function optimist(aura, value) {
-    var length = aura.length;
-    if (value.length !== length) {
-      majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-    } else {
-      for (var i = 0; i < length--; i++) {
-        if (aura[length] !== value[length] || aura[i] !== value[i]) {
-          majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-          return;
-        }
-      }
+      };
     }
   };
 
@@ -1021,7 +1054,7 @@ var hyperHTML = function (cache, modules) {
   // classes/Aura.js
   'use strict';
 
-  var majinbuu = require.I(require(10));
+  var majinbuu = require.I(require(11));
 
   function Aura(node, childNodes) {
     this.node = node;
@@ -1078,7 +1111,7 @@ var hyperHTML = function (cache, modules) {
   // objects/Path.js
   'use strict';
 
-  var _require19 = require(3),
+  var _require19 = require(4),
       COMMENT_NODE = _require19.COMMENT_NODE,
       DOCUMENT_FRAGMENT_NODE = _require19.DOCUMENT_FRAGMENT_NODE,
       ELEMENT_NODE = _require19.ELEMENT_NODE;
@@ -1101,7 +1134,6 @@ var hyperHTML = function (cache, modules) {
         break;
       default:
         parentNode = node.ownerElement;
-        path.unshift('attributes', node.name);
         break;
     }
     for (node = parentNode; parentNode = parentNode.parentNode; node = parentNode) {
@@ -1117,36 +1149,9 @@ var hyperHTML = function (cache, modules) {
     find: function find(node, path) {
       var length = path.length;
       for (var i = 0; i < length; i++) {
-        var key = path[i++];
-        node = key === 'attributes' ? node.ownerDocument.createAttribute(path[i]) : node[key][path[i]];
+        node = node[path[i++]][path[i]];
       }
       return node;
-    }
-  };
-}, function (global, require, module, exports) {
-  // objects/Transformer.js
-  'use strict';
-
-  var transformers = {};
-  var transformersKeys = [];
-  var hasOwnProperty = transformers.hasOwnProperty;
-
-  var length = 0;
-
-  require.E(exports).default = {
-    define: function define(transformer, callback) {
-      if (!(transformer in transformers)) {
-        length = transformersKeys.push(transformer);
-      }
-      transformers[transformer] = callback;
-    },
-    invoke: function invoke(object, callback) {
-      for (var i = 0; i < length; i++) {
-        var key = transformersKeys[i];
-        if (hasOwnProperty.call(object, key)) {
-          return transformers[key](object[key], callback);
-        }
-      }
     }
   };
 }]);

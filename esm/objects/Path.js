@@ -25,7 +25,6 @@ const createPath = node => {
       break;
     default:
       parentNode = node.ownerElement;
-      path.unshift('attributes', node.name);
       break;
   }
   for (
@@ -43,10 +42,7 @@ export default {
   find: (node, path) => {
     const length = path.length;
     for (let i = 0; i < length; i++) {
-      let key = path[i++];
-      node = key === 'attributes' ?
-        node.ownerDocument.createAttribute(path[i]) :
-        node[key][path[i]];
+      node = node[path[i++]][path[i]];
     }
     return node;
   }

@@ -15,11 +15,15 @@ import Path from './Path.js';
 import Transformer from './Transformer.js';
 import {text} from '../shared/easy-dom.js';
 import {isArray, trim, WeakSet} from '../shared/poorlyfills.js';
-import {createFragment} from '../shared/utils.js';
+import {createFragment, slice} from '../shared/utils.js';
 
 const Promise = global.Promise;
 const components = new WeakSet;
-const slice = [].slice;
+
+function Cache() {}
+Cache.prototype = Object.create(null);
+
+const asHTML = html => ({html});
 
 const create = (root, paths) => {
   const updates = [];
@@ -71,9 +75,6 @@ const find = (node, paths, parts) => {
   }
 };
 
-function Cache() {}
-Cache.prototype = Object.create(null);
-
 const findAttributes = (node, paths, parts) => {
   const cache = new Cache;
   const attributes = node.attributes;
@@ -90,6 +91,37 @@ const findAttributes = (node, paths, parts) => {
         paths.push(Path.create('attr', cache[name], realName));
       }
       node.removeAttributeNode(attribute);
+    }
+  }
+};
+
+const invokeAtDistance = (value, callback) => {
+  callback(value.placeholder);
+  if ('text' in value) {
+    Promise.resolve(value.text).then(String).then(callback);
+  } else if ('any' in value) {
+    Promise.resolve(value.any).then(callback);
+  } else if ('html' in value) {
+    Promise.resolve(value.html).then(asHTML).then(callback);
+  } else {
+    Promise.resolve(Transformer.invoke(value, callback)).then(callback);
+  }
+};
+
+const isNode_ish = value => 'ELEMENT_NODE' in value;
+const isPromise_ish = value => value != null && 'then' in value;
+const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
+
+const optimist = (aura, value) => {
+  let length = aura.length;
+  if (value.length !== length) {
+    majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+  } else {
+    for (let i = 0; i < length--; i++) {
+      if (aura[length] !== value[length] || aura[i] !== value[i]) {
+        majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+        return;
+      }
     }
   }
 };
@@ -194,96 +226,61 @@ const setAnyContent = (node, childNodes) => {
   return anyContent;
 };
 
-const asHTML = html => ({html});
-
-const isNode_ish = value => 'ELEMENT_NODE' in value;
-const isPromise_ish = value => value != null && 'then' in value;
-
-const invokeAtDistance = (value, callback) => {
-  callback(value.placeholder);
-  if ('text' in value) {
-    Promise.resolve(value.text).then(String).then(callback);
-  } else if ('any' in value) {
-    Promise.resolve(value.any).then(callback);
-  } else if ('html' in value) {
-    Promise.resolve(value.html).then(asHTML).then(callback);
-  } else {
-    Promise.resolve(Transformer.invoke(value, callback)).then(callback);
-  }
-}
-
-const isSpecialAttribute = (node, name) =>
-                            !(OWNER_SVG_ELEMENT in node) && name in node;
-const setAttribute = (attribute, name) => {
-  const node = attribute.ownerElement;
+const setAttribute = (node, name) => {
   const isData = name === 'data';
-  const isEvent = !isData && /^on/.test(name);
-  const isSpecial = isData ||
-                    (isSpecialAttribute(node, name) &&
-                    !SHOULD_USE_ATTRIBUTE.test(name));
-  let noOwner = isSpecial || isEvent;
-  let oldValue, type;
-  if (isEvent) {
-    type = name.slice(2);
+  let oldValue;
+  if (!isData && /^on/.test(name)) {
+    let type = name.slice(2);
     if (type === CONNECTED || type === DISCONNECTED) {
       components.add(node);
     }
     else if (name.toLowerCase() in node) {
       type = type.toLowerCase();
     }
-  }
-  if (!noOwner) node.setAttributeNode(attribute);
-  return isEvent ?
-    newValue => {
+    return newValue => {
       if (oldValue !== newValue) {
         if (oldValue) node.removeEventListener(type, oldValue, false);
         oldValue = newValue;
         if (newValue) node.addEventListener(type, newValue, false);
       }
-    } :
-    (isSpecial ?
-      newValue => {
-        if (oldValue !== newValue) {
-          oldValue = newValue;
-          if (node[name] !== newValue) {
-            node[name] = newValue;
-          }
+    };
+  } else if(isData || (
+    isSpecial(node, name) &&
+    !SHOULD_USE_ATTRIBUTE.test(name)
+  )) {
+    return newValue => {
+      if (oldValue !== newValue) {
+        oldValue = newValue;
+        if (node[name] !== newValue) {
+          node[name] = newValue;
         }
-      } :
-      newValue => {
-        if (oldValue !== newValue) {
-          oldValue = newValue;
-          if (attribute.value !== newValue) {
-            if (newValue == null) {
-              if (!noOwner) {
-                noOwner = true;
-                node.removeAttributeNode(attribute);
-              }
-            } else {
-              attribute.value = newValue;
-              if (noOwner) {
-                noOwner = false;
-                node.setAttributeNode(attribute);
-              }
+      }
+    };
+  } else {
+    let noOwner = false;
+    const attribute = node.ownerDocument.createAttributeNode(name);
+    node.setAttributeNode(attribute);
+    return newValue => {
+      if (oldValue !== newValue) {
+        oldValue = newValue;
+        if (attribute.value !== newValue) {
+          if (newValue == null) {
+            if (!noOwner) {
+              noOwner = true;
+              node.removeAttributeNode(attribute);
+            }
+          } else {
+            attribute.value = newValue;
+            if (noOwner) {
+              noOwner = false;
+              node.setAttributeNode(attribute);
             }
           }
         }
-      });
-};
-
-const optimist = (aura, value) => {
-  let length = aura.length;
-  if (value.length !== length) {
-    majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-  } else {
-    for (let i = 0; i < length--; i++) {
-      if (aura[length] !== value[length] || aura[i] !== value[i]) {
-        majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-        return;
       }
-    }
+    };
   }
-}
+};
 
 const setTextContent = node => {
   let oldValue;
