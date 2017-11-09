@@ -1,5 +1,8 @@
 import majinbuu from 'https://unpkg.com/majinbuu@latest/esm/main.js';
 
+// TODO is .render() needed at all?
+//      cannot majinbuu handle hybrid lists?
+
 import {
   CONNECTED, DISCONNECTED,
   COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE,
@@ -14,7 +17,7 @@ import Component from '../classes/Component.js';
 import Path from './Path.js';
 import Transformer from './Transformer.js';
 import {text} from '../shared/easy-dom.js';
-import {isArray, trim, WeakSet} from '../shared/poorlyfills.js';
+import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
 import {createFragment, slice} from '../shared/utils.js';
 
 const Promise = global.Promise;
@@ -24,7 +27,6 @@ function Cache() {}
 Cache.prototype = Object.create(null);
 
 const asHTML = html => ({html});
-const attributeChangedCallback = () => {};
 
 const create = (root, paths) => {
   const updates = [];
@@ -46,6 +48,32 @@ const create = (root, paths) => {
   }
   return updates;
 };
+
+const dispatchAll = (nodes, type) => {
+  const isConnected = type === CONNECTED;
+  const length = nodes.length;
+  for (let event, i = 0; i < length; i++) {
+    let node = nodes[i];
+    if (node.nodeType === ELEMENT_NODE) {
+      event = dispatchTarget(node, isConnected, type, event);
+    }
+  }
+};
+
+const dispatchTarget = (node, isConnected, type, event) => {
+  if (components.has(node)) {
+    if (!event) event = new Event(type);
+    node.dispatchEvent(event);
+  }
+  else {
+    const children = node.children;
+    const length = children.length;
+    for (let i = 0; i < length; i++) {
+      event = dispatchTarget(children[i], isConnected, type, event);
+    }
+  }
+  return event;
+}
 
 const find = (node, paths, parts) => {
   const childNodes = node.childNodes;
@@ -289,5 +317,23 @@ const setTextContent = node => {
       node.textContent = (oldValue = newValue);
   };
 };
+
+try {
+  (new MutationObserver(records => {
+    const length = records.length;
+    for (let i = 0; i < length; i++) {
+      let record = records[i];
+      dispatchAll(record.removedNodes, DISCONNECTED);
+      dispatchAll(record.addedNodes, CONNECTED);
+    }
+  })).observe(document, {subtree: true, childList: true});
+} catch(o_O) {
+  document.addEventListener('DOMNodeRemoved', event => {
+    dispatchAll([event.target], DISCONNECTED);
+  }, false);
+  document.addEventListener('DOMNodeInserted', event => {
+    dispatchAll([event.target], CONNECTED);
+  }, false);
+}
 
 export default {create, find};

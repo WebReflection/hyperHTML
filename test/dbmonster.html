@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="dbmonster.css">
     <script src="https://unpkg.com/perf-monitor@0.3.0/dist/umd/perf-monitor.js"></script>
-    <script src="../min.js"></script>
+    <script src="../min.v2.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -54,6 +54,15 @@
 
       updateTable(ENV.generateData().toArray());
 
+      if (!window.perfMonitor) {
+        perfMonitor = {
+          endProfile: function () {},
+          initProfiler: function () {},
+          startFPSMonitor: function () {},
+          startMemMonitor: function () {},
+          startProfile: function () {}
+        };
+      }
       perfMonitor.startFPSMonitor();
       perfMonitor.startMemMonitor();
       // perfMonitor.initProfiler('data update');

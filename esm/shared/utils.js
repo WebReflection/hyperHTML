@@ -42,8 +42,13 @@ const comments = ($0, $1, $2, $3) =>
   $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 const replaceAttributes = ($0, $1, $2) => $1 + ($2 || '"') + UID + ($2 || '"');
 
+export const createFragment = (node, html) =>
+  (OWNER_SVG_ELEMENT in node ?
+    SVGFragment :
+    HTMLFragment
+  )(node, html.replace(no, comments));
 
-export const cloneNode = hasDoomedCloneNode ?
+const cloneNode = hasDoomedCloneNode ?
   node => {
     const clone = node.cloneNode();
     const childNodes = node.childNodes || [];
@@ -54,13 +59,6 @@ export const cloneNode = hasDoomedCloneNode ?
     return clone;
   } :
   node => node.cloneNode(true);
-
-export const createFragment = (node, html) =>
-  (OWNER_SVG_ELEMENT in node ?
-    SVGFragment :
-    HTMLFragment
-  )(node, html.replace(no, comments));
-
 export const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
   (doc, node) => cloneNode(node)
@@ -99,7 +97,7 @@ let TL = template => {
   return TL(template);
 };
 
-export const HTMLFragment = hasContent ?
+const HTMLFragment = hasContent ?
   (node, html) => {
     const container = create(node, 'template');
     container.innerHTML = html;
@@ -119,7 +117,7 @@ export const HTMLFragment = hasContent ?
     return content;
   };
 
-export const SVGFragment = hasContent ?
+const SVGFragment = hasContent ?
   (node, html) => {
     const content = fragment(node);
     const container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');

@@ -9,10 +9,10 @@ function Aura(node, childNodes) {
 
 Aura.MAX_LIST_SIZE = 999;
 
-Aura.prototype.splice = function splice() {
+Aura.prototype.splice = function splice(start, end) {
   const ph = this.node;
   const cn = this.childNodes;
-  const target = cn[arguments[0] + (arguments[1] || 0)] || ph;
+  const target = cn[start + (end || 0)] || ph;
   const result = cn.splice.apply(cn, arguments);
   const pn = ph.parentNode;
   const doc = pn.ownerDocument;

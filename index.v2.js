@@ -397,6 +397,11 @@ var hyperHTML = function (cache, modules) {
     return $1 + ($2 || '"') + UID + ($2 || '"');
   };
 
+  var createFragment = function createFragment(node, html) {
+    return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
+  };
+  exports.createFragment = createFragment;
+
   var cloneNode = hasDoomedCloneNode ? function (node) {
     var clone = node.cloneNode();
     var childNodes = node.childNodes || [];
@@ -408,13 +413,6 @@ var hyperHTML = function (cache, modules) {
   } : function (node) {
     return node.cloneNode(true);
   };
-  exports.cloneNode = cloneNode;
-
-  var createFragment = function createFragment(node, html) {
-    return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
-  };
-  exports.createFragment = createFragment;
-
   var importNode = hasImportNode ? function (doc, node) {
     return doc.importNode(node, true);
   } : function (doc, node) {
@@ -472,7 +470,6 @@ var hyperHTML = function (cache, modules) {
     }
     return content;
   };
-  exports.HTMLFragment = HTMLFragment;
 
   var SVGFragment = hasContent ? function (node, html) {
     var content = fragment(node);
@@ -487,7 +484,6 @@ var hyperHTML = function (cache, modules) {
     append(content, slice.call(container.firstChild.childNodes));
     return content;
   };
-  exports.SVGFragment = SVGFragment;
 }, function (global, require, module, exports) {
   // shared/features-detection.js
   'use strict';
@@ -589,6 +585,9 @@ var hyperHTML = function (cache, modules) {
 
   var majinbuu = require.I(require(11));
 
+  // TODO is .render() needed at all?
+  //      cannot majinbuu handle hybrid lists?
+
   var _require15 = require(4),
       CONNECTED = _require15.CONNECTED,
       DISCONNECTED = _require15.DISCONNECTED,
@@ -611,9 +610,10 @@ var hyperHTML = function (cache, modules) {
       text = _require16.text;
 
   var _require17 = require(5),
+      Event = _require17.Event,
+      WeakSet = _require17.WeakSet,
       isArray = _require17.isArray,
-      trim = _require17.trim,
-      WeakSet = _require17.WeakSet;
+      trim = _require17.trim;
 
   var _require18 = require(7),
       createFragment = _require18.createFragment,
@@ -628,7 +628,6 @@ var hyperHTML = function (cache, modules) {
   var asHTML = function asHTML(html) {
     return { html: html };
   };
-  var attributeChangedCallback = function attributeChangedCallback() {};
 
   var create = function create(root, paths) {
     var updates = [];
@@ -649,6 +648,31 @@ var hyperHTML = function (cache, modules) {
       }
     }
     return updates;
+  };
+
+  var dispatchAll = function dispatchAll(nodes, type) {
+    var isConnected = type === CONNECTED;
+    var length = nodes.length;
+    for (var event, i = 0; i < length; i++) {
+      var node = nodes[i];
+      if (node.nodeType === ELEMENT_NODE) {
+        event = dispatchTarget(node, isConnected, type, event);
+      }
+    }
+  };
+
+  var dispatchTarget = function dispatchTarget(node, isConnected, type, event) {
+    if (components.has(node)) {
+      if (!event) event = new Event(type);
+      node.dispatchEvent(event);
+    } else {
+      var children = node.children;
+      var length = children.length;
+      for (var i = 0; i < length; i++) {
+        event = dispatchTarget(children[i], isConnected, type, event);
+      }
+    }
+    return event;
   };
 
   var find = function find(node, paths, parts) {
@@ -880,6 +904,24 @@ var hyperHTML = function (cache, modules) {
     };
   };
 
+  try {
+    new MutationObserver(function (records) {
+      var length = records.length;
+      for (var i = 0; i < length; i++) {
+        var record = records[i];
+        dispatchAll(record.removedNodes, DISCONNECTED);
+        dispatchAll(record.addedNodes, CONNECTED);
+      }
+    }).observe(document, { subtree: true, childList: true });
+  } catch (o_O) {
+    document.addEventListener('DOMNodeRemoved', function (event) {
+      dispatchAll([event.target], DISCONNECTED);
+    }, false);
+    document.addEventListener('DOMNodeInserted', function (event) {
+      dispatchAll([event.target], CONNECTED);
+    }, false);
+  }
+
   require.E(exports).default = { create: create, find: find };
 }, function (global, require, module, exports) {
   // ../node_modules/majinbuu/cjs/main.js
@@ -1065,10 +1107,10 @@ var hyperHTML = function (cache, modules) {
 
   Aura.MAX_LIST_SIZE = 999;
 
-  Aura.prototype.splice = function splice() {
+  Aura.prototype.splice = function splice(start, end) {
     var ph = this.node;
     var cn = this.childNodes;
-    var target = cn[arguments[0] + (arguments[1] || 0)] || ph;
+    var target = cn[start + (end || 0)] || ph;
     var result = cn.splice.apply(cn, arguments);
     var pn = ph.parentNode;
     var doc = pn.ownerDocument;

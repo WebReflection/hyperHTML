@@ -44,6 +44,12 @@ const comments = ($0, $1, $2, $3) =>
   $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 const replaceAttributes = ($0, $1, $2) => $1 + ($2 || '"') + UID + ($2 || '"');
 
+const createFragment = (node, html) =>
+  (OWNER_SVG_ELEMENT in node ?
+    SVGFragment :
+    HTMLFragment
+  )(node, html.replace(no, comments));
+exports.createFragment = createFragment;
 
 const cloneNode = hasDoomedCloneNode ?
   node => {
@@ -56,15 +62,6 @@ const cloneNode = hasDoomedCloneNode ?
     return clone;
   } :
   node => node.cloneNode(true);
-exports.cloneNode = cloneNode;
-
-const createFragment = (node, html) =>
-  (OWNER_SVG_ELEMENT in node ?
-    SVGFragment :
-    HTMLFragment
-  )(node, html.replace(no, comments));
-exports.createFragment = createFragment;
-
 const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
   (doc, node) => cloneNode(node)
@@ -125,7 +122,6 @@ const HTMLFragment = hasContent ?
     }
     return content;
   };
-exports.HTMLFragment = HTMLFragment;
 
 const SVGFragment = hasContent ?
   (node, html) => {
@@ -142,4 +138,3 @@ const SVGFragment = hasContent ?
     append(content, slice.call(container.firstChild.childNodes));
     return content;
   };
-exports.SVGFragment = SVGFragment;

@@ -1,6 +1,9 @@
 'use strict';
 const majinbuu = (m => m.__esModule ? m.default : m)(require('majinbuu'));
 
+// TODO is .render() needed at all?
+//      cannot majinbuu handle hybrid lists?
+
 const {
   CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_ATTRIBUTE, SHOULD_USE_TEXT_CONTENT, UID, UIDC
 } = require('../shared/constants.js');
@@ -10,7 +13,7 @@ const Component = (m => m.__esModule ? m.default : m)(require('../classes/Compon
 const Path = (m => m.__esModule ? m.default : m)(require('./Path.js'));
 const Transformer = (m => m.__esModule ? m.default : m)(require('./Transformer.js'));
 const {text} = require('../shared/easy-dom.js');
-const {isArray, trim, WeakSet} = require('../shared/poorlyfills.js');
+const {Event, WeakSet, isArray, trim} = require('../shared/poorlyfills.js');
 const {createFragment, slice} = require('../shared/utils.js');
 
 const Promise = global.Promise;
@@ -20,7 +23,6 @@ function Cache() {}
 Cache.prototype = Object.create(null);
 
 const asHTML = html => ({html});
-const attributeChangedCallback = () => {};
 
 const create = (root, paths) => {
   const updates = [];
@@ -42,6 +44,32 @@ const create = (root, paths) => {
   }
   return updates;
 };
+
+const dispatchAll = (nodes, type) => {
+  const isConnected = type === CONNECTED;
+  const length = nodes.length;
+  for (let event, i = 0; i < length; i++) {
+    let node = nodes[i];
+    if (node.nodeType === ELEMENT_NODE) {
+      event = dispatchTarget(node, isConnected, type, event);
+    }
+  }
+};
+
+const dispatchTarget = (node, isConnected, type, event) => {
+  if (components.has(node)) {
+    if (!event) event = new Event(type);
+    node.dispatchEvent(event);
+  }
+  else {
+    const children = node.children;
+    const length = children.length;
+    for (let i = 0; i < length; i++) {
+      event = dispatchTarget(children[i], isConnected, type, event);
+    }
+  }
+  return event;
+}
 
 const find = (node, paths, parts) => {
   const childNodes = node.childNodes;
@@ -285,5 +313,23 @@ const setTextContent = node => {
       node.textContent = (oldValue = newValue);
   };
 };
+
+try {
+  (new MutationObserver(records => {
+    const length = records.length;
+    for (let i = 0; i < length; i++) {
+      let record = records[i];
+      dispatchAll(record.removedNodes, DISCONNECTED);
+      dispatchAll(record.addedNodes, CONNECTED);
+    }
+  })).observe(document, {subtree: true, childList: true});
+} catch(o_O) {
+  document.addEventListener('DOMNodeRemoved', event => {
+    dispatchAll([event.target], DISCONNECTED);
+  }, false);
+  document.addEventListener('DOMNodeInserted', event => {
+    dispatchAll([event.target], CONNECTED);
+  }, false);
+}
 
 Object.defineProperty(exports, '__esModule', {value: true}).default = {create, find};
