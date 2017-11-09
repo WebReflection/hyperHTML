@@ -25,7 +25,7 @@ function upgrade(template) {
   const info =  templates.get(template) ||
                 createTemplate.call(this, template);
   const fragment = importNode(this.ownerDocument, info.fragment);
-  const updates = Updates.create(this, fragment, info.paths);
+  const updates = Updates.create(fragment, info.paths);
   bewitched.set(this, {template, updates});
   update.apply(updates, arguments);
   this.textContent = '';
@@ -48,4 +48,4 @@ function createTemplate(template) {
   return info;
 }
 
-export {render};
+export default render;

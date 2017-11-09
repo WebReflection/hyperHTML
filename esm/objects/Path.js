@@ -51,10 +51,9 @@ export default {
     const length = path.length;
     for (let i = 0; i < length; i++) {
       let key = path[i++];
-      if (key === 'attributes') {
-        node.setAttributeNode(node.ownerDocument.createAttribute(path[i]));
-      }
-      node = node[key][path[i]];
+      node = key === 'attributes' ?
+        node.ownerDocument.createAttribute(path[i]) :
+        node[key][path[i]];
     }
     return node;
   }

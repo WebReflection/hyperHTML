@@ -1,6 +1,28 @@
-import './classes/Aura.js';
-import './classes/Component.js';
-import './hyper/dance.js';
+import Component from './classes/Component.js';
+import Transformer from './objects/Transformer.js';
+import wire, {content, weakly} from './hyper/wire.js';
+import render from './hyper/render.js';
 
-const hyper = function () {};
-export default hyper;
+const bind = (hyper.bind = context => render.bind(context));
+const define = (hyper.define = Transformer.define);
+
+export {Component, bind, define};
+
+export default function hyper(HTML) {
+  return arguments.length < 2 ?
+    (HTML == null ?
+      content('html') :
+      (typeof HTML === 'string' ?
+        wire(null, HTML) :
+        ('raw' in HTML ?
+          content('html')(HTML) :
+          ('nodeType' in HTML ?
+            bind(HTML) :
+            weakly(HTML, 'html')
+          )
+        )
+      )) :
+    ('raw' in HTML ?
+      content('html') : wire
+    ).apply(null, arguments);
+}

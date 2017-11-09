@@ -4,6 +4,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-case-declarations": 0
+    "no-case-declarations": 0,
+    "no-fallthrough": 0
   }
 }

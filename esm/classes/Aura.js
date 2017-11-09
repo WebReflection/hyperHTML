@@ -3,8 +3,6 @@ import majinbuu from 'https://unpkg.com/majinbuu@latest/esm/main.js';
 // used as class but it returns a modified childNodes
 // it's not worth to use Babel class transpilation
 // for an utility facade with a context for convenience
-export default Aura;
-
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
@@ -16,11 +14,11 @@ function Aura(node, childNodes) {
 Aura.MAX_LIST_SIZE = 1000;
 
 // wraps childNodes splice to pass through the Aura
-Aura.prototype.splice = function splice(...args) {
+Aura.prototype.splice = function splice() {
   const ph = this.node;
   const cn = this.childNodes;
-  const target = cn[args[0] + (args[1] || 0)] || ph;
-  const result = cn.splice(...args);
+  const target = cn[arguments[0] + (arguments[1] || 0)] || ph;
+  const result = cn.splice.apply(cn, arguments);
   const pn = ph.parentNode;
   const doc = pn.ownerDocument;
   for (let tmp, i = 0, length = result.length; i < length; i++) {
@@ -30,13 +28,13 @@ Aura.prototype.splice = function splice(...args) {
       pn.removeChild(tmp);
     }
   }
-  for (let tmp, i = 2, length = args.length; i < length; pn.insertBefore(tmp, target)) {
+  for (let tmp, i = 2, length = arguments.length; i < length; pn.insertBefore(tmp, target)) {
     if ((length - i) === 1) {
-      tmp = args[i++];
+      tmp = arguments[i++];
     } else {
       tmp = doc.createDocumentFragment();
       while (i < length) {
-        tmp.appendChild(args[i++]);
+        tmp.appendChild(arguments[i++]);
       }
     }
   }
@@ -56,3 +54,5 @@ function become(value) {
     }
   }
 }
+
+export default Aura;

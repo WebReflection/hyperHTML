@@ -8,8 +8,6 @@ const {
 const {hasAppend, hasContent, hasDoomedCloneNode, hasImportNode} = require('./features-detection.js');
 const {create, doc, fragment} = require('./easy-dom.js');
 
-const slice = [].slice;
-
 // appends an array of nodes
 // to a generic node/fragment
 const append = hasAppend ?
@@ -53,10 +51,20 @@ const cloneNode = hasDoomedCloneNode ?
   node => node.cloneNode(true);
 exports.cloneNode = cloneNode;
 
+const createFragment = (node, html) =>
+  (OWNER_SVG_ELEMENT in node ?
+    SVGFragment :
+    HTMLFragment
+  )(node, html.replace(no, comments));
+exports.createFragment = createFragment;
+
 const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
   (doc, node) => cloneNode(node)
 exports.importNode = importNode
+
+const slice = [].slice;
+exports.slice = slice;
 
 // lazy evaluated
 const unique = template => TL(template);
@@ -90,14 +98,6 @@ let TL = template => {
   }
   return TL(template);
 };
-
-const createFragment = (node, html) =>
-  (OWNER_SVG_ELEMENT in node ?
-    SVGFragment :
-    HTMLFragment
-  )(node, html.replace(no, comments));
-exports.createFragment = createFragment;
-
 
 const HTMLFragment = hasContent ?
   (node, html) => {
