@@ -4,7 +4,14 @@ import {
   UID,
   UIDC
 } from './constants.js';
-import {hasAppend, hasContent, hasDoomedCloneNode, hasImportNode} from './features-detection.js';
+
+import {
+  hasAppend,
+  hasContent,
+  hasDoomedCloneNode,
+  hasImportNode
+} from './features-detection.js';
+
 import {create, doc, fragment} from './easy-dom.js';
 
 // appends an array of nodes

@@ -5,7 +5,14 @@ const {
   UID,
   UIDC
 } = require('./constants.js');
-const {hasAppend, hasContent, hasDoomedCloneNode, hasImportNode} = require('./features-detection.js');
+
+const {
+  hasAppend,
+  hasContent,
+  hasDoomedCloneNode,
+  hasImportNode
+} = require('./features-detection.js');
+
 const {create, doc, fragment} = require('./easy-dom.js');
 
 // appends an array of nodes
