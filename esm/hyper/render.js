@@ -1,5 +1,5 @@
-import {UIDC} from '../shared/constants.js';
 import {Map, WeakMap} from '../shared/poorlyfills.js';
+import {UIDC} from '../shared/constants.js';
 import Updates from '../objects/Updates.js';
 import {
   createFragment,

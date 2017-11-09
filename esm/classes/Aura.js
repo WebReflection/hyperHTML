@@ -1,8 +1,5 @@
 import majinbuu from 'https://unpkg.com/majinbuu@latest/esm/main.js';
 
-// used as class but it returns a modified childNodes
-// it's not worth to use Babel class transpilation
-// for an utility facade with a context for convenience
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
@@ -10,10 +7,8 @@ function Aura(node, childNodes) {
   return majinbuu.aura(this, childNodes);
 }
 
-// reflected through hyperHTML.MAX_LIST_SIZE
 Aura.MAX_LIST_SIZE = 999;
 
-// wraps childNodes splice to pass through the Aura
 Aura.prototype.splice = function splice() {
   const ph = this.node;
   const cn = this.childNodes;
@@ -23,7 +18,6 @@ Aura.prototype.splice = function splice() {
   const doc = pn.ownerDocument;
   for (let tmp, i = 0, length = result.length; i < length; i++) {
     tmp = result[i];
-    // TODO: this is not optimal (but necessary)
     if (cn.indexOf(tmp) < 0) {
       pn.removeChild(tmp);
     }

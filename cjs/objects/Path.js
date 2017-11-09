@@ -1,16 +1,10 @@
 'use strict';
 const {
-  ATTRIBUTE_NODE,
   COMMENT_NODE,
   DOCUMENT_FRAGMENT_NODE,
   ELEMENT_NODE
 } = require('../shared/constants.js');
 
-// always use childNodes
-// as it turned out retrieving them
-// is just as fast as retrieving children
-// if not faster (it also makes sense)
-// https://jsperf.com/child-ren-nodes/1
 const prepend = (path, parent, node) => {
   path.unshift(
     'childNodes',
@@ -30,8 +24,7 @@ const createPath = node => {
       parentNode = node.parentNode;
       prepend(path, parentNode, node);
       break;
-    case ATTRIBUTE_NODE:
-    default: // jsdom here does not provide a nodeType 2 ...
+    default:
       parentNode = node.ownerElement;
       path.unshift('attributes', node.name);
       break;

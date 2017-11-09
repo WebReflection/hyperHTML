@@ -67,34 +67,24 @@ var hyperHTML = function (cache, modules) {
     };
   };
 
-  // no need for a transpiled class here
-  // Component needs lazy prototype accessors.
-  // Using modern syntax to define it won't be enough
   function Component() {}
   Object.defineProperties(Component.prototype, {
-    // same as HyperHTMLElement handleEvent
     handleEvent: {
       value: function value(e) {
-        // both IE < 11 and JSDOM lack dataset
         var ct = e.currentTarget;
         this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
       }
     },
-    // returns its own HTML wire or create it once on comp.render()
     html: lazyGetter('html', content),
-    // returns its own SVG wire or create it once on comp.render()
     svg: lazyGetter('svg', content),
-    // same as HyperHTMLElement state
     state: lazyGetter('state', function () {
       return this.defaultState;
     }),
-    // same as HyperHTMLElement get defaultState
     defaultState: {
       get: function get() {
         return {};
       }
     },
-    // same as HyperHTMLElement setState
     setState: {
       value: function value(state) {
         var target = this.state;
@@ -104,9 +94,6 @@ var hyperHTML = function (cache, modules) {
         }this.render();
       }
     }
-    // the render must be defined when extending hyper.Component
-    // the render **must** return either comp.html or comp.svg wire
-    // render() { return this.html`<p>that's it</p>`; }
   });
 
   require.E(exports).default = Component;
@@ -509,12 +496,12 @@ var hyperHTML = function (cache, modules) {
   // hyper/render.js
   'use strict';
 
-  var _require12 = require(3),
-      UIDC = _require12.UIDC;
+  var _require12 = require(4),
+      Map = _require12.Map,
+      WeakMap = _require12.WeakMap;
 
-  var _require13 = require(4),
-      Map = _require13.Map,
-      WeakMap = _require13.WeakMap;
+  var _require13 = require(3),
+      UIDC = _require13.UIDC;
 
   var Updates = require.I(require(9));
 
@@ -901,12 +888,12 @@ var hyperHTML = function (cache, modules) {
   // Note: do not use the same list in two different aura
   var aura = function aura(splicer, list) {
     var splice = list.splice;
-    var $splice = function $splice() {
+    function $splice() {
       list.splice = splice;
       var result = splicer.splice.apply(splicer, arguments);
       list.splice = $splice;
       return result;
-    };
+    }
     list.splice = $splice;
     return list;
   };
@@ -1036,9 +1023,6 @@ var hyperHTML = function (cache, modules) {
 
   var majinbuu = require.I(require(10));
 
-  // used as class but it returns a modified childNodes
-  // it's not worth to use Babel class transpilation
-  // for an utility facade with a context for convenience
   function Aura(node, childNodes) {
     this.node = node;
     this.childNodes = childNodes;
@@ -1046,10 +1030,8 @@ var hyperHTML = function (cache, modules) {
     return majinbuu.aura(this, childNodes);
   }
 
-  // reflected through hyperHTML.MAX_LIST_SIZE
   Aura.MAX_LIST_SIZE = 999;
 
-  // wraps childNodes splice to pass through the Aura
   Aura.prototype.splice = function splice() {
     var ph = this.node;
     var cn = this.childNodes;
@@ -1059,7 +1041,6 @@ var hyperHTML = function (cache, modules) {
     var doc = pn.ownerDocument;
     for (var tmp, i = 0, length = result.length; i < length; i++) {
       tmp = result[i];
-      // TODO: this is not optimal (but necessary)
       if (cn.indexOf(tmp) < 0) {
         pn.removeChild(tmp);
       }
@@ -1098,17 +1079,9 @@ var hyperHTML = function (cache, modules) {
   'use strict';
 
   var _require19 = require(3),
-      ATTRIBUTE_NODE = _require19.ATTRIBUTE_NODE,
       COMMENT_NODE = _require19.COMMENT_NODE,
       DOCUMENT_FRAGMENT_NODE = _require19.DOCUMENT_FRAGMENT_NODE,
       ELEMENT_NODE = _require19.ELEMENT_NODE;
-
-  // always use childNodes
-  // as it turned out retrieving them
-  // is just as fast as retrieving children
-  // if not faster (it also makes sense)
-  // https://jsperf.com/child-ren-nodes/1
-
 
   var prepend = function prepend(path, parent, node) {
     path.unshift('childNodes', path.indexOf.call(parent.childNodes, node));
@@ -1126,9 +1099,7 @@ var hyperHTML = function (cache, modules) {
         parentNode = node.parentNode;
         prepend(path, parentNode, node);
         break;
-      case ATTRIBUTE_NODE:
       default:
-        // jsdom here does not provide a nodeType 2 ...
         parentNode = node.ownerElement;
         path.unshift('attributes', node.name);
         break;

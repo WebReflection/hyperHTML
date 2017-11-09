@@ -1,6 +1,6 @@
 'use strict';
-const {UIDC} = require('../shared/constants.js');
 const {Map, WeakMap} = require('../shared/poorlyfills.js');
+const {UIDC} = require('../shared/constants.js');
 const Updates = (m => m.__esModule ? m.default : m)(require('../objects/Updates.js'));
 const {
   createFragment,
