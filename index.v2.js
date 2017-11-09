@@ -628,6 +628,7 @@ var hyperHTML = function (cache, modules) {
   var asHTML = function asHTML(html) {
     return { html: html };
   };
+  var attributeChangedCallback = function attributeChangedCallback() {};
 
   var create = function create(root, paths) {
     var updates = [];
@@ -848,9 +849,8 @@ var hyperHTML = function (cache, modules) {
         }
       };
     } else {
-      var noOwner = false;
-      var attribute = node.ownerDocument.createAttributeNode(name);
-      node.setAttributeNode(attribute);
+      var noOwner = true;
+      var attribute = node.ownerDocument.createAttribute(name);
       return function (newValue) {
         if (oldValue !== newValue) {
           oldValue = newValue;

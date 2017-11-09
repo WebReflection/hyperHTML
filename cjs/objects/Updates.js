@@ -20,6 +20,7 @@ function Cache() {}
 Cache.prototype = Object.create(null);
 
 const asHTML = html => ({html});
+const attributeChangedCallback = () => {};
 
 const create = (root, paths) => {
   const updates = [];
@@ -253,9 +254,8 @@ const setAttribute = (node, name) => {
       }
     };
   } else {
-    let noOwner = false;
-    const attribute = node.ownerDocument.createAttributeNode(name);
-    node.setAttributeNode(attribute);
+    let noOwner = true;
+    const attribute = node.ownerDocument.createAttribute(name);
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;
