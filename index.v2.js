@@ -42,6 +42,15 @@ var hyperHTML = function (cache, modules) {
   hyper.wire = wire;
   hyper.Component = Component;
 
+  Object.defineProperty('hyper', 'MAX_LIST_SIZE', {
+    get: function get() {
+      return Aura.MAX_LIST_SIZE;
+    },
+    set: function set(value) {
+      Aura.MAX_LIST_SIZE = value;
+    }
+  });
+
   setup(content);
 
   exports.Component = Component;
@@ -585,9 +594,6 @@ var hyperHTML = function (cache, modules) {
 
   var majinbuu = require.I(require(11));
 
-  // TODO is .render() needed at all?
-  //      cannot majinbuu handle hybrid lists?
-
   var _require15 = require(4),
       CONNECTED = _require15.CONNECTED,
       DISCONNECTED = _require15.DISCONNECTED,
@@ -786,8 +792,6 @@ var hyperHTML = function (cache, modules) {
             oldValue = value;
             anyContent('');
             break;
-          } else if (value instanceof Component) {
-            value = value.render();
           }
         default:
           oldValue = value;
@@ -808,18 +812,14 @@ var hyperHTML = function (cache, modules) {
                   if (isPromise_ish(value[0])) {
                     Promise.all(value).then(anyContent);
                     break;
-                  } else {
-                    for (var i = 0, _length = value.length; i < _length; i++) {
-                      if (value[i] instanceof Component) {
-                        value[i] = value[i].render();
-                      }
-                    }
                   }
                 default:
                   optimist(aura, value);
                   break;
               }
             }
+          } else if (value instanceof Component) {
+            optimist(aura, [value]);
           } else if (isNode_ish(value)) {
             optimist(aura, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value]);
           } else if (isPromise_ish(value)) {
@@ -1097,6 +1097,13 @@ var hyperHTML = function (cache, modules) {
   'use strict';
 
   var majinbuu = require.I(require(11));
+  var Component = require.I(require(1));
+
+  var _require19 = require(6),
+      fragment = _require19.fragment;
+
+  var _require20 = require(5),
+      Map = _require20.Map;
 
   function Aura(node, childNodes) {
     this.node = node;
@@ -1108,29 +1115,47 @@ var hyperHTML = function (cache, modules) {
   Aura.MAX_LIST_SIZE = 999;
 
   Aura.prototype.splice = function splice(start, end) {
+    var values = new Map();
     var ph = this.node;
     var cn = this.childNodes;
-    var target = cn[start + (end || 0)] || ph;
+    var target = asNode(cn[start + (end || 0)] || ph);
     var result = cn.splice.apply(cn, arguments);
     var pn = ph.parentNode;
-    var doc = pn.ownerDocument;
-    for (var tmp, i = 0, length = result.length; i < length; i++) {
-      tmp = result[i];
+    var i = 0;
+    var tmp = void 0;
+    var reLength = result.length;
+    while (i < reLength) {
+      tmp = result[i++];
       if (cn.indexOf(tmp) < 0) {
-        pn.removeChild(tmp);
+        pn.removeChild(get(values, tmp));
       }
     }
-    for (var _tmp, _i = 2, _length2 = arguments.length; _i < _length2; pn.insertBefore(_tmp, target)) {
-      if (_length2 - _i === 1) {
-        _tmp = arguments[_i++];
+    i = 2;
+    var arLength = arguments.length;
+    while (i < arLength) {
+      if (arLength - i === 1) {
+        tmp = get(values, arguments[i++]);
       } else {
-        _tmp = doc.createDocumentFragment();
-        while (_i < _length2) {
-          _tmp.appendChild(arguments[_i++]);
+        tmp = fragment(pn);
+        while (i < arLength) {
+          tmp.appendChild(get(values, arguments[i++]));
         }
       }
+      pn.insertBefore(tmp, target);
     }
     return result;
+  };
+
+  var asNode = function asNode(node) {
+    return node instanceof Component ? node.render() : node;
+  };
+  var get = function get(map, node) {
+    return map.get(node) || set(map, node);
+  };
+  var set = function set(map, node) {
+    var value = asNode(node);
+    map.set(node, value);
+    return value;
   };
 
   function become(value) {
@@ -1153,10 +1178,10 @@ var hyperHTML = function (cache, modules) {
   // objects/Path.js
   'use strict';
 
-  var _require19 = require(4),
-      COMMENT_NODE = _require19.COMMENT_NODE,
-      DOCUMENT_FRAGMENT_NODE = _require19.DOCUMENT_FRAGMENT_NODE,
-      ELEMENT_NODE = _require19.ELEMENT_NODE;
+  var _require21 = require(4),
+      COMMENT_NODE = _require21.COMMENT_NODE,
+      DOCUMENT_FRAGMENT_NODE = _require21.DOCUMENT_FRAGMENT_NODE,
+      ELEMENT_NODE = _require21.ELEMENT_NODE;
 
   var prepend = function prepend(path, parent, node) {
     path.unshift('childNodes', path.indexOf.call(parent.childNodes, node));

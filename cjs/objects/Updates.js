@@ -1,9 +1,6 @@
 'use strict';
 const majinbuu = (m => m.__esModule ? m.default : m)(require('majinbuu'));
 
-// TODO is .render() needed at all?
-//      cannot majinbuu handle hybrid lists?
-
 const {
   CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_ATTRIBUTE, SHOULD_USE_TEXT_CONTENT, UID, UIDC
 } = require('../shared/constants.js');
@@ -186,8 +183,6 @@ const setAnyContent = (node, childNodes) => {
           oldValue = value;
           anyContent('');
           break;
-        } else if (value instanceof Component) {
-          value = value.render();
         }
       default:
         oldValue = value;
@@ -208,18 +203,14 @@ const setAnyContent = (node, childNodes) => {
                 if (isPromise_ish(value[0])) {
                   Promise.all(value).then(anyContent);
                   break;
-                } else {
-                  for (let i = 0, length = value.length; i < length; i++) {
-                    if (value[i] instanceof Component) {
-                      value[i] = value[i].render();
-                    }
-                  }
                 }
               default:
                 optimist(aura, value);
                 break;
             }
           }
+        } else if (value instanceof Component) {
+          optimist(aura, [value]);
         } else if (isNode_ish(value)) {
           optimist(
             aura,

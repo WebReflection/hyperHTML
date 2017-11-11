@@ -13,6 +13,13 @@ hyper.hyper = hyper;
 hyper.wire = wire;
 hyper.Component = Component;
 
+Object.defineProperty('hyper', 'MAX_LIST_SIZE', {
+  get() { return Aura.MAX_LIST_SIZE; },
+  set(value) {
+    Aura.MAX_LIST_SIZE = value;
+  }
+});
+
 setup(content);
 
 exports.Component = Component;
