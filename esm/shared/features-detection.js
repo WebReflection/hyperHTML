@@ -8,12 +8,6 @@ export const hasAppend = 'append' in testFragment;
 // detect old browsers without HTMLTemplateElement content support
 export const hasContent = 'content' in create(document, 'template');
 
-// If attributes order is shuffled, threat the browser differently
-// Usually this is a well known IE/Edge only issue but some older FF does the same.
-const p = create(document, 'p');
-p.innerHTML = '<i data-i="" class=""></i>';
-export const hasDoomedAttributes = /class/i.test(p.firstChild.attributes[0].name);
-
 // IE 11 has problems with cloning templates: it "forgets" empty childNodes
 testFragment.appendChild(text(testFragment, 'g'));
 testFragment.appendChild(text(testFragment, ''));

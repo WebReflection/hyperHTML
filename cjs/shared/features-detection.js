@@ -11,13 +11,6 @@ exports.hasAppend = hasAppend;
 const hasContent = 'content' in create(document, 'template');
 exports.hasContent = hasContent;
 
-// If attributes order is shuffled, threat the browser differently
-// Usually this is a well known IE/Edge only issue but some older FF does the same.
-const p = create(document, 'p');
-p.innerHTML = '<i data-i="" class=""></i>';
-const hasDoomedAttributes = /class/i.test(p.firstChild.attributes[0].name);
-exports.hasDoomedAttributes = hasDoomedAttributes;
-
 // IE 11 has problems with cloning templates: it "forgets" empty childNodes
 testFragment.appendChild(text(testFragment, 'g'));
 testFragment.appendChild(text(testFragment, ''));

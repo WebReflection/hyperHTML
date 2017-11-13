@@ -3,14 +3,16 @@ import Transformer from './objects/Transformer.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 
-const bind = (hyper.bind = context => render.bind(context));
-const define = (hyper.define = Transformer.define);
+const bind = context => render.bind(context);
+const define = Transformer.define;
 
+hyper.bind = bind;
+hyper.define = define;
 hyper.hyper = hyper;
 hyper.wire = wire;
 hyper.Component = Component;
 
-Object.defineProperty('hyper', 'MAX_LIST_SIZE', {
+Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
   get() { return Aura.MAX_LIST_SIZE; },
   set(value) {
     Aura.MAX_LIST_SIZE = value;
@@ -30,7 +32,7 @@ export default function hyper(HTML) {
         ('raw' in HTML ?
           content('html')(HTML) :
           ('nodeType' in HTML ?
-            bind(HTML) :
+            render.bind(HTML) :
             weakly(HTML, 'html')
           )
         )
