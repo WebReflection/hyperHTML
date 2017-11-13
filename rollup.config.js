@@ -13,7 +13,7 @@ export default {
   ],
   output: {
     exports: 'named',
-    file: 'index.v2.js',
+    file: 'index.js',
     format: 'iife',
     name: 'hyperHTML'
   }

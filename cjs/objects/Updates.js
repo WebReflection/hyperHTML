@@ -32,7 +32,7 @@ const create = (root, paths) => {
         updates.push(setAnyContent(node, []));
         break;
       case 'attr':
-        updates.push(setAttribute(node, info.name));
+        updates.push(setAttribute(node, info.name, info.node));
         break;
       case 'text':
         updates.push(setTextContent(node));
@@ -101,6 +101,7 @@ const findAttributes = (node, paths, parts) => {
   const cache = new Cache;
   const attributes = node.attributes;
   const array = slice.call(attributes);
+  const remove = [];
   const length = array.length;
   for (let i = 0; i < length; i++) {
     const attribute = array[i];
@@ -112,8 +113,12 @@ const findAttributes = (node, paths, parts) => {
                       attributes[realName.toLowerCase()];
         paths.push(Path.create('attr', cache[name], realName));
       }
-      node.removeAttributeNode(attribute);
+      remove.push(attribute);
     }
+  }
+  const len = remove.length;
+  for (let i = 0; i < remove.length; i++) {
+    node.removeAttributeNode(remove[i]);
   }
 };
 
@@ -242,7 +247,7 @@ const setAnyContent = (node, childNodes) => {
   return anyContent;
 };
 
-const setAttribute = (node, name) => {
+const setAttribute = (node, name, original) => {
   const isData = name === 'data';
   let oldValue;
   if (!isData && /^on/.test(name)) {
@@ -269,12 +274,15 @@ const setAttribute = (node, name) => {
         oldValue = newValue;
         if (node[name] !== newValue) {
           node[name] = newValue;
+          if (newValue == null) {
+            node.removeAttribute(name);
+          }
         }
       }
     };
   } else {
     let noOwner = true;
-    const attribute = node.ownerDocument.createAttribute(name);
+    const attribute = original.cloneNode(true);
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;

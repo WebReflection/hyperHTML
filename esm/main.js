@@ -1,3 +1,4 @@
+import Aura from './classes/Aura.js';
 import Component, {setup} from './classes/Component.js';
 import Transformer from './objects/Transformer.js';
 import wire, {content, weakly} from './hyper/wire.js';

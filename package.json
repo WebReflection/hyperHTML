@@ -9,13 +9,13 @@
   "scripts": {
     "cjs": "ascjs ./esm ./cjs",
     "max": "rollup --config rollup.config.js && npm run cleanup",
-    "min": "uglifyjs index.v2.js --support-ie8 --comments=/^!/ -c -m -o min.v2.js",
+    "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
     "build": "npm run cjs && npm run max && npm run min && npm test && npm run size",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log(require(\"./babel-plugins.json\").join(\",\"))')",
-    "size": "cat index.v2.js | wc -c;cat min.v2.js | wc -c;gzip -c min.v2.js | wc -c",
+    "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\"))')",
+    "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
     "test": "istanbul cover test/shared/main.js",
-    "cleanup": "echo \"$(cat index.v2.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\" > index.v2.js"
+    "cleanup": "echo \"$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\" > index.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
     "lightweight",
     "fast",
     "react",
+    "virtual",
     "lit-html",
     "alternative"
   ],
@@ -45,6 +46,7 @@
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-block-scoped-functions": "^6.22.0",
     "babel-plugin-transform-es2015-block-scoping": "^6.26.0",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-plugin-transform-es2015-computed-properties": "^6.24.1",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",
     "babel-plugin-transform-es2015-duplicate-keys": "^6.24.1",
@@ -52,6 +54,7 @@
     "babel-plugin-transform-es2015-literals": "^6.22.0",
     "babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
+    "babel-plugin-transform-es2015-template-literals": "^6.22.0",
     "basichtml": "^0.9.3",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",

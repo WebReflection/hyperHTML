@@ -1,4 +1,5 @@
 'use strict';
+const Aura = (m => m.__esModule ? m.default : m)(require('./classes/Aura.js'));
 const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
 const Transformer = (m => m.__esModule ? m.default : m)(require('./objects/Transformer.js'));

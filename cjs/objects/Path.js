@@ -39,7 +39,7 @@ const createPath = node => {
 };
 
 Object.defineProperty(exports, '__esModule', {value: true}).default = {
-  create: (type, node, name) => ({type, name, path: createPath(node)}),
+  create: (type, node, name) => ({type, name, node, path: createPath(node)}),
   find: (node, path) => {
     const length = path.length;
     for (let i = 0; i < length; i++) {
