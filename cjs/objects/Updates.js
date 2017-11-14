@@ -85,7 +85,14 @@ const find = (node, paths, parts) => {
       case COMMENT_NODE:
         if (child.textContent === UID) {
           parts.shift();
-          paths.push(Path.create('any', child));
+          paths.push(
+            // basicHTML or other non standard engines
+            // might end up having comments in nodes
+            // where they shouldn't
+            SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ?
+              Path.create('text', node) :
+              Path.create('any', child)
+          );
         }
         break;
       case TEXT_NODE:

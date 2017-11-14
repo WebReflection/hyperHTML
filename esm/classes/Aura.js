@@ -6,7 +6,6 @@ import {Map} from '../shared/poorlyfills.js';
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
-  childNodes.become = become;
   return majinbuu.aura(this, childNodes);
 }
 
@@ -51,19 +50,5 @@ const set = (map, node) => {
   map.set(node, value);
   return value;
 };
-
-function become(value) {
-  let i = 0, length = this.length;
-  if (value.length !== length) {
-    majinbuu(this, value, Aura.MAX_LIST_SIZE);
-  } else {
-    for (; i < length--; i++) {
-      if (this[length] !== value[length] || this[i] !== value[i]) {
-        majinbuu(this, value, Aura.MAX_LIST_SIZE);
-        return;
-      }
-    }
-  }
-}
 
 export default Aura;

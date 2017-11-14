@@ -269,14 +269,8 @@ var Map = global.Map || function Map() {
 
 var WeakMap = global.WeakMap || function WeakMap() {
   return {
-    delete: function _delete(obj) {
-      delete obj[UID];
-    },
     get: function get(obj) {
       return obj[UID];
-    },
-    has: function has(obj) {
-      return UID in obj;
     },
     set: function set(obj, value) {
       Object.defineProperty(obj, UID, {
@@ -313,7 +307,6 @@ var trim = UID.trim || function () {
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
-  childNodes.become = become;
   return majinbuu.aura(this, childNodes);
 }
 
@@ -362,21 +355,6 @@ var set = function set(map, node) {
   map.set(node, value);
   return value;
 };
-
-function become(value) {
-  var i = 0,
-      length = this.length;
-  if (value.length !== length) {
-    majinbuu(this, value, Aura.MAX_LIST_SIZE);
-  } else {
-    for (; i < length--; i++) {
-      if (this[length] !== value[length] || this[i] !== value[i]) {
-        majinbuu(this, value, Aura.MAX_LIST_SIZE);
-        return;
-      }
-    }
-  }
-}
 
 var transformers = {};
 var transformersKeys = [];
@@ -638,7 +616,11 @@ var find = function find(node, paths, parts) {
       case COMMENT_NODE:
         if (child.textContent === UID) {
           parts.shift();
-          paths.push(Path.create('any', child));
+          paths.push(
+          // basicHTML or other non standard engines
+          // might end up having comments in nodes
+          // where they shouldn't
+          SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? Path.create('text', node) : Path.create('any', child));
         }
         break;
       case TEXT_NODE:

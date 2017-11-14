@@ -26,9 +26,7 @@ export const Map = global.Map || function Map() {
 
 export const WeakMap = global.WeakMap || function WeakMap() {
   return {
-    delete(obj) { delete obj[UID]; },
     get(obj) { return obj[UID]; },
-    has(obj) { return UID in obj; },
     set(obj, value) {
       Object.defineProperty(obj, UID, {
         configurable: true,

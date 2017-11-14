@@ -3,6 +3,8 @@ tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
 try { tressa.log(''); } catch(e) { tressa.log = console.log.bind(console); }
 
+var MAX_LIST_SIZE = hyperHTML.MAX_LIST_SIZE;
+
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;
@@ -335,7 +337,7 @@ tressa.async(function (done) {
     setTimeout(function () {
       tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
       tressa.assert(
-        /^<p>any<!--.+?--><\/p>virtual<!--.+?--><hr><div>12<!--.+?--><\/div>34<!--.+?-->$/.test(wrap.innerHTML),
+        /^<p>any<!--.+?--><\/p>virtual<!--.+?--><hr(?: ?\/)?><div>12<!--.+?--><\/div>34<!--.+?-->$/.test(wrap.innerHTML),
         'both any and virtual content correct'
       );
       done();
@@ -355,13 +357,13 @@ tressa.async(function (done) {
   testingMajinBuu`${[text]}`;
   tressa.assert(wrap.textContent === 'cba');
 
-  let result = hyperHTML.wire()`<!--not hyprHTML-->`;
+  let result = hyperHTML.wire()`<!--not hyperHTML-->`;
   tressa.assert(result.nodeType === 8, 'it is a comment');
-  tressa.assert(result.textContent === 'not hyprHTML', 'correct content');
-  hyperHTML.bind(wrap)`<br>${'node before'}`;
-  tressa.assert(/^<br>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
-  hyperHTML.bind(wrap)`${'node after'}<br>`;
-  tressa.assert(/^node after<!--.+?--><br>$/i.test(wrap.innerHTML), 'node after');
+  tressa.assert(result.textContent === 'not hyperHTML', 'correct content');
+  hyperHTML.bind(wrap)`<br/>${'node before'}`;
+  tressa.assert(/^<br(?: ?\/)?>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
+  hyperHTML.bind(wrap)`${'node after'}<br/>`;
+  tressa.assert(/^node after<!--.+?--><br(?: ?\/)?>$/i.test(wrap.innerHTML), 'node after');
   hyperHTML.bind(wrap)`<style> ${'hyper-html{}'} </style>`;
   tressa.assert('<style>hyper-html{}</style>' === wrap.innerHTML.toLowerCase(), 'node style');
   hyperHTML.bind(wrap)`${document.createTextNode('a')}`;
@@ -395,12 +397,12 @@ tressa.async(function (done) {
   handler = {handleEvent: onclick};
   hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
   hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
-  hyperHTML.bind(wrap)`<br>${arr[0]}<br>`;
-  hyperHTML.bind(wrap)`<br>${arr}<br>`;
-  hyperHTML.bind(wrap)`<br>${arr}<br>`;
-  hyperHTML.bind(wrap)`<br>${[]}<br>`;
-  hyperHTML.bind(wrap)`<br>${['1', '2']}<br>`;
-  hyperHTML.bind(wrap)`<br>${document.createDocumentFragment()}<br>`;
+  hyperHTML.bind(wrap)`<br/>${arr[0]}<br/>`;
+  hyperHTML.bind(wrap)`<br/>${arr}<br/>`;
+  hyperHTML.bind(wrap)`<br/>${arr}<br/>`;
+  hyperHTML.bind(wrap)`<br/>${[]}<br/>`;
+  hyperHTML.bind(wrap)`<br/>${['1', '2']}<br/>`;
+  hyperHTML.bind(wrap)`<br/>${document.createDocumentFragment()}<br/>`;
   tressa.assert(true, 'passed various virtual content scenarios');
   let svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   if (!('ownerSVGElement' in svgContainer)) svgContainer.ownerSVGElement = null;
@@ -415,9 +417,22 @@ tressa.async(function (done) {
   hyperHTML.bind(wrap)`${' 1 '}`;
   tressa.assert(wrap.textContent === ' 1 ', 'text in between');
 
-  hyperHTML.bind(wrap)` <br>${1}</br> `;
-  tressa.assert(/ <br>1<!--.+?--><br> /.test(wrap.innerHTML), 'virtual content in between');
+  hyperHTML.bind(wrap)` <br/>${1}<br/> `;
+  tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
 
+  let last = hyperHTML.wire();
+  last`<textarea style=${'border:0'}>${'same text'}</textarea>`;
+  last`<textarea style=${{border: 0}}>${'same text'}</textarea>`;
+  last`<textarea style=${{vh: 100}}>${'same text'}</textarea>`;
+  last`<textarea style=${{vh: 10, vw: 1}}>${'same text'}</textarea>`;
+  last`<textarea style=${null}>${'same text'}</textarea>`;
+  last`<textarea style=${''}>${'same text'}</textarea>`;
+  last`<textarea style=${{ord: 0}}>${'same text'}</textarea>`;
+  last`<p data=${last}></p>`;
+  last`<p data=${last}></p>`;
+  let p = last`<p data=${last}>${0}</p>`;
+  const UID = p.childNodes[1].data;
+  last`<textarea new>${`<!--${UID}-->`}</textarea>`;
 })
 .then(function () {
   tressa.log('## no WebKit backfire');
@@ -480,16 +495,16 @@ tressa.async(function (done) {
   var div = document.createElement('div');
   hyperHTML.bind(div)`<p>${undefined}</p>`;
   tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
-  hyperHTML.bind(div)`<p>${{text: '<img>'}}</p>`;
-  tressa.assert(/<p>&lt;img&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
+  hyperHTML.bind(div)`<p>${{text: '<img/>'}}</p>`;
+  tressa.assert(/<p>&lt;img(?: ?\/)?&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
 })
 .then(function () {
   tressa.log('## virtual content extras');
   var div = document.createElement('div');
   hyperHTML.bind(div)`a ${null}`;
   tressa.assert(/a <[^>]+?>/.test(div.innerHTML), 'expected layout');
-  hyperHTML.bind(div)`a ${{text: '<img>'}}`;
-  tressa.assert(/a &lt;img&gt;<[^>]+?>/.test(div.innerHTML), 'expected text');
+  hyperHTML.bind(div)`a ${{text: '<img/>'}}`;
+  tressa.assert(/a &lt;img(?: ?\/)?&gt;<[^>]+?>/.test(div.innerHTML), 'expected text');
   hyperHTML.bind(div)`a ${{any: 123}}`;
   tressa.assert(/a 123<[^>]+?>/.test(div.innerHTML), 'expected any');
   hyperHTML.bind(div)`a ${{html: '<b>ok</b>'}}`;
@@ -762,7 +777,7 @@ tressa.async(function (done) {
   update();
   todo.sort(function(a, b) { return a.text < b.text ? -1 : 1; });
   update();
-  tressa.assert(div.textContent.replace(/^\s+|\s+$/g, '') === 'create Code Penpublish onlinewrite documentation', 'correct order');
+  tressa.assert(/^\s+create Code Pen\s*publish online\s*write documentation\s+$/.test(div.textContent), 'correct order');
   function update() {
     hyperHTML.bind(div)`<ul>
       ${todo.map(function (item) {

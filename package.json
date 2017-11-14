@@ -15,7 +15,7 @@
     "max": "rollup --config rollup.config.js && npm run cleanup",
     "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
-    "test": "istanbul cover test/shared/main.js"
+    "test": "istanbul cover test/runner.js"
   },
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
-    "basichtml": "^0.10.0",
+    "basichtml": "^0.10.5",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
     "rollup": "^0.51.5",
