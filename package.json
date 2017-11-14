@@ -7,7 +7,7 @@
   "main": "cjs/main.js",
   "module": "esm/main.js",
   "scripts": {
-    "build": "npm run cjs && npm run max && npm run min && npm test && npm run size",
+    "build": "npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
     "cleanup": "echo \"$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\" > index.js",
     "cjs": "ascjs ./esm ./cjs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",

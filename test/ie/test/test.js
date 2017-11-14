@@ -17,42 +17,47 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject15 = _taggedTemplateLiteral(['<a></a>'], ['<a></a>']),
     _templateObject16 = _taggedTemplateLiteral(['<p></p>'], ['<p></p>']),
     _templateObject17 = _taggedTemplateLiteral(['<p>', '</p>', '<hr><div>', '</div>', ''], ['<p>', '</p>', '<hr><div>', '</div>', '']),
-    _templateObject18 = _taggedTemplateLiteral(['<!--not hyprHTML-->'], ['<!--not hyprHTML-->']),
-    _templateObject19 = _taggedTemplateLiteral(['<br>', ''], ['<br>', '']),
-    _templateObject20 = _taggedTemplateLiteral(['', '<br>'], ['', '<br>']),
+    _templateObject18 = _taggedTemplateLiteral(['<!--not hyperHTML-->'], ['<!--not hyperHTML-->']),
+    _templateObject19 = _taggedTemplateLiteral(['<br/>', ''], ['<br/>', '']),
+    _templateObject20 = _taggedTemplateLiteral(['', '<br/>'], ['', '<br/>']),
     _templateObject21 = _taggedTemplateLiteral(['<style> ', ' </style>'], ['<style> ', ' </style>']),
     _templateObject22 = _taggedTemplateLiteral(['a=', ''], ['a=', '']),
     _templateObject23 = _taggedTemplateLiteral(['[', ']'], ['[', ']']),
     _templateObject24 = _taggedTemplateLiteral(['<p onclick="', '" onmouseover="', '" align="', '"></p>'], ['<p onclick="', '" onmouseover="', '" align="', '"></p>']),
-    _templateObject25 = _taggedTemplateLiteral(['<br>', '<br>'], ['<br>', '<br>']),
+    _templateObject25 = _taggedTemplateLiteral(['<br/>', '<br/>'], ['<br/>', '<br/>']),
     _templateObject26 = _taggedTemplateLiteral(['<rect x="1" y="2" />'], ['<rect x="1" y="2" />']),
     _templateObject27 = _taggedTemplateLiteral(['<svg></svg>'], ['<svg></svg>']),
     _templateObject28 = _taggedTemplateLiteral([''], ['']),
     _templateObject29 = _taggedTemplateLiteral(['<tr><td>ok</td></tr>'], ['<tr><td>ok</td></tr>']),
-    _templateObject30 = _taggedTemplateLiteral([' <br>', '</br> '], [' <br>', '</br> ']),
-    _templateObject31 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
-    _templateObject32 = _taggedTemplateLiteral(['\n      <div>First name: ', '</div>\n      <p></p>'], ['\n      <div>First name: ', '</div>\n      <p></p>']),
-    _templateObject33 = _taggedTemplateLiteral(['\n    <p></p>', ''], ['\n    <p></p>', '']),
-    _templateObject34 = _taggedTemplateLiteral(['<p _foo=', '></p>'], ['<p _foo=', '></p>']),
-    _templateObject35 = _taggedTemplateLiteral(['<p test=', '></p>'], ['<p test=', '></p>']),
-    _templateObject36 = _taggedTemplateLiteral(['a ', ''], ['a ', '']),
-    _templateObject37 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']),
-    _templateObject38 = _taggedTemplateLiteral(['<input name=', '>'], ['<input name=', '>']),
-    _templateObject39 = _taggedTemplateLiteral(['abc'], ['abc']),
-    _templateObject40 = _taggedTemplateLiteral(['<p>a', 'c</p>'], ['<p>a', 'c</p>']),
-    _templateObject41 = _taggedTemplateLiteral(['a', 'c'], ['a', 'c']),
-    _templateObject42 = _taggedTemplateLiteral(['<rect />'], ['<rect />']),
-    _templateObject43 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']),
-    _templateObject44 = _taggedTemplateLiteral(['\n      <button>hello</button>'], ['\n      <button>hello</button>']),
-    _templateObject45 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
-    _templateObject46 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
-    _templateObject47 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
-    _templateObject48 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
-    _templateObject49 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
-    _templateObject50 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
-    _templateObject51 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']),
-    _templateObject52 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject53 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject30 = _taggedTemplateLiteral([' <br/>', '<br/> '], [' <br/>', '<br/> ']),
+    _templateObject31 = _taggedTemplateLiteral(['<textarea style=', '>', '</textarea>'], ['<textarea style=', '>', '</textarea>']),
+    _templateObject32 = _taggedTemplateLiteral(['<p data=', '></p>'], ['<p data=', '></p>']),
+    _templateObject33 = _taggedTemplateLiteral(['<p data=', '>', '</p>'], ['<p data=', '>', '</p>']),
+    _templateObject34 = _taggedTemplateLiteral(['<textarea new>', '</textarea>'], ['<textarea new>', '</textarea>']),
+    _templateObject35 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
+    _templateObject36 = _taggedTemplateLiteral(['\n      <div>First name: ', '</div>\n      <p></p>'], ['\n      <div>First name: ', '</div>\n      <p></p>']),
+    _templateObject37 = _taggedTemplateLiteral(['\n    <p></p>', ''], ['\n    <p></p>', '']),
+    _templateObject38 = _taggedTemplateLiteral(['<p _foo=', '></p>'], ['<p _foo=', '></p>']),
+    _templateObject39 = _taggedTemplateLiteral(['<p test=', '></p>'], ['<p test=', '></p>']),
+    _templateObject40 = _taggedTemplateLiteral(['a ', ''], ['a ', '']),
+    _templateObject41 = _taggedTemplateLiteral(['<p any-attr=', '>any content</p>'], ['<p any-attr=', '>any content</p>']),
+    _templateObject42 = _taggedTemplateLiteral(['<input name=', '>'], ['<input name=', '>']),
+    _templateObject43 = _taggedTemplateLiteral(['abc'], ['abc']),
+    _templateObject44 = _taggedTemplateLiteral(['<p>a', 'c</p>'], ['<p>a', 'c</p>']),
+    _templateObject45 = _taggedTemplateLiteral(['a', 'c'], ['a', 'c']),
+    _templateObject46 = _taggedTemplateLiteral(['<rect />'], ['<rect />']),
+    _templateObject47 = _taggedTemplateLiteral(['<div data=', '>abc</div>'], ['<div data=', '>abc</div>']),
+    _templateObject48 = _taggedTemplateLiteral(['\n      <button>hello</button>'], ['\n      <button>hello</button>']),
+    _templateObject49 = _taggedTemplateLiteral(['\n      <rect x=', ' y=', ' />'], ['\n      <rect x=', ' y=', ' />']),
+    _templateObject50 = _taggedTemplateLiteral(['\n      <p attr=', ' onclick=', '>hello</p>'], ['\n      <p attr=', ' onclick=', '>hello</p>']),
+    _templateObject51 = _taggedTemplateLiteral(['\n        <p data-call="test" onclick=', '>hello</p>'], ['\n        <p data-call="test" onclick=', '>hello</p>']),
+    _templateObject52 = _taggedTemplateLiteral(['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>'], ['<div>\n      <dumb-element dumb=', ' asd=', '></dumb-element><dumber-element dumb=', '></dumber-element>\n    </div>']),
+    _templateObject53 = _taggedTemplateLiteral(['<ul>\n      ', '\n    </ul>'], ['<ul>\n      ', '\n    </ul>']),
+    _templateObject54 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
+    _templateObject55 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']),
+    _templateObject56 = _taggedTemplateLiteral(['<p style=', '></p>'], ['<p style=', '></p>']),
+    _templateObject57 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject58 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -70,6 +75,8 @@ try {
 } catch (e) {
   tressa.log = console.log.bind(console);
 }
+
+var MAX_LIST_SIZE = hyperHTML.MAX_LIST_SIZE;
 
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
@@ -197,7 +204,7 @@ tressa.async(function (done) {
       return render(_templateObject6);
     };
     var node = update();
-    tressa.assert(node.nodeName === 'P', 'correct node');
+    tressa.assert(node.nodeName.toLowerCase() === 'p', 'correct node');
     var same = update();
     tressa.assert(node === same, 'same node returned');
 
@@ -238,6 +245,11 @@ tressa.async(function (done) {
     var point = { x: 1, y: 2 };
     function update() {
       return hyperHTML.wire(point)(_templateObject11, '\n        position: absolute;\n        left: ' + point.x + 'px;\n        top: ' + point.y + 'px;\n      ');
+    }
+    try {
+      update();
+    } catch (e) {
+      console.error(e);
     }
     tressa.assert(update() === update(), 'same output');
     tressa.assert(hyperHTML.wire(point) === hyperHTML.wire(point), 'same wire');
@@ -352,7 +364,7 @@ tressa.async(function (done) {
     var result = wrap.innerHTML;
     setTimeout(function () {
       tressa.assert(result !== wrap.innerHTML, 'promises fullfilled');
-      tressa.assert(/^<p>any<!--.+?--><\/p>virtual<!--.+?--><hr><div>12<!--.+?--><\/div>34<!--.+?-->$/.test(wrap.innerHTML), 'both any and virtual content correct');
+      tressa.assert(/^<p>any<!--.+?--><\/p>virtual<!--.+?--><hr(?: ?\/)?><div>12<!--.+?--><\/div>34<!--.+?-->$/.test(wrap.innerHTML), 'both any and virtual content correct');
       done();
     }, 100);
   });
@@ -371,11 +383,11 @@ tressa.async(function (done) {
 
   var result = hyperHTML.wire()(_templateObject18);
   tressa.assert(result.nodeType === 8, 'it is a comment');
-  tressa.assert(result.textContent === 'not hyprHTML', 'correct content');
+  tressa.assert(result.textContent === 'not hyperHTML', 'correct content');
   hyperHTML.bind(wrap)(_templateObject19, 'node before');
-  tressa.assert(/^<br>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
+  tressa.assert(/^<br(?: ?\/)?>node before<!--.+?-->$/i.test(wrap.innerHTML), 'node before');
   hyperHTML.bind(wrap)(_templateObject20, 'node after');
-  tressa.assert(/^node after<!--.+?--><br>$/i.test(wrap.innerHTML), 'node after');
+  tressa.assert(/^node after<!--.+?--><br(?: ?\/)?>$/i.test(wrap.innerHTML), 'node after');
   hyperHTML.bind(wrap)(_templateObject21, 'hyper-html{}');
   tressa.assert('<style>hyper-html{}</style>' === wrap.innerHTML.toLowerCase(), 'node style');
   hyperHTML.bind(wrap)(_templateObject8, document.createTextNode('a'));
@@ -430,12 +442,26 @@ tressa.async(function (done) {
   tressa.assert(wrap.textContent === ' 1 ', 'text in between');
 
   hyperHTML.bind(wrap)(_templateObject30, 1);
-  tressa.assert(/ <br>1<!--.+?--><br> /.test(wrap.innerHTML), 'virtual content in between');
+  tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
+
+  var last = hyperHTML.wire();
+  last(_templateObject31, 'border:0', 'same text');
+  last(_templateObject31, { border: 0 }, 'same text');
+  last(_templateObject31, { vh: 100 }, 'same text');
+  last(_templateObject31, { vh: 10, vw: 1 }, 'same text');
+  last(_templateObject31, null, 'same text');
+  last(_templateObject31, '', 'same text');
+  last(_templateObject31, { ord: 0 }, 'same text');
+  last(_templateObject32, last);
+  last(_templateObject32, last);
+  var p = last(_templateObject33, last, 0);
+  var UID = p.childNodes[1].data;
+  last(_templateObject34, '<!--' + UID + '-->');
 }).then(function () {
   tressa.log('## no WebKit backfire');
   var div = document.createElement('div');
   function update(value, attr) {
-    return hyperHTML.bind(div)(_templateObject31, value, attr);
+    return hyperHTML.bind(div)(_templateObject35, value, attr);
   }
   var input = update('', '').firstElementChild;
   input.value = '456';
@@ -453,42 +479,42 @@ tressa.async(function (done) {
   var div = document.createElement('div');
   var employees = [{ first: 'Bob', last: 'Li' }, { first: 'Ayesha', last: 'Johnson' }];
   hyperHTML.bind(div)(_templateObject8, employees.map(function (employee) {
-    return hyperHTML.wire(employee)(_templateObject32, employee.first);
+    return hyperHTML.wire(employee)(_templateObject36, employee.first);
   }));
   tressa.assert(div.childElementCount === 4, 'correct elements as setAny');
-  hyperHTML.bind(div)(_templateObject33, employees.map(function (employee) {
-    return hyperHTML.wire(employee)(_templateObject32, employee.first);
+  hyperHTML.bind(div)(_templateObject37, employees.map(function (employee) {
+    return hyperHTML.wire(employee)(_templateObject36, employee.first);
   }));
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
 }).then(function () {
   tressa.log('## attributes with weird chars');
   var div = document.createElement('div');
-  hyperHTML.bind(div)(_templateObject34, 'bar');
+  hyperHTML.bind(div)(_templateObject38, 'bar');
   tressa.assert(div.firstChild.getAttribute('_foo') === 'bar', 'OK');
 }).then(function () {
   tressa.log('## attributes without quotes');
   var div = document.createElement('div');
-  hyperHTML.bind(div)(_templateObject35, 'a"b');
+  hyperHTML.bind(div)(_templateObject39, 'a"b');
   tressa.assert(div.firstChild.getAttribute('test') === 'a"b', 'OK');
 }).then(function () {
   tressa.log('## any content extras');
   var div = document.createElement('div');
   hyperHTML.bind(div)(_templateObject3, undefined);
   tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
-  hyperHTML.bind(div)(_templateObject3, { text: '<img>' });
-  tressa.assert(/<p>&lt;img&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
+  hyperHTML.bind(div)(_templateObject3, { text: '<img/>' });
+  tressa.assert(/<p>&lt;img(?: ?\/)?&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
 }).then(function () {
   tressa.log('## virtual content extras');
   var div = document.createElement('div');
-  hyperHTML.bind(div)(_templateObject36, null);
+  hyperHTML.bind(div)(_templateObject40, null);
   tressa.assert(/a <[^>]+?>/.test(div.innerHTML), 'expected layout');
-  hyperHTML.bind(div)(_templateObject36, { text: '<img>' });
-  tressa.assert(/a &lt;img&gt;<[^>]+?>/.test(div.innerHTML), 'expected text');
-  hyperHTML.bind(div)(_templateObject36, { any: 123 });
+  hyperHTML.bind(div)(_templateObject40, { text: '<img/>' });
+  tressa.assert(/a &lt;img(?: ?\/)?&gt;<[^>]+?>/.test(div.innerHTML), 'expected text');
+  hyperHTML.bind(div)(_templateObject40, { any: 123 });
   tressa.assert(/a 123<[^>]+?>/.test(div.innerHTML), 'expected any');
-  hyperHTML.bind(div)(_templateObject36, { html: '<b>ok</b>' });
+  hyperHTML.bind(div)(_templateObject40, { html: '<b>ok</b>' });
   tressa.assert(/a <b>ok<\/b><[^>]+?>/.test(div.innerHTML), 'expected html');
-  hyperHTML.bind(div)(_templateObject36, {});
+  hyperHTML.bind(div)(_templateObject40, {});
   tressa.assert(/a <[^>]+?>/.test(div.innerHTML), 'expected nothing');
 }).then(function () {
   tressa.log('## defined transformer');
@@ -506,23 +532,23 @@ tressa.async(function (done) {
 }).then(function () {
   tressa.log('## attributes with null values');
   var div = document.createElement('div');
-  hyperHTML.bind(div)(_templateObject37, '1');
+  hyperHTML.bind(div)(_templateObject41, '1');
   tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '1', 'regular attribute');
-  hyperHTML.bind(div)(_templateObject37, null);
+  hyperHTML.bind(div)(_templateObject41, null);
   tressa.assert(!div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') == null, 'can be removed');
-  hyperHTML.bind(div)(_templateObject37, undefined);
+  hyperHTML.bind(div)(_templateObject41, undefined);
   tressa.assert(!div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') == null, 'multiple times');
-  hyperHTML.bind(div)(_templateObject37, '2');
+  hyperHTML.bind(div)(_templateObject41, '2');
   tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '2', 'but can be also reassigned');
-  hyperHTML.bind(div)(_templateObject37, '3');
+  hyperHTML.bind(div)(_templateObject41, '3');
   tressa.assert(div.firstChild.hasAttribute('any-attr') && div.firstChild.getAttribute('any-attr') === '3', 'many other times');
-  hyperHTML.bind(div)(_templateObject38, 'test');
+  hyperHTML.bind(div)(_templateObject42, 'test');
   tressa.assert(div.firstChild.hasAttribute('name') && div.firstChild.name === 'test', 'special attributes are set too');
-  hyperHTML.bind(div)(_templateObject38, null);
+  hyperHTML.bind(div)(_templateObject42, null);
   tressa.assert(!div.firstChild.hasAttribute('name') && !div.firstChild.name, 'but can also be removed');
-  hyperHTML.bind(div)(_templateObject38, undefined);
+  hyperHTML.bind(div)(_templateObject42, undefined);
   tressa.assert(!div.firstChild.hasAttribute('name') && !div.firstChild.name, 'with either null or undefined');
-  hyperHTML.bind(div)(_templateObject38, 'back');
+  hyperHTML.bind(div)(_templateObject42, 'back');
   tressa.assert(div.firstChild.hasAttribute('name') && div.firstChild.name === 'back', 'and can be put back');
 }).then(function () {
   return tressa.async(function (done) {
@@ -555,21 +581,21 @@ tressa.async(function (done) {
   tressa.log('## hyper(...)');
   var hyper = hyperHTML.hyper;
   tressa.assert(typeof hyper() === 'function', 'empty hyper() is a wire tag');
-  tressa.assert(hyper(_templateObject39).textContent === 'abc', 'hyper`abc`');
-  tressa.assert(hyper(_templateObject40, 2).textContent === 'a2c', 'hyper`<p>a${2}c</p>`');
-  tressa.assert(hyper(document.createElement('div'))(_templateObject39).textContent === 'abc', 'hyper(div)`abc`');
-  tressa.assert(hyper(document.createElement('div'))(_templateObject41, 'b').textContent === 'abc', 'hyper(div)`a${"b"}c`');
+  tressa.assert(hyper(_templateObject43).textContent === 'abc', 'hyper`abc`');
+  tressa.assert(hyper(_templateObject44, 2).textContent === 'a2c', 'hyper`<p>a${2}c</p>`');
+  tressa.assert(hyper(document.createElement('div'))(_templateObject43).textContent === 'abc', 'hyper(div)`abc`');
+  tressa.assert(hyper(document.createElement('div'))(_templateObject45, 'b').textContent === 'abc', 'hyper(div)`a${"b"}c`');
   // WFT jsdom ?!
   delete Object.prototype.nodeType;
-  tressa.assert(hyper({})(_templateObject39).textContent === 'abc', 'hyper({})`abc`');
-  tressa.assert(hyper({})(_templateObject40, 'b').textContent === 'abc', 'hyper({})`<p>a${\'b\'}c</p>`');
-  tressa.assert(hyper({}, ':id')(_templateObject39).textContent === 'abc', 'hyper({}, \':id\')`abc`');
-  tressa.assert(hyper({}, ':id')(_templateObject40, 'b').textContent === 'abc', 'hyper({}, \':id\')`<p>a${\'b\'}c</p>`');
-  tressa.assert(hyper('svg')(_templateObject42), 'hyper("svg")`<rect />`');
+  tressa.assert(hyper({})(_templateObject43).textContent === 'abc', 'hyper({})`abc`');
+  tressa.assert(hyper({})(_templateObject44, 'b').textContent === 'abc', 'hyper({})`<p>a${\'b\'}c</p>`');
+  tressa.assert(hyper({}, ':id')(_templateObject43).textContent === 'abc', 'hyper({}, \':id\')`abc`');
+  tressa.assert(hyper({}, ':id')(_templateObject44, 'b').textContent === 'abc', 'hyper({}, \':id\')`<p>a${\'b\'}c</p>`');
+  tressa.assert(hyper('svg')(_templateObject46), 'hyper("svg")`<rect />`');
 }).then(function () {
   tressa.log('## data=${anyContent}');
   var obj = { rand: Math.random() };
-  var div = hyperHTML.wire()(_templateObject43, obj);
+  var div = hyperHTML.wire()(_templateObject47, obj);
   tressa.assert(div.data === obj, 'data available without serialization');
   tressa.assert(div.outerHTML === '<div>abc</div>', 'attribute not there');
 }).then(function () {
@@ -587,7 +613,7 @@ tressa.async(function (done) {
     _createClass(Button, [{
       key: 'render',
       value: function render() {
-        return this.html(_templateObject44);
+        return this.html(_templateObject48);
       }
     }]);
 
@@ -609,7 +635,7 @@ tressa.async(function (done) {
     _createClass(Rect, [{
       key: 'render',
       value: function render() {
-        return this.svg(_templateObject45, this.state.x, this.state.y);
+        return this.svg(_templateObject49, this.state.x, this.state.y);
       }
     }]);
 
@@ -636,7 +662,7 @@ tressa.async(function (done) {
     }, {
       key: 'render',
       value: function render() {
-        return this.html(_templateObject46, this.state.attr, this);
+        return this.html(_templateObject50, this.state.attr, this);
       }
     }]);
 
@@ -682,7 +708,7 @@ tressa.async(function (done) {
       }, {
         key: 'render',
         value: function render() {
-          return this.html(_templateObject47, this);
+          return this.html(_templateObject51, this);
         }
       }]);
 
@@ -745,7 +771,7 @@ tressa.async(function (done) {
     DumbElement.prototype.asd = null;
     customElements.define('dumb-element', DumbElement);
     function update(wire) {
-      return wire(_templateObject48, true, 'qwe', true);
+      return wire(_templateObject52, true, 'qwe', true);
     }
     var div = update(hyperHTML.wire());
     if (!(div.firstElementChild instanceof DumbElement)) {
@@ -821,10 +847,10 @@ tressa.async(function (done) {
     return a.text < b.text ? -1 : 1;
   });
   update();
-  tressa.assert(div.textContent.replace(/^\s+|\s+$/g, '') === 'create Code Penpublish onlinewrite documentation', 'correct order');
+  tressa.assert(/^\s+create Code Pen\s*publish online\s*write documentation\s+$/.test(div.textContent), 'correct order');
   function update() {
-    hyperHTML.bind(div)(_templateObject49, todo.map(function (item) {
-      return hyperHTML.wire(item)(_templateObject50, item.id, item.text);
+    hyperHTML.bind(div)(_templateObject53, todo.map(function (item) {
+      return hyperHTML.wire(item)(_templateObject54, item.id, item.text);
     }));
   }
 }).then(function () {
@@ -855,7 +881,7 @@ tressa.async(function (done) {
       }, {
         key: 'render',
         value: function render() {
-          return this.html(_templateObject51, this, this);
+          return this.html(_templateObject55, this, this);
         }
       }]);
 
@@ -881,6 +907,15 @@ tressa.async(function (done) {
       }
     }, 100);
   });
+}).then(function () {
+  tressa.log('## style=${fun}');
+  var render = hyperHTML.wire();
+  var p = render(_templateObject56, { fontSize: 24 });
+  tressa.assert(p.style.fontSize, p.style.fontSize);
+  render(_templateObject56, {});
+  tressa.assert(!p.style.fontSize, 'object cleaned');
+  render(_templateObject56, 'font-size: 18px');
+  tressa.assert(p.style.fontSize, p.style.fontSize);
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
@@ -890,14 +925,14 @@ tressa.async(function (done) {
   tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
-    hyperHTML.bind(output)(_templateObject52, '0 0 50 50');
+    hyperHTML.bind(output)(_templateObject57, '0 0 50 50');
     tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
 }).then(function () {
   tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject53);
+  var output = hyperHTML.wire()(_templateObject58);
   tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */
