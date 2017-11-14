@@ -2,7 +2,7 @@
 const majinbuu = (m => m.__esModule ? m.default : m)(require('majinbuu'));
 
 const {
-  CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_ATTRIBUTE, SHOULD_USE_TEXT_CONTENT, UID, UIDC
+  CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, IS_NON_DIMENSIONAL, SHOULD_USE_TEXT_CONTENT, UID, UIDC
 } = require('../shared/constants.js');
 
 const Aura = (m => m.__esModule ? m.default : m)(require('../classes/Aura.js'));
@@ -12,6 +12,10 @@ const Transformer = (m => m.__esModule ? m.default : m)(require('./Transformer.j
 const {text} = require('../shared/easy-dom.js');
 const {Event, WeakSet, isArray, trim} = require('../shared/poorlyfills.js');
 const {createFragment, slice} = require('../shared/utils.js');
+
+const NUMBER = 'number';
+const OBJECT = 'object';
+const STRING = 'string';
 
 const Promise = global.Promise;
 const components = new WeakSet;
@@ -158,8 +162,8 @@ const setAnyContent = (node, childNodes) => {
   let oldValue;
   const anyContent = value => {
     switch (typeof value) {
-      case 'string':
-      case 'number':
+      case STRING:
+      case NUMBER:
       case 'boolean':
         let length = childNodes.length;
         if (
@@ -182,7 +186,7 @@ const setAnyContent = (node, childNodes) => {
           }
         }
         break;
-      case 'object':
+      case OBJECT:
       case 'undefined':
         if (value == null) {
           oldValue = value;
@@ -196,12 +200,12 @@ const setAnyContent = (node, childNodes) => {
             aura.splice(0);
           } else {
             switch (typeof value[0]) {
-              case 'string':
-              case 'number':
+              case STRING:
+              case NUMBER:
               case 'boolean':
                 anyContent({html: value});
                 break;
-              case 'object':
+              case OBJECT:
                 if (isArray(value[0])) {
                   value = value.concat.apply([], value);
                 }
@@ -248,9 +252,10 @@ const setAnyContent = (node, childNodes) => {
 };
 
 const setAttribute = (node, name, original) => {
-  const isData = name === 'data';
+  const isStyle = name === 'style';
+  const isData = !isStyle && name === 'data';
   let oldValue;
-  if (!isData && /^on/.test(name)) {
+  if (!isStyle && !isData && /^on/.test(name)) {
     let type = name.slice(2);
     if (type === CONNECTED || type === DISCONNECTED) {
       components.add(node);
@@ -265,10 +270,7 @@ const setAttribute = (node, name, original) => {
         if (newValue) node.addEventListener(type, newValue, false);
       }
     };
-  } else if(isData || (
-    isSpecial(node, name) &&
-    !SHOULD_USE_ATTRIBUTE.test(name)
-  )) {
+  } else if(isData || (!isStyle && isSpecial(node, name))) {
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;
@@ -278,6 +280,41 @@ const setAttribute = (node, name, original) => {
             node.removeAttribute(name);
           }
         }
+      }
+    };
+  } else if (isStyle) {
+    let oldType;
+    return newValue => {
+      switch (typeof newValue) {
+        case OBJECT:
+          if (newValue) {
+            const style = node.style;
+            if (oldType === OBJECT) {
+              for (const key in oldValue) {
+                if (!(key in newValue)) {
+                  style[key] = '';
+                }
+              }
+            } else {
+              style.cssText = '';
+            }
+            for (const key in newValue) {
+              const value = newValue[key];
+              style[key] =  typeof value === NUMBER &&
+                            !IS_NON_DIMENSIONAL.test(key) ?
+                              (value + 'px') : value;
+            }
+            oldType = OBJECT;
+            oldValue = newValue;
+            break;
+          }
+        default:
+          if (oldValue != newValue) {
+            oldType = STRING;
+            oldValue = newValue;
+            node.style.cssText = newValue || '';
+          }
+          break;
       }
     };
   } else {

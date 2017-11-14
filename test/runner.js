@@ -1,17 +1,19 @@
+global.tressa = require('tressa');
+
+const {Document} = require('basichtml');
+global.window = global;
+global.document = new Document();
+global.customElements = document.customElements;
+
+global.hyperHTML = require('../cjs/main.js').default;
+
+require('./test.js');
+
+/*
 require('jsdom').env(
   require('fs').readFileSync(__dirname + '/index.html').toString(),
   [],
   function (err, window) {
-    /*
-    if (!global.CustomEvent) {
-      global.CustomEvent = function (type, init) {
-        var e = document.createEvent('Event');
-        e.initEvent(type, init.bubbles, init.cancelable);
-        e.detail = init.detail;
-        return e;
-      };
-    }
-    //*/
     global.document = window.document;
     global.tressa = require('tressa');
     var Int32Array = global.Int32Array;
@@ -122,3 +124,4 @@ require('jsdom').env(
     }, 500);
   }
 );
+*/

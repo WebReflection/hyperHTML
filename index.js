@@ -236,11 +236,13 @@ var CONNECTED = 'connected';
 var DISCONNECTED = 'dis' + CONNECTED;
 
 // hyperHTML related constants
-var SHOULD_USE_ATTRIBUTE = /^style$/i;
-var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var EXPANDO = '_hyper: ';
+var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
 var UIDC = '<!--' + UID + '-->';
+
+// same as https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
+var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
 
 var Event = global.Event;
 try {
@@ -563,6 +565,10 @@ var Path = {
   }
 };
 
+var NUMBER = 'number';
+var OBJECT = 'object';
+var STRING = 'string';
+
 var Promise = global.Promise;
 var components = new WeakSet();
 
@@ -710,8 +716,8 @@ var setAnyContent = function setAnyContent(node, childNodes) {
   var oldValue = void 0;
   var anyContent = function anyContent(value) {
     switch (typeof value) {
-      case 'string':
-      case 'number':
+      case STRING:
+      case NUMBER:
       case 'boolean':
         var length = childNodes.length;
         if (length === 1 && childNodes[0].nodeType === TEXT_NODE) {
@@ -728,7 +734,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
           }
         }
         break;
-      case 'object':
+      case OBJECT:
       case 'undefined':
         if (value == null) {
           oldValue = value;
@@ -742,12 +748,12 @@ var setAnyContent = function setAnyContent(node, childNodes) {
             aura$$1.splice(0);
           } else {
             switch (typeof value[0]) {
-              case 'string':
-              case 'number':
+              case STRING:
+              case NUMBER:
               case 'boolean':
                 anyContent({ html: value });
                 break;
-              case 'object':
+              case OBJECT:
                 if (isArray(value[0])) {
                   value = value.concat.apply([], value);
                 }
@@ -789,9 +795,10 @@ var setAnyContent = function setAnyContent(node, childNodes) {
 };
 
 var setAttribute = function setAttribute(node, name, original) {
-  var isData = name === 'data';
+  var isStyle = name === 'style';
+  var isData = !isStyle && name === 'data';
   var oldValue = void 0;
-  if (!isData && /^on/.test(name)) {
+  if (!isStyle && !isData && /^on/.test(name)) {
     var type = name.slice(2);
     if (type === CONNECTED || type === DISCONNECTED) {
       components.add(node);
@@ -805,7 +812,7 @@ var setAttribute = function setAttribute(node, name, original) {
         if (newValue) node.addEventListener(type, newValue, false);
       }
     };
-  } else if (isData || isSpecial(node, name) && !SHOULD_USE_ATTRIBUTE.test(name)) {
+  } else if (isData || !isStyle && isSpecial(node, name)) {
     return function (newValue) {
       if (oldValue !== newValue) {
         oldValue = newValue;
@@ -815,6 +822,39 @@ var setAttribute = function setAttribute(node, name, original) {
             node.removeAttribute(name);
           }
         }
+      }
+    };
+  } else if (isStyle) {
+    var oldType = void 0;
+    return function (newValue) {
+      switch (typeof newValue) {
+        case OBJECT:
+          if (newValue) {
+            var style = node.style;
+            if (oldType === OBJECT) {
+              for (var key in oldValue) {
+                if (!(key in newValue)) {
+                  style[key] = '';
+                }
+              }
+            } else {
+              style.cssText = '';
+            }
+            for (var _key in newValue) {
+              var value = newValue[_key];
+              style[_key] = typeof value === NUMBER && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
+            }
+            oldType = OBJECT;
+            oldValue = newValue;
+            break;
+          }
+        default:
+          if (oldValue != newValue) {
+            oldType = STRING;
+            oldValue = newValue;
+            node.style.cssText = newValue || '';
+          }
+          break;
       }
     };
   } else {

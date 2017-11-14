@@ -14,8 +14,10 @@ export const CONNECTED = 'connected';
 export const DISCONNECTED = 'dis' + CONNECTED;
 
 // hyperHTML related constants
-export const SHOULD_USE_ATTRIBUTE = /^style$/i;
-export const SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 export const EXPANDO = '_hyper: ';
+export const SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 export const UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
 export const UIDC = '<!--' + UID + '-->';
+
+// same as https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
+export const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;

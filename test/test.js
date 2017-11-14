@@ -144,7 +144,7 @@ tressa.async(function (done) {
       `;
     };
     var node = update();
-    tressa.assert(node.nodeName === 'P', 'correct node');
+    tressa.assert(node.nodeName.toLowerCase() === 'p', 'correct node');
     var same = update();
     tressa.assert(node === same, 'same node returned');
 
@@ -203,6 +203,7 @@ tressa.async(function (done) {
         top: ${point.y}px;
       `}">O</span>`;
     }
+    try { update(); } catch(e) { console.error(e) }
     tressa.assert(update() === update(), 'same output');
     tressa.assert(hyperHTML.wire(point) === hyperHTML.wire(point), 'same wire');
     done();
@@ -806,6 +807,16 @@ tressa.async(function (done) {
       }
     }, 100);
   });
+})
+.then(function () {
+  tressa.log('## style=${fun}');
+  var render = hyperHTML.wire();
+  var p = render`<p style=${{fontSize:24}}></p>`;
+  tressa.assert(p.style.fontSize, p.style.fontSize);
+  render`<p style=${{}}></p>`;
+  tressa.assert(!p.style.fontSize, 'object cleaned');
+  render`<p style=${'font-size: 18px'}></p>`;
+  tressa.assert(p.style.fontSize, p.style.fontSize);
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
