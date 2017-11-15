@@ -433,6 +433,7 @@ tressa.async(function (done) {
   let p = last`<p data=${last}>${0}</p>`;
   const UID = p.childNodes[1].data;
   last`<textarea new>${`<!--${UID}-->`}</textarea>`;
+  hyperHTML.wire()`<p><!--ok--></p>`;
 })
 .then(function () {
   tressa.log('## no WebKit backfire');
@@ -825,7 +826,6 @@ tressa.async(function (done) {
       }
       ondisconnected(e) {
         tressa.assert(e.type === 'disconnected', 'component disconnected');
-        done();
       }
       render() { return this.html`
         <p onconnected=${this} ondisconnected=${this}>hello</p>`;
@@ -837,7 +837,7 @@ tressa.async(function (done) {
       if (p.parentNode) {
         var e = document.createEvent('Event');
         e.initEvent('DOMNodeInserted', false, false);
-        Object.defineProperty(e, 'target', {value: p});
+        Object.defineProperty(e, 'target', {value: document.body});
         document.dispatchEvent(e);
         setTimeout(function () {
           e = document.createEvent('Event');
@@ -846,6 +846,13 @@ tressa.async(function (done) {
           document.dispatchEvent(e);
           delete p.disconnected;
           document.dispatchEvent(e);
+          setTimeout(function () {
+            e = document.createEvent('Event');
+            e.initEvent('DOMNodeInserted', false, false);
+            Object.defineProperty(e, 'target', {value: {}});
+            document.dispatchEvent(e);
+            done();
+          }, 100);
         }, 100);
       }
     }, 100);

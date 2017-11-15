@@ -74,31 +74,28 @@ const create = (root, paths) => {
 // involved in the DOM update/change and dispatch
 // related information to them
 const dispatchAll = (nodes, type) => {
-  const isConnected = type === CONNECTED;
+  const event = new Event(type);
   const length = nodes.length;
-  for (let event, i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     let node = nodes[i];
     if (node.nodeType === ELEMENT_NODE) {
-      event = dispatchTarget(node, isConnected, type, event);
+      dispatchTarget(node, event);
     }
   }
 };
 
 // the way it's done is via the components weak set
 // and recursively looking for nested components too
-const dispatchTarget = (node, isConnected, type, event) => {
+const dispatchTarget = (node, event) => {
   if (components.has(node)) {
-    if (!event) event = new Event(type);
     node.dispatchEvent(event);
-  }
-  else {
+  } else {
     const children = node.children;
     const length = children.length;
     for (let i = 0; i < length; i++) {
-      event = dispatchTarget(children[i], isConnected, type, event);
+      dispatchTarget(children[i], event);
     }
   }
-  return event;
 }
 
 // finding all paths is a one-off operation performed
@@ -133,6 +130,11 @@ const find = (node, paths, parts) => {
         }
         break;
       case TEXT_NODE:
+        // the following ignore is actually covered by browsers
+        // only basicHTML ends up on previous COMMENT_NODE case
+        // instead of TEXT_NODE because it knows nothing about
+        // special style or textarea behavior
+        /* istanbul ignore if */
         if (
           SHOULD_USE_TEXT_CONTENT.test(node.nodeName) &&
           trim.call(child.textContent) === UIDC
@@ -164,9 +166,15 @@ const findAttributes = (node, paths, parts) => {
     const attribute = array[i];
     if (attribute.value === UID) {
       const name = attribute.name;
+      // the following ignore is covered by IE
+      // and the IE9 double viewBox test
+      /* istanbul ignore else */
       if (!(name in cache)) {
         const realName = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
         cache[name] = attributes[realName] ||
+                      // the following ignore is covered by browsers
+                      // while basicHTML is already case-sensitive
+                      /* istanbul ignore next */
                       attributes[realName.toLowerCase()];
         paths.push(Path.create('attr', cache[name], realName));
       }

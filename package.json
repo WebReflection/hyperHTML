@@ -15,7 +15,8 @@
     "max": "rollup --config rollup.config.js && npm run cleanup",
     "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
-    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
+    "ignore-majinbuu": "sed -i 's#if (toLength || TOO_MANY) {#/* istanbul ignore next */ if (toLength || TOO_MANY) {#' index.c.js && sed -i 's#if (length) {#/* istanbul ignore else */ if (length) {#' index.c.js",
+    "test": "cp index.js index.c.js && npm run ignore-majinbuu &&  echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
   },
   "repository": {
     "type": "git",

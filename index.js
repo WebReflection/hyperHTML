@@ -472,13 +472,29 @@ var createFragment = function createFragment(node, html) {
 // merge nodes together
 var cloneNode = hasDoomedCloneNode ? function (node) {
   var clone = node.cloneNode();
-  var childNodes = node.childNodes || [];
+  var childNodes = node.childNodes ||
+  // this is an excess of caution
+  // but some node, in IE, might not
+  // have childNodes property.
+  // The following fallback ensure working code
+  // in older IE without compromising performance
+  // or any other browser/engine involved.
+  /* istanbul ignore next */
+  [];
   var length = childNodes.length;
   for (var i = 0; i < length; i++) {
     clone.appendChild(cloneNode(childNodes[i]));
   }
   return clone;
-} : function (node) {
+} :
+// the following ignore is due code-coverage
+// combination of not having document.importNode
+// but having a working node.cloneNode.
+// This shenario is common on older Android/WebKit browsers
+// but basicHTML here tests just two major cases:
+// with document.importNode or with broken cloneNode.
+/* istanbul ignore next */
+function (node) {
   return node.cloneNode(true);
 };
 
@@ -681,30 +697,28 @@ var create$1 = function create$$1(root, paths) {
 // involved in the DOM update/change and dispatch
 // related information to them
 var dispatchAll = function dispatchAll(nodes, type) {
-  var isConnected = type === CONNECTED;
+  var event = new Event(type);
   var length = nodes.length;
-  for (var event, i = 0; i < length; i++) {
+  for (var i = 0; i < length; i++) {
     var node = nodes[i];
     if (node.nodeType === ELEMENT_NODE) {
-      event = dispatchTarget(node, isConnected, type, event);
+      dispatchTarget(node, event);
     }
   }
 };
 
 // the way it's done is via the components weak set
 // and recursively looking for nested components too
-var dispatchTarget = function dispatchTarget(node, isConnected, type, event) {
+var dispatchTarget = function dispatchTarget(node, event) {
   if (components.has(node)) {
-    if (!event) event = new Event(type);
     node.dispatchEvent(event);
   } else {
     var children = node.children;
     var length = children.length;
     for (var i = 0; i < length; i++) {
-      event = dispatchTarget(children[i], isConnected, type, event);
+      dispatchTarget(children[i], event);
     }
   }
-  return event;
 };
 
 // finding all paths is a one-off operation performed
@@ -736,6 +750,11 @@ var find = function find(node, paths, parts) {
         }
         break;
       case TEXT_NODE:
+        // the following ignore is actually covered by browsers
+        // only basicHTML ends up on previous COMMENT_NODE case
+        // instead of TEXT_NODE because it knows nothing about
+        // special style or textarea behavior
+        /* istanbul ignore if */
         if (SHOULD_USE_TEXT_CONTENT.test(node.nodeName) && trim.call(child.textContent) === UIDC) {
           parts.shift();
           paths.push(Path.create('text', node));
@@ -764,9 +783,16 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
     var attribute = array[i];
     if (attribute.value === UID) {
       var name = attribute.name;
+      // the following ignore is covered by IE
+      // and the IE9 double viewBox test
+      /* istanbul ignore else */
       if (!(name in cache)) {
         var realName = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
-        cache[name] = attributes[realName] || attributes[realName.toLowerCase()];
+        cache[name] = attributes[realName] ||
+        // the following ignore is covered by browsers
+        // while basicHTML is already case-sensitive
+        /* istanbul ignore next */
+        attributes[realName.toLowerCase()];
         paths.push(Path.create('attr', cache[name], realName));
       }
       remove.push(attribute);

@@ -60,13 +60,28 @@ export const createFragment = (node, html) =>
 const cloneNode = hasDoomedCloneNode ?
   node => {
     const clone = node.cloneNode();
-    const childNodes = node.childNodes || [];
+    const childNodes = node.childNodes ||
+                      // this is an excess of caution
+                      // but some node, in IE, might not
+                      // have childNodes property.
+                      // The following fallback ensure working code
+                      // in older IE without compromising performance
+                      // or any other browser/engine involved.
+                      /* istanbul ignore next */
+                      [];
     const length = childNodes.length;
     for (let i = 0; i < length; i++) {
       clone.appendChild(cloneNode(childNodes[i]));
     }
     return clone;
   } :
+  // the following ignore is due code-coverage
+  // combination of not having document.importNode
+  // but having a working node.cloneNode.
+  // This shenario is common on older Android/WebKit browsers
+  // but basicHTML here tests just two major cases:
+  // with document.importNode or with broken cloneNode.
+  /* istanbul ignore next */
   node => node.cloneNode(true);
 
 // used to import html into fragments
