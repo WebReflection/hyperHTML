@@ -966,36 +966,12 @@ var setAnyContent = function setAnyContent(node, childNodes) {
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
 var setAttribute = function setAttribute(node, name, original) {
-  var isStyle = name === 'style';
-  var isData = !isStyle && name === 'data';
+  var special = isSpecial(node, name);
   var oldValue = void 0;
-  if (!isStyle && !isData && /^on/.test(name)) {
-    var type = name.slice(2);
-    if (type === CONNECTED || type === DISCONNECTED) {
-      components.add(node);
-    } else if (name.toLowerCase() in node) {
-      type = type.toLowerCase();
-    }
-    return function (newValue) {
-      if (oldValue !== newValue) {
-        if (oldValue) node.removeEventListener(type, oldValue, false);
-        oldValue = newValue;
-        if (newValue) node.addEventListener(type, newValue, false);
-      }
-    };
-  } else if (isData || !isStyle && isSpecial(node, name)) {
-    return function (newValue) {
-      if (oldValue !== newValue) {
-        oldValue = newValue;
-        if (node[name] !== newValue) {
-          node[name] = newValue;
-          if (newValue == null) {
-            node.removeAttribute(name);
-          }
-        }
-      }
-    };
-  } else if (isStyle) {
+  // the attribute is considered special (no SVG)
+  // and the name is exactly the style one,
+  // use special style feature
+  if (special && name === 'style') {
     var oldType = void 0;
     return function (newValue) {
       switch (typeof newValue) {
@@ -1028,29 +1004,65 @@ var setAttribute = function setAttribute(node, name, original) {
           break;
       }
     };
-  } else {
-    var noOwner = true;
-    var attribute = original.cloneNode(true);
-    return function (newValue) {
-      if (oldValue !== newValue) {
-        oldValue = newValue;
-        if (attribute.value !== newValue) {
-          if (newValue == null) {
-            if (!noOwner) {
-              noOwner = true;
-              node.removeAttributeNode(attribute);
-            }
-          } else {
-            attribute.value = newValue;
-            if (noOwner) {
-              noOwner = false;
-              node.setAttributeNode(attribute);
+  }
+  // the name is an event one,
+  // add/remove event listeners accordingly
+  else if (/^on/.test(name)) {
+      var type = name.slice(2);
+      if (type === CONNECTED || type === DISCONNECTED) {
+        components.add(node);
+      } else if (name.toLowerCase() in node) {
+        type = type.toLowerCase();
+      }
+      return function (newValue) {
+        if (oldValue !== newValue) {
+          if (oldValue) node.removeEventListener(type, oldValue, false);
+          oldValue = newValue;
+          if (newValue) node.addEventListener(type, newValue, false);
+        }
+      };
+    }
+    // the attribute is special (no SVG) *or*
+    // the name is exactly data,
+    // in this case assign the value directly
+    else if (special || name === 'data') {
+        return function (newValue) {
+          if (oldValue !== newValue) {
+            oldValue = newValue;
+            if (node[name] !== newValue) {
+              node[name] = newValue;
+              if (newValue == null) {
+                node.removeAttribute(name);
+              }
             }
           }
-        }
+        };
       }
-    };
-  }
+      // in every other case, use the attribute node as it is
+      // update only the value, set it as node only when/if needed
+      else {
+          var owner = false;
+          var attribute = original.cloneNode(true);
+          return function (newValue) {
+            if (oldValue !== newValue) {
+              oldValue = newValue;
+              if (attribute.value !== newValue) {
+                if (newValue == null) {
+                  if (owner) {
+                    owner = false;
+                    node.removeAttributeNode(attribute);
+                  }
+                } else {
+                  attribute.value = newValue;
+                  if (!owner) {
+                    owner = true;
+                    node.setAttributeNode(attribute);
+                  }
+                }
+              }
+            }
+          };
+        }
 };
 
 // style or textareas don't accept HTML as content
