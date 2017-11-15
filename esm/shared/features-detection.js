@@ -15,4 +15,6 @@ export const hasDoomedCloneNode = testFragment.cloneNode(true).childNodes.length
 
 // old browsers need to fallback to cloneNode
 // Custom Elements V0 and V1 will work polyfilled
+// but native implementations need importNode instead
+// (specially Chromium and its old V0 implementation)
 export const hasImportNode = 'importNode' in document;

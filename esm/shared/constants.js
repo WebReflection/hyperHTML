@@ -1,4 +1,4 @@
-// Node.CONSTANTS (not every engine has Node)
+// Node.CONSTANTS (not every engine has a global Node defined)
 export const ELEMENT_NODE = 1;
 export const ATTRIBUTE_NODE = 2;
 export const TEXT_NODE = 3;

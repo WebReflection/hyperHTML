@@ -4,6 +4,11 @@ const hasOwnProperty = transformers.hasOwnProperty;
 
 let length = 0;
 
+// hyperHTML.define('intent', (object, update) => {...})
+// can be used to define a third parts update mechanism
+// when every other known mechanism failed.
+// hyper.define('user', info => info.name);
+// hyper(node)`<p>${{user}}</p>`;
 export default {
   define: (transformer, callback) => {
     if (!(transformer in transformers)) {

@@ -22,12 +22,12 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>44/44</span>
+        <span class='fraction'>41/41</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">87.5% </span>
+        <span class="strong">88.89% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>14/16</span>
+        <span class='fraction'>16/18</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -37,7 +37,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>40/40</span>
+        <span class='fraction'>37/37</span>
       </div>
     </div>
   </div>
@@ -98,11 +98,22 @@
 53
 54
 55
-56</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+56
+57
+58
+59
+60
+61
+62
+63
+64</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">83×</span>
@@ -110,11 +121,14 @@
 <span class="cline-any cline-yes">83×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">84×</span>
-<span class="cline-any cline-yes">84×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">84×</span>
 <span class="cline-any cline-yes">84×</span>
 <span class="cline-any cline-yes">84×</span>
@@ -130,26 +144,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">84×</span>
 <span class="cline-any cline-yes">84×</span>
-<span class="cline-any cline-yes">84×</span>
-<span class="cline-any cline-yes">48×</span>
 <span class="cline-any cline-yes">34×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">50×</span>
 <span class="cline-any cline-yes">14×</span>
 <span class="cline-any cline-yes">14×</span>
 <span class="cline-any cline-yes">40×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">14×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">84×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">177×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">197×</span>
-<span class="cline-any cline-yes">113×</span>
 <span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">113×</span>
-<span class="cline-any cline-yes">113×</span>
-<span class="cline-any cline-yes">113×</span>
+<span class="cline-any cline-yes">177×</span>
+<span class="cline-any cline-yes">177×</span>
+<span class="cline-any cline-yes">177×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
@@ -159,47 +175,55 @@ const Component = (m =&gt; m.__esModule ? m.default : <span class="branch-1 cbra
 const {fragment} = require('../shared/easy-dom.js');
 const {Map} = require('../shared/poorlyfills.js');
 &nbsp;
+// this class has one purpose:
+// provide a splice method shared
+// between all instances
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
   return majinbuu.aura(this, childNodes);
 }
 &nbsp;
+// majinbuu is fast but exponentially inefficient
+// if you are handling thousands of items (which you shouldn't)
+// calculating their diff might be too expensive.
+// Let's use raw DOM when list of items is 1K+
 Aura.MAX_LIST_SIZE = 999;
 &nbsp;
+// the splice is in charge of removing or adding nodes
 Aura.prototype.splice = function splice(start, end) {
   const values = new Map;
   const ph = this.node;
   const cn = this.childNodes;
-  const target = asNode(cn[start + (end || 0)] || ph);
+  const target = get(values, cn[start + (end || 0)] || ph);
   const result = cn.splice.apply(cn, arguments);
   const pn = ph.parentNode;
-  let i = 0;
-  let tmp;
   const reLength = result.length;
-  while (i &lt; reLength) {
-    tmp = result[i++];
+  for (let i = 0; i &lt; reLength; i++) {
+    const tmp = result[i];
     if (cn.indexOf(tmp) &lt; 0) {
       pn.removeChild(get(values, tmp));
     }
   }
-  i = 2;
   const arLength = arguments.length;
-  while (i &lt; arLength) {
-    if ((arLength - i) === 1) {
-      tmp = get(values, arguments[i++]);
-    } else {
-      tmp = fragment(pn);
-      while (i &lt; arLength) {
-        tmp.appendChild(get(values, arguments[i++]));
-      }
+  if (3 === arLength) {
+    pn.insertBefore(get(values, arguments[2]), target);
+  } else if (2 &lt; arLength) {
+    const tmp = fragment(pn);
+    for (let i = 2; i &lt; arLength; i++) {
+      tmp.appendChild(get(values, arguments[i]));
     }
     pn.insertBefore(tmp, target);
   }
   return result;
 };
 &nbsp;
+// an item could be an hyperHTML.Component and, in such case,
+// it should be rendered as node
 const asNode = node =&gt; node instanceof Component ? node.render() : node;
+&nbsp;
+// instead of checking instanceof each time and render potentially twice
+// use a map to retrieve nodes from a generic item
 const get = (map, node) =&gt; map.get(node) || set(map, node);
 const set = (map, node) =&gt; {
   const value = asNode(node);
@@ -214,7 +238,7 @@ Object.defineProperty(exports, '__esModule', {value: true}).default = Aura;
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Nov 14 2017 17:56:25 GMT-0300 (-03)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Nov 15 2017 10:50:43 GMT-0300 (-03)
 </div>
 </div>
 <script src="../../prettify.js"></script>

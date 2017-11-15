@@ -1,4 +1,5 @@
 'use strict';
+// these are tiny helpers to simplify most common operations needed here
 const create = (node, type) => doc(node).createElement(type);
 exports.create = create;
 const doc = node => node.ownerDocument || node;

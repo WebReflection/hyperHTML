@@ -1,6 +1,12 @@
 'use strict';
 const {UID} = require('./constants.js');
 
+// you know that kind of basics you need to cover
+// your use case only but you don't want to bloat the library?
+// There's even a package in here:
+// https://www.npmjs.com/package/poorlyfills
+
+// used to dispatch simple events
 let Event = global.Event;
 try {
   new Event('Event');
@@ -13,6 +19,7 @@ try {
 }
 exports.Event = Event;
 
+// used to store template literals
 const Map = global.Map || function Map() {
   const keys = [], values = [];
   return {
@@ -26,6 +33,7 @@ const Map = global.Map || function Map() {
 };
 exports.Map = Map;
 
+// used to store wired content
 const WeakMap = global.WeakMap || function WeakMap() {
   return {
     get(obj) { return obj[UID]; },
@@ -39,6 +47,7 @@ const WeakMap = global.WeakMap || function WeakMap() {
 };
 exports.WeakMap = WeakMap;
 
+// used to store hyper.Components
 const WeakSet = global.WeakSet || function WeakSet() {
   const wm = new WeakMap;
   return {
@@ -48,7 +57,7 @@ const WeakSet = global.WeakSet || function WeakSet() {
 };
 exports.WeakSet = WeakSet;
 
-// TODO: which browser needs these partial polyfills here?
+// used to be sure IE9 or older Androids work as expected
 const isArray = Array.isArray || (toString =>
   arr => toString.call(arr) === '[object Array]'
 )({}.toString);

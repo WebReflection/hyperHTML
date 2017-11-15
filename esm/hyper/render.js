@@ -7,9 +7,19 @@ import {
   unique
 } from '../shared/utils.js';
 
+// a weak collection of contexts that
+// are already known to hyperHTML
 const bewitched = new WeakMap;
+
+// the collection of all template literals
+// since these are unique and immutable
+// for the whole application life-cycle
 const templates = new Map;
 
+// better known as hyper.bind(node), the render is
+// the main tag function in charge of fully upgrading
+// or simply updating, contexts used as hyperHTML targets.
+// The `this` context is either a regular DOM node or a fragment.
 function render(template) {
   const wicked = bewitched.get(this);
   if (wicked && wicked.template === unique(template)) {
@@ -20,6 +30,10 @@ function render(template) {
   return this;
 }
 
+// an upgrade is in charge of collecting template info,
+// parse it once, if unknown, to map all interpolations
+// as single DOM callbacks, relate such template
+// to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
   const info =  templates.get(template) ||
@@ -32,6 +46,7 @@ function upgrade(template) {
   this.appendChild(fragment);
 }
 
+// an update simply loops over all mapped DOM operations
 function update() {
   const length = arguments.length;
   for (let i = 1; i < length; i++) {
@@ -39,6 +54,10 @@ function update() {
   }
 }
 
+// a template can be used to create a document fragment
+// aware of all interpolations and with a list
+// of paths used to find once those nodes that need updates,
+// no matter if these are attributes, text nodes, or regular one
 function createTemplate(template) {
   const paths = [];
   const fragment = createFragment(this, template.join(UIDC));

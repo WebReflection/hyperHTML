@@ -1,5 +1,13 @@
+// hyperHTML.Component is a very basic class
+// able to create Custom Elements like components
+// including the ability to listen to connect/disconnect
+// events via onconnect/ondisconnect attributes
 export default function Component() {}
 
+// components will lazily define html or svg properties
+// as soon as these are invoked within the .render() method
+// Such render() method is not provided by the base class
+// but it must be available through the Component extend.
 export function setup(content) {
   Object.defineProperties(
     Component.prototype,
@@ -25,6 +33,10 @@ export function setup(content) {
   );
 }
 
+// instead of a secret key I could've used a WeakMap
+// However, attaching a property directly will result
+// into better performance with thousands of components
+// hanging around, and less memory pressure caused by the WeakMap
 const lazyGetter = (type, fn) => {
   const secret = '_' + type + '$';
   return {

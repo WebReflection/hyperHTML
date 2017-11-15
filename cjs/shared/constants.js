@@ -1,5 +1,5 @@
 'use strict';
-// Node.CONSTANTS (not every engine has Node)
+// Node.CONSTANTS (not every engine has a global Node defined)
 const ELEMENT_NODE = 1;
 exports.ELEMENT_NODE = ELEMENT_NODE;
 const ATTRIBUTE_NODE = 2;

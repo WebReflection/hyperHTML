@@ -17,6 +17,8 @@ const {create, doc, fragment} = require('./easy-dom.js');
 
 // appends an array of nodes
 // to a generic node/fragment
+// When available, uses append passing all arguments at once
+// hoping that's somehow faster, even if append has more checks on type
 const append = hasAppend ?
   (node, childNodes) => {
     node.append.apply(node, childNodes);
@@ -44,6 +46,9 @@ const comments = ($0, $1, $2, $3) =>
   $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 const replaceAttributes = ($0, $1, $2) => $1 + ($2 || '"') + UID + ($2 || '"');
 
+// given a node and a generic HTML content,
+// create either an SVG or an HTML fragment
+// where such content will be injected
 const createFragment = (node, html) =>
   (OWNER_SVG_ELEMENT in node ?
     SVGFragment :
@@ -51,6 +56,10 @@ const createFragment = (node, html) =>
   )(node, html.replace(no, comments));
 exports.createFragment = createFragment;
 
+// IE/Edge shenanigans proof cloneNode
+// it goes through all nodes manually
+// instead of relying the engine to suddenly
+// merge nodes together
 const cloneNode = hasDoomedCloneNode ?
   node => {
     const clone = node.cloneNode();
@@ -62,17 +71,30 @@ const cloneNode = hasDoomedCloneNode ?
     return clone;
   } :
   node => node.cloneNode(true);
+
+// used to import html into fragments
 const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
   (doc, node) => cloneNode(node)
 exports.importNode = importNode
 
+// just recycling a one-off array to use slice
+// in every needed place
 const slice = [].slice;
 exports.slice = slice;
 
-// lazy evaluated
+// lazy evaluated, returns the unique identity
+// of a template literal, as tempalte literal itself.
+// By default, ES2015 template literals are unique
+// tag`a${1}z` === tag`a${2}z`
+// even if interpolated values are different
+// the template chunks are in a frozen Array
+// that is identical each time you use the same
+// literal to represent same static content
+// around its own interpolations.
 const unique = template => TL(template);
 exports.unique = unique;
+
 // TL returns a unique version of the template
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
@@ -103,6 +125,9 @@ let TL = template => {
   return TL(template);
 };
 
+// create document fragments via native template
+// with a fallback for browsers that won't be able
+// to deal with some injected element such <td> or others
 const HTMLFragment = hasContent ?
   (node, html) => {
     const container = create(node, 'template');
@@ -123,6 +148,8 @@ const HTMLFragment = hasContent ?
     return content;
   };
 
+// creates SVG fragment with a fallback for IE that needs SVG
+// within the HTML content
 const SVGFragment = hasContent ?
   (node, html) => {
     const content = fragment(node);

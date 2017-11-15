@@ -478,6 +478,34 @@ tressa.async(function (done) {
   }`;
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
 })
+.then(function () {return tressa.async(function (done) {
+  tressa.log('## textarea text');
+  var div = document.createElement('div');
+  hyperHTML.bind(div)`<textarea>${1}</textarea>`;
+  var ta = div.firstElementChild;
+  tressa.assert(ta.textContent === '1', 'primitives are fine');
+  hyperHTML.bind(div)`<textarea>${null}</textarea>`;
+  tressa.assert(ta.textContent === '', 'null/undefined is fine');
+  var p = Promise.resolve('OK');
+  hyperHTML.bind(div)`<textarea>${p}</textarea>`;
+  p.then(function () {
+    console.log(div.innerHTML);
+    tressa.assert(ta.textContent === 'OK', 'promises are fine');
+    hyperHTML.bind(div)`<textarea>${{text: 'text'}}</textarea>`;
+    tressa.assert(ta.textContent === 'text', 'text is fine');
+    hyperHTML.bind(div)`<textarea>${{html: 'html'}}</textarea>`;
+    tressa.assert(ta.textContent === 'html', 'html is fine');
+    hyperHTML.bind(div)`<textarea>${{any: 'any'}}</textarea>`;
+    tressa.assert(ta.textContent === 'any', 'any is fine');
+    hyperHTML.bind(div)`<textarea>${['ar', 'ray']}</textarea>`;
+    tressa.assert(ta.textContent === 'array', 'array is fine');
+    hyperHTML.bind(div)`<textarea>${{placeholder: 'placeholder'}}</textarea>`;
+    tressa.assert(ta.textContent === 'placeholder', 'placeholder is fine');
+    hyperHTML.bind(div)`<textarea>${{unknown: 'unknown'}}</textarea>`;
+    tressa.assert(ta.textContent === '', 'intents are fine');
+    done();
+  });
+})})
 .then(function () {
   tressa.log('## attributes with weird chars');
   var div = document.createElement('div');

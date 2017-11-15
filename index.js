@@ -163,8 +163,16 @@ var performOperations = function performOperations(target, operations) {
 
 majinbuu.aura = aura;
 
+// hyperHTML.Component is a very basic class
+// able to create Custom Elements like components
+// including the ability to listen to connect/disconnect
+// events via onconnect/ondisconnect attributes
 function Component() {}
 
+// components will lazily define html or svg properties
+// as soon as these are invoked within the .render() method
+// Such render() method is not provided by the base class
+// but it must be available through the Component extend.
 function setup(content) {
   Object.defineProperties(Component.prototype, {
     handleEvent: {
@@ -195,6 +203,10 @@ function setup(content) {
   });
 }
 
+// instead of a secret key I could've used a WeakMap
+// However, attaching a property directly will result
+// into better performance with thousands of components
+// hanging around, and less memory pressure caused by the WeakMap
 var lazyGetter = function lazyGetter(type, fn) {
   var secret = '_' + type + '$';
   return {
@@ -207,6 +219,7 @@ var lazyGetter = function lazyGetter(type, fn) {
   };
 };
 
+// these are tiny helpers to simplify most common operations needed here
 var create = function create(node, type) {
   return doc(node).createElement(type);
 };
@@ -220,7 +233,7 @@ var text = function text(node, _text) {
   return doc(node).createTextNode(_text);
 };
 
-// Node.CONSTANTS (not every engine has Node)
+// Node.CONSTANTS (not every engine has a global Node defined)
 var ELEMENT_NODE = 1;
 
 var TEXT_NODE = 3;
@@ -244,6 +257,12 @@ var UIDC = '<!--' + UID + '-->';
 // same as https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
 var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
 
+// you know that kind of basics you need to cover
+// your use case only but you don't want to bloat the library?
+// There's even a package in here:
+// https://www.npmjs.com/package/poorlyfills
+
+// used to dispatch simple events
 var Event = global.Event;
 try {
   new Event('Event');
@@ -254,6 +273,7 @@ try {
     return e;
   };
 }
+// used to store template literals
 var Map = global.Map || function Map() {
   var keys = [],
       values = [];
@@ -267,6 +287,7 @@ var Map = global.Map || function Map() {
   };
 };
 
+// used to store wired content
 var WeakMap = global.WeakMap || function WeakMap() {
   return {
     get: function get(obj) {
@@ -281,6 +302,7 @@ var WeakMap = global.WeakMap || function WeakMap() {
   };
 };
 
+// used to store hyper.Components
 var WeakSet = global.WeakSet || function WeakSet() {
   var wm = new WeakMap();
   return {
@@ -293,7 +315,7 @@ var WeakSet = global.WeakSet || function WeakSet() {
   };
 };
 
-// TODO: which browser needs these partial polyfills here?
+// used to be sure IE9 or older Androids work as expected
 var isArray = Array.isArray || function (toString) {
   return function (arr) {
     return toString.call(arr) === '[object Array]';
@@ -304,49 +326,57 @@ var trim = UID.trim || function () {
   return this.replace(/^\s+|\s+$/g, '');
 };
 
+// this class has one purpose:
+// provide a splice method shared
+// between all instances
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
   return majinbuu.aura(this, childNodes);
 }
 
+// majinbuu is fast but exponentially inefficient
+// if you are handling thousands of items (which you shouldn't)
+// calculating their diff might be too expensive.
+// Let's use raw DOM when list of items is 1K+
 Aura.MAX_LIST_SIZE = 999;
 
+// the splice is in charge of removing or adding nodes
 Aura.prototype.splice = function splice(start, end) {
   var values = new Map();
   var ph = this.node;
   var cn = this.childNodes;
-  var target = asNode(cn[start + (end || 0)] || ph);
+  var target = get(values, cn[start + (end || 0)] || ph);
   var result = cn.splice.apply(cn, arguments);
   var pn = ph.parentNode;
-  var i = 0;
-  var tmp = void 0;
   var reLength = result.length;
-  while (i < reLength) {
-    tmp = result[i++];
+  for (var i = 0; i < reLength; i++) {
+    var tmp = result[i];
     if (cn.indexOf(tmp) < 0) {
       pn.removeChild(get(values, tmp));
     }
   }
-  i = 2;
   var arLength = arguments.length;
-  while (i < arLength) {
-    if (arLength - i === 1) {
-      tmp = get(values, arguments[i++]);
-    } else {
-      tmp = fragment(pn);
-      while (i < arLength) {
-        tmp.appendChild(get(values, arguments[i++]));
-      }
+  if (3 === arLength) {
+    pn.insertBefore(get(values, arguments[2]), target);
+  } else if (2 < arLength) {
+    var _tmp = fragment(pn);
+    for (var _i = 2; _i < arLength; _i++) {
+      _tmp.appendChild(get(values, arguments[_i]));
     }
-    pn.insertBefore(tmp, target);
+    pn.insertBefore(_tmp, target);
   }
   return result;
 };
 
+// an item could be an hyperHTML.Component and, in such case,
+// it should be rendered as node
 var asNode = function asNode(node) {
   return node instanceof Component ? node.render() : node;
 };
+
+// instead of checking instanceof each time and render potentially twice
+// use a map to retrieve nodes from a generic item
 var get = function get(map, node) {
   return map.get(node) || set(map, node);
 };
@@ -362,6 +392,11 @@ var hasOwnProperty = transformers.hasOwnProperty;
 
 var length = 0;
 
+// hyperHTML.define('intent', (object, update) => {...})
+// can be used to define a third parts update mechanism
+// when every other known mechanism failed.
+// hyper.define('user', info => info.name);
+// hyper(node)`<p>${{user}}</p>`;
 var Transformer = {
   define: function define(transformer, callback) {
     if (!(transformer in transformers)) {
@@ -394,10 +429,14 @@ var hasDoomedCloneNode = testFragment.cloneNode(true).childNodes.length === 1;
 
 // old browsers need to fallback to cloneNode
 // Custom Elements V0 and V1 will work polyfilled
+// but native implementations need importNode instead
+// (specially Chromium and its old V0 implementation)
 var hasImportNode = 'importNode' in document;
 
 // appends an array of nodes
 // to a generic node/fragment
+// When available, uses append passing all arguments at once
+// hoping that's somehow faster, even if append has more checks on type
 var append = hasAppend ? function (node, childNodes) {
   node.append.apply(node, childNodes);
 } : function (node, childNodes) {
@@ -420,10 +459,17 @@ var replaceAttributes = function replaceAttributes($0, $1, $2) {
   return $1 + ($2 || '"') + UID + ($2 || '"');
 };
 
+// given a node and a generic HTML content,
+// create either an SVG or an HTML fragment
+// where such content will be injected
 var createFragment = function createFragment(node, html) {
   return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
 };
 
+// IE/Edge shenanigans proof cloneNode
+// it goes through all nodes manually
+// instead of relying the engine to suddenly
+// merge nodes together
 var cloneNode = hasDoomedCloneNode ? function (node) {
   var clone = node.cloneNode();
   var childNodes = node.childNodes || [];
@@ -435,18 +481,31 @@ var cloneNode = hasDoomedCloneNode ? function (node) {
 } : function (node) {
   return node.cloneNode(true);
 };
+
+// used to import html into fragments
 var importNode = hasImportNode ? function (doc$$1, node) {
   return doc$$1.importNode(node, true);
 } : function (doc$$1, node) {
   return cloneNode(node);
 };
 
+// just recycling a one-off array to use slice
+// in every needed place
 var slice = [].slice;
 
-// lazy evaluated
+// lazy evaluated, returns the unique identity
+// of a template literal, as tempalte literal itself.
+// By default, ES2015 template literals are unique
+// tag`a${1}z` === tag`a${2}z`
+// even if interpolated values are different
+// the template chunks are in a frozen Array
+// that is identical each time you use the same
+// literal to represent same static content
+// around its own interpolations.
 var unique = function unique(template) {
   return _TL(template);
 };
+
 // TL returns a unique version of the template
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
@@ -472,6 +531,9 @@ var _TL = function TL(template) {
   return _TL(template);
 };
 
+// create document fragments via native template
+// with a fallback for browsers that won't be able
+// to deal with some injected element such <td> or others
 var HTMLFragment = hasContent ? function (node, html) {
   var container = create(node, 'template');
   container.innerHTML = html;
@@ -490,6 +552,8 @@ var HTMLFragment = hasContent ? function (node, html) {
   return content;
 };
 
+// creates SVG fragment with a fallback for IE that needs SVG
+// within the HTML content
 var SVGFragment = hasContent ? function (node, html) {
   var content = fragment(node);
   var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
@@ -504,10 +568,17 @@ var SVGFragment = hasContent ? function (node, html) {
   return content;
 };
 
-var prepend = function prepend(path, parent, node) {
-  path.unshift('childNodes', path.indexOf.call(parent.childNodes, node));
-};
-
+// every template literal interpolation indicates
+// a precise target in the DOM the template is representing.
+// `<p id=${'attribute'}>some ${'content'}</p>`
+// hyperHTML finds only once per template literal,
+// hence once per entire application life-cycle,
+// all nodes that are related to interpolations.
+// These nodes are stored as indexes used to retrieve,
+// once per upgrade, nodes that will change on each future update.
+// A path example is [2, 0, 1] representing the operation:
+// node.childNodes[2].childNodes[0].childNodes[1]
+// Attributes are addressed via their owner node and their name.
 var createPath = function createPath(node) {
   var path = [];
   var parentNode = void 0;
@@ -530,6 +601,10 @@ var createPath = function createPath(node) {
   return path;
 };
 
+var prepend = function prepend(path, parent, node) {
+  path.unshift(path.indexOf.call(parent.childNodes, node));
+};
+
 var Path = {
   create: function create(type, node, name) {
     return { type: type, name: name, node: node, path: createPath(node) };
@@ -537,26 +612,47 @@ var Path = {
   find: function find(node, path) {
     var length = path.length;
     for (var i = 0; i < length; i++) {
-      node = node[path[i++]][path[i]];
+      node = node.childNodes[path[i]];
     }
     return node;
   }
 };
 
+// if you want to use Promises as interpolation value
+// be sure your browser supports them or provide a polyfill
+// before including/importing hyperHTML
+var Promise = global.Promise;
+
+// primitives are useful interpolations values
+// and will result in very fast operations
+// for either attributes or nodes content updates
 var NUMBER = 'number';
 var OBJECT = 'object';
 var STRING = 'string';
 
-var Promise = global.Promise;
+// hyper.Component have a connected/disconnected
+// mechanism provided by MutationObserver
+// This weak set is used to recognize components
+// as DOM node that needs to trigger connected/disconnected events
 var components = new WeakSet();
 
+// a basic dictionary used to filter already cached attributes
+// while looking for special hyperHTML values.
 function Cache() {}
 Cache.prototype = Object.create(null);
 
+// returns an intent to explicitly inject content as html
 var asHTML = function asHTML(html) {
   return { html: html };
 };
 
+// updates are created once per context upgrade
+// within the main render function (../hyper/render.js)
+// These are an Array of callbacks to invoke passing
+// each interpolation value.
+// Updates can be related to any kind of content,
+// attributes, or special text-only cases such <style>
+// elements or <textarea>
 var create$1 = function create$$1(root, paths) {
   var updates = [];
   var length = paths.length;
@@ -578,6 +674,12 @@ var create$1 = function create$$1(root, paths) {
   return updates;
 };
 
+// when hyper.Component related DOM nodes
+// are appended or removed from the live tree
+// these might listen to connected/disconnected events
+// This utility is in charge of finding all components
+// involved in the DOM update/change and dispatch
+// related information to them
 var dispatchAll = function dispatchAll(nodes, type) {
   var isConnected = type === CONNECTED;
   var length = nodes.length;
@@ -589,6 +691,8 @@ var dispatchAll = function dispatchAll(nodes, type) {
   }
 };
 
+// the way it's done is via the components weak set
+// and recursively looking for nested components too
 var dispatchTarget = function dispatchTarget(node, isConnected, type, event) {
   if (components.has(node)) {
     if (!event) event = new Event(type);
@@ -603,6 +707,14 @@ var dispatchTarget = function dispatchTarget(node, isConnected, type, event) {
   return event;
 };
 
+// finding all paths is a one-off operation performed
+// when a new template literal is used.
+// The goal is to map all target nodes that will be
+// used to update content/attributes every time
+// the same template literal is used to create content.
+// The result is a list of paths related to the template
+// with all the necessary info to create updates as
+// list of callbacks that target directly affected nodes.
 var find = function find(node, paths, parts) {
   var childNodes = node.childNodes;
   var length = childNodes.length;
@@ -619,7 +731,7 @@ var find = function find(node, paths, parts) {
           paths.push(
           // basicHTML or other non standard engines
           // might end up having comments in nodes
-          // where they shouldn't
+          // where they shouldn't, hence this check.
           SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? Path.create('text', node) : Path.create('any', child));
         }
         break;
@@ -633,6 +745,15 @@ var find = function find(node, paths, parts) {
   }
 };
 
+// attributes are searched via unique hyperHTML id value.
+// Despite HTML being case insensitive, hyperHTML is able
+// to recognize attributes by name in a caseSensitive way.
+// This plays well with Custom Elements definitions
+// and also with XML-like environments, without trusting
+// the resulting DOM but the template literal as the source of truth.
+// IE/Edge has a funny bug with attributes and these might be duplicated.
+// This is why there is a cache in charge of being sure no duplicated
+// attributes are ever considered in future updates.
 var findAttributes$1 = function findAttributes(node, paths, parts) {
   var cache = new Cache();
   var attributes = node.attributes;
@@ -656,6 +777,10 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
   }
 };
 
+// when a Promise is used as interpolation value
+// its result must be parsed once resolved.
+// This callback is in charge of understanding what to do
+// with a returned value once the promise is resolved.
 var invokeAtDistance = function invokeAtDistance(value, callback) {
   callback(value.placeholder);
   if ('text' in value) {
@@ -669,19 +794,41 @@ var invokeAtDistance = function invokeAtDistance(value, callback) {
   }
 };
 
+// quick and dirty ways to check a value type without abusing instanceof
 var isNode_ish = function isNode_ish(value) {
   return 'ELEMENT_NODE' in value;
 };
 var isPromise_ish = function isPromise_ish(value) {
   return value != null && 'then' in value;
 };
+
+// special attributes are usually available through their owner class
+// 'value' in input
+// 'src' in img
+// and so on. These attributes don't act properly via get/setAttribute
+// so in these case their value is set, or retrieved, right away
+// input.value = ...
+// img.src = ...
 var isSpecial = function isSpecial(node, name) {
   return !(OWNER_SVG_ELEMENT in node) && name in node;
 };
 
+// whenever a list of nodes/components is updated
+// there might be updates or not.
+// If the new list has different length, there's surely
+// some DOM operation to perform.
+// Otherwise operations should be performed **only**
+// if the content od the two lists is different from before.
+// Majinbuu is the project in charge of computing these differences.
+// It uses the Levenshtein distance algorithm to produce the least amount
+// of splice operations an Array needs to become like another Array.
 var optimist = function optimist(aura$$1, value) {
   var length = aura$$1.length;
   if (value.length !== length) {
+    // TODO: there's room for improvements for common cases
+    // where a single node has been appended or prepended
+    // and the whole Levenshtein distance computation
+    // would be overkill
     majinbuu(aura$$1, value, Aura.MAX_LIST_SIZE);
   } else {
     for (var i = 0; i < length--; i++) {
@@ -693,6 +840,15 @@ var optimist = function optimist(aura$$1, value) {
   }
 };
 
+// in a hyper(node)`<div>${content}</div>` case
+// everything could happen:
+//  * it's a JS primitive, stored as text
+//  * it's null or undefined, the node should be cleaned
+//  * it's a component, update the content by rendering it
+//  * it's a promise, update the content once resolved
+//  * it's an explicit intent, perform the desired operation
+//  * it's an Array, resolve all values if Promises and/or
+//    update the node with the resulting list of content
 var setAnyContent = function setAnyContent(node, childNodes) {
   var aura$$1 = new Aura(node, childNodes);
   var oldValue = void 0;
@@ -776,6 +932,13 @@ var setAnyContent = function setAnyContent(node, childNodes) {
   return anyContent;
 };
 
+// there are four kind of attributes, and related behavior:
+//  * events, with a name starting with `on`, to add/remove event listeners
+//  * special, with a name present in their inherited prototype, accessed directly
+//  * regular, accessed through get/setAttribute standard DOM methods
+//  * style, the only regular attribute that also accepts an object as value
+//    so that you can style=${{width: 120}}. In this case, the behavior has been
+//    fully inspired by Preact library and its simplicity.
 var setAttribute = function setAttribute(node, name, original) {
   var isStyle = name === 'style';
   var isData = !isStyle && name === 'data';
@@ -864,13 +1027,43 @@ var setAttribute = function setAttribute(node, name, original) {
   }
 };
 
+// style or textareas don't accept HTML as content
+// it's pointless to transform or analyze anything
+// different from text there but it's worth checking
+// for possible defined intents.
 var setTextContent = function setTextContent(node) {
   var oldValue = void 0;
-  return function (newValue) {
-    if (oldValue !== newValue) node.textContent = oldValue = newValue;
+  var textContent = function textContent(value) {
+    if (oldValue !== value) {
+      oldValue = value;
+      if (typeof value === 'object' && value) {
+        if (isPromise_ish(value)) {
+          value.then(textContent);
+        } else if ('placeholder' in value) {
+          invokeAtDistance(value, textContent);
+        } else if ('text' in value) {
+          textContent(String(value.text));
+        } else if ('any' in value) {
+          textContent(value.any);
+        } else if ('html' in value) {
+          textContent([].concat(value.html).join(''));
+        } else if ('length' in value) {
+          textContent(slice.call(value).join(''));
+        } else {
+          textContent(Transformer.invoke(value, textContent));
+        }
+      } else {
+        node.textContent = value == null ? '' : value;
+      }
+    }
   };
+  return textContent;
 };
 
+// hyper.Components might need connected/disconnected notifications
+// The MutationObserver is the best way to implement that
+// but there is a fallback to deprecated DOMNodeInserted/Removed
+// so that even older browsers/engines can help components life-cycle
 try {
   new MutationObserver(function (records) {
     var length = records.length;
@@ -891,9 +1084,19 @@ try {
 
 var Updates = { create: create$1, find: find };
 
+// a weak collection of contexts that
+// are already known to hyperHTML
 var bewitched = new WeakMap();
+
+// the collection of all template literals
+// since these are unique and immutable
+// for the whole application life-cycle
 var templates = new Map();
 
+// better known as hyper.bind(node), the render is
+// the main tag function in charge of fully upgrading
+// or simply updating, contexts used as hyperHTML targets.
+// The `this` context is either a regular DOM node or a fragment.
 function render(template) {
   var wicked = bewitched.get(this);
   if (wicked && wicked.template === unique(template)) {
@@ -904,6 +1107,10 @@ function render(template) {
   return this;
 }
 
+// an upgrade is in charge of collecting template info,
+// parse it once, if unknown, to map all interpolations
+// as single DOM callbacks, relate such template
+// to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
   var info = templates.get(template) || createTemplate.call(this, template);
@@ -915,6 +1122,7 @@ function upgrade(template) {
   this.appendChild(fragment);
 }
 
+// an update simply loops over all mapped DOM operations
 function update() {
   var length = arguments.length;
   for (var i = 1; i < length; i++) {
@@ -922,6 +1130,10 @@ function update() {
   }
 }
 
+// a template can be used to create a document fragment
+// aware of all interpolations and with a list
+// of paths used to find once those nodes that need updates,
+// no matter if these are attributes, text nodes, or regular one
 function createTemplate(template) {
   var paths = [];
   var fragment = createFragment(this, template.join(UIDC));
@@ -931,12 +1143,28 @@ function createTemplate(template) {
   return info;
 }
 
+// all wires used per each context
 var wires = new WeakMap();
 
+// A wire is a callback used as tag function
+// to lazily relate a generic object to a template literal.
+// hyper.wire(user)`<div id=user>${user.name}</div>`; => the div#user
+// This provides the ability to have a unique DOM structure
+// related to a unique JS object through a reusable template literal.
+// A wire can specify a type, as svg or html, and also an id
+// via html:id or :id convention. Such :id allows same JS objects
+// to be associated to different DOM structures accordingly with
+// the used template literal without losing previously rendered parts.
 var wire = function wire(obj, type) {
   return obj == null ? content(type || 'html') : weakly(obj, type || 'html');
 };
 
+// A wire content is a virtual reference to one or more nodes.
+// It's represented by either a DOM node, or an Array.
+// In both cases, the wire content role is to simply update
+// all nodes through the list of related callbacks.
+// In few words, a wire content is like an invisible parent node
+// in charge of updating its content like a bound element would do.
 var content = function content(type) {
   var wire = void 0,
       container = void 0,
@@ -963,6 +1191,9 @@ var content = function content(type) {
   };
 };
 
+// wires are weakly created through objects.
+// Each object can have multiple wires associated
+// and this is thanks to the type + :id feature.
 var weakly = function weakly(obj, type) {
   var i = type.indexOf(':');
   var wire = wires.get(obj);
@@ -975,6 +1206,16 @@ var weakly = function weakly(obj, type) {
   return wire[id] || (wire[id] = content(type));
 };
 
+// a document fragment loses its nodes as soon
+// as it's appended into another node.
+// This would easily lose wired content
+// so that on a second render call, the parent
+// node wouldn't know which node was there
+// associated to the interpolation.
+// To prevent hyperHTML to forget about wired nodes,
+// these are either returned as Array or, if there's ony one entry,
+// as single referenced node that won't disappear from the fragment.
+// The initial fragment, at this point, would be used as unique reference.
 var wireContent = function wireContent(node) {
   var childNodes = node.childNodes;
   var length = childNodes.length;
@@ -988,6 +1229,10 @@ var wireContent = function wireContent(node) {
   return wire.length === 1 ? wire[0] : wire;
 };
 
+// all functions are self bound to the right context
+// you can do the following
+// const {bind, wire} = hyperHTML;
+// and use them right away: bind(node)`hello!`;
 var bind = function bind(context) {
   return render.bind(context);
 };
@@ -999,6 +1244,9 @@ hyper.hyper = hyper;
 hyper.wire = wire;
 hyper.Component = Component;
 
+// if needed, you can increase or decrease
+// the maximum amount of nodes per list
+// to compute via majinbuu algorithm
 Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
   get: function get() {
     return Aura.MAX_LIST_SIZE;
@@ -1008,8 +1256,13 @@ Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
   }
 });
 
+// the wire content is the lazy defined
+// html or svg property of each hyper.Component
 setup(content);
 
+// by default, hyperHTML is a smart function
+// that "magically" understands what's the best
+// thing to do with passed arguments
 function hyper(HTML) {
   return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? render.bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : wire).apply(null, arguments);
 }

@@ -13,18 +13,39 @@ const {text} = require('../shared/easy-dom.js');
 const {Event, WeakSet, isArray, trim} = require('../shared/poorlyfills.js');
 const {createFragment, slice} = require('../shared/utils.js');
 
+// if you want to use Promises as interpolation value
+// be sure your browser supports them or provide a polyfill
+// before including/importing hyperHTML
+const Promise = global.Promise;
+
+// primitives are useful interpolations values
+// and will result in very fast operations
+// for either attributes or nodes content updates
 const NUMBER = 'number';
 const OBJECT = 'object';
 const STRING = 'string';
 
-const Promise = global.Promise;
+// hyper.Component have a connected/disconnected
+// mechanism provided by MutationObserver
+// This weak set is used to recognize components
+// as DOM node that needs to trigger connected/disconnected events
 const components = new WeakSet;
 
+// a basic dictionary used to filter already cached attributes
+// while looking for special hyperHTML values.
 function Cache() {}
 Cache.prototype = Object.create(null);
 
+// returns an intent to explicitly inject content as html
 const asHTML = html => ({html});
 
+// updates are created once per context upgrade
+// within the main render function (../hyper/render.js)
+// These are an Array of callbacks to invoke passing
+// each interpolation value.
+// Updates can be related to any kind of content,
+// attributes, or special text-only cases such <style>
+// elements or <textarea>
 const create = (root, paths) => {
   const updates = [];
   const length = paths.length;
@@ -46,6 +67,12 @@ const create = (root, paths) => {
   return updates;
 };
 
+// when hyper.Component related DOM nodes
+// are appended or removed from the live tree
+// these might listen to connected/disconnected events
+// This utility is in charge of finding all components
+// involved in the DOM update/change and dispatch
+// related information to them
 const dispatchAll = (nodes, type) => {
   const isConnected = type === CONNECTED;
   const length = nodes.length;
@@ -57,6 +84,8 @@ const dispatchAll = (nodes, type) => {
   }
 };
 
+// the way it's done is via the components weak set
+// and recursively looking for nested components too
 const dispatchTarget = (node, isConnected, type, event) => {
   if (components.has(node)) {
     if (!event) event = new Event(type);
@@ -72,6 +101,14 @@ const dispatchTarget = (node, isConnected, type, event) => {
   return event;
 }
 
+// finding all paths is a one-off operation performed
+// when a new template literal is used.
+// The goal is to map all target nodes that will be
+// used to update content/attributes every time
+// the same template literal is used to create content.
+// The result is a list of paths related to the template
+// with all the necessary info to create updates as
+// list of callbacks that target directly affected nodes.
 const find = (node, paths, parts) => {
   const childNodes = node.childNodes;
   const length = childNodes.length;
@@ -88,7 +125,7 @@ const find = (node, paths, parts) => {
           paths.push(
             // basicHTML or other non standard engines
             // might end up having comments in nodes
-            // where they shouldn't
+            // where they shouldn't, hence this check.
             SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ?
               Path.create('text', node) :
               Path.create('any', child)
@@ -108,6 +145,15 @@ const find = (node, paths, parts) => {
   }
 };
 
+// attributes are searched via unique hyperHTML id value.
+// Despite HTML being case insensitive, hyperHTML is able
+// to recognize attributes by name in a caseSensitive way.
+// This plays well with Custom Elements definitions
+// and also with XML-like environments, without trusting
+// the resulting DOM but the template literal as the source of truth.
+// IE/Edge has a funny bug with attributes and these might be duplicated.
+// This is why there is a cache in charge of being sure no duplicated
+// attributes are ever considered in future updates.
 const findAttributes = (node, paths, parts) => {
   const cache = new Cache;
   const attributes = node.attributes;
@@ -133,6 +179,10 @@ const findAttributes = (node, paths, parts) => {
   }
 };
 
+// when a Promise is used as interpolation value
+// its result must be parsed once resolved.
+// This callback is in charge of understanding what to do
+// with a returned value once the promise is resolved.
 const invokeAtDistance = (value, callback) => {
   callback(value.placeholder);
   if ('text' in value) {
@@ -146,13 +196,35 @@ const invokeAtDistance = (value, callback) => {
   }
 };
 
+// quick and dirty ways to check a value type without abusing instanceof
 const isNode_ish = value => 'ELEMENT_NODE' in value;
 const isPromise_ish = value => value != null && 'then' in value;
+
+// special attributes are usually available through their owner class
+// 'value' in input
+// 'src' in img
+// and so on. These attributes don't act properly via get/setAttribute
+// so in these case their value is set, or retrieved, right away
+// input.value = ...
+// img.src = ...
 const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 
+// whenever a list of nodes/components is updated
+// there might be updates or not.
+// If the new list has different length, there's surely
+// some DOM operation to perform.
+// Otherwise operations should be performed **only**
+// if the content od the two lists is different from before.
+// Majinbuu is the project in charge of computing these differences.
+// It uses the Levenshtein distance algorithm to produce the least amount
+// of splice operations an Array needs to become like another Array.
 const optimist = (aura, value) => {
   let length = aura.length;
   if (value.length !== length) {
+    // TODO: there's room for improvements for common cases
+    // where a single node has been appended or prepended
+    // and the whole Levenshtein distance computation
+    // would be overkill
     majinbuu(aura, value, Aura.MAX_LIST_SIZE);
   } else {
     for (let i = 0; i < length--; i++) {
@@ -164,6 +236,15 @@ const optimist = (aura, value) => {
   }
 };
 
+// in a hyper(node)`<div>${content}</div>` case
+// everything could happen:
+//  * it's a JS primitive, stored as text
+//  * it's null or undefined, the node should be cleaned
+//  * it's a component, update the content by rendering it
+//  * it's a promise, update the content once resolved
+//  * it's an explicit intent, perform the desired operation
+//  * it's an Array, resolve all values if Promises and/or
+//    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
   const aura = new Aura(node, childNodes);
   let oldValue;
@@ -258,6 +339,13 @@ const setAnyContent = (node, childNodes) => {
   return anyContent;
 };
 
+// there are four kind of attributes, and related behavior:
+//  * events, with a name starting with `on`, to add/remove event listeners
+//  * special, with a name present in their inherited prototype, accessed directly
+//  * regular, accessed through get/setAttribute standard DOM methods
+//  * style, the only regular attribute that also accepts an object as value
+//    so that you can style=${{width: 120}}. In this case, the behavior has been
+//    fully inspired by Preact library and its simplicity.
 const setAttribute = (node, name, original) => {
   const isStyle = name === 'style';
   const isData = !isStyle && name === 'data';
@@ -349,14 +437,43 @@ const setAttribute = (node, name, original) => {
   }
 };
 
+// style or textareas don't accept HTML as content
+// it's pointless to transform or analyze anything
+// different from text there but it's worth checking
+// for possible defined intents.
 const setTextContent = node => {
   let oldValue;
-  return newValue => {
-    if (oldValue !== newValue)
-      node.textContent = (oldValue = newValue);
+  const textContent = value => {
+    if (oldValue !== value) {
+      oldValue = value;
+      if (typeof value === 'object' && value) {
+        if (isPromise_ish(value)) {
+          value.then(textContent);
+        } else if ('placeholder' in value) {
+          invokeAtDistance(value, textContent);
+        } else if ('text' in value) {
+          textContent(String(value.text));
+        } else if ('any' in value) {
+          textContent(value.any);
+        } else if ('html' in value) {
+          textContent([].concat(value.html).join(''));
+        } else if ('length' in value) {
+          textContent(slice.call(value).join(''));
+        } else {
+          textContent(Transformer.invoke(value, textContent));
+        }
+      } else {
+        node.textContent = value == null ? '' : value;
+      }
+    }
   };
+  return textContent;
 };
 
+// hyper.Components might need connected/disconnected notifications
+// The MutationObserver is the best way to implement that
+// but there is a fallback to deprecated DOMNodeInserted/Removed
+// so that even older browsers/engines can help components life-cycle
 try {
   (new MutationObserver(records => {
     const length = records.length;

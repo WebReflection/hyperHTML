@@ -4,6 +4,10 @@ import Transformer from './objects/Transformer.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 
+// all functions are self bound to the right context
+// you can do the following
+// const {bind, wire} = hyperHTML;
+// and use them right away: bind(node)`hello!`;
 const bind = context => render.bind(context);
 const define = Transformer.define;
 
@@ -13,6 +17,9 @@ hyper.hyper = hyper;
 hyper.wire = wire;
 hyper.Component = Component;
 
+// if needed, you can increase or decrease
+// the maximum amount of nodes per list
+// to compute via majinbuu algorithm
 Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
   get() { return Aura.MAX_LIST_SIZE; },
   set(value) {
@@ -20,10 +27,17 @@ Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
   }
 });
 
+// the wire content is the lazy defined
+// html or svg property of each hyper.Component
 setup(content);
 
+// everything is exported directly or through the
+// hyperHTML callback, when used as top level script
 export {Component, bind, define, hyper, wire};
 
+// by default, hyperHTML is a smart function
+// that "magically" understands what's the best
+// thing to do with passed arguments
 export default function hyper(HTML) {
   return arguments.length < 2 ?
     (HTML == null ?
