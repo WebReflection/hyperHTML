@@ -509,6 +509,10 @@ tressa.async(function (done) {
       tressa.assert(ta.textContent === 'any', 'any is fine');
       hyperHTML.bind(div)(_templateObject38, ['ar', 'ray']);
       tressa.assert(ta.textContent === 'array', 'array is fine');
+      hyperHTML.bind(div)(_templateObject38, { placeholder: 'placeholder' });
+      tressa.assert(ta.textContent === 'placeholder', 'placeholder is fine');
+      hyperHTML.bind(div)(_templateObject38, { unknown: 'unknown' });
+      tressa.assert(ta.textContent === '', 'intents are fine');
       done();
     });
   });

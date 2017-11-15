@@ -1,19 +1,3 @@
-var projectFiles = [
-  '../cjs/classes/Aura.js',
-  '../cjs/classes/Component.js',
-  '../cjs/hyper/render.js',
-  '../cjs/hyper/wire.js',
-  '../cjs/objects/Path.js',
-  '../cjs/objects/Transformer.js',
-  '../cjs/objects/Updates.js',
-  '../cjs/shared/constants.js',
-  '../cjs/shared/easy-dom.js',
-  '../cjs/shared/features-detection.js',
-  '../cjs/shared/poorlyfills.js',
-  '../cjs/shared/utils.js',
-  '../cjs/main.js'
-];
-
 function usableAfter(object, property, times) {
   if (!times) times = 0;
   var original = object[property], i = 0;
@@ -42,15 +26,13 @@ customElements.define('input', class extends HTMLElement {
   set value(text) { this.setAttribute('value', text); }
 });
 
-global.hyperHTML = require('../cjs/main.js').default;
+global.hyperHTML = require('../index.c.js');
 
 require('./test.js');
 
 setTimeout(function () {
 
-  projectFiles.forEach(name => {
-    delete require.cache[require.resolve(name)];
-  });
+  delete require.cache[require.resolve('../index.c.js')];
   delete require.cache[require.resolve('./test.js')];
 
   usableAfter(Array, 'isArray', 1);
@@ -58,6 +40,7 @@ setTimeout(function () {
 
   global.navigator = {userAgent: 'Firefox/54'};
 
+  delete global.Int32Array;
   delete document.importNode;
   delete Object.getPrototypeOf(document.constructor.prototype).importNode;
   delete Object.getPrototypeOf(document.createDocumentFragment().constructor.prototype).append;
@@ -104,7 +87,7 @@ setTimeout(function () {
     }};
   };
 
-  global.hyperHTML = require('../cjs/main.js').default;
+  global.hyperHTML = require('../index.c.js');
   require('./test.js');
 
 }, 1000);

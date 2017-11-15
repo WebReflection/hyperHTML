@@ -15,7 +15,7 @@
     "max": "rollup --config rollup.config.js && npm run cleanup",
     "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c min.js | wc -c",
-    "test": "istanbul cover test/runner.js"
+    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
   },
   "repository": {
     "type": "git",
