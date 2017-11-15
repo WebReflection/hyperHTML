@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>hyperHTML &amp; majinbuu Smart Diffing</title>
+    <style>
+    user-info {
+      display: block;
+    }
+    user-info small {
+      font-family: monospace;
+      font-size: .7em;
+    }
+    </style>
+    <script src="../min.js"></script>
+    <script src="https://unpkg.com/ce-v0@latest/min.js"></script>
+    <script src="https://unpkg.com/ce-v0@latest/comp.js"></script>
+    <script>
+    // basic Custom Element
+    Component({
+      name: 'user-info',
+      onconnected: function () {
+        // log some super useful info
+        console.log('connected: ' + this.getAttribute('name'));
+      }
+    });
+
+    // executed on load
+    this.onload = function () {
+      var wire = hyperHTML.wire;
+      var users = [
+        {name: 'Zoe', age: 34},
+        {name: 'Brian', age: 29},
+        {name: 'Stephen', age: 50},
+        {name: 'Alan', age: 14},
+        {name: 'Joe', age: 31}
+      ];
+
+      // first update, populate the body
+      update();
+
+      // after one second
+      setTimeout(function () {
+
+        // sort the users list by name
+        users.sort(function (a, b) {
+          return a.name < b.name ? -1 : 1;
+        });
+
+        // let's see who was moved around
+        update();
+
+        // after another second
+        setTimeout(function () {
+
+          // sort the users list by age
+          users.sort(function (a, b) {
+            return a.age - b.age;
+          });
+
+          // let's see who was moved around
+          update();
+        }, 1000);
+
+      }, 1000);
+
+      function update() {
+        hyperHTML.bind(document.body)`${
+          users.map(function (user) {
+            return wire(user)
+              `<user-info name=${user.name}>
+                  <small>${user.age}</small> ${user.name}
+              </user-info>`;
+          })
+        }`;
+        console.log('- - - - - - - - - -');
+      }
+    };
+
+    </script>
+  </head>
+  <body></body>
+</html>
