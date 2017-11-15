@@ -8,12 +8,18 @@
 A **Fast & Light Virtual DOM Alternative** available for [NodeJS](https://viperhtml.js.org/viper.html) and [NativeScript](https://viperhtml.js.org/native.html) too.
 - - -
 
-### Warning
+### V2 Highlights
 
-Current **master** branch is currently under heavy refactoring.
+Following most important changes in version 2:
 
-Please use the [official site](https://viperhtml.js.org) to check examples on Code Pen and/or read the documentation.
-
+  * fully rewritten, and [consumable](https://unpkg.com/hyperhtml@latest/esm/main.js), as [ES2015 Module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
+  * [usable via CDN](https://unpkg.com/hyperhtml@latest/min.js) as bundled global `hyperHTML` variable
+  * restructured in modules, utilities, helpers, and commented all over for simplified contribution
+  * **removed** `.escape` and `.adopt`, either useless or unstable. `hyperHTML.adopt` will be implemented as module a part
+  * **added** support for objects as `style` attribute, fully compatible with [Preact](https://github.com/developit/preact) implementation
+  * **improved** performance in numerous ways
+  * **custom elements** V0 and V1 are now fully, and properly, supported through `document.importNode` and/or regular `cloneNode` tested against common polyfills
+  * back to 4.8K thanks to **rollup** and its ability to merge all the things together like it was already in V1
 
 ## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
