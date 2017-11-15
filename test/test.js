@@ -826,6 +826,7 @@ tressa.async(function (done) {
       }
       ondisconnected(e) {
         tressa.assert(e.type === 'disconnected', 'component disconnected');
+        done();
       }
       render() { return this.html`
         <p onconnected=${this} ondisconnected=${this}>hello</p>`;
@@ -841,17 +842,16 @@ tressa.async(function (done) {
         document.dispatchEvent(e);
         setTimeout(function () {
           e = document.createEvent('Event');
-          e.initEvent('DOMNodeRemoved', false, false);
-          Object.defineProperty(e, 'target', {value: p});
-          document.dispatchEvent(e);
-          delete p.disconnected;
+          e.initEvent('DOMNodeInserted', false, false);
+          Object.defineProperty(e, 'target', {value: document.createTextNode('')});
           document.dispatchEvent(e);
           setTimeout(function () {
             e = document.createEvent('Event');
-            e.initEvent('DOMNodeInserted', false, false);
-            Object.defineProperty(e, 'target', {value: {}});
+            e.initEvent('DOMNodeRemoved', false, false);
+            Object.defineProperty(e, 'target', {value: p});
             document.dispatchEvent(e);
-            done();
+            delete p.disconnected;
+            document.dispatchEvent(e);
           }, 100);
         }, 100);
       }

@@ -908,6 +908,7 @@ tressa.async(function (done) {
         key: 'ondisconnected',
         value: function ondisconnected(e) {
           tressa.assert(e.type === 'disconnected', 'component disconnected');
+          // done();
         }
       }, {
         key: 'render',
@@ -937,7 +938,7 @@ tressa.async(function (done) {
           setTimeout(function () {
             e = document.createEvent('Event');
             e.initEvent('DOMNodeInserted', false, false);
-            Object.defineProperty(e, 'target', { value: {} });
+            Object.defineProperty(e, 'target', { value: document.createTextNode('asd') });
             document.dispatchEvent(e);
             done();
           }, 100);
