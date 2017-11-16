@@ -63,9 +63,14 @@
     "rollup-plugin-alias": "^1.4.0",
     "rollup-plugin-babel": "^3.0.2",
     "tressa": "^0.3.1",
-    "uglify-js": "^3.1.9"
+    "uglify-js": "^2.8.29"
   },
   "dependencies": {
     "majinbuu": "^1.1.2"
+  },
+  "greenkeeper": {
+    "ignore": [
+      "uglify-js"
+    ]
   }
 }
