@@ -32,7 +32,3 @@ const UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
 exports.UID = UID;
 const UIDC = '<!--' + UID + '-->';
 exports.UIDC = UIDC;
-
-// same as https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
-const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
-exports.IS_NON_DIMENSIONAL = IS_NON_DIMENSIONAL;

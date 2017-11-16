@@ -254,9 +254,6 @@ var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
 var UIDC = '<!--' + UID + '-->';
 
-// same as https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
-var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
-
 // you know that kind of basics you need to cover
 // your use case only but you don't want to bloat the library?
 // There's even a package in here:
@@ -634,17 +631,80 @@ var Path = {
   }
 };
 
+// from https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
+var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
+
+// style is handled as both string and object
+// even if the target is an SVG element (consistency)
+var Style = (function (node, original, isSVG) {
+  if (isSVG) {
+    var style = original.cloneNode(true);
+    style.value = '';
+    node.setAttributeNode(style);
+    return update$1(style, isSVG);
+  }
+  return update$1(node.style, isSVG);
+});
+
+// the update takes care or changing/replacing
+// only properties that are different or
+// in case of string, the whole node
+var update$1 = function update(style, isSVG) {
+  var oldType = void 0,
+      oldValue = void 0;
+  return function (newValue) {
+    switch (typeof newValue) {
+      case 'object':
+        if (newValue) {
+          if (oldType === 'object') {
+            if (!isSVG) {
+              if (oldValue !== newValue) {
+                for (var key in oldValue) {
+                  if (!(key in newValue)) {
+                    style[key] = '';
+                  }
+                }
+              }
+            }
+          } else {
+            if (isSVG) style.value = '';else style.cssText = '';
+          }
+          var info = isSVG ? {} : style;
+          for (var _key in newValue) {
+            var value = newValue[_key];
+            info[_key] = typeof value === 'number' && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
+          }
+          oldType = 'object';
+          if (isSVG) style.value = toStyle(oldValue = info);else oldValue = newValue;
+          break;
+        }
+      default:
+        if (oldValue != newValue) {
+          oldType = 'string';
+          oldValue = newValue;
+          if (isSVG) style.value = newValue || '';else style.cssText = newValue || '';
+        }
+        break;
+    }
+  };
+};
+
+var hyphen = /([^A-Z])([A-Z]+)/g;
+var ized = function ized($0, $1, $2) {
+  return $1 + '-' + $2.toLowerCase();
+};
+var toStyle = function toStyle(object) {
+  var css = [];
+  for (var key in object) {
+    css.push(key.replace(hyphen, ized), ':', object[key], ';');
+  }
+  return css.join('');
+};
+
 // if you want to use Promises as interpolation value
 // be sure your browser supports them or provide a polyfill
 // before including/importing hyperHTML
 var Promise = global.Promise;
-
-// primitives are useful interpolations values
-// and will result in very fast operations
-// for either attributes or nodes content updates
-var NUMBER = 'number';
-var OBJECT = 'object';
-var STRING = 'string';
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -828,17 +888,6 @@ var isPromise_ish = function isPromise_ish(value) {
   return value != null && 'then' in value;
 };
 
-// special attributes are usually available through their owner class
-// 'value' in input
-// 'src' in img
-// and so on. These attributes don't act properly via get/setAttribute
-// so in these case their value is set, or retrieved, right away
-// input.value = ...
-// img.src = ...
-var isSpecial = function isSpecial(node, name) {
-  return !(OWNER_SVG_ELEMENT in node) && name in node;
-};
-
 // whenever a list of nodes/components is updated
 // there might be updates or not.
 // If the new list has different length, there's surely
@@ -880,8 +929,8 @@ var setAnyContent = function setAnyContent(node, childNodes) {
   var oldValue = void 0;
   var anyContent = function anyContent(value) {
     switch (typeof value) {
-      case STRING:
-      case NUMBER:
+      case 'string':
+      case 'number':
       case 'boolean':
         var length = childNodes.length;
         if (length === 1 && childNodes[0].nodeType === TEXT_NODE) {
@@ -898,7 +947,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
           }
         }
         break;
-      case OBJECT:
+      case 'object':
       case 'undefined':
         if (value == null) {
           oldValue = value;
@@ -912,12 +961,12 @@ var setAnyContent = function setAnyContent(node, childNodes) {
             aura$$1.splice(0);
           } else {
             switch (typeof value[0]) {
-              case STRING:
-              case NUMBER:
+              case 'string':
+              case 'number':
               case 'boolean':
                 anyContent({ html: value });
                 break;
-              case OBJECT:
+              case 'object':
                 if (isArray(value[0])) {
                   value = value.concat.apply([], value);
                 }
@@ -966,44 +1015,12 @@ var setAnyContent = function setAnyContent(node, childNodes) {
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
 var setAttribute = function setAttribute(node, name, original) {
-  var special = isSpecial(node, name);
+  var isSVG = OWNER_SVG_ELEMENT in node;
   var oldValue = void 0;
-  // the attribute is considered special (no SVG)
-  // and the name is exactly the style one,
-  // use special style feature
-  if (special && name === 'style') {
-    var oldType = void 0;
-    return function (newValue) {
-      switch (typeof newValue) {
-        case OBJECT:
-          if (newValue) {
-            var style = node.style;
-            if (oldType === OBJECT) {
-              for (var key in oldValue) {
-                if (!(key in newValue)) {
-                  style[key] = '';
-                }
-              }
-            } else {
-              style.cssText = '';
-            }
-            for (var _key in newValue) {
-              var value = newValue[_key];
-              style[_key] = typeof value === NUMBER && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
-            }
-            oldType = OBJECT;
-            oldValue = newValue;
-            break;
-          }
-        default:
-          if (oldValue != newValue) {
-            oldType = STRING;
-            oldValue = newValue;
-            node.style.cssText = newValue || '';
-          }
-          break;
-      }
-    };
+  // if the attribute is the style one
+  // handle it differently from others
+  if (name === 'style') {
+    return Style(node, original, isSVG);
   }
   // the name is an event one,
   // add/remove event listeners accordingly
@@ -1022,10 +1039,10 @@ var setAttribute = function setAttribute(node, name, original) {
         }
       };
     }
-    // the attribute is special (no SVG) *or*
-    // the name is exactly data,
+    // the attribute is special ('value' in input)
+    // and it's not SVG *or* the name is exactly data,
     // in this case assign the value directly
-    else if (special || name === 'data') {
+    else if (name === 'data' || !isSVG && name in node) {
         return function (newValue) {
           if (oldValue !== newValue) {
             oldValue = newValue;

@@ -4,7 +4,6 @@ import {
   CONNECTED, DISCONNECTED,
   COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE,
   OWNER_SVG_ELEMENT,
-  IS_NON_DIMENSIONAL,
   SHOULD_USE_TEXT_CONTENT,
   UID, UIDC
 } from '../shared/constants.js';
@@ -12,6 +11,7 @@ import {
 import Aura from '../classes/Aura.js';
 import Component from '../classes/Component.js';
 import Path from './Path.js';
+import Style from './Style.js';
 import Transformer from './Transformer.js';
 import {text} from '../shared/easy-dom.js';
 import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
@@ -21,13 +21,6 @@ import {createFragment, slice} from '../shared/utils.js';
 // be sure your browser supports them or provide a polyfill
 // before including/importing hyperHTML
 const Promise = global.Promise;
-
-// primitives are useful interpolations values
-// and will result in very fast operations
-// for either attributes or nodes content updates
-const NUMBER = 'number';
-const OBJECT = 'object';
-const STRING = 'string';
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -262,8 +255,8 @@ const setAnyContent = (node, childNodes) => {
   let oldValue;
   const anyContent = value => {
     switch (typeof value) {
-      case STRING:
-      case NUMBER:
+      case 'string':
+      case 'number':
       case 'boolean':
         let length = childNodes.length;
         if (
@@ -286,7 +279,7 @@ const setAnyContent = (node, childNodes) => {
           }
         }
         break;
-      case OBJECT:
+      case 'object':
       case 'undefined':
         if (value == null) {
           oldValue = value;
@@ -300,12 +293,12 @@ const setAnyContent = (node, childNodes) => {
             aura.splice(0);
           } else {
             switch (typeof value[0]) {
-              case STRING:
-              case NUMBER:
+              case 'string':
+              case 'number':
               case 'boolean':
                 anyContent({html: value});
                 break;
-              case OBJECT:
+              case 'object':
                 if (isArray(value[0])) {
                   value = value.concat.apply([], value);
                 }
@@ -359,46 +352,12 @@ const setAnyContent = (node, childNodes) => {
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
 const setAttribute = (node, name, original) => {
-  const special = isSpecial(node, name);
+  const isSVG = OWNER_SVG_ELEMENT in node;
   let oldValue;
-  // the attribute is considered special (no SVG)
-  // and the name is exactly the style one,
-  // use special style feature
-  if (special && name === 'style') {
-    let oldType;
-    return newValue => {
-      switch (typeof newValue) {
-        case OBJECT:
-          if (newValue) {
-            const style = node.style;
-            if (oldType === OBJECT) {
-              for (const key in oldValue) {
-                if (!(key in newValue)) {
-                  style[key] = '';
-                }
-              }
-            } else {
-              style.cssText = '';
-            }
-            for (const key in newValue) {
-              const value = newValue[key];
-              style[key] =  typeof value === NUMBER &&
-                            !IS_NON_DIMENSIONAL.test(key) ?
-                              (value + 'px') : value;
-            }
-            oldType = OBJECT;
-            oldValue = newValue;
-            break;
-          }
-        default:
-          if (oldValue != newValue) {
-            oldType = STRING;
-            oldValue = newValue;
-            node.style.cssText = newValue || '';
-          }
-          break;
-      }
-    };
+  // if the attribute is the style one
+  // handle it differently from others
+  if (name === 'style') {
+    return Style(node, original, isSVG);
   }
   // the name is an event one,
   // add/remove event listeners accordingly
@@ -418,10 +377,10 @@ const setAttribute = (node, name, original) => {
       }
     };
   }
-  // the attribute is special (no SVG) *or*
-  // the name is exactly data,
+  // the attribute is special ('value' in input)
+  // and it's not SVG *or* the name is exactly data,
   // in this case assign the value directly
-  else if (special || name === 'data') {
+  else if (name === 'data' || (!isSVG && name in node)) {
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;

@@ -427,13 +427,29 @@ tressa.async(function (done) {
   last`<textarea style=${{vh: 10, vw: 1}}>${'same text'}</textarea>`;
   last`<textarea style=${null}>${'same text'}</textarea>`;
   last`<textarea style=${''}>${'same text'}</textarea>`;
-  last`<textarea style=${{ord: 0}}>${'same text'}</textarea>`;
+  const sameStyle = {ord: 0};
+  last`<textarea style=${sameStyle}>${'same text'}</textarea>`;
+  last`<textarea style=${sameStyle}>${'same text'}</textarea>`;
   last`<p data=${last}></p>`;
   last`<p data=${last}></p>`;
   let p = last`<p data=${last}>${0}</p>`;
   const UID = p.childNodes[1].data;
   last`<textarea new>${`<!--${UID}-->`}</textarea>`;
   hyperHTML.wire()`<p><!--ok--></p>`;
+})
+.then(function () {
+  tressa.log('## SVG and style');
+  var render = hyperHTML.wire(null, 'svg');
+  Object.prototype.ownerSVGElement = null;
+  var node = render`<rect style=${{}} />`;
+  delete Object.prototype.ownerSVGElement;
+  render`<rect style=${{width: 100}} />`;
+  console.log(node.getAttribute('style'));
+  tressa.assert(node.getAttribute('style') === 'width:100px;', 'correct style object');
+  render`<rect style=${'height:10px;'} />`;
+  tressa.assert(node.getAttribute('style') === 'height:10px;', 'correct style string');
+  render`<rect style=${null} />`;
+  tressa.assert(node.getAttribute('style') === '', 'correct style reset');
 })
 .then(function () {
   tressa.log('## no WebKit backfire');
