@@ -1,9 +1,10 @@
 # hyper(HTML)
 
+[![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate)
+[![Coverage Status](https://coveralls.io/repos/github/WebReflection/hyperHTML/badge.svg?branch=master)](https://coveralls.io/github/WebReflection/hyperHTML?branch=master)
+[![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 [![Greenkeeper badge](https://badges.greenkeeper.io/WebReflection/hyperHTML.svg)](https://greenkeeper.io/)
-
-[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC) [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML) [![Coverage Status](https://coveralls.io/repos/github/WebReflection/hyperHTML/badge.svg?branch=master)](https://coveralls.io/github/WebReflection/hyperHTML?branch=master) [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate)
-
 
 <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
 
@@ -22,6 +23,10 @@ Following most important changes in version 2:
   * **improved** performance in numerous ways
   * **custom elements** V0 and V1 are now fully, and properly, supported through `document.importNode` and/or regular `cloneNode` tested against common polyfills
   * back to 4.8K thanks to **rollup** and its ability to merge all the things together like it was already in V1
+
+## Documentation
+
+A proper documentation full of examples can be found in [viperhtml.js.org](https://viperhtml.js.org/).
 
 ## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
@@ -56,10 +61,6 @@ You can verify directly through the following links:
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/) for browsers natively compatible with string literals
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/ie/) for IE9+ and browsers that need transpiled code
   * [coverage without experimental adopt feature](https://webreflection.github.io/hyperHTML/test/ie/?noadopt)
-
-## Documentation
-
-A proper documentation full of examples can be found in [viperhtml.js.org](https://viperhtml.js.org/).
 
 ## Questions ?
 
