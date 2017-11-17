@@ -220,31 +220,22 @@ const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
   const aura = new Aura(node, childNodes);
+  let fastPath = false;
   let oldValue;
   const anyContent = value => {
     switch (typeof value) {
       case 'string':
       case 'number':
       case 'boolean':
-        let length = childNodes.length;
-        if (
-          length === 1 &&
-          childNodes[0].nodeType === TEXT_NODE
-        ) {
+        if (fastPath) {
           if (oldValue !== value) {
             oldValue = value;
             childNodes[0].textContent = value;
           }
         } else {
+          fastPath = true;
           oldValue = value;
-          if (length) {
-            aura.splice(0, length, text(node, value));
-          } else {
-            node.parentNode.insertBefore(
-              (childNodes[0] = text(node, value)),
-              node
-            );
-          }
+          aura.empty(text(node, value));
         }
         break;
       case 'object':
@@ -258,7 +249,7 @@ const setAnyContent = (node, childNodes) => {
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.splice(0);
+            aura.empty();
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -280,7 +271,7 @@ const setAnyContent = (node, childNodes) => {
             }
           }
         } else if (value instanceof Component) {
-          aura.become([value]);
+          aura.empty(value);
         } else if (isNode_ish(value)) {
           aura.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
             slice.call(value.childNodes) :
@@ -294,7 +285,7 @@ const setAnyContent = (node, childNodes) => {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.splice(0);
+          aura.empty();
           const fragment = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment.childNodes);
           node.parentNode.insertBefore(fragment, node);

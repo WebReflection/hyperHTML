@@ -169,8 +169,27 @@ function Aura(node, childNodes) {
   this.childNodes = childNodes;
 }
 
+Aura.prototype.empty = function empty(value) {
+  var node = this.node;
+  var childNodes = this.childNodes;
+  var pn = node.parentNode;
+  var length = childNodes.length;
+  if (length) {
+    var remove = childNodes.splice(0, length);
+    while (length--) {
+      pn.removeChild(asNode(remove[length]));
+    }
+  }
+  if (value) {
+    childNodes.push(value);
+    pn.insertBefore(asNode(value), node);
+  }
+};
+
 Aura.prototype.become = function become(virtual) {
+  var node = this.node;
   var live = this.childNodes;
+  var pn = node.parentNode;
   var vlength = virtual.length;
   var llength = live.length;
   var l = 0;
@@ -180,64 +199,46 @@ Aura.prototype.become = function become(virtual) {
     var vv = virtual[v];
     var status = lv === vv ? 0 : live.indexOf(vv) < 0 ? 1 : -1;
     if (status < 0) {
-      this.splice(l, 1);
+      live.splice(l, 1);
+      pn.removeChild(asNode(lv));
       llength--;
     } else if (0 < status) {
-      this.splice(l++, 0, virtual[v++]);
+      live.splice(l++, 0, vv);
+      pn.insertBefore(asNode(vv), l < llength ? asNode(live[l]) : node);
       llength++;
+      v++;
     } else {
       l++;
       v++;
     }
   }
   if (l < llength) {
-    this.splice(l, llength - l);
+    var remove = live.splice(l, llength - l);
+    l = remove.length;
+    while (l--) {
+      pn.removeChild(asNode(remove[l]));
+    }
   }
   if (v < vlength) {
-    this.splice.apply(this, [llength, 0].concat(virtual.slice(v)));
-  }
-};
-
-// the splice is in charge of removing or adding nodes
-Aura.prototype.splice = function splice(start, end) {
-  var values = new Map();
-  var ph = this.node;
-  var cn = this.childNodes;
-  var target = get(values, cn[start + (end || 0)] || ph);
-  var pn = ph.parentNode;
-  var result = cn.splice.apply(cn, arguments);
-  var reLength = result.length;
-  for (var i = 0; i < reLength; i++) {
-    pn.removeChild(get(values, result[i]));
-  }
-  var arLength = arguments.length;
-  if (3 === arLength) {
-    pn.insertBefore(get(values, arguments[2]), target);
-  } else if (2 < arLength) {
-    var tmp = fragment(pn);
-    for (var _i = 2; _i < arLength; _i++) {
-      tmp.appendChild(get(values, arguments[_i]));
+    var append = virtual.slice(v);
+    l = 0;
+    llength = append.length;
+    if (llength === 1) {
+      pn.insertBefore(asNode(append[l]), node);
+    } else {
+      var tmp = fragment(pn);
+      while (l < llength) {
+        tmp.appendChild(asNode(append[l++]));
+      }pn.insertBefore(tmp, node);
     }
-    pn.insertBefore(tmp, target);
+    live.push.apply(live, append);
   }
-  return result;
 };
 
 // an item could be an hyperHTML.Component and, in such case,
 // it should be rendered as node
 var asNode = function asNode(node) {
   return node instanceof Component ? node.render() : node;
-};
-
-// instead of checking instanceof each time and render potentially twice
-// use a map to retrieve nodes from a generic item
-var get = function get(map, node) {
-  return map.get(node) || set(map, node);
-};
-var set = function set(map, node) {
-  var value = asNode(node);
-  map.set(node, value);
-  return value;
 };
 
 var transformers = {};
@@ -756,25 +757,22 @@ var isPromise_ish = function isPromise_ish(value) {
 //    update the node with the resulting list of content
 var setAnyContent = function setAnyContent(node, childNodes) {
   var aura = new Aura(node, childNodes);
+  var fastPath = false;
   var oldValue = void 0;
   var anyContent = function anyContent(value) {
     switch (typeof value) {
       case 'string':
       case 'number':
       case 'boolean':
-        var length = childNodes.length;
-        if (length === 1 && childNodes[0].nodeType === TEXT_NODE) {
+        if (fastPath) {
           if (oldValue !== value) {
             oldValue = value;
             childNodes[0].textContent = value;
           }
         } else {
+          fastPath = true;
           oldValue = value;
-          if (length) {
-            aura.splice(0, length, text(node, value));
-          } else {
-            node.parentNode.insertBefore(childNodes[0] = text(node, value), node);
-          }
+          aura.empty(text(node, value));
         }
         break;
       case 'object':
@@ -788,7 +786,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.splice(0);
+            aura.empty();
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -810,7 +808,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
             }
           }
         } else if (value instanceof Component) {
-          aura.become([value]);
+          aura.empty(value);
         } else if (isNode_ish(value)) {
           aura.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value]);
         } else if (isPromise_ish(value)) {
@@ -822,7 +820,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.splice(0);
+          aura.empty();
           var fragment$$1 = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment$$1.childNodes);
           node.parentNode.insertBefore(fragment$$1, node);
