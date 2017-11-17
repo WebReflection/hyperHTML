@@ -246,6 +246,7 @@ const setAnyContent = (node, childNodes) => {
           break;
         }
       default:
+        fastPath = false;
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
