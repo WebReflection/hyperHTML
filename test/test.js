@@ -3,8 +3,6 @@ tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
 try { tressa.log(''); } catch(e) { tressa.log = console.log.bind(console); }
 
-var MAX_LIST_SIZE = hyperHTML.MAX_LIST_SIZE;
-
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;
@@ -346,7 +344,6 @@ tressa.async(function (done) {
 })
 .then(function () {
   tressa.log('## for code coverage sake');
-  hyperHTML.MAX_LIST_SIZE = 0;
   let wrap = document.createElement('div');
   let text = [document.createTextNode('a'), document.createTextNode('b'), document.createTextNode('c')];
   let testingMajinBuu = hyperHTML.bind(wrap);

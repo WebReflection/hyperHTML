@@ -1,4 +1,3 @@
-import majinbuu from 'https://unpkg.com/majinbuu@latest/esm/main.js';
 import Component from './Component.js';
 import {fragment} from '../shared/easy-dom.js';
 import {Map} from '../shared/poorlyfills.js';
@@ -9,14 +8,63 @@ import {Map} from '../shared/poorlyfills.js';
 function Aura(node, childNodes) {
   this.node = node;
   this.childNodes = childNodes;
-  return majinbuu.aura(this, childNodes);
 }
 
-// majinbuu is fast but exponentially inefficient
-// if you are handling thousands of items (which you shouldn't)
-// calculating their diff might be too expensive.
-// Let's use raw DOM when list of items is 1K+
-Aura.MAX_LIST_SIZE = 999;
+Aura.prototype.become = function become(virtual) {
+  const live = this.childNodes;
+  const llength = live.length;
+  const vlength = virtual.length;
+  const info = [];
+  let l = 0;
+  let v = 0;
+  while (l < llength && v < vlength) {
+    const lv = live[l];
+    const vv = virtual[v];
+    const status = lv === vv ? 0 : (live.indexOf(vv) < 0 ? 1 : -1);
+    if (status < 0) {
+      addOperation(info, 'delete', l++, 1, []);
+    } else if (0 < status) {
+      addOperation(info, 'insert', l, 0, [virtual[v++]]);
+    } else {
+      l++;
+      v++;
+    }
+  }
+  while (l < llength) {
+    addOperation(info, 'delete', l++, 1, []);
+  }
+  while (v < vlength) {
+    addOperation(info, 'insert', l, 0, [virtual[v++]]);
+  }
+  performOperations(this, info);
+};
+
+const addOperation = (list, type, i, count, items) => {
+  list.push({type, i, count, items});
+};
+
+const performOperations = (target, operations) => {
+  const length = operations.length;
+  let diff = 0;
+  let i = 1;
+  let curr, prev, op;
+  if (length) {
+    op = (prev = operations[0]);
+    while (i < length) {
+      curr = operations[i++];
+      if (prev.type === curr.type && (curr.i - prev.i) <= 1) {
+        op.count += curr.count;
+        op.items = op.items.concat(curr.items);
+      } else {
+        target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
+        diff += op.type === 'insert' ? op.items.length : -op.count;
+        op = curr;
+      }
+      prev = curr;
+    }
+    target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
+  }
+};
 
 // the splice is in charge of removing or adding nodes
 Aura.prototype.splice = function splice(start, end) {
@@ -24,14 +72,11 @@ Aura.prototype.splice = function splice(start, end) {
   const ph = this.node;
   const cn = this.childNodes;
   const target = get(values, cn[start + (end || 0)] || ph);
-  const result = cn.splice.apply(cn, arguments);
   const pn = ph.parentNode;
+  const result = cn.splice.apply(cn, arguments);
   const reLength = result.length;
   for (let i = 0; i < reLength; i++) {
-    const tmp = result[i];
-    if (cn.indexOf(tmp) < 0) {
-      pn.removeChild(get(values, tmp));
-    }
+    pn.removeChild(get(values, result[i]));
   }
   const arLength = arguments.length;
   if (3 === arLength) {
