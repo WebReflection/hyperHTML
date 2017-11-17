@@ -12,9 +12,8 @@ function Aura(node, childNodes) {
 
 Aura.prototype.become = function become(virtual) {
   const live = this.childNodes;
-  const llength = live.length;
   const vlength = virtual.length;
-  const info = [];
+  let llength = live.length;
   let l = 0;
   let v = 0;
   while (l < llength && v < vlength) {
@@ -22,47 +21,21 @@ Aura.prototype.become = function become(virtual) {
     const vv = virtual[v];
     const status = lv === vv ? 0 : (live.indexOf(vv) < 0 ? 1 : -1);
     if (status < 0) {
-      addOperation(info, 'delete', l++, 1, []);
+      this.splice(l, 1);
+      llength--;
     } else if (0 < status) {
-      addOperation(info, 'insert', l, 0, [virtual[v++]]);
+      this.splice(l++, 0, virtual[v++]);
+      llength++;
     } else {
       l++;
       v++;
     }
   }
-  while (l < llength) {
-    addOperation(info, 'delete', l++, 1, []);
+  if (l < llength) {
+    this.splice(l, llength - l);
   }
-  while (v < vlength) {
-    addOperation(info, 'insert', l, 0, [virtual[v++]]);
-  }
-  performOperations(this, info);
-};
-
-const addOperation = (list, type, i, count, items) => {
-  list.push({type, i, count, items});
-};
-
-const performOperations = (target, operations) => {
-  const length = operations.length;
-  let diff = 0;
-  let i = 1;
-  let curr, prev, op;
-  if (length) {
-    op = (prev = operations[0]);
-    while (i < length) {
-      curr = operations[i++];
-      if (prev.type === curr.type && (curr.i - prev.i) <= 1) {
-        op.count += curr.count;
-        op.items = op.items.concat(curr.items);
-      } else {
-        target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
-        diff += op.type === 'insert' ? op.items.length : -op.count;
-        op = curr;
-      }
-      prev = curr;
-    }
-    target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
+  if (v < vlength) {
+    this.splice.apply(this, [llength, 0].concat(virtual.slice(v)));
   }
 };
 

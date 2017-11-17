@@ -171,9 +171,8 @@ function Aura(node, childNodes) {
 
 Aura.prototype.become = function become(virtual) {
   var live = this.childNodes;
-  var llength = live.length;
   var vlength = virtual.length;
-  var info = [];
+  var llength = live.length;
   var l = 0;
   var v = 0;
   while (l < llength && v < vlength) {
@@ -181,49 +180,21 @@ Aura.prototype.become = function become(virtual) {
     var vv = virtual[v];
     var status = lv === vv ? 0 : live.indexOf(vv) < 0 ? 1 : -1;
     if (status < 0) {
-      addOperation(info, 'delete', l++, 1, []);
+      this.splice(l, 1);
+      llength--;
     } else if (0 < status) {
-      addOperation(info, 'insert', l, 0, [virtual[v++]]);
+      this.splice(l++, 0, virtual[v++]);
+      llength++;
     } else {
       l++;
       v++;
     }
   }
-  while (l < llength) {
-    addOperation(info, 'delete', l++, 1, []);
+  if (l < llength) {
+    this.splice(l, llength - l);
   }
-  while (v < vlength) {
-    addOperation(info, 'insert', l, 0, [virtual[v++]]);
-  }
-  performOperations(this, info);
-};
-
-var addOperation = function addOperation(list, type, i, count, items) {
-  list.push({ type: type, i: i, count: count, items: items });
-};
-
-var performOperations = function performOperations(target, operations) {
-  var length = operations.length;
-  var diff = 0;
-  var i = 1;
-  var curr = void 0,
-      prev = void 0,
-      op = void 0;
-  if (length) {
-    op = prev = operations[0];
-    while (i < length) {
-      curr = operations[i++];
-      if (prev.type === curr.type && curr.i - prev.i <= 1) {
-        op.count += curr.count;
-        op.items = op.items.concat(curr.items);
-      } else {
-        target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
-        diff += op.type === 'insert' ? op.items.length : -op.count;
-        op = curr;
-      }
-      prev = curr;
-    }
-    target.splice.apply(target, [op.i + diff, op.count].concat(op.items));
+  if (v < vlength) {
+    this.splice.apply(this, [llength, 0].concat(virtual.slice(v)));
   }
 };
 
