@@ -79,6 +79,8 @@ try {
   tressa.log = console.log.bind(console);
 }
 
+var MAX_LIST_SIZE = hyperHTML.MAX_LIST_SIZE;
+
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;
@@ -370,6 +372,7 @@ tressa.async(function (done) {
     }, 100);
   });
 }).then(function () {
+  hyperHTML.MAX_LIST_SIZE = 0;
   tressa.log('## for code coverage sake');
   var wrap = document.createElement('div');
   var text = [document.createTextNode('a'), document.createTextNode('b'), document.createTextNode('c')];
@@ -443,6 +446,8 @@ tressa.async(function (done) {
 
   hyperHTML.bind(wrap)(_templateObject30, 1);
   tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
+
+  hyperHTML.MAX_LIST_SIZE = MAX_LIST_SIZE;
 
   var last = hyperHTML.wire();
   last(_templateObject31, 'border:0', 'same text');

@@ -3,6 +3,8 @@ tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
 try { tressa.log(''); } catch(e) { tressa.log = console.log.bind(console); }
 
+var MAX_LIST_SIZE = hyperHTML.MAX_LIST_SIZE;
+
 tressa.async(function (done) {
   tressa.log('## injecting text and attributes');
   var i = 0;
@@ -343,6 +345,7 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  hyperHTML.MAX_LIST_SIZE = 0;
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let text = [document.createTextNode('a'), document.createTextNode('b'), document.createTextNode('c')];
@@ -416,6 +419,8 @@ tressa.async(function (done) {
 
   hyperHTML.bind(wrap)` <br/>${1}<br/> `;
   tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
+
+  hyperHTML.MAX_LIST_SIZE = MAX_LIST_SIZE;
 
   let last = hyperHTML.wire();
   last`<textarea style=${'border:0'}>${'same text'}</textarea>`;

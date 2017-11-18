@@ -17,6 +17,18 @@ hyper.hyper = hyper;
 hyper.wire = wire;
 hyper.Component = Component;
 
+// if needed, you can increase or decrease
+// the maximum amount of nodes per list
+// to compute via majinbuu algorithm
+Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
+  get: function get() {
+    return Aura.MAX_LIST_SIZE;
+  },
+  set: function set(value) {
+    Aura.MAX_LIST_SIZE = value;
+  }
+});
+
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component
 setup(content);
