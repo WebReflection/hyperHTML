@@ -13,10 +13,10 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\"))')",
     "max": "rollup --config rollup.config.js && npm run cleanup",
-    "min": "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m -o min.js",
+    "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\" > min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
-    "ignore-majinbuu": "sed -i 's#if (toLength || TOO_MANY) {#/* istanbul ignore next */ if (toLength || TOO_MANY) {#' index.c.js && sed -i 's#if (length) {#/* istanbul ignore else */ if (length) {#' index.c.js",
-    "test": "cp index.js index.c.js && npm run ignore-majinbuu &&  echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
+    "brotli": "cat min.js | bro | wc -c",
+    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
   },
   "repository": {
     "type": "git",
@@ -60,15 +60,14 @@
     "coveralls": "^3.0.0",
     "istanbul": "^0.4.5",
     "rollup": "^0.51.5",
-    "rollup-plugin-alias": "^1.4.0",
     "rollup-plugin-babel": "^3.0.2",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.29"
   },
-  "dependencies": {},
   "greenkeeper": {
     "ignore": [
       "uglify-js"
     ]
-  }
+  },
+  "dependencies": {}
 }

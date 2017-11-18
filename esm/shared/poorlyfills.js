@@ -1,4 +1,4 @@
-import {UID} from './constants.js';
+import {global, UID} from './constants.js';
 
 // you know that kind of basics you need to cover
 // your use case only but you don't want to bloat the library?

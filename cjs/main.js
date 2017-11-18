@@ -1,8 +1,10 @@
 'use strict';
-const Aura = (m => m.__esModule ? m.default : m)(require('./classes/Aura.js'));
+/*! (c) Andrea Giammarchi (ISC) */
+
+const Megatron = (m => m.__esModule ? m.default : m)(require('./classes/Megatron.js'));
 const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
-const Transformer = (m => m.__esModule ? m.default : m)(require('./objects/Transformer.js'));
+const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'));
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
@@ -12,13 +14,28 @@ const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'))
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
 const bind = context => render.bind(context);
-const define = Transformer.define;
+const define = Intent.define;
 
+hyper.Component = Component;
 hyper.bind = bind;
 hyper.define = define;
 hyper.hyper = hyper;
 hyper.wire = wire;
-hyper.Component = Component;
+
+// it is possible to define a different engine
+// to resolve nodes diffing.
+// The engine must provide an update method
+// capable of mutating liveNodes collection
+// and the related DOM.
+// See hyperhtml-majinbuu to know more
+Object.defineProperty(hyper, 'engine', {
+  get: function get() {
+    return Megatron.engine;
+  },
+  set: function set(engine) {
+    Megatron.engine = engine;
+  }
+});
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component

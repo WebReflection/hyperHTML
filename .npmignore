@@ -8,6 +8,6 @@ _config.yml
 .gitignore
 .travis.yml
 babel-plugins.json
-hyperhtml.js
+CHANGELOG.md
 package-lock.json
 rollup.config.js

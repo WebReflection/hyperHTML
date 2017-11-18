@@ -6,19 +6,14 @@ import {
   UID, UIDC
 } from '../shared/constants.js';
 
-import Aura from '../classes/Aura.js';
+import Megatron from '../classes/Megatron.js';
 import Component from '../classes/Component.js';
 import Path from './Path.js';
 import Style from './Style.js';
-import Transformer from './Transformer.js';
+import Intent from './Intent.js';
 import {text} from '../shared/easy-dom.js';
 import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
 import {createFragment, slice} from '../shared/utils.js';
-
-// if you want to use Promises as interpolation value
-// be sure your browser supports them or provide a polyfill
-// before including/importing hyperHTML
-const Promise = global.Promise;
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -177,7 +172,7 @@ const findAttributes = (node, paths, parts) => {
     }
   }
   const len = remove.length;
-  for (let i = 0; i < remove.length; i++) {
+  for (let i = 0; i < len; i++) {
     node.removeAttributeNode(remove[i]);
   }
 };
@@ -195,22 +190,13 @@ const invokeAtDistance = (value, callback) => {
   } else if ('html' in value) {
     Promise.resolve(value.html).then(asHTML).then(callback);
   } else {
-    Promise.resolve(Transformer.invoke(value, callback)).then(callback);
+    Promise.resolve(Intent.invoke(value, callback)).then(callback);
   }
 };
 
 // quick and dirty ways to check a value type without abusing instanceof
 const isNode_ish = value => 'ELEMENT_NODE' in value;
 const isPromise_ish = value => value != null && 'then' in value;
-
-// special attributes are usually available through their owner class
-// 'value' in input
-// 'src' in img
-// and so on. These attributes don't act properly via get/setAttribute
-// so in these case their value is set, or retrieved, right away
-// input.value = ...
-// img.src = ...
-const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
@@ -222,7 +208,7 @@ const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 //  * it's an Array, resolve all values if Promises and/or
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
-  const aura = new Aura(node, childNodes);
+  const transformer = new Megatron(node, childNodes);
   let fastPath = false;
   let oldValue;
   const anyContent = value => {
@@ -238,14 +224,14 @@ const setAnyContent = (node, childNodes) => {
         } else {
           fastPath = true;
           oldValue = value;
-          aura.empty(text(node, value));
+          transformer.empty(text(node, value));
         }
         break;
       case 'object':
       case 'undefined':
         if (value == null) {
-          oldValue = value;
-          anyContent('');
+          fastPath = false;
+          transformer.empty();
           break;
         }
       default:
@@ -253,7 +239,7 @@ const setAnyContent = (node, childNodes) => {
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.empty();
+            transformer.empty();
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -270,14 +256,14 @@ const setAnyContent = (node, childNodes) => {
                   break;
                 }
               default:
-                aura.become(value);
+                transformer.become(value);
                 break;
             }
           }
         } else if (value instanceof Component) {
-          aura.empty(value);
+          transformer.empty(value);
         } else if (isNode_ish(value)) {
-          aura.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
+          transformer.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
             slice.call(value.childNodes) :
             [value]);
         } else if (isPromise_ish(value)) {
@@ -289,14 +275,14 @@ const setAnyContent = (node, childNodes) => {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.empty();
+          transformer.empty();
           const fragment = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment.childNodes);
           node.parentNode.insertBefore(fragment, node);
         } else if ('length' in value) {
           anyContent(slice.call(value));
         } else {
-          anyContent(Transformer.invoke(value, anyContent));
+          anyContent(Intent.invoke(value, anyContent));
         }
         break;
     }
@@ -403,7 +389,7 @@ const setTextContent = node => {
         } else if ('length' in value) {
           textContent(slice.call(value).join(''));
         } else {
-          textContent(Transformer.invoke(value, textContent));
+          textContent(Intent.invoke(value, textContent));
         }
       } else {
         node.textContent = value == null ? '' : value;

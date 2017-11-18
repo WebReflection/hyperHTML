@@ -11,74 +11,162 @@
       font-family: monospace;
       font-size: .7em;
     }
+    div.cleared {
+      clear: left;
+    }
+    div > div {
+      min-width: 120px;
+      float: left;
+    }
     </style>
     <script src="../index.js"></script>
     <script src="https://unpkg.com/ce-v0@latest/min.js"></script>
     <script src="https://unpkg.com/ce-v0@latest/comp.js"></script>
-    <script>
-    // basic Custom Element
-    Component({
-      name: 'user-info',
-      onconnected: function () {
-        // log some super useful info
-        console.log('connected: ' + this.getAttribute('name'));
-      }
-    });
+  </head>
+  <body>
+    <div class=cleared>
+      <div id="user-list-majinbuu"></div>
+      <div id="user-list-default"></div>
+    </div>
+    <div class=cleared>
+      <div id="logs-majinbuu"></div>
+      <div id="logs-default"></div>
+    </div>
+  </body>
+  <script>
+      var DELAY = 1000;
+      var AMOUNT = 500;
+      var target = 'user-list-majinbuu';
+      var logs = 'logs-majinbuu';
 
-    // executed on load
-    this.onload = function () {
+      // basic Custom Element
+      Component({
+        name: 'user-info',
+        // every time a node is inserted live on DOM
+        // it will log the information
+        onconnected() {
+          log('connected: ' + this.getAttribute('name'));
+        }
+      });
+      
+      function nameGenerator(length) {
+        var name = [];
+        while (length--) {
+          name.push(65 + Math.floor(Math.random() * 58));
+        }
+        return String.fromCharCode.apply(null, name);
+      }
+      
+      function usersGenerator(many) {
+        var users = [];
+        while (many--) {
+          users.push({
+            name: nameGenerator(10),
+            age: Math.floor(Math.random() * 100)
+          });
+        }
+        return users;
+      }
+      
+      var perf = console.time ? console : {
+        time() { this._ = (new Date).getTime(); },
+        timeEnd() {
+          console.log((new Date).getTime() - this._);
+        }
+      };
+      
       var wire = hyperHTML.wire;
       var users = [
-        {name: 'Zoe', age: 34},
-        {name: 'Brian', age: 29},
-        {name: 'Stephen', age: 50},
-        {name: 'Lucy', age: 72},
-        {name: 'Alan', age: 14},
-        {name: 'Joe', age: 31}
+        {name: 'A', age: 34},
+        {name: 'B', age: 29},
+        {name: 'D', age: 50},
+        {name: 'C', age: 72},
+        {name: 'E', age: 14},
+        {name: 'F', age: 31}
       ];
+      // var users = usersGenerator(AMOUNT);
 
+      var initial = JSON.stringify(users);
+
+      window.results = {majinbuu: [], merge: []};
+
+      var log = users.length < 100 ?
+        function (text) {
+          window[logs].innerHTML += text + '<br>';
+        } :
+        function (text) {};
+
+      hyperHTML.engine.MAX_LIST_SIZE = Infinity;
       // first update, populate the body
+      log('<strong>DOM changes</strong>');
+      log('- - - - - - - - - -');
+      console.log('majinbuu');
       update();
+      results.majinbuu.push(window[target].innerHTML);
 
       // after one second
-      setTimeout(function () {
-
+      setTimeout(() => {
+      
         // sort the users list by name
-        users.sort(function (a, b) {
-          return a.name < b.name ? -1 : 1;
-        });
+        users.sort((a, b) => a.name < b.name ? -1 : 1);
 
-        // let's see who was moved around
+        // update + see which user was moved around
         update();
+        results.majinbuu.push(window[target].innerHTML);
 
         // after another second
-        setTimeout(function () {
-
+        setTimeout(() => {
+      
           // sort the users list by age
-          users.sort(function (a, b) {
-            return a.age - b.age;
-          });
-
-          // let's see who was moved around
+          users.sort((a, b) => a.age - b.age);
+      
+          // update + see which user was moved around
           update();
-        }, 1000);
+          results.majinbuu.push(window[target].innerHTML);
 
-      }, 1000);
+          setTimeout(() => {
+            hyperHTML.engine.MAX_LIST_SIZE = 0;
+            target = 'user-list-default';
+            logs = 'logs-default';
+            log('<strong>DOM changes</strong>');
+            log('- - - - - - - - - -');
+            console.log('default');
+            users = JSON.parse(initial);
+            update();
+            results.merge.push(window[target].innerHTML);
+
+            setTimeout(() => {
+              users.sort((a, b) => a.name < b.name ? -1 : 1);
+              update();
+              results.merge.push(window[target].innerHTML);
+              setTimeout(() => {
+                users.sort((a, b) => a.age - b.age);
+                update();
+                results.merge.push(window[target].innerHTML);
+                console.assert(results.majinbuu.every((html, i) => html === results.merge[i]), 'same results');
+              }, DELAY);
+            }, DELAY);
+
+            setTimeout(() => {});
+          }, DELAY);
+
+        }, DELAY);
+      
+      }, DELAY);
 
       function update() {
-        hyperHTML.bind(document.body)`${
-          users.map(function (user) {
-            return wire(user)
-              `<user-info name=${user.name}>
-                  <small>${user.age}</small> ${user.name}
-              </user-info>`;
-          })
+        if (users.length) log(`<small>${users.map(user => user.name).join(', ')}</small>`);
+        perf.time();
+        hyperHTML.bind(window[target])`${
+          users.map(user => wire(user)
+            `<user-info name=${user.name}>
+              <small>${user.age}</small> ${user.name}
+            </user-info>`
+          )
         }`;
-        console.log('- - - - - - - - - -');
+        perf.timeEnd();
+        if (users.length) setTimeout(log, DELAY / 10, '- - - - - - - - - -');
       }
-    };
-
-    </script>
-  </head>
-  <body></body>
+      
+      </script>
 </html>

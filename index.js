@@ -71,7 +71,11 @@ var text = function text(node, _text) {
   return doc(node).createTextNode(_text);
 };
 
-// Node.CONSTANTS (not every engine has a global Node defined)
+var global = document.defaultView;
+
+// Node.CONSTANTS
+// 'cause some engine has no global Node defined
+// (i.e. Node, NativeScript, basicHTML ... )
 var ELEMENT_NODE = 1;
 
 var TEXT_NODE = 3;
@@ -91,183 +95,6 @@ var EXPANDO = '_hyper: ';
 var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
 var UIDC = '<!--' + UID + '-->';
-
-// you know that kind of basics you need to cover
-// your use case only but you don't want to bloat the library?
-// There's even a package in here:
-// https://www.npmjs.com/package/poorlyfills
-
-// used to dispatch simple events
-var Event = global.Event;
-try {
-  new Event('Event');
-} catch (o_O) {
-  Event = function Event(type) {
-    var e = document.createEvent('Event');
-    e.initEvent(type, false, false);
-    return e;
-  };
-}
-// used to store template literals
-var Map = global.Map || function Map() {
-  var keys = [],
-      values = [];
-  return {
-    get: function get(obj) {
-      return values[keys.indexOf(obj)];
-    },
-    set: function set(obj, value) {
-      values[keys.push(obj) - 1] = value;
-    }
-  };
-};
-
-// used to store wired content
-var WeakMap = global.WeakMap || function WeakMap() {
-  return {
-    get: function get(obj) {
-      return obj[UID];
-    },
-    set: function set(obj, value) {
-      Object.defineProperty(obj, UID, {
-        configurable: true,
-        value: value
-      });
-    }
-  };
-};
-
-// used to store hyper.Components
-var WeakSet = global.WeakSet || function WeakSet() {
-  var wm = new WeakMap();
-  return {
-    add: function add(obj) {
-      wm.set(obj, true);
-    },
-    has: function has(obj) {
-      return wm.get(obj) === true;
-    }
-  };
-};
-
-// used to be sure IE9 or older Androids work as expected
-var isArray = Array.isArray || function (toString) {
-  return function (arr) {
-    return toString.call(arr) === '[object Array]';
-  };
-}({}.toString);
-
-var trim = UID.trim || function () {
-  return this.replace(/^\s+|\s+$/g, '');
-};
-
-// this class has one purpose:
-// provide a splice method shared
-// between all instances
-function Aura(node, childNodes) {
-  this.node = node;
-  this.childNodes = childNodes;
-}
-
-Aura.prototype.empty = function empty(value) {
-  var node = this.node;
-  var childNodes = this.childNodes;
-  var pn = node.parentNode;
-  var length = childNodes.length;
-  if (length) {
-    var remove = childNodes.splice(0, length);
-    while (length--) {
-      pn.removeChild(asNode(remove[length]));
-    }
-  }
-  if (value) {
-    childNodes.push(value);
-    pn.insertBefore(asNode(value), node);
-  }
-};
-
-Aura.prototype.become = function become(virtual) {
-  var node = this.node;
-  var live = this.childNodes;
-  var pn = node.parentNode;
-  var vlength = virtual.length;
-  var llength = live.length;
-  var l = 0;
-  var v = 0;
-  while (l < llength && v < vlength) {
-    var lv = live[l];
-    var vv = virtual[v];
-    var status = lv === vv ? 0 : live.indexOf(vv) < 0 ? 1 : -1;
-    if (status < 0) {
-      live.splice(l, 1);
-      pn.removeChild(asNode(lv));
-      llength--;
-    } else if (0 < status) {
-      live.splice(l++, 0, vv);
-      pn.insertBefore(asNode(vv), l < llength ? asNode(live[l]) : node);
-      llength++;
-      v++;
-    } else {
-      l++;
-      v++;
-    }
-  }
-  if (l < llength) {
-    var remove = live.splice(l, llength - l);
-    l = remove.length;
-    while (l--) {
-      pn.removeChild(asNode(remove[l]));
-    }
-  }
-  if (v < vlength) {
-    var append = virtual.slice(v);
-    l = 0;
-    llength = append.length;
-    if (llength === 1) {
-      pn.insertBefore(asNode(append[l]), node);
-    } else {
-      var tmp = fragment(pn);
-      while (l < llength) {
-        tmp.appendChild(asNode(append[l++]));
-      }pn.insertBefore(tmp, node);
-    }
-    live.push.apply(live, append);
-  }
-};
-
-// an item could be an hyperHTML.Component and, in such case,
-// it should be rendered as node
-var asNode = function asNode(node) {
-  return node instanceof Component ? node.render() : node;
-};
-
-var transformers = {};
-var transformersKeys = [];
-var hasOwnProperty = transformers.hasOwnProperty;
-
-var length = 0;
-
-// hyperHTML.define('intent', (object, update) => {...})
-// can be used to define a third parts update mechanism
-// when every other known mechanism failed.
-// hyper.define('user', info => info.name);
-// hyper(node)`<p>${{user}}</p>`;
-var Transformer = {
-  define: function define(transformer, callback) {
-    if (!(transformer in transformers)) {
-      length = transformersKeys.push(transformer);
-    }
-    transformers[transformer] = callback;
-  },
-  invoke: function invoke(object, callback) {
-    for (var i = 0; i < length; i++) {
-      var key = transformersKeys[i];
-      if (hasOwnProperty.call(object, key)) {
-        return transformers[key](object[key], callback);
-      }
-    }
-  }
-};
 
 var testFragment = fragment(document);
 
@@ -360,9 +187,11 @@ var importNode = hasImportNode ? function (doc$$1, node) {
   return cloneNode(node);
 };
 
-// just recycling a one-off array to use slice
+// just recycling a one-off array to use slice/splice
 // in every needed place
-var slice = [].slice;
+var _ref = [];
+var slice = _ref.slice;
+var splice = _ref.splice;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.
@@ -437,6 +266,311 @@ var SVGFragment = hasContent ? function (node, html) {
   container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
   append(content, slice.call(container.firstChild.childNodes));
   return content;
+};
+
+var engine = {
+  update: function update(utils, parentNode, commentNode, liveNodes, liveStart, liveEnd, liveLength, virtualNodes, virtualStart, virtualEnd /*, virtualLength */
+  ) {
+    while (liveStart < liveEnd && virtualStart < virtualEnd) {
+      var liveValue = liveNodes[liveStart];
+      var virtualValue = virtualNodes[virtualStart];
+      var status = liveValue === virtualValue ? 0 : liveNodes.indexOf(virtualValue) < 0 ? 1 : -1;
+      // nodes can be either removed ...
+      if (status < 0) {
+        splice.call(liveNodes, liveStart, 1);
+        parentNode.removeChild(utils.getNode(liveValue));
+        liveEnd--;
+        liveLength--;
+      }
+      // ... appended ...
+      else if (0 < status) {
+          splice.call(liveNodes, liveStart, 0, virtualValue);
+          parentNode.insertBefore(utils.getNode(virtualValue), utils.getNode(liveValue));
+          liveStart++;
+          liveEnd++;
+          liveLength++;
+          virtualStart++;
+        }
+        // ... or ignored, since it's the same ...
+        else {
+            liveStart++;
+            virtualStart++;
+          }
+    }
+    if (liveStart < liveEnd) {
+      var remove = splice.call(liveNodes, liveStart, liveEnd - liveStart);
+      liveStart = remove.length;
+      while (liveStart--) {
+        parentNode.removeChild(utils.getNode(remove[liveStart]));
+      }
+    }
+    if (virtualStart < virtualEnd) {
+      splice.apply(liveNodes, [liveEnd, 0].concat(utils.insert(parentNode, slice.call(virtualNodes, virtualStart, virtualEnd), liveEnd < liveLength ? utils.getNode(liveNodes[liveEnd]) : commentNode)));
+    }
+  }
+};
+
+/*                0                       0                 0
+000                00                   00                000
+ 0000              0000               0000              0000 
+  00000             0000             0000              0000  
+  000000            000000         000000            000000  
+   0000000           0000000      0000000          0000000   
+   0000000000000000  0000000000000000000  0000000000000000   
+   0000000000000000   000000000000000000  0000000000000000   
+   0000000000000000   00000000000000000   000000000000000    
+    0000000            000000   0000000           0000000    
+    0000000000000000   0000000 0000000   000000000000000     
+     0000000000000000  00000000000000  0000000000000000      
+      000000            000000000000             000000      
+       0000000000000      00000000       0000000000000       
+      0  0000000000000000           0000000000000000  0      
+       00  00000000000000000       0000000000000000  00      
+       000   00000     000000   0000000    00000   000       
+        0000   00000        000000       000000  00000       
+        000000  000000     0000000     000000  000000        
+         0000000  000000   00000000   00000  0000000         
+         00000000   00000 000000000 00000  000000000         
+         0000000000   00000000000000000   0000000000         
+          00000000000   00000000000000  00000000000          
+          0000000000000   000000000   0000000000000          
+                000000000   00000   0000000000               
+                       0000  000  0000                       
+                            0 0 0                            
+                                                             
+                    slyer0.deviantart.com                  */
+
+// Megatron is a transformer in charge of mutating
+// a list of live DOM nodes into a new list.
+function Megatron(node, childNodes) {
+  this.node = node;
+  this.childNodes = childNodes;
+}
+
+// it carries the default merge/diff engine
+// that can be swapped via hyperHTML.engine = {...}
+// See hyperhtml-majinbuu to know more
+Megatron.engine = engine;
+
+// quickly erase the related content
+// optionally add a single node/component as value
+Megatron.prototype.empty = function empty(value) {
+  var node = this.node;
+  var childNodes = this.childNodes;
+  var length = childNodes.length;
+  if (length) {
+    var pn = node.parentNode;
+    var remove = splice.call(childNodes, 0, length);
+    while (length--) {
+      pn.removeChild(utils.getNode(remove[length]));
+    }
+  }
+  if (value) {
+    childNodes.push(value);
+    node.parentNode.insertBefore(utils.getNode(value), node);
+  }
+};
+
+// there are numerous ways to optimize a list of nodes
+// that is going to represent another list (or even the same)
+Megatron.prototype.become = function become(virtual) {
+  var vlength = virtual.length;
+  // if there are new elements to push ..
+  if (0 < vlength) {
+    var node = this.node;
+    var live = this.childNodes;
+    var pn = node.parentNode;
+    var llength = live.length;
+    var l = 0;
+    var v = 0;
+    // if the current list is empty, append all nodes
+    if (llength < 1) {
+      live.push.apply(live, utils.insert(pn, virtual, node));
+      return;
+    }
+    // if all elements are the same, do pretty much nothing
+    while (l < llength && v < vlength) {
+      // appending nodes/components could be just fine
+      if (live[l] !== virtual[v]) break;
+      l++;
+      v++;
+    }
+    // if we reached the live length destination
+    if (l == llength) {
+      // there could be a tie (nothing to do)
+      if (vlength === llength) return;
+      // or there's only to append
+      live.push.apply(live, utils.insert(pn, slice.call(virtual, v), node));
+      return;
+    }
+    // otherwise let's check backward
+    var rl = llength;
+    var rv = vlength;
+    while (rl && rv) {
+      if (live[--rl] !== virtual[--rv]) {
+        ++rl;
+        ++rv;
+        break;
+      }
+    }
+    // now ... lists are not identical, we know that,
+    // but maybe it was a prepend ... so if live length is covered
+    if (rl < 1) {
+      // simply return after pre-pending all nodes
+      live.unshift.apply(live, utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0])));
+      return;
+    }
+    // now we have a boundary of nodes that need to be changed
+    // all the discovered info ar passed to the engine
+    Megatron.engine.update(utils, pn, node, live, l, rl, llength, virtual, v, rv, vlength);
+  } else {
+    this.empty();
+  }
+};
+
+var utils = {
+
+  // the basic default engine is always provided
+  // in case there are conditions that need it
+  engine: engine,
+
+  // an item could be an hyperHTML.Component and, in such case,
+  // it should be rendered as node
+  getNode: function getNode(node) {
+    return node instanceof Component ? node.render() : node;
+  },
+
+  // append a list of nodes before another node
+  insert: function insert(parentNode, nodes, node) {
+    var length = nodes.length;
+    if (length === 1) {
+      parentNode.insertBefore(utils.getNode(nodes[0]), node);
+    } else {
+      var i = 0;
+      var tmp = fragment(parentNode);
+      while (i < length) {
+        tmp.appendChild(utils.getNode(nodes[i++]));
+      }parentNode.insertBefore(tmp, node);
+    }
+    return nodes;
+  }
+};
+
+
+
+/* TODO: benchmark this is needed at all
+// instead of checking instanceof each time and render potentially twice
+// use a map to retrieve nodes from a generic item
+
+import {Map} from '../shared/poorlyfills.js';
+const get = (map, node) => map.get(node) || set(map, node);
+const set = (map, node) => {
+  const value = utils.getNode(node);
+  map.set(node, value);
+  return value;
+};
+
+*/
+
+var intents = {};
+var keys = [];
+var hasOwnProperty = intents.hasOwnProperty;
+
+var length = 0;
+
+var Intent = {
+
+  // hyperHTML.define('intent', (object, update) => {...})
+  // can be used to define a third parts update mechanism
+  // when every other known mechanism failed.
+  // hyper.define('user', info => info.name);
+  // hyper(node)`<p>${{user}}</p>`;
+  define: function define(intent, callback) {
+    if (!(intent in intents)) {
+      length = keys.push(intent);
+    }
+    intents[intent] = callback;
+  },
+
+  // this method is used internally as last resort
+  // to retrieve a value out of an object
+  invoke: function invoke(object, callback) {
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (hasOwnProperty.call(object, key)) {
+        return intents[key](object[key], callback);
+      }
+    }
+  }
+};
+
+// you know that kind of basics you need to cover
+// your use case only but you don't want to bloat the library?
+// There's even a package in here:
+// https://www.npmjs.com/package/poorlyfills
+
+// used to dispatch simple events
+var Event = global.Event;
+try {
+  new Event('Event');
+} catch (o_O) {
+  Event = function Event(type) {
+    var e = document.createEvent('Event');
+    e.initEvent(type, false, false);
+    return e;
+  };
+}
+// used to store template literals
+var Map = global.Map || function Map() {
+  var keys = [],
+      values = [];
+  return {
+    get: function get(obj) {
+      return values[keys.indexOf(obj)];
+    },
+    set: function set(obj, value) {
+      values[keys.push(obj) - 1] = value;
+    }
+  };
+};
+
+// used to store wired content
+var WeakMap = global.WeakMap || function WeakMap() {
+  return {
+    get: function get(obj) {
+      return obj[UID];
+    },
+    set: function set(obj, value) {
+      Object.defineProperty(obj, UID, {
+        configurable: true,
+        value: value
+      });
+    }
+  };
+};
+
+// used to store hyper.Components
+var WeakSet = global.WeakSet || function WeakSet() {
+  var wm = new WeakMap();
+  return {
+    add: function add(obj) {
+      wm.set(obj, true);
+    },
+    has: function has(obj) {
+      return wm.get(obj) === true;
+    }
+  };
+};
+
+// used to be sure IE9 or older Androids work as expected
+var isArray = Array.isArray || function (toString) {
+  return function (arr) {
+    return toString.call(arr) === '[object Array]';
+  };
+}({}.toString);
+
+var trim = UID.trim || function () {
+  return this.replace(/^\s+|\s+$/g, '');
 };
 
 // every template literal interpolation indicates
@@ -558,11 +692,6 @@ var toStyle = function toStyle(object) {
   }
   return css.join('');
 };
-
-// if you want to use Promises as interpolation value
-// be sure your browser supports them or provide a polyfill
-// before including/importing hyperHTML
-var Promise = global.Promise;
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -716,7 +845,8 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
       remove.push(attribute);
     }
   }
-  for (var _i = 0; _i < remove.length; _i++) {
+  var len = remove.length;
+  for (var _i = 0; _i < len; _i++) {
     node.removeAttributeNode(remove[_i]);
   }
 };
@@ -734,7 +864,7 @@ var invokeAtDistance = function invokeAtDistance(value, callback) {
   } else if ('html' in value) {
     Promise.resolve(value.html).then(asHTML).then(callback);
   } else {
-    Promise.resolve(Transformer.invoke(value, callback)).then(callback);
+    Promise.resolve(Intent.invoke(value, callback)).then(callback);
   }
 };
 
@@ -756,7 +886,7 @@ var isPromise_ish = function isPromise_ish(value) {
 //  * it's an Array, resolve all values if Promises and/or
 //    update the node with the resulting list of content
 var setAnyContent = function setAnyContent(node, childNodes) {
-  var aura = new Aura(node, childNodes);
+  var transformer = new Megatron(node, childNodes);
   var fastPath = false;
   var oldValue = void 0;
   var anyContent = function anyContent(value) {
@@ -772,14 +902,14 @@ var setAnyContent = function setAnyContent(node, childNodes) {
         } else {
           fastPath = true;
           oldValue = value;
-          aura.empty(text(node, value));
+          transformer.empty(text(node, value));
         }
         break;
       case 'object':
       case 'undefined':
         if (value == null) {
-          oldValue = value;
-          anyContent('');
+          fastPath = false;
+          transformer.empty();
           break;
         }
       default:
@@ -787,7 +917,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.empty();
+            transformer.empty();
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -804,14 +934,14 @@ var setAnyContent = function setAnyContent(node, childNodes) {
                   break;
                 }
               default:
-                aura.become(value);
+                transformer.become(value);
                 break;
             }
           }
         } else if (value instanceof Component) {
-          aura.empty(value);
+          transformer.empty(value);
         } else if (isNode_ish(value)) {
-          aura.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value]);
+          transformer.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value]);
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
         } else if ('placeholder' in value) {
@@ -821,14 +951,14 @@ var setAnyContent = function setAnyContent(node, childNodes) {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.empty();
+          transformer.empty();
           var fragment$$1 = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment$$1.childNodes);
           node.parentNode.insertBefore(fragment$$1, node);
         } else if ('length' in value) {
           anyContent(slice.call(value));
         } else {
-          anyContent(Transformer.invoke(value, anyContent));
+          anyContent(Intent.invoke(value, anyContent));
         }
         break;
     }
@@ -934,7 +1064,7 @@ var setTextContent = function setTextContent(node) {
         } else if ('length' in value) {
           textContent(slice.call(value).join(''));
         } else {
-          textContent(Transformer.invoke(value, textContent));
+          textContent(Intent.invoke(value, textContent));
         }
       } else {
         node.textContent = value == null ? '' : value;
@@ -1113,6 +1243,8 @@ var wireContent = function wireContent(node) {
   return wire.length === 1 ? wire[0] : wire;
 };
 
+/*! (c) Andrea Giammarchi (ISC) */
+
 // all functions are self bound to the right context
 // you can do the following
 // const {bind, wire} = hyperHTML;
@@ -1120,13 +1252,28 @@ var wireContent = function wireContent(node) {
 var bind = function bind(context) {
   return render.bind(context);
 };
-var define = Transformer.define;
+var define = Intent.define;
 
+hyper.Component = Component;
 hyper.bind = bind;
 hyper.define = define;
 hyper.hyper = hyper;
 hyper.wire = wire;
-hyper.Component = Component;
+
+// it is possible to define a different engine
+// to resolve nodes diffing.
+// The engine must provide an update method
+// capable of mutating liveNodes collection
+// and the related DOM.
+// See hyperhtml-majinbuu to know more
+Object.defineProperty(hyper, 'engine', {
+  get: function get() {
+    return Megatron.engine;
+  },
+  set: function set(engine) {
+    Megatron.engine = engine;
+  }
+});
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component

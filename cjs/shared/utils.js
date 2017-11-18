@@ -1,5 +1,6 @@
 'use strict';
 const {
+  global,
   OWNER_SVG_ELEMENT,
   SVG_NAMESPACE,
   UID,
@@ -93,10 +94,11 @@ const importNode = hasImportNode ?
   (doc, node) => cloneNode(node)
 exports.importNode = importNode
 
-// just recycling a one-off array to use slice
+// just recycling a one-off array to use slice/splice
 // in every needed place
-const slice = [].slice;
+const {slice, splice} = [];
 exports.slice = slice;
+exports.splice = splice;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.
