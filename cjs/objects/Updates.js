@@ -1,4 +1,6 @@
 'use strict';
+const majinbuu = (m => m.__esModule ? m.default : m)(require('majinbuu'));
+
 const {
   CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_TEXT_CONTENT, UID, UIDC
 } = require('../shared/constants.js');
@@ -209,6 +211,33 @@ const isPromise_ish = value => value != null && 'then' in value;
 // img.src = ...
 const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 
+// whenever a list of nodes/components is updated
+// there might be updates or not.
+// If the new list has different length, there's surely
+// some DOM operation to perform.
+// Otherwise operations should be performed **only**
+// if the content od the two lists is different from before.
+// Majinbuu is the project in charge of computing these differences.
+// It uses the Levenshtein distance algorithm to produce the least amount
+// of splice operations an Array needs to become like another Array.
+const optimist = (aura, value) => {
+  let length = aura.length;
+  if (value.length !== length) {
+    // TODO: there's room for improvements for common cases
+    // where a single node has been appended or prepended
+    // and the whole Levenshtein distance computation
+    // would be overkill
+    majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+  } else {
+    for (let i = 0; i < length--; i++) {
+      if (aura[length] !== value[length] || aura[i] !== value[i]) {
+        majinbuu(aura, value, Aura.MAX_LIST_SIZE);
+        return;
+      }
+    }
+  }
+};
+
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
 //  * it's a JS primitive, stored as text
@@ -220,22 +249,31 @@ const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
   const aura = new Aura(node, childNodes);
-  let fastPath = false;
   let oldValue;
   const anyContent = value => {
     switch (typeof value) {
       case 'string':
       case 'number':
       case 'boolean':
-        if (fastPath) {
+        let length = childNodes.length;
+        if (
+          length === 1 &&
+          childNodes[0].nodeType === TEXT_NODE
+        ) {
           if (oldValue !== value) {
             oldValue = value;
             childNodes[0].textContent = value;
           }
         } else {
-          fastPath = true;
           oldValue = value;
-          aura.empty(text(node, value));
+          if (length) {
+            aura.splice(0, length, text(node, value));
+          } else {
+            node.parentNode.insertBefore(
+              (childNodes[0] = text(node, value)),
+              node
+            );
+          }
         }
         break;
       case 'object':
@@ -246,11 +284,10 @@ const setAnyContent = (node, childNodes) => {
           break;
         }
       default:
-        fastPath = false;
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.empty();
+            aura.splice(0);
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -267,16 +304,19 @@ const setAnyContent = (node, childNodes) => {
                   break;
                 }
               default:
-                aura.become(value);
+                optimist(aura, value);
                 break;
             }
           }
         } else if (value instanceof Component) {
-          aura.empty(value);
+          optimist(aura, [value]);
         } else if (isNode_ish(value)) {
-          aura.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
-            slice.call(value.childNodes) :
-            [value]);
+          optimist(
+            aura,
+            value.nodeType === DOCUMENT_FRAGMENT_NODE ?
+              slice.call(value.childNodes) :
+              [value]
+          );
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
         } else if ('placeholder' in value) {
@@ -286,7 +326,7 @@ const setAnyContent = (node, childNodes) => {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.empty();
+          aura.splice(0);
           const fragment = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment.childNodes);
           node.parentNode.insertBefore(fragment, node);
