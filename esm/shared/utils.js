@@ -90,9 +90,10 @@ export const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
   (doc, node) => cloneNode(node)
 
-// just recycling a one-off array to use slice
+// just recycling a one-off array to use slice/splice
 // in every needed place
-export const slice = [].slice;
+const {slice, splice} = [];
+export {slice, splice};
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.

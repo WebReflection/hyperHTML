@@ -345,7 +345,11 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+<<<<<<< HEAD
+  hyperHTML.engine = hyperHTML.engine;
+=======
   hyperHTML.MAX_LIST_SIZE = 0;
+>>>>>>> master
   tressa.log('## for code coverage sake');
   let wrap = document.createElement('div');
   let text = [document.createTextNode('a'), document.createTextNode('b'), document.createTextNode('c')];
@@ -452,6 +456,40 @@ tressa.async(function (done) {
   tressa.assert(node.getAttribute('style') === 'height:10px;', 'correct style string');
   render`<rect style=${null} />`;
   tressa.assert(node.getAttribute('style') === '', 'correct style reset');
+})
+.then(function () {
+  var a = document.createTextNode('a');
+  var b = document.createTextNode('b');
+  var c = document.createTextNode('c');
+  var d = document.createTextNode('d');
+  var e = document.createTextNode('e');
+  var f = document.createTextNode('f');
+  var g = document.createTextNode('g');
+  var h = document.createTextNode('h');
+  var i = document.createTextNode('i');
+  var div = document.createElement('div');
+  var render = hyperHTML.bind(div);
+  render`${[]}`;
+  tressa.assert(div.textContent === '', 'div is empty');
+  render`${[c, d, e, f]}`;
+  // all tests know that a comment node is inside the div
+  tressa.assert(div.textContent === 'cdef' && div.childNodes.length === 5, 'div has 4 nodes');
+  render`${[c, d, e, f]}`;
+  tressa.assert(div.textContent === 'cdef', 'div has same 4 nodes');
+  render`${[a, b, c, d, e, f]}`;
+  tressa.assert(div.textContent === 'abcdef' && div.childNodes.length === 7, 'div has same 4 nodes + 2 prepends');
+  render`${[a, b, c, d, e, f, g, h, i]}`;
+  tressa.assert(div.textContent === 'abcdefghi' && div.childNodes.length === 10, 'div has 6 nodes + 3 appends');
+  render`${[b, c, d, e, f, g, h, i]}`;
+  tressa.assert(div.textContent === 'bcdefghi' && div.childNodes.length === 9, 'div has dropped first node');
+  render`${[b, c, d, e, f, g, h]}`;
+  tressa.assert(div.textContent === 'bcdefgh' && div.childNodes.length === 8, 'div has dropped last node');
+  render`${[b, c, d, f, e, g, h]}`;
+  tressa.assert(div.textContent === 'bcdfegh', 'div has changed 2 nodes');
+  render`${[b, d, c, f, g, e, h]}`;
+  tressa.assert(div.textContent === 'bdcfgeh', 'div has changed 4 nodes');
+  render`${[b, d, c, g, e, h]}`;
+  tressa.assert(div.textContent === 'bdcgeh' && div.childNodes.length === 7, 'div has removed central node');
 })
 .then(function () {
   tressa.log('## no WebKit backfire');

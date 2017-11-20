@@ -1,5 +1,3 @@
-import majinbuu from 'https://unpkg.com/majinbuu@latest/esm/main.js';
-
 import {
   CONNECTED, DISCONNECTED,
   COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE,
@@ -8,11 +6,11 @@ import {
   UID, UIDC
 } from '../shared/constants.js';
 
-import Aura from '../classes/Aura.js';
+import Megatron from '../classes/Megatron.js';
 import Component from '../classes/Component.js';
 import Path from './Path.js';
 import Style from './Style.js';
-import Transformer from './Transformer.js';
+import Intent from './Intent.js';
 import {text} from '../shared/easy-dom.js';
 import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
 import {createFragment, slice} from '../shared/utils.js';
@@ -174,7 +172,7 @@ const findAttributes = (node, paths, parts) => {
     }
   }
   const len = remove.length;
-  for (let i = 0; i < remove.length; i++) {
+  for (let i = 0; i < len; i++) {
     node.removeAttributeNode(remove[i]);
   }
 };
@@ -192,49 +190,13 @@ const invokeAtDistance = (value, callback) => {
   } else if ('html' in value) {
     Promise.resolve(value.html).then(asHTML).then(callback);
   } else {
-    Promise.resolve(Transformer.invoke(value, callback)).then(callback);
+    Promise.resolve(Intent.invoke(value, callback)).then(callback);
   }
 };
 
 // quick and dirty ways to check a value type without abusing instanceof
 const isNode_ish = value => 'ELEMENT_NODE' in value;
 const isPromise_ish = value => value != null && 'then' in value;
-
-// special attributes are usually available through their owner class
-// 'value' in input
-// 'src' in img
-// and so on. These attributes don't act properly via get/setAttribute
-// so in these case their value is set, or retrieved, right away
-// input.value = ...
-// img.src = ...
-const isSpecial = (node, name) => !(OWNER_SVG_ELEMENT in node) && name in node;
-
-// whenever a list of nodes/components is updated
-// there might be updates or not.
-// If the new list has different length, there's surely
-// some DOM operation to perform.
-// Otherwise operations should be performed **only**
-// if the content od the two lists is different from before.
-// Majinbuu is the project in charge of computing these differences.
-// It uses the Levenshtein distance algorithm to produce the least amount
-// of splice operations an Array needs to become like another Array.
-const optimist = (aura, value) => {
-  let length = aura.length;
-  if (value.length !== length) {
-    // TODO: there's room for improvements for common cases
-    // where a single node has been appended or prepended
-    // and the whole Levenshtein distance computation
-    // would be overkill
-    majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-  } else {
-    for (let i = 0; i < length--; i++) {
-      if (aura[length] !== value[length] || aura[i] !== value[i]) {
-        majinbuu(aura, value, Aura.MAX_LIST_SIZE);
-        return;
-      }
-    }
-  }
-};
 
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
@@ -246,46 +208,38 @@ const optimist = (aura, value) => {
 //  * it's an Array, resolve all values if Promises and/or
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
-  const aura = new Aura(node, childNodes);
+  const transformer = new Megatron(node, childNodes);
+  let fastPath = false;
   let oldValue;
   const anyContent = value => {
     switch (typeof value) {
       case 'string':
       case 'number':
       case 'boolean':
-        let length = childNodes.length;
-        if (
-          length === 1 &&
-          childNodes[0].nodeType === TEXT_NODE
-        ) {
+        if (fastPath) {
           if (oldValue !== value) {
             oldValue = value;
             childNodes[0].textContent = value;
           }
         } else {
+          fastPath = true;
           oldValue = value;
-          if (length) {
-            aura.splice(0, length, text(node, value));
-          } else {
-            node.parentNode.insertBefore(
-              (childNodes[0] = text(node, value)),
-              node
-            );
-          }
+          transformer.empty(text(node, value));
         }
         break;
       case 'object':
       case 'undefined':
         if (value == null) {
-          oldValue = value;
-          anyContent('');
+          fastPath = false;
+          transformer.empty();
           break;
         }
       default:
+        fastPath = false;
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            aura.splice(0);
+            transformer.empty();
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -302,19 +256,16 @@ const setAnyContent = (node, childNodes) => {
                   break;
                 }
               default:
-                optimist(aura, value);
+                transformer.become(value);
                 break;
             }
           }
         } else if (value instanceof Component) {
-          optimist(aura, [value]);
+          transformer.empty(value);
         } else if (isNode_ish(value)) {
-          optimist(
-            aura,
-            value.nodeType === DOCUMENT_FRAGMENT_NODE ?
-              slice.call(value.childNodes) :
-              [value]
-          );
+          transformer.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
+            slice.call(value.childNodes) :
+            [value]);
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
         } else if ('placeholder' in value) {
@@ -324,14 +275,14 @@ const setAnyContent = (node, childNodes) => {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          aura.splice(0);
+          transformer.empty();
           const fragment = createFragment(node, [].concat(value.html).join(''));
           childNodes.push.apply(childNodes, fragment.childNodes);
           node.parentNode.insertBefore(fragment, node);
         } else if ('length' in value) {
           anyContent(slice.call(value));
         } else {
-          anyContent(Transformer.invoke(value, anyContent));
+          anyContent(Intent.invoke(value, anyContent));
         }
         break;
     }
@@ -438,7 +389,7 @@ const setTextContent = node => {
         } else if ('length' in value) {
           textContent(slice.call(value).join(''));
         } else {
-          textContent(Transformer.invoke(value, textContent));
+          textContent(Intent.invoke(value, textContent));
         }
       } else {
         node.textContent = value == null ? '' : value;

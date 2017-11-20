@@ -1,5 +1,8 @@
 {
   "extends": "eslint:recommended",
+  "globals": {
+    "Promise": true
+  },
   "parserOptions": {
     "sourceType": "module"
   },

@@ -1,6 +1,8 @@
-import Aura from './classes/Aura.js';
+/*! (c) Andrea Giammarchi (ISC) */
+
+import Megatron from './classes/Megatron.js';
 import Component, {setup} from './classes/Component.js';
-import Transformer from './objects/Transformer.js';
+import Intent from './objects/Intent.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 
@@ -9,23 +11,26 @@ import render from './hyper/render.js';
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
 const bind = context => render.bind(context);
-const define = Transformer.define;
+const define = Intent.define;
 
+hyper.Component = Component;
 hyper.bind = bind;
 hyper.define = define;
 hyper.hyper = hyper;
 hyper.wire = wire;
-hyper.Component = Component;
 
-// if needed, you can increase or decrease
-// the maximum amount of nodes per list
-// to compute via majinbuu algorithm
-Object.defineProperty(hyper, 'MAX_LIST_SIZE', {
+// it is possible to define a different engine
+// to resolve nodes diffing.
+// The engine must provide an update method
+// capable of mutating liveNodes collection
+// and the related DOM.
+// See hyperhtml-majinbuu to know more
+Object.defineProperty(hyper, 'engine', {
   get: function get() {
-    return Aura.MAX_LIST_SIZE;
+    return Megatron.engine;
   },
-  set: function set(value) {
-    Aura.MAX_LIST_SIZE = value;
+  set: function set(engine) {
+    Megatron.engine = engine;
   }
 });
 
