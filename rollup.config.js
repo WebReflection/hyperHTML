@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-  input: 'esm/main.js',
+  input: 'esm/index.js',
   plugins: [
     babel({
       plugins: require('./babel-plugins.json')

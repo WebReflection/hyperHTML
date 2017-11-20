@@ -15,7 +15,7 @@ A **Fast & Light Virtual DOM Alternative** available for [NodeJS](https://viperh
 
 Following most important changes in version 2:
 
-  * fully rewritten, and [consumable](https://unpkg.com/hyperhtml@latest/esm/main.js), as [ES2015 Module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
+  * fully rewritten, and [consumable](https://unpkg.com/hyperhtml@latest/esm/index.js), as [ES2015 Module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
   * [usable via CDN](https://unpkg.com/hyperhtml@latest/min.js) as bundled global `hyperHTML` variable
   * restructured in modules, utilities, helpers, and commented all over for simplified contribution
   * **removed** `.escape` and `.adopt`, either useless or unstable. `hyperHTML.adopt` will be implemented as module a part

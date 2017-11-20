@@ -4,8 +4,8 @@
   "description": "A Fast & Light Virtual DOM Alternative",
   "homepage": "https://viperhtml.js.org/hyper.html",
   "browser": "min.js",
-  "main": "cjs/main.js",
-  "module": "esm/main.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "scripts": {
     "build": "npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
     "cleanup": "echo \"$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\" > index.js",
