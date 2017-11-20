@@ -87,7 +87,7 @@ setTimeout(function () {
     }};
   };
 
-  global.hyperHTML = require('../index.c.js');
+  window.hyperHTML = require('../index.c.js');
   require('./test.js');
 
 }, 1000);
