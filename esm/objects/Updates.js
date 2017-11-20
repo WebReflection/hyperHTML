@@ -17,11 +17,6 @@ import {text} from '../shared/easy-dom.js';
 import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
 import {createFragment, slice} from '../shared/utils.js';
 
-// if you want to use Promises as interpolation value
-// be sure your browser supports them or provide a polyfill
-// before including/importing hyperHTML
-const Promise = global.Promise;
-
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
 // This weak set is used to recognize components

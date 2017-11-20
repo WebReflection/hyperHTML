@@ -1,5 +1,10 @@
 'use strict';
-// Node.CONSTANTS (not every engine has a global Node defined)
+const global = document.defaultView;
+exports.global = global;
+
+// Node.CONSTANTS
+// 'cause some engine has no global Node defined
+// (i.e. Node, NativeScript, basicHTML ... )
 const ELEMENT_NODE = 1;
 exports.ELEMENT_NODE = ELEMENT_NODE;
 const ATTRIBUTE_NODE = 2;

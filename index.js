@@ -9,7 +9,7 @@ var INSERT = 'ins';
 var SUBSTITUTE = 'sub';
 
 // typed Array
-var TypedArray = global.Int32Array || Array;
+var TypedArray = typeof Int32Array === 'function' ? Int32Array : Array;
 
 var majinbuu = function majinbuu(from, to, MAX_SIZE) {
 
@@ -233,7 +233,11 @@ var text = function text(node, _text) {
   return doc(node).createTextNode(_text);
 };
 
-// Node.CONSTANTS (not every engine has a global Node defined)
+var global = document.defaultView;
+
+// Node.CONSTANTS
+// 'cause some engine has no global Node defined
+// (i.e. Node, NativeScript, basicHTML ... )
 var ELEMENT_NODE = 1;
 
 var TEXT_NODE = 3;
@@ -700,11 +704,6 @@ var toStyle = function toStyle(object) {
   }
   return css.join('');
 };
-
-// if you want to use Promises as interpolation value
-// be sure your browser supports them or provide a polyfill
-// before including/importing hyperHTML
-var Promise = global.Promise;
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver

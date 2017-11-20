@@ -1,5 +1,6 @@
 'use strict';
 const {
+  global,
   OWNER_SVG_ELEMENT,
   SVG_NAMESPACE,
   UID,

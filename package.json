@@ -65,7 +65,9 @@
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.29"
   },
-  "dependencies": {},
+  "dependencies": {
+    "majinbuu": "^1.1.3"
+  },
   "greenkeeper": {
     "ignore": [
       "uglify-js"
