@@ -96,9 +96,11 @@ exports.importNode = importNode
 
 // just recycling a one-off array to use slice/splice
 // in every needed place
-const {slice, splice} = [];
+const {push, slice, splice, unshift} = [];
+exports.push = push;
 exports.slice = slice;
 exports.splice = splice;
+exports.unshift = unshift;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.

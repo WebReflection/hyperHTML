@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.1.1
+  * fast changes where prepending or appending same lists; now dropping upfront or removing at the end are part of the fast path too.
+
 ### v2.1.0
 
   * created a simple default merge engine focused on performance

@@ -1,6 +1,8 @@
-import Component from './Component.js';
+// this is an overly defensive approach to avoid any possible
+// side-effect when the live collection of nodes is passed around
+import {push, slice, splice, unshift} from '../shared/utils.js';
 import {fragment} from '../shared/easy-dom.js';
-import {slice, splice} from '../shared/utils.js';
+import Component from './Component.js';
 import engine from '../objects/Engine.js';
 
 /*                0                       0                 0
@@ -57,7 +59,7 @@ Megatron.prototype.empty = function empty(value) {
     while (length--) pn.removeChild(utils.getNode(remove[length]));
   }
   if (value) {
-    childNodes.push(value);
+    push.call(childNodes, value);
     node.parentNode.insertBefore(utils.getNode(value), node);
   }
 };
@@ -76,7 +78,7 @@ Megatron.prototype.become = function become(virtual) {
     let v = 0;
     // if the current list is empty, append all nodes
     if (llength < 1) {
-      live.push.apply(
+      push.apply(
         live,
         utils.insert(pn, virtual, node)
       );
@@ -90,14 +92,20 @@ Megatron.prototype.become = function become(virtual) {
       v++;
     }
     // if we reached the live length destination
-    if (l == llength) {
+    if (l === llength) {
       // there could be a tie (nothing to do)
       if (vlength === llength) return;
       // or there's only to append
-      live.push.apply(
+      push.apply(
         live,
         utils.insert(pn, slice.call(virtual, v), node)
       );
+      return;
+    }
+    // if the new length is reached though
+    if (v === vlength) {
+      // there are nodes to remove
+      utils.remove(pn, splice.call(live, l, llength));
       return;
     }
     // otherwise let's check backward
@@ -113,11 +121,17 @@ Megatron.prototype.become = function become(virtual) {
     // now ... lists are not identical, we know that,
     // but maybe it was a prepend ... so if live length is covered
     if (rl < 1) {
-      // simply return after pre-pending all nodes
-      live.unshift.apply(
+      // return after pre-pending all nodes
+      unshift.apply(
         live,
         utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0]))
       );
+      return;
+    }
+    // or maybe, it was a removal of nodes at the beginning
+    if (rv < 1) {
+      // return after removing all pre-nodes
+      utils.remove(pn, splice.call(live, l, rl));
       return;
     }
     // now we have a boundary of nodes that need to be changed
@@ -155,6 +169,14 @@ const utils = {
       parentNode.insertBefore(tmp, node);
     }
     return nodes;
+  },
+
+  // drop a list of nodes from their parentNode
+  remove: (parentNode, nodes) => {
+    let i = nodes.length;
+    while (i--) {
+      parentNode.removeChild(utils.getNode(nodes[i]));
+    }
   }
 };
 

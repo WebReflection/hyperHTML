@@ -92,8 +92,8 @@ export const importNode = hasImportNode ?
 
 // just recycling a one-off array to use slice/splice
 // in every needed place
-const {slice, splice} = [];
-export {slice, splice};
+const {push, slice, splice, unshift} = [];
+export {push, slice, splice, unshift};
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.

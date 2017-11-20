@@ -1,76 +1,6 @@
 var hyperHTML = (function (global) {
 'use strict';
 
-// hyperHTML.Component is a very basic class
-// able to create Custom Elements like components
-// including the ability to listen to connect/disconnect
-// events via onconnect/ondisconnect attributes
-function Component() {}
-
-// components will lazily define html or svg properties
-// as soon as these are invoked within the .render() method
-// Such render() method is not provided by the base class
-// but it must be available through the Component extend.
-function setup(content) {
-  Object.defineProperties(Component.prototype, {
-    handleEvent: {
-      value: function value(e) {
-        var ct = e.currentTarget;
-        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
-      }
-    },
-    html: lazyGetter('html', content),
-    svg: lazyGetter('svg', content),
-    state: lazyGetter('state', function () {
-      return this.defaultState;
-    }),
-    defaultState: {
-      get: function get() {
-        return {};
-      }
-    },
-    setState: {
-      value: function value(state) {
-        var target = this.state;
-        var source = typeof state === 'function' ? state.call(this, target) : state;
-        for (var key in source) {
-          target[key] = source[key];
-        }this.render();
-      }
-    }
-  });
-}
-
-// instead of a secret key I could've used a WeakMap
-// However, attaching a property directly will result
-// into better performance with thousands of components
-// hanging around, and less memory pressure caused by the WeakMap
-var lazyGetter = function lazyGetter(type, fn) {
-  var secret = '_' + type + '$';
-  return {
-    get: function get() {
-      return this[secret] || (this[type] = fn.call(this, type));
-    },
-    set: function set(value) {
-      Object.defineProperty(this, secret, { configurable: true, value: value });
-    }
-  };
-};
-
-// these are tiny helpers to simplify most common operations needed here
-var create = function create(node, type) {
-  return doc(node).createElement(type);
-};
-var doc = function doc(node) {
-  return node.ownerDocument || node;
-};
-var fragment = function fragment(node) {
-  return doc(node).createDocumentFragment();
-};
-var text = function text(node, _text) {
-  return doc(node).createTextNode(_text);
-};
-
 var global = document.defaultView;
 
 // Node.CONSTANTS
@@ -95,6 +25,20 @@ var EXPANDO = '_hyper: ';
 var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
 var UIDC = '<!--' + UID + '-->';
+
+// these are tiny helpers to simplify most common operations needed here
+var create = function create(node, type) {
+  return doc(node).createElement(type);
+};
+var doc = function doc(node) {
+  return node.ownerDocument || node;
+};
+var fragment = function fragment(node) {
+  return doc(node).createDocumentFragment();
+};
+var text = function text(node, _text) {
+  return doc(node).createTextNode(_text);
+};
 
 var testFragment = fragment(document);
 
@@ -190,8 +134,10 @@ var importNode = hasImportNode ? function (doc$$1, node) {
 // just recycling a one-off array to use slice/splice
 // in every needed place
 var _ref = [];
+var push = _ref.push;
 var slice = _ref.slice;
 var splice = _ref.splice;
+var unshift = _ref.unshift;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.
@@ -268,6 +214,62 @@ var SVGFragment = hasContent ? function (node, html) {
   return content;
 };
 
+// hyperHTML.Component is a very basic class
+// able to create Custom Elements like components
+// including the ability to listen to connect/disconnect
+// events via onconnect/ondisconnect attributes
+function Component() {}
+
+// components will lazily define html or svg properties
+// as soon as these are invoked within the .render() method
+// Such render() method is not provided by the base class
+// but it must be available through the Component extend.
+function setup(content) {
+  Object.defineProperties(Component.prototype, {
+    handleEvent: {
+      value: function value(e) {
+        var ct = e.currentTarget;
+        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
+      }
+    },
+    html: lazyGetter('html', content),
+    svg: lazyGetter('svg', content),
+    state: lazyGetter('state', function () {
+      return this.defaultState;
+    }),
+    defaultState: {
+      get: function get() {
+        return {};
+      }
+    },
+    setState: {
+      value: function value(state) {
+        var target = this.state;
+        var source = typeof state === 'function' ? state.call(this, target) : state;
+        for (var key in source) {
+          target[key] = source[key];
+        }this.render();
+      }
+    }
+  });
+}
+
+// instead of a secret key I could've used a WeakMap
+// However, attaching a property directly will result
+// into better performance with thousands of components
+// hanging around, and less memory pressure caused by the WeakMap
+var lazyGetter = function lazyGetter(type, fn) {
+  var secret = '_' + type + '$';
+  return {
+    get: function get() {
+      return this[secret] || (this[type] = fn.call(this, type));
+    },
+    set: function set(value) {
+      Object.defineProperty(this, secret, { configurable: true, value: value });
+    }
+  };
+};
+
 var engine = {
   update: function update(utils, parentNode, commentNode, liveNodes, liveStart, liveEnd, liveLength, virtualNodes, virtualStart, virtualEnd /*, virtualLength */
   ) {
@@ -310,6 +312,8 @@ var engine = {
   }
 };
 
+// this is an overly defensive approach to avoid any possible
+// side-effect when the live collection of nodes is passed around
 /*                0                       0                 0
 000                00                   00                000
  0000              0000               0000              0000 
@@ -366,7 +370,7 @@ Megatron.prototype.empty = function empty(value) {
     }
   }
   if (value) {
-    childNodes.push(value);
+    push.call(childNodes, value);
     node.parentNode.insertBefore(utils.getNode(value), node);
   }
 };
@@ -385,7 +389,7 @@ Megatron.prototype.become = function become(virtual) {
     var v = 0;
     // if the current list is empty, append all nodes
     if (llength < 1) {
-      live.push.apply(live, utils.insert(pn, virtual, node));
+      push.apply(live, utils.insert(pn, virtual, node));
       return;
     }
     // if all elements are the same, do pretty much nothing
@@ -396,11 +400,17 @@ Megatron.prototype.become = function become(virtual) {
       v++;
     }
     // if we reached the live length destination
-    if (l == llength) {
+    if (l === llength) {
       // there could be a tie (nothing to do)
       if (vlength === llength) return;
       // or there's only to append
-      live.push.apply(live, utils.insert(pn, slice.call(virtual, v), node));
+      push.apply(live, utils.insert(pn, slice.call(virtual, v), node));
+      return;
+    }
+    // if the new length is reached though
+    if (v === vlength) {
+      // there are nodes to remove
+      utils.remove(pn, splice.call(live, l, llength));
       return;
     }
     // otherwise let's check backward
@@ -416,8 +426,14 @@ Megatron.prototype.become = function become(virtual) {
     // now ... lists are not identical, we know that,
     // but maybe it was a prepend ... so if live length is covered
     if (rl < 1) {
-      // simply return after pre-pending all nodes
-      live.unshift.apply(live, utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0])));
+      // return after pre-pending all nodes
+      unshift.apply(live, utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0])));
+      return;
+    }
+    // or maybe, it was a removal of nodes at the beginning
+    if (rv < 1) {
+      // return after removing all pre-nodes
+      utils.remove(pn, splice.call(live, l, rl));
       return;
     }
     // now we have a boundary of nodes that need to be changed
@@ -453,6 +469,14 @@ var utils = {
       }parentNode.insertBefore(tmp, node);
     }
     return nodes;
+  },
+
+  // drop a list of nodes from their parentNode
+  remove: function remove(parentNode, nodes) {
+    var i = nodes.length;
+    while (i--) {
+      parentNode.removeChild(utils.getNode(nodes[i]));
+    }
   }
 };
 
