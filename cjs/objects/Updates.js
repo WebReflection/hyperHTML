@@ -54,37 +54,6 @@ const create = (root, paths) => {
   return updates;
 };
 
-// when hyper.Component related DOM nodes
-// are appended or removed from the live tree
-// these might listen to connected/disconnected events
-// This utility is in charge of finding all components
-// involved in the DOM update/change and dispatch
-// related information to them
-const dispatchAll = (nodes, type) => {
-  const event = new Event(type);
-  const length = nodes.length;
-  for (let i = 0; i < length; i++) {
-    let node = nodes[i];
-    if (node.nodeType === ELEMENT_NODE) {
-      dispatchTarget(node, event);
-    }
-  }
-};
-
-// the way it's done is via the components weak set
-// and recursively looking for nested components too
-const dispatchTarget = (node, event) => {
-  if (components.has(node)) {
-    node.dispatchEvent(event);
-  } else {
-    const children = node.children;
-    const length = children.length;
-    for (let i = 0; i < length; i++) {
-      dispatchTarget(children[i], event);
-    }
-  }
-}
-
 // finding all paths is a one-off operation performed
 // when a new template literal is used.
 // The goal is to map all target nodes that will be
@@ -307,6 +276,10 @@ const setAttribute = (node, name, original) => {
   else if (/^on/.test(name)) {
     let type = name.slice(2);
     if (type === CONNECTED || type === DISCONNECTED) {
+      if (notObserving) {
+        notObserving = false;
+        observe();
+      }
       components.add(node);
     }
     else if (name.toLowerCase() in node) {
@@ -396,26 +369,64 @@ const setTextContent = node => {
   return textContent;
 };
 
-// hyper.Components might need connected/disconnected notifications
-// The MutationObserver is the best way to implement that
-// but there is a fallback to deprecated DOMNodeInserted/Removed
-// so that even older browsers/engines can help components life-cycle
-try {
-  (new MutationObserver(records => {
-    const length = records.length;
-    for (let i = 0; i < length; i++) {
-      let record = records[i];
-      dispatchAll(record.removedNodes, DISCONNECTED);
-      dispatchAll(record.addedNodes, CONNECTED);
-    }
-  })).observe(document, {subtree: true, childList: true});
-} catch(o_O) {
-  document.addEventListener('DOMNodeRemoved', event => {
-    dispatchAll([event.target], DISCONNECTED);
-  }, false);
-  document.addEventListener('DOMNodeInserted', event => {
-    dispatchAll([event.target], CONNECTED);
-  }, false);
-}
-
 Object.defineProperty(exports, '__esModule', {value: true}).default = {create, find};
+
+// hyper.Components might need connected/disconnected notifications
+// used by components and their onconnect/ondisconnect callbacks.
+// When one of these callbacks is encountered,
+// the document starts being observed.
+let notObserving = true;
+function observe() {
+
+  // when hyper.Component related DOM nodes
+  // are appended or removed from the live tree
+  // these might listen to connected/disconnected events
+  // This utility is in charge of finding all components
+  // involved in the DOM update/change and dispatch
+  // related information to them
+  const dispatchAll = (nodes, type) => {
+    const event = new Event(type);
+    const length = nodes.length;
+    for (let i = 0; i < length; i++) {
+      let node = nodes[i];
+      if (node.nodeType === ELEMENT_NODE) {
+        dispatchTarget(node, event);
+      }
+    }
+  };
+
+  // the way it's done is via the components weak set
+  // and recursively looking for nested components too
+  const dispatchTarget = (node, event) => {
+    if (components.has(node)) {
+      node.dispatchEvent(event);
+    } else {
+      const children = node.children;
+      const length = children.length;
+      for (let i = 0; i < length; i++) {
+        dispatchTarget(children[i], event);
+      }
+    }
+  }
+
+  // The MutationObserver is the best way to implement that
+  // but there is a fallback to deprecated DOMNodeInserted/Removed
+  // so that even older browsers/engines can help components life-cycle
+  try {
+    (new MutationObserver(records => {
+      const length = records.length;
+      for (let i = 0; i < length; i++) {
+        let record = records[i];
+        dispatchAll(record.removedNodes, DISCONNECTED);
+        dispatchAll(record.addedNodes, CONNECTED);
+      }
+    })).observe(document, {subtree: true, childList: true});
+  } catch(o_O) {
+    document.addEventListener('DOMNodeRemoved', event => {
+      dispatchAll([event.target], DISCONNECTED);
+    }, false);
+    document.addEventListener('DOMNodeInserted', event => {
+      dispatchAll([event.target], CONNECTED);
+    }, false);
+  }
+}
