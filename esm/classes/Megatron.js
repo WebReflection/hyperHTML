@@ -1,8 +1,7 @@
 // this is an overly defensive approach to avoid any possible
 // side-effect when the live collection of nodes is passed around
-import {push, slice, splice, unshift} from '../shared/utils.js';
-import {fragment} from '../shared/easy-dom.js';
 import Component from './Component.js';
+import DOMSplicer from './DOMSplicer.js';
 import engine from '../objects/Engine.js';
 
 /*                0                       0                 0
@@ -35,11 +34,14 @@ import engine from '../objects/Engine.js';
                                                              
                     slyer0.deviantart.com                  */
 
+const item = node => node instanceof Component ? node.render() : node;
+
 // Megatron is a transformer in charge of mutating
 // a list of live DOM nodes into a new list.
-function Megatron(node, childNodes) {
-  this.node = node;
-  this.childNodes = childNodes;
+function Megatron(before, childNodes) {
+  this.splicer = new DOMSplicer({
+    item, childNodes, before
+  });
 }
 
 // it carries the default merge/diff engine
@@ -50,18 +52,9 @@ Megatron.engine = engine;
 // quickly erase the related content
 // optionally add a single node/component as value
 Megatron.prototype.empty = function empty(value) {
-  const node = this.node;
-  const childNodes = this.childNodes;
-  let length = childNodes.length;
-  if (length) {
-    const pn = node.parentNode;
-    const remove = splice.call(childNodes, 0, length);
-    while (length--) pn.removeChild(utils.getNode(remove[length]));
-  }
-  if (value) {
-    push.call(childNodes, value);
-    node.parentNode.insertBefore(utils.getNode(value), node);
-  }
+  const splicer = this.splicer;
+  splicer.splice(0);
+  if (value) splicer.splice(0, 0, value);
 };
 
 // there are numerous ways to optimize a list of nodes
@@ -70,18 +63,14 @@ Megatron.prototype.become = function become(virtual) {
   const vlength = virtual.length;
   // if there are new elements to push ..
   if (0 < vlength) {
-    const node = this.node;
-    const live = this.childNodes;
-    const pn = node.parentNode;
+    const splicer = this.splicer;
+    const live = splicer.childNodes;
     let llength = live.length;
     let l = 0;
     let v = 0;
     // if the current list is empty, append all nodes
     if (llength < 1) {
-      push.apply(
-        live,
-        utils.insert(pn, virtual, node)
-      );
+      splicer.splice.apply(splicer, [0, 0].concat(virtual));
       return;
     }
     // if all elements are the same, do pretty much nothing
@@ -96,16 +85,13 @@ Megatron.prototype.become = function become(virtual) {
       // there could be a tie (nothing to do)
       if (vlength === llength) return;
       // or there's only to append
-      push.apply(
-        live,
-        utils.insert(pn, slice.call(virtual, v), node)
-      );
+      splicer.splice.apply(splicer, [llength, 0].concat(virtual.slice(v)));
       return;
     }
     // if the new length is reached though
     if (v === vlength) {
       // there are nodes to remove
-      utils.remove(pn, splice.call(live, l, llength));
+      splicer.splice(l);
       return;
     }
     // otherwise let's check backward
@@ -122,61 +108,27 @@ Megatron.prototype.become = function become(virtual) {
     // but maybe it was a prepend ... so if live length is covered
     if (rl < 1) {
       // return after pre-pending all nodes
-      unshift.apply(
-        live,
-        utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0]))
+      splicer.splice.apply(
+        splicer,
+        [0, 0].concat(virtual.slice(0, rv))
       );
       return;
     }
     // or maybe, it was a removal of nodes at the beginning
     if (rv < 1) {
       // return after removing all pre-nodes
-      utils.remove(pn, splice.call(live, l, rl));
+      splicer.splice(0, rl);
       return;
     }
     // now we have a boundary of nodes that need to be changed
     // all the discovered info ar passed to the engine
     Megatron.engine.update(
-      utils, pn, node,
+      { engine, item, splicer },
       live, l, rl, llength,
       virtual, v, rv, vlength
     );
   } else {
     this.empty();
-  }
-};
-
-const utils = {
-
-  // the basic default engine is always provided
-  // in case there are conditions that need it
-  engine,
-
-  // an item could be an hyperHTML.Component and, in such case,
-  // it should be rendered as node
-  getNode: node => node instanceof Component ? node.render() : node,
-
-  // append a list of nodes before another node
-  insert: (parentNode, nodes, node) => {
-    const length = nodes.length;
-    if (length === 1) {
-      parentNode.insertBefore(utils.getNode(nodes[0]), node);
-    } else {
-      let i = 0;
-      const tmp = fragment(parentNode);
-      while (i < length)
-        tmp.appendChild(utils.getNode(nodes[i++]));
-      parentNode.insertBefore(tmp, node);
-    }
-    return nodes;
-  },
-
-  // drop a list of nodes from their parentNode
-  remove: (parentNode, nodes) => {
-    let i = nodes.length;
-    while (i--) {
-      parentNode.removeChild(utils.getNode(nodes[i]));
-    }
   }
 };
 

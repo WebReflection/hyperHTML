@@ -7,16 +7,17 @@
   "main": "cjs/index.js",
   "module": "esm/index.js",
   "scripts": {
-    "build": "npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
+    "add-splicer": "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/classes/DOMSplicer.js && cat node_modules/dom-splicer/esm/index.js | sed 's/const { isArray } = Array;/import { isArray } from \"..\\/shared\\/poorlyfills.js\";/' >> esm/classes/DOMSplicer.js",
+    "build": "npm run add-splicer && npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
     "cleanup": "echo \"$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\" > index.js",
-    "cjs": "ascjs ./esm ./cjs",
+    "cjs": "npm run add-splicer && ascjs ./esm ./cjs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\"))')",
     "max": "rollup --config rollup.config.js && npm run cleanup",
     "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\" > min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
     "brotli": "cat min.js | bro | wc -c",
-    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
+    "test": "cat index.js | sed 's/function DOMSplicer/global.DOMSplicer = function/' > index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
   },
   "repository": {
     "type": "git",
@@ -58,6 +59,7 @@
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
     "basichtml": "^0.11.0",
     "coveralls": "^3.0.0",
+    "dom-splicer": "^0.1.3",
     "istanbul": "^0.4.5",
     "rollup": "^0.51.5",
     "rollup-plugin-babel": "^3.0.2",

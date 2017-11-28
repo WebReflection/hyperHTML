@@ -94,13 +94,10 @@ const importNode = hasImportNode ?
   (doc, node) => cloneNode(node)
 exports.importNode = importNode
 
-// just recycling a one-off array to use slice/splice
+// just recycling a one-off array to use slice
 // in every needed place
-const {push, slice, splice, unshift} = [];
-exports.push = push;
+const slice = [].slice;
 exports.slice = slice;
-exports.splice = splice;
-exports.unshift = unshift;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.

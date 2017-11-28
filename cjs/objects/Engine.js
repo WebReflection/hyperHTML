@@ -1,12 +1,11 @@
 'use strict';
-const {slice, splice} = require('../shared/utils.js');
-
 Object.defineProperty(exports, '__esModule', {value: true}).default = {
   update: (
-    utils, parentNode, commentNode,
+    utils,
     liveNodes, liveStart, liveEnd, liveLength,
     virtualNodes, virtualStart, virtualEnd /*, virtualLength */
   ) => {
+    const { splicer } = utils;
     while (liveStart < liveEnd && virtualStart < virtualEnd) {
       const liveValue = liveNodes[liveStart];
       const virtualValue = virtualNodes[virtualStart];
@@ -14,15 +13,13 @@ Object.defineProperty(exports, '__esModule', {value: true}).default = {
                       0 : (liveNodes.indexOf(virtualValue) < 0 ? 1 : -1);
       // nodes can be either removed ...
       if (status < 0) {
-        splice.call(liveNodes, liveStart, 1);
-        parentNode.removeChild(utils.getNode(liveValue));
+        splicer.splice(liveStart, 1);
         liveEnd--;
         liveLength--;
       }
       // ... appended ...
       else if (0 < status) {
-        splice.call(liveNodes, liveStart, 0, virtualValue);
-        parentNode.insertBefore(utils.getNode(virtualValue), utils.getNode(liveValue));
+        splicer.splice(liveStart, 0, virtualValue);
         liveStart++;
         liveEnd++;
         liveLength++;
@@ -35,22 +32,13 @@ Object.defineProperty(exports, '__esModule', {value: true}).default = {
       }
     }
     if (liveStart < liveEnd) {
-      const remove = splice.call(liveNodes, liveStart, liveEnd - liveStart);
-      liveStart = remove.length;
-      while (liveStart--) {
-        parentNode.removeChild(utils.getNode(remove[liveStart]));
-      }
+      splicer.splice(liveStart, liveEnd - liveStart);
     }
     if (virtualStart < virtualEnd) {
-      splice.apply(
-        liveNodes,
+      splicer.splice.apply(
+        splicer,
         [liveEnd, 0].concat(
-          utils.insert(
-            parentNode,
-            slice.call(virtualNodes, virtualStart, virtualEnd),
-            liveEnd < liveLength ?
-              utils.getNode(liveNodes[liveEnd]) : commentNode
-          )
+          virtualNodes.slice(virtualStart, virtualEnd)
         )
       );
     }

@@ -242,9 +242,14 @@ const setAnyContent = (node, childNodes) => {
           anyContent(value.any);
         } else if ('html' in value) {
           transformer.empty();
-          const fragment = createFragment(node, [].concat(value.html).join(''));
-          childNodes.push.apply(childNodes, fragment.childNodes);
-          node.parentNode.insertBefore(fragment, node);
+          transformer.become(
+            slice.call(
+              createFragment(
+                node,
+                [].concat(value.html).join('')
+              ).childNodes
+            )
+          );
         } else if ('length' in value) {
           anyContent(slice.call(value));
         } else {

@@ -1,6 +1,62 @@
 var hyperHTML = (function (global) {
 'use strict';
 
+// hyperHTML.Component is a very basic class
+// able to create Custom Elements like components
+// including the ability to listen to connect/disconnect
+// events via onconnect/ondisconnect attributes
+function Component() {}
+
+// components will lazily define html or svg properties
+// as soon as these are invoked within the .render() method
+// Such render() method is not provided by the base class
+// but it must be available through the Component extend.
+function setup(content) {
+  Object.defineProperties(Component.prototype, {
+    handleEvent: {
+      value: function value(e) {
+        var ct = e.currentTarget;
+        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
+      }
+    },
+    html: lazyGetter('html', content),
+    svg: lazyGetter('svg', content),
+    state: lazyGetter('state', function () {
+      return this.defaultState;
+    }),
+    defaultState: {
+      get: function get() {
+        return {};
+      }
+    },
+    setState: {
+      value: function value(state) {
+        var target = this.state;
+        var source = typeof state === 'function' ? state.call(this, target) : state;
+        for (var key in source) {
+          target[key] = source[key];
+        }this.render();
+      }
+    }
+  });
+}
+
+// instead of a secret key I could've used a WeakMap
+// However, attaching a property directly will result
+// into better performance with thousands of components
+// hanging around, and less memory pressure caused by the WeakMap
+var lazyGetter = function lazyGetter(type, fn) {
+  var secret = '_' + type + '$';
+  return {
+    get: function get() {
+      return this[secret] || (this[type] = fn.call(this, type));
+    },
+    set: function set(value) {
+      Object.defineProperty(this, secret, { configurable: true, value: value });
+    }
+  };
+};
+
 var global = document.defaultView;
 
 // Node.CONSTANTS
@@ -26,6 +82,352 @@ var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
 var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
 var UIDC = '<!--' + UID + '-->';
 
+// you know that kind of basics you need to cover
+// your use case only but you don't want to bloat the library?
+// There's even a package in here:
+// https://www.npmjs.com/package/poorlyfills
+
+// used to dispatch simple events
+var Event = global.Event;
+try {
+  new Event('Event');
+} catch (o_O) {
+  Event = function Event(type) {
+    var e = document.createEvent('Event');
+    e.initEvent(type, false, false);
+    return e;
+  };
+}
+// used to store template literals
+var Map = global.Map || function Map() {
+  var keys = [],
+      values = [];
+  return {
+    get: function get(obj) {
+      return values[keys.indexOf(obj)];
+    },
+    set: function set(obj, value) {
+      values[keys.push(obj) - 1] = value;
+    }
+  };
+};
+
+// used to store wired content
+var WeakMap = global.WeakMap || function WeakMap() {
+  return {
+    get: function get(obj) {
+      return obj[UID];
+    },
+    set: function set(obj, value) {
+      Object.defineProperty(obj, UID, {
+        configurable: true,
+        value: value
+      });
+    }
+  };
+};
+
+// used to store hyper.Components
+var WeakSet = global.WeakSet || function WeakSet() {
+  var wm = new WeakMap();
+  return {
+    add: function add(obj) {
+      wm.set(obj, true);
+    },
+    has: function has(obj) {
+      return wm.get(obj) === true;
+    }
+  };
+};
+
+// used to be sure IE9 or older Androids work as expected
+var isArray = Array.isArray || function (toString) {
+  return function (arr) {
+    return toString.call(arr) === '[object Array]';
+  };
+}({}.toString);
+
+var trim = UID.trim || function () {
+  return this.replace(/^\s+|\s+$/g, '');
+};
+
+/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
+/*! (c) Andrea Giammarchi (ISC) */
+
+var min = Math.min;
+var max = Math.max;
+
+var arraySplice = [].splice;
+
+var fragment = function fragment(target, item, list, i, length) {
+  var f = target.ownerDocument.createDocumentFragment();
+  while (i < length) {
+    f.appendChild(item(list[i++]));
+  }return f;
+};
+
+var identity = function identity(thing) {
+  return thing;
+};
+
+var remove = function remove(target, item, list, i, length) {
+  while (i < length--) {
+    target.removeChild(item(list[length]));
+  }
+};
+
+// not using a class to avoid Babel bloat
+function DOMSplicer(options) {
+  var before = options.before,
+      target = options.target;
+
+  var item = options.item || identity;
+  var childNodes = options.childNodes || (before ? [] : target.childNodes);
+  this.item = item;
+  this.target = target ? item(target) : null;
+  this.before = before ? item(before) : null;
+  this.childNodes = childNodes;
+  this.applySplice = isArray(childNodes);
+  this.placeHolder = (this.target || this.before).ownerDocument.createComment('');
+}
+
+DOMSplicer.prototype.splice = function splice(start, deleteCount) {
+  var aLength = arguments.length;
+  if (aLength < 1) return;
+  var item = this.item;
+  var before = this.before;
+  var target = this.target || before.parentNode;
+  var childNodes = this.childNodes;
+  var placeHolder = this.placeHolder;
+  var len = childNodes.length;
+  var index = start < 0 ? max(len + start, 0) : min(start, len);
+  var count = aLength < 2 ? len - index : min(max(deleteCount, 0), len - index);
+  target.insertBefore(placeHolder, index < len ? item(childNodes[index]) : before);
+  var copy = childNodes;
+  var added = 1;
+  if (this.applySplice) {
+    added = 0;
+    copy = copy.slice();
+    arraySplice.apply(childNodes, arguments);
+  }
+  if (count) remove(target, item, copy, added + index, added + index + count);
+  if (aLength > 2) {
+    target.insertBefore(aLength > 3 ? fragment(target, item, arguments, 2, aLength) : item(arguments[2]), placeHolder);
+  }
+  target.removeChild(placeHolder);
+};
+
+var engine = {
+  update: function update(utils, liveNodes, liveStart, liveEnd, liveLength, virtualNodes, virtualStart, virtualEnd /*, virtualLength */
+  ) {
+    var splicer = utils.splicer;
+
+    while (liveStart < liveEnd && virtualStart < virtualEnd) {
+      var liveValue = liveNodes[liveStart];
+      var virtualValue = virtualNodes[virtualStart];
+      var status = liveValue === virtualValue ? 0 : liveNodes.indexOf(virtualValue) < 0 ? 1 : -1;
+      // nodes can be either removed ...
+      if (status < 0) {
+        splicer.splice(liveStart, 1);
+        liveEnd--;
+        liveLength--;
+      }
+      // ... appended ...
+      else if (0 < status) {
+          splicer.splice(liveStart, 0, virtualValue);
+          liveStart++;
+          liveEnd++;
+          liveLength++;
+          virtualStart++;
+        }
+        // ... or ignored, since it's the same ...
+        else {
+            liveStart++;
+            virtualStart++;
+          }
+    }
+    if (liveStart < liveEnd) {
+      splicer.splice(liveStart, liveEnd - liveStart);
+    }
+    if (virtualStart < virtualEnd) {
+      splicer.splice.apply(splicer, [liveEnd, 0].concat(virtualNodes.slice(virtualStart, virtualEnd)));
+    }
+  }
+};
+
+// this is an overly defensive approach to avoid any possible
+// side-effect when the live collection of nodes is passed around
+/*                0                       0                 0
+000                00                   00                000
+ 0000              0000               0000              0000 
+  00000             0000             0000              0000  
+  000000            000000         000000            000000  
+   0000000           0000000      0000000          0000000   
+   0000000000000000  0000000000000000000  0000000000000000   
+   0000000000000000   000000000000000000  0000000000000000   
+   0000000000000000   00000000000000000   000000000000000    
+    0000000            000000   0000000           0000000    
+    0000000000000000   0000000 0000000   000000000000000     
+     0000000000000000  00000000000000  0000000000000000      
+      000000            000000000000             000000      
+       0000000000000      00000000       0000000000000       
+      0  0000000000000000           0000000000000000  0      
+       00  00000000000000000       0000000000000000  00      
+       000   00000     000000   0000000    00000   000       
+        0000   00000        000000       000000  00000       
+        000000  000000     0000000     000000  000000        
+         0000000  000000   00000000   00000  0000000         
+         00000000   00000 000000000 00000  000000000         
+         0000000000   00000000000000000   0000000000         
+          00000000000   00000000000000  00000000000          
+          0000000000000   000000000   0000000000000          
+                000000000   00000   0000000000               
+                       0000  000  0000                       
+                            0 0 0                            
+                                                             
+                    slyer0.deviantart.com                  */
+
+var item = function item(node) {
+  return node instanceof Component ? node.render() : node;
+};
+
+// Megatron is a transformer in charge of mutating
+// a list of live DOM nodes into a new list.
+function Megatron(before, childNodes) {
+  this.splicer = new DOMSplicer({
+    item: item, childNodes: childNodes, before: before
+  });
+}
+
+// it carries the default merge/diff engine
+// that can be swapped via hyperHTML.engine = {...}
+// See hyperhtml-majinbuu to know more
+Megatron.engine = engine;
+
+// quickly erase the related content
+// optionally add a single node/component as value
+Megatron.prototype.empty = function empty(value) {
+  var splicer = this.splicer;
+  splicer.splice(0);
+  if (value) splicer.splice(0, 0, value);
+};
+
+// there are numerous ways to optimize a list of nodes
+// that is going to represent another list (or even the same)
+Megatron.prototype.become = function become(virtual) {
+  var vlength = virtual.length;
+  // if there are new elements to push ..
+  if (0 < vlength) {
+    var splicer = this.splicer;
+    var live = splicer.childNodes;
+    var llength = live.length;
+    var l = 0;
+    var v = 0;
+    // if the current list is empty, append all nodes
+    if (llength < 1) {
+      splicer.splice.apply(splicer, [0, 0].concat(virtual));
+      return;
+    }
+    // if all elements are the same, do pretty much nothing
+    while (l < llength && v < vlength) {
+      // appending nodes/components could be just fine
+      if (live[l] !== virtual[v]) break;
+      l++;
+      v++;
+    }
+    // if we reached the live length destination
+    if (l === llength) {
+      // there could be a tie (nothing to do)
+      if (vlength === llength) return;
+      // or there's only to append
+      splicer.splice.apply(splicer, [llength, 0].concat(virtual.slice(v)));
+      return;
+    }
+    // if the new length is reached though
+    if (v === vlength) {
+      // there are nodes to remove
+      splicer.splice(l);
+      return;
+    }
+    // otherwise let's check backward
+    var rl = llength;
+    var rv = vlength;
+    while (rl && rv) {
+      if (live[--rl] !== virtual[--rv]) {
+        ++rl;
+        ++rv;
+        break;
+      }
+    }
+    // now ... lists are not identical, we know that,
+    // but maybe it was a prepend ... so if live length is covered
+    if (rl < 1) {
+      // return after pre-pending all nodes
+      splicer.splice.apply(splicer, [0, 0].concat(virtual.slice(0, rv)));
+      return;
+    }
+    // or maybe, it was a removal of nodes at the beginning
+    if (rv < 1) {
+      // return after removing all pre-nodes
+      splicer.splice(0, rl);
+      return;
+    }
+    // now we have a boundary of nodes that need to be changed
+    // all the discovered info ar passed to the engine
+    Megatron.engine.update({ engine: engine, item: item, splicer: splicer }, live, l, rl, llength, virtual, v, rv, vlength);
+  } else {
+    this.empty();
+  }
+};
+
+
+
+/* TODO: benchmark this is needed at all
+// instead of checking instanceof each time and render potentially twice
+// use a map to retrieve nodes from a generic item
+
+import {Map} from '../shared/poorlyfills.js';
+const get = (map, node) => map.get(node) || set(map, node);
+const set = (map, node) => {
+  const value = utils.getNode(node);
+  map.set(node, value);
+  return value;
+};
+
+*/
+
+var intents = {};
+var keys = [];
+var hasOwnProperty = intents.hasOwnProperty;
+
+var length = 0;
+
+var Intent = {
+
+  // hyperHTML.define('intent', (object, update) => {...})
+  // can be used to define a third parts update mechanism
+  // when every other known mechanism failed.
+  // hyper.define('user', info => info.name);
+  // hyper(node)`<p>${{user}}</p>`;
+  define: function define(intent, callback) {
+    if (!(intent in intents)) {
+      length = keys.push(intent);
+    }
+    intents[intent] = callback;
+  },
+
+  // this method is used internally as last resort
+  // to retrieve a value out of an object
+  invoke: function invoke(object, callback) {
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (hasOwnProperty.call(object, key)) {
+        return intents[key](object[key], callback);
+      }
+    }
+  }
+};
+
 // these are tiny helpers to simplify most common operations needed here
 var create = function create(node, type) {
   return doc(node).createElement(type);
@@ -33,14 +435,14 @@ var create = function create(node, type) {
 var doc = function doc(node) {
   return node.ownerDocument || node;
 };
-var fragment = function fragment(node) {
+var fragment$1 = function fragment(node) {
   return doc(node).createDocumentFragment();
 };
 var text = function text(node, _text) {
   return doc(node).createTextNode(_text);
 };
 
-var testFragment = fragment(document);
+var testFragment = fragment$1(document);
 
 // DOM4 node.append(...many)
 var hasAppend = 'append' in testFragment;
@@ -131,13 +533,9 @@ var importNode = hasImportNode ? function (doc$$1, node) {
   return cloneNode(node);
 };
 
-// just recycling a one-off array to use slice/splice
+// just recycling a one-off array to use slice
 // in every needed place
-var _ref = [];
-var push = _ref.push;
-var slice = _ref.slice;
-var splice = _ref.splice;
-var unshift = _ref.unshift;
+var slice = [].slice;
 
 // lazy evaluated, returns the unique identity
 // of a template literal, as tempalte literal itself.
@@ -186,7 +584,7 @@ var HTMLFragment = hasContent ? function (node, html) {
   return container.content;
 } : function (node, html) {
   var container = create(node, 'template');
-  var content = fragment(node);
+  var content = fragment$1(node);
   if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
     var selector = RegExp.$1;
     container.innerHTML = '<table>' + html + '</table>';
@@ -201,400 +599,17 @@ var HTMLFragment = hasContent ? function (node, html) {
 // creates SVG fragment with a fallback for IE that needs SVG
 // within the HTML content
 var SVGFragment = hasContent ? function (node, html) {
-  var content = fragment(node);
+  var content = fragment$1(node);
   var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
   container.innerHTML = html;
   append(content, slice.call(container.childNodes));
   return content;
 } : function (node, html) {
-  var content = fragment(node);
+  var content = fragment$1(node);
   var container = create(node, 'div');
   container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
   append(content, slice.call(container.firstChild.childNodes));
   return content;
-};
-
-// hyperHTML.Component is a very basic class
-// able to create Custom Elements like components
-// including the ability to listen to connect/disconnect
-// events via onconnect/ondisconnect attributes
-function Component() {}
-
-// components will lazily define html or svg properties
-// as soon as these are invoked within the .render() method
-// Such render() method is not provided by the base class
-// but it must be available through the Component extend.
-function setup(content) {
-  Object.defineProperties(Component.prototype, {
-    handleEvent: {
-      value: function value(e) {
-        var ct = e.currentTarget;
-        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
-      }
-    },
-    html: lazyGetter('html', content),
-    svg: lazyGetter('svg', content),
-    state: lazyGetter('state', function () {
-      return this.defaultState;
-    }),
-    defaultState: {
-      get: function get() {
-        return {};
-      }
-    },
-    setState: {
-      value: function value(state) {
-        var target = this.state;
-        var source = typeof state === 'function' ? state.call(this, target) : state;
-        for (var key in source) {
-          target[key] = source[key];
-        }this.render();
-      }
-    }
-  });
-}
-
-// instead of a secret key I could've used a WeakMap
-// However, attaching a property directly will result
-// into better performance with thousands of components
-// hanging around, and less memory pressure caused by the WeakMap
-var lazyGetter = function lazyGetter(type, fn) {
-  var secret = '_' + type + '$';
-  return {
-    get: function get() {
-      return this[secret] || (this[type] = fn.call(this, type));
-    },
-    set: function set(value) {
-      Object.defineProperty(this, secret, { configurable: true, value: value });
-    }
-  };
-};
-
-var engine = {
-  update: function update(utils, parentNode, commentNode, liveNodes, liveStart, liveEnd, liveLength, virtualNodes, virtualStart, virtualEnd /*, virtualLength */
-  ) {
-    while (liveStart < liveEnd && virtualStart < virtualEnd) {
-      var liveValue = liveNodes[liveStart];
-      var virtualValue = virtualNodes[virtualStart];
-      var status = liveValue === virtualValue ? 0 : liveNodes.indexOf(virtualValue) < 0 ? 1 : -1;
-      // nodes can be either removed ...
-      if (status < 0) {
-        splice.call(liveNodes, liveStart, 1);
-        parentNode.removeChild(utils.getNode(liveValue));
-        liveEnd--;
-        liveLength--;
-      }
-      // ... appended ...
-      else if (0 < status) {
-          splice.call(liveNodes, liveStart, 0, virtualValue);
-          parentNode.insertBefore(utils.getNode(virtualValue), utils.getNode(liveValue));
-          liveStart++;
-          liveEnd++;
-          liveLength++;
-          virtualStart++;
-        }
-        // ... or ignored, since it's the same ...
-        else {
-            liveStart++;
-            virtualStart++;
-          }
-    }
-    if (liveStart < liveEnd) {
-      var remove = splice.call(liveNodes, liveStart, liveEnd - liveStart);
-      liveStart = remove.length;
-      while (liveStart--) {
-        parentNode.removeChild(utils.getNode(remove[liveStart]));
-      }
-    }
-    if (virtualStart < virtualEnd) {
-      splice.apply(liveNodes, [liveEnd, 0].concat(utils.insert(parentNode, slice.call(virtualNodes, virtualStart, virtualEnd), liveEnd < liveLength ? utils.getNode(liveNodes[liveEnd]) : commentNode)));
-    }
-  }
-};
-
-// this is an overly defensive approach to avoid any possible
-// side-effect when the live collection of nodes is passed around
-/*                0                       0                 0
-000                00                   00                000
- 0000              0000               0000              0000 
-  00000             0000             0000              0000  
-  000000            000000         000000            000000  
-   0000000           0000000      0000000          0000000   
-   0000000000000000  0000000000000000000  0000000000000000   
-   0000000000000000   000000000000000000  0000000000000000   
-   0000000000000000   00000000000000000   000000000000000    
-    0000000            000000   0000000           0000000    
-    0000000000000000   0000000 0000000   000000000000000     
-     0000000000000000  00000000000000  0000000000000000      
-      000000            000000000000             000000      
-       0000000000000      00000000       0000000000000       
-      0  0000000000000000           0000000000000000  0      
-       00  00000000000000000       0000000000000000  00      
-       000   00000     000000   0000000    00000   000       
-        0000   00000        000000       000000  00000       
-        000000  000000     0000000     000000  000000        
-         0000000  000000   00000000   00000  0000000         
-         00000000   00000 000000000 00000  000000000         
-         0000000000   00000000000000000   0000000000         
-          00000000000   00000000000000  00000000000          
-          0000000000000   000000000   0000000000000          
-                000000000   00000   0000000000               
-                       0000  000  0000                       
-                            0 0 0                            
-                                                             
-                    slyer0.deviantart.com                  */
-
-// Megatron is a transformer in charge of mutating
-// a list of live DOM nodes into a new list.
-function Megatron(node, childNodes) {
-  this.node = node;
-  this.childNodes = childNodes;
-}
-
-// it carries the default merge/diff engine
-// that can be swapped via hyperHTML.engine = {...}
-// See hyperhtml-majinbuu to know more
-Megatron.engine = engine;
-
-// quickly erase the related content
-// optionally add a single node/component as value
-Megatron.prototype.empty = function empty(value) {
-  var node = this.node;
-  var childNodes = this.childNodes;
-  var length = childNodes.length;
-  if (length) {
-    var pn = node.parentNode;
-    var remove = splice.call(childNodes, 0, length);
-    while (length--) {
-      pn.removeChild(utils.getNode(remove[length]));
-    }
-  }
-  if (value) {
-    push.call(childNodes, value);
-    node.parentNode.insertBefore(utils.getNode(value), node);
-  }
-};
-
-// there are numerous ways to optimize a list of nodes
-// that is going to represent another list (or even the same)
-Megatron.prototype.become = function become(virtual) {
-  var vlength = virtual.length;
-  // if there are new elements to push ..
-  if (0 < vlength) {
-    var node = this.node;
-    var live = this.childNodes;
-    var pn = node.parentNode;
-    var llength = live.length;
-    var l = 0;
-    var v = 0;
-    // if the current list is empty, append all nodes
-    if (llength < 1) {
-      push.apply(live, utils.insert(pn, virtual, node));
-      return;
-    }
-    // if all elements are the same, do pretty much nothing
-    while (l < llength && v < vlength) {
-      // appending nodes/components could be just fine
-      if (live[l] !== virtual[v]) break;
-      l++;
-      v++;
-    }
-    // if we reached the live length destination
-    if (l === llength) {
-      // there could be a tie (nothing to do)
-      if (vlength === llength) return;
-      // or there's only to append
-      push.apply(live, utils.insert(pn, slice.call(virtual, v), node));
-      return;
-    }
-    // if the new length is reached though
-    if (v === vlength) {
-      // there are nodes to remove
-      utils.remove(pn, splice.call(live, l, llength));
-      return;
-    }
-    // otherwise let's check backward
-    var rl = llength;
-    var rv = vlength;
-    while (rl && rv) {
-      if (live[--rl] !== virtual[--rv]) {
-        ++rl;
-        ++rv;
-        break;
-      }
-    }
-    // now ... lists are not identical, we know that,
-    // but maybe it was a prepend ... so if live length is covered
-    if (rl < 1) {
-      // return after pre-pending all nodes
-      unshift.apply(live, utils.insert(pn, slice.call(virtual, 0, rv), utils.getNode(live[0])));
-      return;
-    }
-    // or maybe, it was a removal of nodes at the beginning
-    if (rv < 1) {
-      // return after removing all pre-nodes
-      utils.remove(pn, splice.call(live, l, rl));
-      return;
-    }
-    // now we have a boundary of nodes that need to be changed
-    // all the discovered info ar passed to the engine
-    Megatron.engine.update(utils, pn, node, live, l, rl, llength, virtual, v, rv, vlength);
-  } else {
-    this.empty();
-  }
-};
-
-var utils = {
-
-  // the basic default engine is always provided
-  // in case there are conditions that need it
-  engine: engine,
-
-  // an item could be an hyperHTML.Component and, in such case,
-  // it should be rendered as node
-  getNode: function getNode(node) {
-    return node instanceof Component ? node.render() : node;
-  },
-
-  // append a list of nodes before another node
-  insert: function insert(parentNode, nodes, node) {
-    var length = nodes.length;
-    if (length === 1) {
-      parentNode.insertBefore(utils.getNode(nodes[0]), node);
-    } else {
-      var i = 0;
-      var tmp = fragment(parentNode);
-      while (i < length) {
-        tmp.appendChild(utils.getNode(nodes[i++]));
-      }parentNode.insertBefore(tmp, node);
-    }
-    return nodes;
-  },
-
-  // drop a list of nodes from their parentNode
-  remove: function remove(parentNode, nodes) {
-    var i = nodes.length;
-    while (i--) {
-      parentNode.removeChild(utils.getNode(nodes[i]));
-    }
-  }
-};
-
-
-
-/* TODO: benchmark this is needed at all
-// instead of checking instanceof each time and render potentially twice
-// use a map to retrieve nodes from a generic item
-
-import {Map} from '../shared/poorlyfills.js';
-const get = (map, node) => map.get(node) || set(map, node);
-const set = (map, node) => {
-  const value = utils.getNode(node);
-  map.set(node, value);
-  return value;
-};
-
-*/
-
-var intents = {};
-var keys = [];
-var hasOwnProperty = intents.hasOwnProperty;
-
-var length = 0;
-
-var Intent = {
-
-  // hyperHTML.define('intent', (object, update) => {...})
-  // can be used to define a third parts update mechanism
-  // when every other known mechanism failed.
-  // hyper.define('user', info => info.name);
-  // hyper(node)`<p>${{user}}</p>`;
-  define: function define(intent, callback) {
-    if (!(intent in intents)) {
-      length = keys.push(intent);
-    }
-    intents[intent] = callback;
-  },
-
-  // this method is used internally as last resort
-  // to retrieve a value out of an object
-  invoke: function invoke(object, callback) {
-    for (var i = 0; i < length; i++) {
-      var key = keys[i];
-      if (hasOwnProperty.call(object, key)) {
-        return intents[key](object[key], callback);
-      }
-    }
-  }
-};
-
-// you know that kind of basics you need to cover
-// your use case only but you don't want to bloat the library?
-// There's even a package in here:
-// https://www.npmjs.com/package/poorlyfills
-
-// used to dispatch simple events
-var Event = global.Event;
-try {
-  new Event('Event');
-} catch (o_O) {
-  Event = function Event(type) {
-    var e = document.createEvent('Event');
-    e.initEvent(type, false, false);
-    return e;
-  };
-}
-// used to store template literals
-var Map = global.Map || function Map() {
-  var keys = [],
-      values = [];
-  return {
-    get: function get(obj) {
-      return values[keys.indexOf(obj)];
-    },
-    set: function set(obj, value) {
-      values[keys.push(obj) - 1] = value;
-    }
-  };
-};
-
-// used to store wired content
-var WeakMap = global.WeakMap || function WeakMap() {
-  return {
-    get: function get(obj) {
-      return obj[UID];
-    },
-    set: function set(obj, value) {
-      Object.defineProperty(obj, UID, {
-        configurable: true,
-        value: value
-      });
-    }
-  };
-};
-
-// used to store hyper.Components
-var WeakSet = global.WeakSet || function WeakSet() {
-  var wm = new WeakMap();
-  return {
-    add: function add(obj) {
-      wm.set(obj, true);
-    },
-    has: function has(obj) {
-      return wm.get(obj) === true;
-    }
-  };
-};
-
-// used to be sure IE9 or older Androids work as expected
-var isArray = Array.isArray || function (toString) {
-  return function (arr) {
-    return toString.call(arr) === '[object Array]';
-  };
-}({}.toString);
-
-var trim = UID.trim || function () {
-  return this.replace(/^\s+|\s+$/g, '');
 };
 
 // every template literal interpolation indicates
@@ -945,9 +960,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
           anyContent(value.any);
         } else if ('html' in value) {
           transformer.empty();
-          var fragment$$1 = createFragment(node, [].concat(value.html).join(''));
-          childNodes.push.apply(childNodes, fragment$$1.childNodes);
-          node.parentNode.insertBefore(fragment$$1, node);
+          transformer.become(slice.call(createFragment(node, [].concat(value.html).join('')).childNodes));
         } else if ('length' in value) {
           anyContent(slice.call(value));
         } else {
@@ -1225,7 +1238,7 @@ var content = function content(type) {
     var setup = template !== statics;
     if (setup) {
       template = statics;
-      content = fragment(document);
+      content = fragment$1(document);
       container = type === 'svg' ? document.createElementNS(SVG_NAMESPACE, 'svg') : content;
       updates = render.bind(container);
     }
