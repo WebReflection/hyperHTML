@@ -40,9 +40,8 @@ const item = node => node instanceof Component ? node.render() : node;
 // Megatron is a transformer in charge of mutating
 // a list of live DOM nodes into a new list.
 function Megatron(before, childNodes) {
-  this.splicer = new DOMSplicer({
-    item, childNodes, before
-  });
+  const _ = (this._ = {before, childNodes, item, splicer: null});
+  _.splicer = new DOMSplicer(_);
 }
 
 // it carries the default merge/diff engine
@@ -53,7 +52,7 @@ Megatron.engine = engine;
 // quickly erase the related content
 // optionally add a single node/component as value
 Megatron.prototype.empty = function empty(value) {
-  const splicer = this.splicer;
+  const splicer = this._.splicer;
   splicer.splice(0);
   if (value) splicer.splice(0, 0, value);
 };
@@ -64,7 +63,7 @@ Megatron.prototype.become = function become(virtual) {
   const vlength = virtual.length;
   // if there are new elements to push ..
   if (0 < vlength) {
-    const splicer = this.splicer;
+    const splicer = this._.splicer;
     const live = splicer.childNodes;
     let llength = live.length;
     let l = 0;
@@ -124,7 +123,7 @@ Megatron.prototype.become = function become(virtual) {
     // now we have a boundary of nodes that need to be changed
     // all the discovered info ar passed to the engine
     Megatron.engine.update(
-      { engine, item, splicer },
+      this._,
       live, l, rl, llength,
       virtual, v, rv, vlength
     );
