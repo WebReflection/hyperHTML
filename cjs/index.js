@@ -1,13 +1,13 @@
 'use strict';
 /*! (c) Andrea Giammarchi (ISC) */
 
-const Megatron = (m => m.__esModule ? m.default : m)(require('./classes/Megatron.js'));
 const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
 const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'));
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
+const diff = (m => m.__esModule ? m.default : m)(require('./shared/domdiff.js'));
 
 // all functions are self bound to the right context
 // you can do the following
@@ -19,23 +19,9 @@ const define = Intent.define;
 hyper.Component = Component;
 hyper.bind = bind;
 hyper.define = define;
+hyper.diff = diff;
 hyper.hyper = hyper;
 hyper.wire = wire;
-
-// it is possible to define a different engine
-// to resolve nodes diffing.
-// The engine must provide an update method
-// capable of mutating liveNodes collection
-// and the related DOM.
-// See hyperhtml-majinbuu to know more
-Object.defineProperty(hyper, 'engine', {
-  get: function get() {
-    return Megatron.engine;
-  },
-  set: function set(engine) {
-    Megatron.engine = engine;
-  }
-});
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component
@@ -46,6 +32,7 @@ setup(content);
 exports.Component = Component;
 exports.bind = bind;
 exports.define = define;
+exports.diff = diff;
 exports.hyper = hyper;
 exports.wire = wire;
 

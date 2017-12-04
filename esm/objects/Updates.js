@@ -6,11 +6,11 @@ import {
   UID, UIDC
 } from '../shared/constants.js';
 
-import Megatron from '../classes/Megatron.js';
 import Component from '../classes/Component.js';
 import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
+import domdiff from '../shared/domdiff.js';
 import {text} from '../shared/easy-dom.js';
 import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
 import {createFragment, slice} from '../shared/utils.js';
@@ -28,6 +28,8 @@ Cache.prototype = Object.create(null);
 
 // returns an intent to explicitly inject content as html
 const asHTML = html => ({html});
+
+const asNode = item => item instanceof Component ? item.render() : item;
 
 // updates are created once per context upgrade
 // within the main render function (../hyper/render.js)
@@ -177,7 +179,6 @@ const isPromise_ish = value => value != null && 'then' in value;
 //  * it's an Array, resolve all values if Promises and/or
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
-  const transformer = new Megatron(node, childNodes);
   let fastPath = false;
   let oldValue;
   const anyContent = value => {
@@ -193,14 +194,26 @@ const setAnyContent = (node, childNodes) => {
         } else {
           fastPath = true;
           oldValue = value;
-          transformer.empty(text(node, value));
+          childNodes = domdiff(
+            node.parentNode,
+            childNodes,
+            [text(node, value)],
+            asNode,
+            node
+          );
         }
         break;
       case 'object':
       case 'undefined':
         if (value == null) {
           fastPath = false;
-          transformer.empty();
+          childNodes = domdiff(
+            node.parentNode,
+            childNodes,
+            [],
+            asNode,
+            node
+          );
           break;
         }
       default:
@@ -208,7 +221,15 @@ const setAnyContent = (node, childNodes) => {
         oldValue = value;
         if (isArray(value)) {
           if (value.length === 0) {
-            transformer.empty();
+            if (childNodes.length) {
+              childNodes = domdiff(
+                node.parentNode,
+                childNodes,
+                [],
+                asNode,
+                node
+              );
+            }
           } else {
             switch (typeof value[0]) {
               case 'string':
@@ -225,16 +246,34 @@ const setAnyContent = (node, childNodes) => {
                   break;
                 }
               default:
-                transformer.become(value);
+                childNodes = domdiff(
+                  node.parentNode,
+                  childNodes,
+                  value,
+                  asNode,
+                  node
+                );
                 break;
             }
           }
         } else if (value instanceof Component) {
-          transformer.empty(value);
+          childNodes = domdiff(
+            node.parentNode,
+            childNodes,
+            [value],
+            asNode,
+            node
+          );
         } else if (isNode_ish(value)) {
-          transformer.become(value.nodeType === DOCUMENT_FRAGMENT_NODE ?
-            slice.call(value.childNodes) :
-            [value]);
+          childNodes = domdiff(
+            node.parentNode,
+            childNodes,
+            value.nodeType === DOCUMENT_FRAGMENT_NODE ?
+              slice.call(value.childNodes) :
+              [value],
+            asNode,
+            node
+          );
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
         } else if ('placeholder' in value) {
@@ -244,14 +283,17 @@ const setAnyContent = (node, childNodes) => {
         } else if ('any' in value) {
           anyContent(value.any);
         } else if ('html' in value) {
-          transformer.empty();
-          transformer.become(
+          childNodes = domdiff(
+            node.parentNode,
+            childNodes,
             slice.call(
               createFragment(
                 node,
                 [].concat(value.html).join('')
               ).childNodes
-            )
+            ),
+            asNode,
+            node
           );
         } else if ('length' in value) {
           anyContent(slice.call(value));

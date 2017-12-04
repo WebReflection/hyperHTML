@@ -1,0 +1,95 @@
+<!doctype html>
+<style>
+html {
+  font-family: sans-serif;
+}
+
+user-info {
+  display: block;
+}
+
+user-info small {
+  font-family: monospace;
+  font-size: .7em;
+}
+
+#logs {
+  margin-top: 32px;
+}
+</style>
+<div id="user-list"></div>
+<div id="logs"></div>
+<script src="https://unpkg.com/ce-v0@latest/min.js"></script>
+<script src="https://unpkg.com/ce-v0@latest/comp.js"></script>
+<script src="../index.js"></script>
+<script>
+// basic Custom Element
+Component({
+  name: 'user-info',
+  // every time a node is inserted live on DOM
+  // it will log the information
+  onconnected() {
+    log('connected: ' + this.getAttribute('name'));
+  }
+});
+
+var perf = console.time ? console : {
+  time() { this._ = (new Date).getTime(); },
+  timeEnd() {
+    console.log((new Date).getTime() - this._);
+  }
+};
+
+var wire = hyperHTML.wire;
+var users = [
+  {name: 'Zoe', age: 34},
+  {name: 'Brian', age: 29},
+  {name: 'Stephen', age: 50},
+  {name: 'Alan', age: 14},
+  {name: 'Joe', age: 31}
+];
+
+// first update, populate the body
+log('<strong>DOM changes</strong>');
+log('- - - - - - - - - -');
+update();
+
+// after one second
+setTimeout(() => {
+
+  // sort the users list by name
+  users.sort((a, b) => a.name < b.name ? -1 : 1);
+
+  // update + see which user was moved around
+  update();
+
+  // after another second
+  setTimeout(() => {
+
+    // sort the users list by age
+    users.sort((a, b) => a.age - b.age);
+
+    // update + see which user was moved around
+    update();
+  }, 1000);
+
+}, 1000);
+
+function log(text) {
+  logs.innerHTML += text + '<br>';
+}
+
+function update() {
+  log(`<small>${users.map(user => user.name).join(', ')}</small>`);
+  perf.time();
+  hyperHTML.bind(window['user-list'])`${
+    users.map(user => wire(user)
+      `<user-info name=${user.name}>
+        <small>${user.age}</small> ${user.name}
+      </user-info>`
+    )
+  }`;
+  perf.timeEnd();
+  setTimeout(log, 100, '- - - - - - - - - -');
+}
+</script>
