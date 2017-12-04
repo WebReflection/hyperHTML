@@ -1,5 +1,11 @@
 # hyper(html) Changelog
 
+### v2.3.0
+  * dropped the `engine` already. Too complex, no real benefits, refactored the whole internal logic to use [domdiff](https://github.com/WebReflection/domdiff) instead. Deprecated [hyperhtml-majinbuu](https://github.com/WebReflection/hyperhtml-majinbuu) and solved diffing "_forever_".
+
+### v2.2.0
+  * the whole `hyperHTML.engine` has been refactored to use [dom-splicer](https://github.com/WebReflection/dom-splicer) as an effort to make engine development easier
+
 ### v2.1.3
   * the MutationObserver is installed only once and only if there are components that have _on(dis)?connect_ handlers.
 
