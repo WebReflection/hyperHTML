@@ -90,5 +90,5 @@ setTimeout(function () {
   window.hyperHTML = require('../index.c.js');
   require('./test.js');
 
-  require('./dom-splicer.js');
+  require('./domdiff.js');
 }, 1000);
