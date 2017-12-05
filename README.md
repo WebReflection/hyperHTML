@@ -23,7 +23,7 @@ Following most important changes in version 2:
   * **added** support for objects as `style` attribute, fully compatible with [Preact](https://github.com/developit/preact) implementation
   * **improved** performance in numerous ways
   * **custom elements** V0 and V1 are now fully, and properly, supported through `document.importNode` and/or regular `cloneNode` tested against common polyfills
-  * back to 4.35K thanks to **rollup** and its ability to merge all the things together like it was already in V1
+  * back to 4.5K thanks to **rollup** and its ability to merge all the things together like it was already in V1
 
 ## Documentation
 
@@ -48,7 +48,7 @@ setInterval(tick, 1000,
 
 ## Features
 
-  * Zero dependencies, no polyfills needed, and it fits in about **4.35KB** (minified + brotli)
+  * Zero dependencies, no polyfills needed, and it fits in about **4.5KB** (minified + brotli)
   * Uses directly native DOM, no virtual DOM involved
   * Designed for [template literals](http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals), a templating feature built in to JS
   * Compatible with plain DOM elements and plain JS data structures

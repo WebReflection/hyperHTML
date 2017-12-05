@@ -134,6 +134,26 @@ tressa.async(function (done) {
   });
 })
 .then(function () {
+  tressa.log('## multi wire removal');
+  var render = hyperHTML.wire();
+  var update = function () {
+    return render`
+      <p>1</p>
+      <p>2</p>
+    `;
+  };
+  update().remove();
+  update = function () {
+    return render`
+      <p>1</p>
+      <p>2</p>
+      <p>3</p>
+    `;
+  };
+  update().remove();
+  tressa.assert(true, 'OK');
+})
+.then(function () {
   return tressa.async(function (done) {
     tressa.log('## hyperHTML.wire()');
 
@@ -155,15 +175,16 @@ tressa.async(function (done) {
         <p>1</p>
       `;
     };
-    node = update();
+    node = update().childNodes;
     tressa.assert(Array.isArray(node), 'list of nodes');
-    same = update();
+    same = update().childNodes;
     tressa.assert(
       node.length === same.length &&
       node[0] &&
       node.every(function (n, i) { return same[i] === n; }),
       'same list returned'
     );
+
     var div = document.createElement('div');
     render = hyperHTML.bind(div);
     render`${node}`;
@@ -443,11 +464,11 @@ tressa.async(function (done) {
   delete Object.prototype.ownerSVGElement;
   render`<rect style=${{width: 100}} />`;
   console.log(node.getAttribute('style'));
-  tressa.assert(node.getAttribute('style') === 'width:100px;', 'correct style object');
+  tressa.assert(/width:\s*100px;/.test(node.getAttribute('style')), 'correct style object');
   render`<rect style=${'height:10px;'} />`;
-  tressa.assert(node.getAttribute('style') === 'height:10px;', 'correct style string');
+  tressa.assert(/height:\s*10px;/.test(node.getAttribute('style')), 'correct style string');
   render`<rect style=${null} />`;
-  tressa.assert(node.getAttribute('style') === '', 'correct style reset');
+  tressa.assert(/^(?:|null)$/.test(node.getAttribute('style')), 'correct style reset');
 })
 .then(function () {
   var a = document.createTextNode('a');
@@ -526,6 +547,9 @@ tressa.async(function (done) {
     )
   }`;
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
+  hyperHTML.bind(div)`
+  <p></p>${[]}`;
+  tressa.assert(div.childElementCount === 1, 'only one element left');
 })
 .then(function () {return tressa.async(function (done) {
   tressa.log('## textarea text');
@@ -736,6 +760,7 @@ tressa.async(function (done) {
   }
   var div = document.createElement('div');
   var render = hyperHTML.bind(div);
+  
   render`${[
     new Button,
     new Rect({x: 123, y: 456})

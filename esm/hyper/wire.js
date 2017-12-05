@@ -2,6 +2,7 @@ import {ELEMENT_NODE, SVG_NAMESPACE} from '../shared/constants.js';
 import {WeakMap, trim} from '../shared/poorlyfills.js';
 import {fragment} from '../shared/easy-dom.js';
 import {append, slice, unique} from '../shared/utils.js';
+import Wire from '../classes/Wire.js';
 import render from './render.js';
 
 // all wires used per each context
@@ -78,18 +79,18 @@ const weakly = (obj, type) => {
 const wireContent = node => {
   const childNodes = node.childNodes;
   const length = childNodes.length;
-  const wire = [];
+  const wireNodes = [];
   for (let i = 0; i < length; i++) {
     let child = childNodes[i];
     if (
       child.nodeType === ELEMENT_NODE ||
       trim.call(child.textContent).length !== 0
     ) {
-      wire.push(child);
+      wireNodes.push(child);
     }
   }
-  return wire.length === 1 ? wire[0] : wire;
+  return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
 };
 
-export {content, weakly};
+export { content, weakly };
 export default wire;

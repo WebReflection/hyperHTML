@@ -3,6 +3,7 @@ const {ELEMENT_NODE, SVG_NAMESPACE} = require('../shared/constants.js');
 const {WeakMap, trim} = require('../shared/poorlyfills.js');
 const {fragment} = require('../shared/easy-dom.js');
 const {append, slice, unique} = require('../shared/utils.js');
+const Wire = (m => m.__esModule ? m.default : m)(require('../classes/Wire.js'));
 const render = (m => m.__esModule ? m.default : m)(require('./render.js'));
 
 // all wires used per each context
@@ -79,17 +80,17 @@ const weakly = (obj, type) => {
 const wireContent = node => {
   const childNodes = node.childNodes;
   const length = childNodes.length;
-  const wire = [];
+  const wireNodes = [];
   for (let i = 0; i < length; i++) {
     let child = childNodes[i];
     if (
       child.nodeType === ELEMENT_NODE ||
       trim.call(child.textContent).length !== 0
     ) {
-      wire.push(child);
+      wireNodes.push(child);
     }
   }
-  return wire.length === 1 ? wire[0] : wire;
+  return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
 };
 
 exports.content = content;

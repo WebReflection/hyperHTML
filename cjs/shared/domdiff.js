@@ -18,7 +18,7 @@ const domdiff = (
   beforeNode      // optional item/node to use as insertBefore delimiter
 ) => {
   const get = getNode || identity;
-  const before = beforeNode == null ? null : get(beforeNode);
+  const before = beforeNode == null ? null : get(beforeNode, 0);
   let currentStart = 0, futureStart = 0;
   let currentEnd = currentNodes.length - 1;
   let currentStartNode = currentNodes[0];
@@ -49,16 +49,16 @@ const domdiff = (
     }
     else if (currentStartNode == futureEndNode) {
       parentNode.insertBefore(
-        get(currentStartNode),
-        get(currentEndNode).nextSibling || before
+        get(currentStartNode, 1),
+        get(currentEndNode, -0).nextSibling
       );
       currentStartNode = currentNodes[++currentStart];
       futureEndNode = futureNodes[--futureEnd];
     }
     else if (currentEndNode == futureStartNode) {
       parentNode.insertBefore(
-        get(currentEndNode),
-        get(currentStartNode)
+        get(currentEndNode, 1),
+        get(currentStartNode, 0)
       );
       currentEndNode = currentNodes[--currentEnd];
       futureStartNode = futureNodes[++futureStart];
@@ -67,8 +67,8 @@ const domdiff = (
       let index = currentNodes.indexOf(futureStartNode);
       if (index < 0) {
         parentNode.insertBefore(
-          get(futureStartNode),
-          get(currentStartNode)
+          get(futureStartNode, 1),
+          get(currentStartNode, 0)
         );
         futureStartNode = futureNodes[++futureStart];
       }
@@ -76,8 +76,8 @@ const domdiff = (
         let el = currentNodes[index];
         currentNodes[index] = null;
         parentNode.insertBefore(
-          get(el),
-          get(currentStartNode)
+          get(el, 1),
+          get(currentStartNode, 0)
         );
         futureStartNode = futureNodes[++futureStart];
       }
@@ -85,13 +85,13 @@ const domdiff = (
   }
   if (currentStart > currentEnd) {
     const pin = futureNodes[futureEnd + 1];
-    const place = pin != null ? get(pin) : before;
+    const place = pin != null ? get(pin, 0) : before;
     while (futureStart <= futureEnd) {
       const ch = futureNodes[futureStart++];
       // ignore until I am sure the else could never happen.
       // it might be a vDOM thing 'cause it never happens here.
       /* istanbul ignore else */
-      if (ch != null) parentNode.insertBefore(get(ch), place);
+      if (ch != null) parentNode.insertBefore(get(ch, 1), place);
     }
   }
   // ignore until I am sure the else could never happen.
@@ -100,7 +100,7 @@ const domdiff = (
   else if (futureStart > futureEnd) {
     while (currentStart <= currentEnd) {
       const ch = currentNodes[currentStart++];
-      if (ch != null) parentNode.removeChild(get(ch));
+      if (ch != null) parentNode.removeChild(get(ch, -1));
     }
   }
   return futureNodes;

@@ -1,5 +1,11 @@
 # hyper(html) Changelog
 
+### v2.4.0
+  * created a `Wire` class to handle via `domdiff` multiple wired nodes.
+  * brought back multi nodes per wire, a feature lost since **v2.0**
+  * simplified `Component` handling too, making it compatible again with multi wired content.
+  * fixed some check to make IE9+ tests green again
+
 ### v2.3.0
   * dropped the `engine` already. Too complex, no real benefits, refactored the whole internal logic to use [domdiff](https://github.com/WebReflection/domdiff) instead. Deprecated [hyperhtml-majinbuu](https://github.com/WebReflection/hyperhtml-majinbuu) and solved diffing "_forever_".
 

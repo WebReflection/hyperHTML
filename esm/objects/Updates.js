@@ -7,13 +7,14 @@ import {
 } from '../shared/constants.js';
 
 import Component from '../classes/Component.js';
+import Wire from '../classes/Wire.js';
 import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
 import domdiff from '../shared/domdiff.js';
-import {text} from '../shared/easy-dom.js';
-import {Event, WeakSet, isArray, trim} from '../shared/poorlyfills.js';
-import {createFragment, slice} from '../shared/utils.js';
+import { text } from '../shared/easy-dom.js';
+import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
+import { createFragment, slice } from '../shared/utils.js';
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -29,7 +30,25 @@ Cache.prototype = Object.create(null);
 // returns an intent to explicitly inject content as html
 const asHTML = html => ({html});
 
-const asNode = item => item instanceof Component ? item.render() : item;
+// returns nodes from wires and components
+const asNode = (item, i) => {
+  return 'ELEMENT_NODE' in item ?
+    item :
+    (item.constructor === Wire ?
+      // in the Wire case, the content can be
+      // removed, post-pended, inserted, or pre-pended and
+      // all these cases are handled by domdiff already
+      /* istanbul ignore next */
+      ((1 / i) < 0 ?
+        (i ? item.remove() : item.last) :
+        (i ? item.insert() : item.first)) :
+      asNode(item.render(), i));
+}
+
+// returns true if domdiff can handle the value
+const canDiff = value =>  'ELEMENT_NODE' in value ||
+value instanceof Wire ||
+value instanceof Component;
 
 // updates are created once per context upgrade
 // within the main render function (../hyper/render.js)
@@ -165,8 +184,7 @@ const invokeAtDistance = (value, callback) => {
   }
 };
 
-// quick and dirty ways to check a value type without abusing instanceof
-const isNode_ish = value => 'ELEMENT_NODE' in value;
+// quick and dirty way to check for Promise/ish values
 const isPromise_ish = value => value != null && 'then' in value;
 
 // in a hyper(node)`<div>${content}</div>` case
@@ -256,15 +274,7 @@ const setAnyContent = (node, childNodes) => {
                 break;
             }
           }
-        } else if (value instanceof Component) {
-          childNodes = domdiff(
-            node.parentNode,
-            childNodes,
-            [value],
-            asNode,
-            node
-          );
-        } else if (isNode_ish(value)) {
+        } else if (canDiff(value)) {
           childNodes = domdiff(
             node.parentNode,
             childNodes,

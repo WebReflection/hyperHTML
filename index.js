@@ -367,6 +367,35 @@ var SVGFragment = hasContent ? function (node, html) {
   return content;
 };
 
+function Wire(childNodes) {
+  this.childNodes = childNodes;
+  this.length = childNodes.length;
+  this.first = childNodes[0];
+  this.last = childNodes[this.length - 1];
+}
+
+// when a wire is inserted, all its nodes will follow
+Wire.prototype.insert = function insert() {
+  var df = fragment(this.first);
+  append(df, this.childNodes);
+  return df;
+};
+
+// when a wire is removed, all its nodes must be removed as well
+Wire.prototype.remove = function remove() {
+  var first = this.first;
+  var last = this.last;
+  if (this.length === 2) {
+    last.parentNode.removeChild(last);
+  } else {
+    var range = doc(first).createRange();
+    range.setStartBefore(this.childNodes[1]);
+    range.setEndAfter(last);
+    range.deleteContents();
+  }
+  return first;
+};
+
 // every template literal interpolation indicates
 // a precise target in the DOM the template is representing.
 // `<p id=${'attribute'}>some ${'content'}</p>`
@@ -507,7 +536,7 @@ getNode, // optional way to retrieve a node from an item
 beforeNode // optional item/node to use as insertBefore delimiter
 ) {
   var get = getNode || identity;
-  var before = beforeNode == null ? null : get(beforeNode);
+  var before = beforeNode == null ? null : get(beforeNode, 0);
   var currentStart = 0,
       futureStart = 0;
   var currentEnd = currentNodes.length - 1;
@@ -532,35 +561,35 @@ beforeNode // optional item/node to use as insertBefore delimiter
       currentEndNode = currentNodes[--currentEnd];
       futureEndNode = futureNodes[--futureEnd];
     } else if (currentStartNode == futureEndNode) {
-      parentNode.insertBefore(get(currentStartNode), get(currentEndNode).nextSibling || before);
+      parentNode.insertBefore(get(currentStartNode, 1), get(currentEndNode, -0).nextSibling);
       currentStartNode = currentNodes[++currentStart];
       futureEndNode = futureNodes[--futureEnd];
     } else if (currentEndNode == futureStartNode) {
-      parentNode.insertBefore(get(currentEndNode), get(currentStartNode));
+      parentNode.insertBefore(get(currentEndNode, 1), get(currentStartNode, 0));
       currentEndNode = currentNodes[--currentEnd];
       futureStartNode = futureNodes[++futureStart];
     } else {
       var index = currentNodes.indexOf(futureStartNode);
       if (index < 0) {
-        parentNode.insertBefore(get(futureStartNode), get(currentStartNode));
+        parentNode.insertBefore(get(futureStartNode, 1), get(currentStartNode, 0));
         futureStartNode = futureNodes[++futureStart];
       } else {
         var el = currentNodes[index];
         currentNodes[index] = null;
-        parentNode.insertBefore(get(el), get(currentStartNode));
+        parentNode.insertBefore(get(el, 1), get(currentStartNode, 0));
         futureStartNode = futureNodes[++futureStart];
       }
     }
   }
   if (currentStart > currentEnd) {
     var pin = futureNodes[futureEnd + 1];
-    var place = pin != null ? get(pin) : before;
+    var place = pin != null ? get(pin, 0) : before;
     while (futureStart <= futureEnd) {
       var ch = futureNodes[futureStart++];
       // ignore until I am sure the else could never happen.
       // it might be a vDOM thing 'cause it never happens here.
       /* istanbul ignore else */
-      if (ch != null) parentNode.insertBefore(get(ch), place);
+      if (ch != null) parentNode.insertBefore(get(ch, 1), place);
     }
   }
   // ignore until I am sure the else could never happen.
@@ -569,7 +598,7 @@ beforeNode // optional item/node to use as insertBefore delimiter
   else if (futureStart > futureEnd) {
       while (currentStart <= currentEnd) {
         var _ch = currentNodes[currentStart++];
-        if (_ch != null) parentNode.removeChild(get(_ch));
+        if (_ch != null) parentNode.removeChild(get(_ch, -1));
       }
     }
   return futureNodes;
@@ -591,8 +620,19 @@ var asHTML = function asHTML(html) {
   return { html: html };
 };
 
-var asNode = function asNode(item) {
-  return item instanceof Component ? item.render() : item;
+// returns nodes from wires and components
+var asNode = function asNode(item, i) {
+  return 'ELEMENT_NODE' in item ? item : item.constructor === Wire ?
+  // in the Wire case, the content can be
+  // removed, post-pended, inserted, or pre-pended and
+  // all these cases are handled by domdiff already
+  /* istanbul ignore next */
+  1 / i < 0 ? i ? item.remove() : item.last : i ? item.insert() : item.first : asNode(item.render(), i);
+};
+
+// returns true if domdiff can handle the value
+var canDiff = function canDiff(value) {
+  return 'ELEMENT_NODE' in value || value instanceof Wire || value instanceof Component;
 };
 
 // updates are created once per context upgrade
@@ -723,10 +763,7 @@ var invokeAtDistance = function invokeAtDistance(value, callback) {
   }
 };
 
-// quick and dirty ways to check a value type without abusing instanceof
-var isNode_ish = function isNode_ish(value) {
-  return 'ELEMENT_NODE' in value;
-};
+// quick and dirty way to check for Promise/ish values
 var isPromise_ish = function isPromise_ish(value) {
   return value != null && 'then' in value;
 };
@@ -794,9 +831,7 @@ var setAnyContent = function setAnyContent(node, childNodes) {
                 break;
             }
           }
-        } else if (value instanceof Component) {
-          childNodes = domdiff(node.parentNode, childNodes, [value], asNode, node);
-        } else if (isNode_ish(value)) {
+        } else if (canDiff(value)) {
           childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], asNode, node);
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
@@ -1128,14 +1163,14 @@ var weakly = function weakly(obj, type) {
 var wireContent = function wireContent(node) {
   var childNodes = node.childNodes;
   var length = childNodes.length;
-  var wire = [];
+  var wireNodes = [];
   for (var i = 0; i < length; i++) {
     var child = childNodes[i];
     if (child.nodeType === ELEMENT_NODE || trim.call(child.textContent).length !== 0) {
-      wire.push(child);
+      wireNodes.push(child);
     }
   }
-  return wire.length === 1 ? wire[0] : wire;
+  return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
 };
 
 /*! (c) Andrea Giammarchi (ISC) */
