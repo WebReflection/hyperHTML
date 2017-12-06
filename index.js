@@ -744,6 +744,21 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
   for (var _i = 0; _i < len; _i++) {
     node.removeAttributeNode(remove[_i]);
   }
+
+  // This is a very specific Firefox/Safari issue
+  // but since it should be a not so common pattern,
+  // it's probably worth patching regardless.
+  // Basically, scripts created through strings are death.
+  // You need to create fresh new scripts instead.
+  // TODO: is there any other node that needs such nonsense ?
+  var nodeName = node.nodeName;
+  if (/^script$/i.test(nodeName)) {
+    var script = create(node, nodeName);
+    for (var _i2 = 0; _i2 < attributes.length; _i2++) {
+      script.setAttributeNode(attributes[_i2].cloneNode(true));
+    }
+    node.parentNode.replaceChild(script, node);
+  }
 };
 
 // when a Promise is used as interpolation value

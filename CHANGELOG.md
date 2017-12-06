@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.4.1
+  * fix a bug with scripts that don't trigger network requests in both Firefox and Safari (see bug #152)
+
 ### v2.4.0
   * created a `Wire` class to handle via `domdiff` multiple wired nodes.
   * brought back multi nodes per wire, a feature lost since **v2.0**

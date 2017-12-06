@@ -12,7 +12,7 @@ import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
 import domdiff from '../shared/domdiff.js';
-import { text } from '../shared/easy-dom.js';
+import { create as createElement, text } from '../shared/easy-dom.js';
 import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
 import { createFragment, slice } from '../shared/utils.js';
 
@@ -164,6 +164,21 @@ const findAttributes = (node, paths, parts) => {
   const len = remove.length;
   for (let i = 0; i < len; i++) {
     node.removeAttributeNode(remove[i]);
+  }
+
+  // This is a very specific Firefox/Safari issue
+  // but since it should be a not so common pattern,
+  // it's probably worth patching regardless.
+  // Basically, scripts created through strings are death.
+  // You need to create fresh new scripts instead.
+  // TODO: is there any other node that needs such nonsense ?
+  const nodeName = node.nodeName;
+  if (/^script$/i.test(nodeName)) {
+    const script = createElement(node, nodeName);
+    for (let i = 0; i < attributes.length; i++) {
+      script.setAttributeNode(attributes[i].cloneNode(true));
+    }
+    node.parentNode.replaceChild(script, node);
   }
 };
 

@@ -457,6 +457,23 @@ tressa.async(function (done) {
   hyperHTML.wire()`<p><!--ok--></p>`;
 })
 .then(function () {
+  tressa.log('## <script> shenanigans');
+  return tressa.async(function (done) {
+    var div = document.createElement('div');
+    document.body.appendChild(div);
+    hyperHTML.bind(div)`<script src="../min.js" onload=${() => {
+      tressa.assert(true, 'executed');
+      done();
+    }}></script>`;
+    // in nodejs case
+    if (!('onload' in document.defaultView)) {
+      var evt = document.createEvent('Event');
+      evt.initEvent('load', false, false);
+      div.firstChild.dispatchEvent(evt);
+    }
+  });
+})
+.then(function () {
   tressa.log('## SVG and style');
   var render = hyperHTML.wire(null, 'svg');
   Object.prototype.ownerSVGElement = null;
