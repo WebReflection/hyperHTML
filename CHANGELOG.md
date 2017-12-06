@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.4.2
+  * fix scripts with actual content too.
+
 ### v2.4.1
   * fix a bug with scripts that don't trigger network requests in both Firefox and Safari (see bug #152)
 

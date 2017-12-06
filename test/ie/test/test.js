@@ -74,8 +74,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-import { Event } from "../esm/shared/poorlyfills";
-
 tressa.title('HyperHTML');
 tressa.assert(typeof hyperHTML === 'function', 'hyperHTML is a function');
 
@@ -491,7 +489,7 @@ tressa.async(function (done) {
     });
     // in nodejs case
     if (!('onload' in document.defaultView)) {
-      var evt = document.createEvent('load');
+      var evt = document.createEvent('Event');
       evt.initEvent('load', false, false);
       div.firstChild.dispatchEvent(evt);
     }

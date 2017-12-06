@@ -757,6 +757,7 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
     for (var _i2 = 0; _i2 < attributes.length; _i2++) {
       script.setAttributeNode(attributes[_i2].cloneNode(true));
     }
+    script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
   }
 };

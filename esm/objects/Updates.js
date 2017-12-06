@@ -178,6 +178,7 @@ const findAttributes = (node, paths, parts) => {
     for (let i = 0; i < attributes.length; i++) {
       script.setAttributeNode(attributes[i].cloneNode(true));
     }
+    script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
   }
 };
