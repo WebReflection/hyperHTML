@@ -1,5 +1,9 @@
 # hyper(html) Changelog
 
+### v2.4.3
+  * ensure attributes values are updated when different from previous one
+  * avoid the usage of the word `global` in the whole code
+
 ### v2.4.2
   * fix scripts with actual content too.
 
