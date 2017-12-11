@@ -396,6 +396,7 @@ const setAttribute = (node, name, original) => {
               owner = false;
               node.removeAttributeNode(attribute);
             }
+            attribute.value = newValue;
           } else {
             attribute.value = newValue;
             if (!owner) {
