@@ -1,7 +1,7 @@
 {
-  "name": "hyperhtml",
-  "version": "2.4.3",
-  "description": "A Fast & Light Virtual DOM Alternative",
+  "name": "hyperhtml-adopt",
+  "version": "0.0.0",
+  "description": "Same hyperHTML, plus the .adopt(node) method",
   "homepage": "https://viperhtml.js.org/hyper.html",
   "browser": "min.js",
   "main": "cjs/index.js",
