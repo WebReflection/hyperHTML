@@ -1,6 +1,6 @@
 'use strict';
-const global = document.defaultView;
-exports.global = global;
+const G = document.defaultView;
+exports.G = G;
 
 // Node.CONSTANTS
 // 'cause some engine has no global Node defined

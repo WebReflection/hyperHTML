@@ -1,5 +1,5 @@
 'use strict';
-const {global, UID} = require('./constants.js');
+const {G, UID} = require('./constants.js');
 
 // you know that kind of basics you need to cover
 // your use case only but you don't want to bloat the library?
@@ -7,7 +7,7 @@ const {global, UID} = require('./constants.js');
 // https://www.npmjs.com/package/poorlyfills
 
 // used to dispatch simple events
-let Event = global.Event;
+let Event = G.Event;
 try {
   new Event('Event');
 } catch(o_O) {
@@ -20,7 +20,7 @@ try {
 exports.Event = Event;
 
 // used to store template literals
-const Map = global.Map || function Map() {
+const Map = G.Map || function Map() {
   const keys = [], values = [];
   return {
     get(obj) {
@@ -34,7 +34,7 @@ const Map = global.Map || function Map() {
 exports.Map = Map;
 
 // used to store wired content
-const WeakMap = global.WeakMap || function WeakMap() {
+const WeakMap = G.WeakMap || function WeakMap() {
   return {
     get(obj) { return obj[UID]; },
     set(obj, value) {
@@ -48,7 +48,7 @@ const WeakMap = global.WeakMap || function WeakMap() {
 exports.WeakMap = WeakMap;
 
 // used to store hyper.Components
-const WeakSet = global.WeakSet || function WeakSet() {
+const WeakSet = G.WeakSet || function WeakSet() {
   const wm = new WeakMap;
   return {
     add(obj) { wm.set(obj, true); },

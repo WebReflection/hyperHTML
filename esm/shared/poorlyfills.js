@@ -1,4 +1,4 @@
-import {global, UID} from './constants.js';
+import {G, UID} from './constants.js';
 
 // you know that kind of basics you need to cover
 // your use case only but you don't want to bloat the library?
@@ -6,7 +6,7 @@ import {global, UID} from './constants.js';
 // https://www.npmjs.com/package/poorlyfills
 
 // used to dispatch simple events
-let Event = global.Event;
+let Event = G.Event;
 try {
   new Event('Event');
 } catch(o_O) {
@@ -19,7 +19,7 @@ try {
 export {Event};
 
 // used to store template literals
-export const Map = global.Map || function Map() {
+export const Map = G.Map || function Map() {
   const keys = [], values = [];
   return {
     get(obj) {
@@ -32,7 +32,7 @@ export const Map = global.Map || function Map() {
 };
 
 // used to store wired content
-export const WeakMap = global.WeakMap || function WeakMap() {
+export const WeakMap = G.WeakMap || function WeakMap() {
   return {
     get(obj) { return obj[UID]; },
     set(obj, value) {
@@ -45,7 +45,7 @@ export const WeakMap = global.WeakMap || function WeakMap() {
 };
 
 // used to store hyper.Components
-export const WeakSet = global.WeakSet || function WeakSet() {
+export const WeakSet = G.WeakSet || function WeakSet() {
   const wm = new WeakMap;
   return {
     add(obj) { wm.set(obj, true); },

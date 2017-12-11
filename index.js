@@ -89,7 +89,7 @@ var Intent = {
   }
 };
 
-var global = document.defaultView;
+var G = document.defaultView;
 
 // Node.CONSTANTS
 // 'cause some engine has no global Node defined
@@ -120,7 +120,7 @@ var UIDC = '<!--' + UID + '-->';
 // https://www.npmjs.com/package/poorlyfills
 
 // used to dispatch simple events
-var Event = global.Event;
+var Event = G.Event;
 try {
   new Event('Event');
 } catch (o_O) {
@@ -131,7 +131,7 @@ try {
   };
 }
 // used to store template literals
-var Map = global.Map || function Map() {
+var Map = G.Map || function Map() {
   var keys = [],
       values = [];
   return {
@@ -145,7 +145,7 @@ var Map = global.Map || function Map() {
 };
 
 // used to store wired content
-var WeakMap = global.WeakMap || function WeakMap() {
+var WeakMap = G.WeakMap || function WeakMap() {
   return {
     get: function get(obj) {
       return obj[UID];
@@ -160,7 +160,7 @@ var WeakMap = global.WeakMap || function WeakMap() {
 };
 
 // used to store hyper.Components
-var WeakSet = global.WeakSet || function WeakSet() {
+var WeakSet = G.WeakSet || function WeakSet() {
   var wm = new WeakMap();
   return {
     add: function add(obj) {
@@ -313,7 +313,7 @@ var _TL = function TL(template) {
   // TypeScript template literals are not standard
   template.propertyIsEnumerable('raw') ||
   // Firefox < 55 has not standard implementation neither
-  /Firefox\/(\d+)/.test((global.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
+  /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
     // in these cases, address templates once
     var templateObjects = {};
     // but always return the same template

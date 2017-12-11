@@ -1,5 +1,5 @@
 import {
-  global,
+  G,
   OWNER_SVG_ELEMENT,
   SVG_NAMESPACE,
   UID,
@@ -114,7 +114,7 @@ let TL = template => {
     template.propertyIsEnumerable('raw') ||
     (
       // Firefox < 55 has not standard implementation neither
-      /Firefox\/(\d+)/.test((global.navigator || {}).userAgent) &&
+      /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) &&
       parseFloat(RegExp.$1) < 55
     )
   ) {
