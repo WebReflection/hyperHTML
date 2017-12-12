@@ -7,6 +7,7 @@ const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
+const adopt = (m => m.__esModule ? m.default : m)(require('./hyper/adopt.js'));
 const diff = (m => m.__esModule ? m.default : m)(require('./shared/domdiff.js'));
 
 // all functions are self bound to the right context
@@ -17,6 +18,7 @@ const bind = context => render.bind(context);
 const define = Intent.define;
 
 hyper.Component = Component;
+hyper.adopt = adopt;
 hyper.bind = bind;
 hyper.define = define;
 hyper.diff = diff;
@@ -30,6 +32,7 @@ setup(content);
 // everything is exported directly or through the
 // hyperHTML callback, when used as top level script
 exports.Component = Component;
+exports.adopt = adopt;
 exports.bind = bind;
 exports.define = define;
 exports.diff = diff;

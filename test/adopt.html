@@ -1,42 +1,46 @@
 <!doctype html>
 <html>
   <head>
-    <script defer
-            src="../index.js"></script>
+    <script defer src="../index.js"></script>
   </head>
   <body>
-    <div test="before"> before
+    <div test="before">
+      <!--:4-->before<!--:4-->
       <ul>
-        <li> lonely </li>
-      </ul>NO<hr>
+        <!--:5--><li> lonely </li><!--:5-->
+      </ul>
+      <!--:6-->NO<!--:6-->
+      <hr>
+      <input>
     </div>
   </body>
   <script>
-  this.onload = function () {
-      update(
-        hyperHTML.adopt(document.body),
-        {
-          test: 'after',
-          text: 'after',
-          list: [
-            {name: 'first'},
-            {name: 'second'}
-          ],
-          inBetween: 'YES'
-        }
-      );
-      function update(render, model) {
-        render`
-        <div test="${model.test}">
-          ${model.text}
-          <ul>
-            ${model.list.map(item => `<li> ${item.name} </li>`)}
-          </ul>
-          ${model.inBetween}
-          <hr>
-        </div>
-        `;
+  setTimeout(function () {
+    update(
+      hyperHTML.adopt(document.body),
+      {
+        test: 'after',
+        text: 'after',
+        list: [
+          {name: 'first'},
+          {name: 'second'}
+        ],
+        inBetween: 'YES'
       }
-  };
+    );
+    function update(render, model) {
+      render`
+      <div test="${model.test}">
+        ${model.text}
+        <ul>
+          ${model.list.map(item => `<li> ${item.name} </li>`)}
+        </ul>
+        ${model.inBetween}
+        <hr>
+        <input value=${'test'}>
+      </div>
+      `;
+    }
+  }, 2000);
   </script>
 </html>
