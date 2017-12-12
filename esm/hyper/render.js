@@ -36,14 +36,22 @@ function render(template) {
 // to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
+  const adopt = render.adopt;
   const info =  templates.get(template) ||
                 createTemplate.call(this, template);
-  const fragment = importNode(this.ownerDocument, info.fragment);
-  const updates = Updates.create(fragment, info.paths);
+  let fragment, updates;
+  if (adopt) {
+    updates = Updates.create(this, info.paths, adopt);
+  } else {
+    fragment = importNode(this.ownerDocument, info.fragment);
+    updates = Updates.create(fragment, info.paths, adopt);
+  }
   bewitched.set(this, {template, updates});
   update.apply(updates, arguments);
-  this.textContent = '';
-  this.appendChild(fragment);
+  if (!adopt) {
+    this.textContent = '';
+    this.appendChild(fragment);
+  }
 }
 
 // an update simply loops over all mapped DOM operations

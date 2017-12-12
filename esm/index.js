@@ -4,14 +4,20 @@ import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
-import adopt from './hyper/adopt.js';
 import diff from './shared/domdiff.js';
 
 // all functions are self bound to the right context
 // you can do the following
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
-const bind = context => render.bind(context);
+const adopt = context => function () {
+  render.adopt = true;
+  return render.apply(context, arguments);
+};
+const bind = context => function () {
+  render.adopt = false;
+  return render.apply(context, arguments);
+};
 const define = Intent.define;
 
 hyper.Component = Component;
@@ -42,7 +48,7 @@ export default function hyper(HTML) {
         ('raw' in HTML ?
           content('html')(HTML) :
           ('nodeType' in HTML ?
-            render.bind(HTML) :
+            bind(HTML) :
             weakly(HTML, 'html')
           )
         )

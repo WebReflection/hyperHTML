@@ -57,21 +57,39 @@ value instanceof Component;
 // Updates can be related to any kind of content,
 // attributes, or special text-only cases such <style>
 // elements or <textarea>
-const create = (root, paths) => {
+const create = (root, paths, adopt) => {
+  const level = adopt ? [] : null;
   const updates = [];
   const length = paths.length;
   for (let i = 0; i < length; i++) {
     const info = paths[i];
-    const node = Path.find(root, info.path);
+    const {node, childNodes} = adopt ?
+            findNode(root, info.path, level) :
+            Path.find(root, info.path);
     switch (info.type) {
       case 'any':
-        updates.push(setAnyContent(node, []));
+        updates.push(setAnyContent(node, childNodes));
         break;
       case 'attr':
-        updates.push(setAttribute(node, info.name, info.node));
+        updates.push(
+          setAttribute(
+            node,
+            info.name,
+            adopt ?
+              node.getAttributeNode(info.name) :
+              info.node,
+            adopt
+          )
+        );
         break;
       case 'text':
-        updates.push(setTextContent(node));
+        updates.push(
+          setTextContent(
+            adopt ?
+              childNodes[0] :
+              node
+          )
+        );
         break;
     }
   }
@@ -181,6 +199,32 @@ const findAttributes = (node, paths, parts) => {
     script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
   }
+};
+
+// used to adopt live nodes from virtual paths
+const findNode = (node, path, level) => {
+  const childNodes = [];
+  const length = path.length;
+  for (let i = 0; i < length; i++) {
+    let index = path[i] + (level[i] || 0);
+    node = node.childNodes[index];
+    if (
+      node.nodeType === Node.COMMENT_NODE &&
+      /^\u0001:[0-9a-zA-Z]+$/.test(node.textContent)
+    ) {
+      const textContent = node.textContent;
+      while ((node = node.nextSibling)) {
+        index++;
+        if (node.nodeType === Node.COMMENT_NODE && node.textContent === textContent) {
+          break;
+        } else {
+          childNodes.push(node);
+        }
+      }
+    }
+    level[i] = index - path[i];
+  }
+  return {node, childNodes};
 };
 
 // when a Promise is used as interpolation value
@@ -339,12 +383,13 @@ const setAnyContent = (node, childNodes) => {
 //  * style, the only regular attribute that also accepts an object as value
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
-const setAttribute = (node, name, original) => {
+const setAttribute = (node, name, original, adopt) => {
   const isSVG = OWNER_SVG_ELEMENT in node;
   let oldValue;
   // if the attribute is the style one
   // handle it differently from others
   if (name === 'style') {
+    if (adopt) node.removeAttribute(name);
     return Style(node, original, isSVG);
   }
   // the name is an event one,
@@ -361,6 +406,7 @@ const setAttribute = (node, name, original) => {
     else if (name.toLowerCase() in node) {
       type = type.toLowerCase();
     }
+    if (adopt) node.removeAttribute(name);
     return newValue => {
       if (oldValue !== newValue) {
         if (oldValue) node.removeEventListener(type, oldValue, false);
@@ -374,7 +420,11 @@ const setAttribute = (node, name, original) => {
   // in this case assign the value directly
   else if (name === 'data' || (!isSVG && name in node)) {
     return newValue => {
-      if (oldValue !== newValue) {
+      if (adopt) {
+        adopt = false;
+        oldValue = node[name];
+      }
+      else if (oldValue !== newValue) {
         oldValue = newValue;
         if (node[name] !== newValue) {
           node[name] = newValue;
@@ -388,8 +438,8 @@ const setAttribute = (node, name, original) => {
   // in every other case, use the attribute node as it is
   // update only the value, set it as node only when/if needed
   else {
-    let owner = false;
-    const attribute = original.cloneNode(true);
+    let owner = adopt;
+    const attribute = adopt ? original : original.cloneNode(true);
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;

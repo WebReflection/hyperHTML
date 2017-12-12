@@ -7,14 +7,20 @@ const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
-const adopt = (m => m.__esModule ? m.default : m)(require('./hyper/adopt.js'));
 const diff = (m => m.__esModule ? m.default : m)(require('./shared/domdiff.js'));
 
 // all functions are self bound to the right context
 // you can do the following
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
-const bind = context => render.bind(context);
+const adopt = context => function () {
+  render.adopt = true;
+  return render.apply(context, arguments);
+};
+const bind = context => function () {
+  render.adopt = false;
+  return render.apply(context, arguments);
+};
 const define = Intent.define;
 
 hyper.Component = Component;
@@ -51,7 +57,7 @@ function hyper(HTML) {
         ('raw' in HTML ?
           content('html')(HTML) :
           ('nodeType' in HTML ?
-            render.bind(HTML) :
+            bind(HTML) :
             weakly(HTML, 'html')
           )
         )

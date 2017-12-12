@@ -442,7 +442,7 @@ var Path = {
     for (var i = 0; i < length; i++) {
       node = node.childNodes[path[i]];
     }
-    return node;
+    return { node: node, childNodes: [] };
   }
 };
 
@@ -642,21 +642,26 @@ var canDiff = function canDiff(value) {
 // Updates can be related to any kind of content,
 // attributes, or special text-only cases such <style>
 // elements or <textarea>
-var create$1 = function create$$1(root, paths) {
+var create$1 = function create$$1(root, paths, adopt) {
+  var level = adopt ? [] : null;
   var updates = [];
   var length = paths.length;
   for (var i = 0; i < length; i++) {
     var info = paths[i];
-    var node = Path.find(root, info.path);
+
+    var _ref = adopt ? findNode(root, info.path, level) : Path.find(root, info.path),
+        node = _ref.node,
+        childNodes = _ref.childNodes;
+
     switch (info.type) {
       case 'any':
-        updates.push(setAnyContent(node, []));
+        updates.push(setAnyContent(node, childNodes));
         break;
       case 'attr':
-        updates.push(setAttribute(node, info.name, info.node));
+        updates.push(setAttribute(node, info.name, adopt ? node.getAttributeNode(info.name) : info.node, adopt));
         break;
       case 'text':
-        updates.push(setTextContent(node));
+        updates.push(setTextContent(adopt ? childNodes[0] : node));
         break;
     }
   }
@@ -760,6 +765,29 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
     script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
   }
+};
+
+// used to adopt live nodes from virtual paths
+var findNode = function findNode(node, path, level) {
+  var childNodes = [];
+  var length = path.length;
+  for (var i = 0; i < length; i++) {
+    var index = path[i] + (level[i] || 0);
+    node = node.childNodes[index];
+    if (node.nodeType === Node.COMMENT_NODE && /^\u0001:[0-9a-zA-Z]+$/.test(node.textContent)) {
+      var textContent = node.textContent;
+      while (node = node.nextSibling) {
+        index++;
+        if (node.nodeType === Node.COMMENT_NODE && node.textContent === textContent) {
+          break;
+        } else {
+          childNodes.push(node);
+        }
+      }
+    }
+    level[i] = index - path[i];
+  }
+  return { node: node, childNodes: childNodes };
 };
 
 // when a Promise is used as interpolation value
@@ -877,12 +905,13 @@ var setAnyContent = function setAnyContent(node, childNodes) {
 //  * style, the only regular attribute that also accepts an object as value
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
-var setAttribute = function setAttribute(node, name, original) {
+var setAttribute = function setAttribute(node, name, original, adopt) {
   var isSVG = OWNER_SVG_ELEMENT in node;
   var oldValue = void 0;
   // if the attribute is the style one
   // handle it differently from others
   if (name === 'style') {
+    if (adopt) node.removeAttribute(name);
     return Style(node, original, isSVG);
   }
   // the name is an event one,
@@ -898,6 +927,7 @@ var setAttribute = function setAttribute(node, name, original) {
       } else if (name.toLowerCase() in node) {
         type = type.toLowerCase();
       }
+      if (adopt) node.removeAttribute(name);
       return function (newValue) {
         if (oldValue !== newValue) {
           if (oldValue) node.removeEventListener(type, oldValue, false);
@@ -911,7 +941,10 @@ var setAttribute = function setAttribute(node, name, original) {
     // in this case assign the value directly
     else if (name === 'data' || !isSVG && name in node) {
         return function (newValue) {
-          if (oldValue !== newValue) {
+          if (adopt) {
+            adopt = false;
+            oldValue = node[name];
+          } else if (oldValue !== newValue) {
             oldValue = newValue;
             if (node[name] !== newValue) {
               node[name] = newValue;
@@ -925,8 +958,8 @@ var setAttribute = function setAttribute(node, name, original) {
       // in every other case, use the attribute node as it is
       // update only the value, set it as node only when/if needed
       else {
-          var owner = false;
-          var attribute = original.cloneNode(true);
+          var owner = adopt;
+          var attribute = adopt ? original : original.cloneNode(true);
           return function (newValue) {
             if (oldValue !== newValue) {
               oldValue = newValue;
@@ -1074,13 +1107,22 @@ function render(template) {
 // to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
+  var adopt = render.adopt;
   var info = templates.get(template) || createTemplate.call(this, template);
-  var fragment = importNode(this.ownerDocument, info.fragment);
-  var updates = Updates.create(fragment, info.paths);
+  var fragment = void 0,
+      updates = void 0;
+  if (adopt) {
+    updates = Updates.create(this, info.paths, adopt);
+  } else {
+    fragment = importNode(this.ownerDocument, info.fragment);
+    updates = Updates.create(fragment, info.paths, adopt);
+  }
   bewitched.set(this, { template: template, updates: updates });
   update.apply(updates, arguments);
-  this.textContent = '';
-  this.appendChild(fragment);
+  if (!adopt) {
+    this.textContent = '';
+    this.appendChild(fragment);
+  }
 }
 
 // an update simply loops over all mapped DOM operations
@@ -1190,529 +1232,23 @@ var wireContent = function wireContent(node) {
   return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
 };
 
-// hyper.Component have a connected/disconnected
-// mechanism provided by MutationObserver
-// This weak set is used to recognize components
-// as DOM node that needs to trigger connected/disconnected events
-var components$1 = new WeakSet();
-
-// a basic dictionary used to filter already cached attributes
-// while looking for special hyperHTML values.
-function Cache$1() {}
-Cache$1.prototype = Object.create(null);
-
-// returns an intent to explicitly inject content as html
-var asHTML$1 = function asHTML(html) {
-  return { html: html };
-};
-
-// returns nodes from wires and components
-var asNode$1 = function asNode(item, i) {
-  return 'ELEMENT_NODE' in item ? item : item.constructor === Wire ?
-  // in the Wire case, the content can be
-  // removed, post-pended, inserted, or pre-pended and
-  // all these cases are handled by domdiff already
-  /* istanbul ignore next */
-  1 / i < 0 ? i ? item.remove() : item.last : i ? item.insert() : item.first : asNode(item.render(), i);
-};
-
-// returns true if domdiff can handle the value
-var canDiff$1 = function canDiff(value) {
-  return 'ELEMENT_NODE' in value || value instanceof Wire || value instanceof Component;
-};
-
-function findNode(node, path, level) {
-  var childNodes = [];
-  var length = path.length;
-  for (var i = 0; i < length; i++) {
-    var index = path[i] + (level[i] || 0);
-    node = node.childNodes[index];
-    if (node.nodeType === Node.COMMENT_NODE && /^\u0001:[0-9a-zA-Z]+$/.test(node.textContent)) {
-      var textContent = node.textContent;
-      while (node = node.nextSibling) {
-        index++;
-        if (node.nodeType === Node.COMMENT_NODE && node.textContent === textContent) {
-          break;
-        } else {
-          childNodes.push(node);
-        }
-      }
-    }
-    level[i] = index - path[i];
-  }
-  return { node: node, childNodes: childNodes };
-}
-
-// updates are created once per context upgrade
-// within the main render function (../hyper/render.js)
-// These are an Array of callbacks to invoke passing
-// each interpolation value.
-// Updates can be related to any kind of content,
-// attributes, or special text-only cases such <style>
-// elements or <textarea>
-var create$2 = function create$$1(root, paths) {
-  var level = [];
-  var updates = [];
-  var length = paths.length;
-  for (var i = 0; i < length; i++) {
-    var info = paths[i];
-
-    var _findNode = findNode(root, info.path, level),
-        node = _findNode.node,
-        childNodes = _findNode.childNodes;
-
-    switch (info.type) {
-      case 'any':
-        updates.push(setAnyContent$1(node, childNodes));
-        break;
-      case 'attr':
-        updates.push(setAttribute$1(node, info.name, node.getAttributeNode(info.name)));
-        break;
-      case 'text':
-        updates.push(setTextContent$1(childNodes[0]));
-        break;
-    }
-  }
-  return updates;
-};
-
-// finding all paths is a one-off operation performed
-// when a new template literal is used.
-// The goal is to map all target nodes that will be
-// used to update content/attributes every time
-// the same template literal is used to create content.
-// The result is a list of paths related to the template
-// with all the necessary info to create updates as
-// list of callbacks that target directly affected nodes.
-var find$1 = function find(node, paths, parts) {
-  var childNodes = node.childNodes;
-  var length = childNodes.length;
-  for (var i = 0; i < length; i++) {
-    var child = childNodes[i];
-    switch (child.nodeType) {
-      case ELEMENT_NODE:
-        findAttributes$2(child, paths, parts);
-        find(child, paths, parts);
-        break;
-      case COMMENT_NODE:
-        if (child.textContent === UID) {
-          parts.shift();
-          paths.push(
-          // basicHTML or other non standard engines
-          // might end up having comments in nodes
-          // where they shouldn't, hence this check.
-          SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? Path.create('text', node) : Path.create('any', child));
-        }
-        break;
-      case TEXT_NODE:
-        // the following ignore is actually covered by browsers
-        // only basicHTML ends up on previous COMMENT_NODE case
-        // instead of TEXT_NODE because it knows nothing about
-        // special style or textarea behavior
-        /* istanbul ignore if */
-        if (SHOULD_USE_TEXT_CONTENT.test(node.nodeName) && trim.call(child.textContent) === UIDC) {
-          parts.shift();
-          paths.push(Path.create('text', node));
-        }
-        break;
-    }
-  }
-};
-
-// attributes are searched via unique hyperHTML id value.
-// Despite HTML being case insensitive, hyperHTML is able
-// to recognize attributes by name in a caseSensitive way.
-// This plays well with Custom Elements definitions
-// and also with XML-like environments, without trusting
-// the resulting DOM but the template literal as the source of truth.
-// IE/Edge has a funny bug with attributes and these might be duplicated.
-// This is why there is a cache in charge of being sure no duplicated
-// attributes are ever considered in future updates.
-var findAttributes$2 = function findAttributes(node, paths, parts) {
-  var cache = new Cache$1();
-  var attributes = node.attributes;
-  var array = slice.call(attributes);
-  var remove = [];
-  var length = array.length;
-  for (var i = 0; i < length; i++) {
-    var attribute = array[i];
-    if (attribute.value === UID) {
-      var name = attribute.name;
-      // the following ignore is covered by IE
-      // and the IE9 double viewBox test
-      /* istanbul ignore else */
-      if (!(name in cache)) {
-        var realName = parts.shift().replace(/^(?:|[\S\s]*?\s)(\S+?)=['"]?$/, '$1');
-        cache[name] = attributes[realName] ||
-        // the following ignore is covered by browsers
-        // while basicHTML is already case-sensitive
-        /* istanbul ignore next */
-        attributes[realName.toLowerCase()];
-        paths.push(Path.create('attr', cache[name], realName));
-      }
-      remove.push(attribute);
-    }
-  }
-  var len = remove.length;
-  for (var _i = 0; _i < len; _i++) {
-    node.removeAttributeNode(remove[_i]);
-  }
-
-  // This is a very specific Firefox/Safari issue
-  // but since it should be a not so common pattern,
-  // it's probably worth patching regardless.
-  // Basically, scripts created through strings are death.
-  // You need to create fresh new scripts instead.
-  // TODO: is there any other node that needs such nonsense ?
-  var nodeName = node.nodeName;
-  if (/^script$/i.test(nodeName)) {
-    var script = create(node, nodeName);
-    for (var _i2 = 0; _i2 < attributes.length; _i2++) {
-      script.setAttributeNode(attributes[_i2].cloneNode(true));
-    }
-    script.textContent = node.textContent;
-    node.parentNode.replaceChild(script, node);
-  }
-};
-
-// when a Promise is used as interpolation value
-// its result must be parsed once resolved.
-// This callback is in charge of understanding what to do
-// with a returned value once the promise is resolved.
-var invokeAtDistance$1 = function invokeAtDistance(value, callback) {
-  callback(value.placeholder);
-  if ('text' in value) {
-    Promise.resolve(value.text).then(String).then(callback);
-  } else if ('any' in value) {
-    Promise.resolve(value.any).then(callback);
-  } else if ('html' in value) {
-    Promise.resolve(value.html).then(asHTML$1).then(callback);
-  } else {
-    Promise.resolve(Intent.invoke(value, callback)).then(callback);
-  }
-};
-
-// quick and dirty way to check for Promise/ish values
-var isPromise_ish$1 = function isPromise_ish(value) {
-  return value != null && 'then' in value;
-};
-
-// in a hyper(node)`<div>${content}</div>` case
-// everything could happen:
-//  * it's a JS primitive, stored as text
-//  * it's null or undefined, the node should be cleaned
-//  * it's a component, update the content by rendering it
-//  * it's a promise, update the content once resolved
-//  * it's an explicit intent, perform the desired operation
-//  * it's an Array, resolve all values if Promises and/or
-//    update the node with the resulting list of content
-var setAnyContent$1 = function setAnyContent(node, childNodes) {
-  var fastPath = false;
-  var oldValue = void 0;
-  var anyContent = function anyContent(value) {
-    switch (typeof value) {
-      case 'string':
-      case 'number':
-      case 'boolean':
-        if (fastPath) {
-          if (oldValue !== value) {
-            oldValue = value;
-            childNodes[0].textContent = value;
-          }
-        } else {
-          fastPath = true;
-          oldValue = value;
-          childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], asNode$1, node);
-        }
-        break;
-      case 'object':
-      case 'undefined':
-        if (value == null) {
-          fastPath = false;
-          childNodes = domdiff(node.parentNode, childNodes, [], asNode$1, node);
-          break;
-        }
-      default:
-        fastPath = false;
-        oldValue = value;
-        if (isArray(value)) {
-          if (value.length === 0) {
-            if (childNodes.length) {
-              childNodes = domdiff(node.parentNode, childNodes, [], asNode$1, node);
-            }
-          } else {
-            switch (typeof value[0]) {
-              case 'string':
-              case 'number':
-              case 'boolean':
-                anyContent({ html: value });
-                break;
-              case 'object':
-                if (isArray(value[0])) {
-                  value = value.concat.apply([], value);
-                }
-                if (isPromise_ish$1(value[0])) {
-                  Promise.all(value).then(anyContent);
-                  break;
-                }
-              default:
-                childNodes = domdiff(node.parentNode, childNodes, value, asNode$1, node);
-                break;
-            }
-          }
-        } else if (canDiff$1(value)) {
-          childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], asNode$1, node);
-        } else if (isPromise_ish$1(value)) {
-          value.then(anyContent);
-        } else if ('placeholder' in value) {
-          invokeAtDistance$1(value, anyContent);
-        } else if ('text' in value) {
-          anyContent(String(value.text));
-        } else if ('any' in value) {
-          anyContent(value.any);
-        } else if ('html' in value) {
-          childNodes = domdiff(node.parentNode, childNodes, slice.call(createFragment(node, [].concat(value.html).join('')).childNodes), asNode$1, node);
-        } else if ('length' in value) {
-          anyContent(slice.call(value));
-        } else {
-          anyContent(Intent.invoke(value, anyContent));
-        }
-        break;
-    }
-  };
-  return anyContent;
-};
-
-// there are four kind of attributes, and related behavior:
-//  * events, with a name starting with `on`, to add/remove event listeners
-//  * special, with a name present in their inherited prototype, accessed directly
-//  * regular, accessed through get/setAttribute standard DOM methods
-//  * style, the only regular attribute that also accepts an object as value
-//    so that you can style=${{width: 120}}. In this case, the behavior has been
-//    fully inspired by Preact library and its simplicity.
-var setAttribute$1 = function setAttribute(node, name, original) {
-  var isSVG = OWNER_SVG_ELEMENT in node;
-  var oldValue = void 0;
-  // if the attribute is the style one
-  // handle it differently from others
-  if (name === 'style') {
-    node.removeAttributeNode(original);
-    return Style(node, original, isSVG);
-  }
-  // the name is an event one,
-  // add/remove event listeners accordingly
-  else if (/^on/.test(name)) {
-      var type = name.slice(2);
-      if (type === CONNECTED || type === DISCONNECTED) {
-        if (notObserving$1) {
-          notObserving$1 = false;
-          observe$1();
-        }
-        components$1.add(node);
-      } else if (name.toLowerCase() in node) {
-        type = type.toLowerCase();
-      }
-      node.removeAttributeNode(original);
-      return function (newValue) {
-        if (oldValue !== newValue) {
-          if (oldValue) node.removeEventListener(type, oldValue, false);
-          oldValue = newValue;
-          if (newValue) node.addEventListener(type, newValue, false);
-        }
-      };
-    }
-    // the attribute is special ('value' in input)
-    // and it's not SVG *or* the name is exactly data,
-    // in this case assign the value directly
-    else if (name === 'data' || !isSVG && name in node) {
-        var firstUpdate = true;
-        return function (newValue) {
-          if (firstUpdate) {
-            firstUpdate = false;
-            oldValue = node[name];
-          } else if (oldValue !== newValue) {
-            oldValue = newValue;
-            if (node[name] !== newValue) {
-              node[name] = newValue;
-              if (newValue == null) {
-                node.removeAttribute(name);
-              }
-            }
-          }
-        };
-      }
-      // in every other case, use the attribute node as it is
-      // update only the value, set it as node only when/if needed
-      else {
-          var owner = true;
-          var attribute = original;
-          return function (newValue) {
-            if (oldValue !== newValue) {
-              oldValue = newValue;
-              if (attribute.value !== newValue) {
-                if (newValue == null) {
-                  if (owner) {
-                    owner = false;
-                    node.removeAttributeNode(attribute);
-                  }
-                  attribute.value = newValue;
-                } else {
-                  attribute.value = newValue;
-                  if (!owner) {
-                    owner = true;
-                    node.setAttributeNode(attribute);
-                  }
-                }
-              }
-            }
-          };
-        }
-};
-
-// style or textareas don't accept HTML as content
-// it's pointless to transform or analyze anything
-// different from text there but it's worth checking
-// for possible defined intents.
-var setTextContent$1 = function setTextContent(node) {
-  var oldValue = void 0;
-  var textContent = function textContent(value) {
-    if (oldValue !== value) {
-      oldValue = value;
-      if (typeof value === 'object' && value) {
-        if (isPromise_ish$1(value)) {
-          value.then(textContent);
-        } else if ('placeholder' in value) {
-          invokeAtDistance$1(value, textContent);
-        } else if ('text' in value) {
-          textContent(String(value.text));
-        } else if ('any' in value) {
-          textContent(value.any);
-        } else if ('html' in value) {
-          textContent([].concat(value.html).join(''));
-        } else if ('length' in value) {
-          textContent(slice.call(value).join(''));
-        } else {
-          textContent(Intent.invoke(value, textContent));
-        }
-      } else {
-        node.textContent = value == null ? '' : value;
-      }
-    }
-  };
-  return textContent;
-};
-
-var Adopt = { create: create$2, find: find$1 };
-
-// hyper.Components might need connected/disconnected notifications
-// used by components and their onconnect/ondisconnect callbacks.
-// When one of these callbacks is encountered,
-// the document starts being observed.
-var notObserving$1 = true;
-function observe$1() {
-
-  // when hyper.Component related DOM nodes
-  // are appended or removed from the live tree
-  // these might listen to connected/disconnected events
-  // This utility is in charge of finding all components
-  // involved in the DOM update/change and dispatch
-  // related information to them
-  var dispatchAll = function dispatchAll(nodes, type) {
-    var event = new Event(type);
-    var length = nodes.length;
-    for (var i = 0; i < length; i++) {
-      var node = nodes[i];
-      if (node.nodeType === ELEMENT_NODE) {
-        dispatchTarget(node, event);
-      }
-    }
-  };
-
-  // the way it's done is via the components weak set
-  // and recursively looking for nested components too
-  var dispatchTarget = function dispatchTarget(node, event) {
-    if (components$1.has(node)) {
-      node.dispatchEvent(event);
-    } else {
-      var children = node.children;
-      var length = children.length;
-      for (var i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
-      }
-    }
-  };
-
-  // The MutationObserver is the best way to implement that
-  // but there is a fallback to deprecated DOMNodeInserted/Removed
-  // so that even older browsers/engines can help components life-cycle
-  try {
-    new MutationObserver(function (records) {
-      var length = records.length;
-      for (var i = 0; i < length; i++) {
-        var record = records[i];
-        dispatchAll(record.removedNodes, DISCONNECTED);
-        dispatchAll(record.addedNodes, CONNECTED);
-      }
-    }).observe(document, { subtree: true, childList: true });
-  } catch (o_O) {
-    document.addEventListener('DOMNodeRemoved', function (event) {
-      dispatchAll([event.target], DISCONNECTED);
-    }, false);
-    document.addEventListener('DOMNodeInserted', function (event) {
-      dispatchAll([event.target], CONNECTED);
-    }, false);
-  }
-}
-
-var bewitched$1 = new WeakMap();
-var templates$1 = new Map();
-
-var adopt = function adopt(node) {
-  return render$2.bind(node);
-};
-
-function render$2(template) {
-  var wicked = bewitched$1.get(this);
-  if (wicked && wicked.template === unique(template)) {
-    update$2.apply(wicked.updates, arguments);
-  } else {
-    upgrade$1.apply(this, arguments);
-  }
-  return this;
-}
-
-function upgrade$1(template) {
-  template = unique(template);
-  var info = templates$1.get(template) || createTemplate$1.call(this, template);
-  var updates = Adopt.create(this, info.paths);
-  bewitched$1.set(this, { template: template, updates: updates });
-  update$2.apply(updates, arguments);
-}
-
-function update$2() {
-  var length = arguments.length;
-  for (var i = 1; i < length; i++) {
-    this[i - 1](arguments[i]);
-  }
-}
-
-function createTemplate$1(template) {
-  var paths = [];
-  var fragment = createFragment(this, template.join(UIDC));
-  Adopt.find(fragment, paths, template.slice());
-  var info = { fragment: fragment, paths: paths };
-  templates$1.set(template, info);
-  return info;
-}
-
 /*! (c) Andrea Giammarchi (ISC) */
 
 // all functions are self bound to the right context
 // you can do the following
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
+var adopt = function adopt(context) {
+  return function () {
+    render.adopt = true;
+    return render.apply(context, arguments);
+  };
+};
 var bind = function bind(context) {
-  return render.bind(context);
+  return function () {
+    render.adopt = false;
+    return render.apply(context, arguments);
+  };
 };
 var define = Intent.define;
 
@@ -1732,7 +1268,7 @@ setup(content);
 // that "magically" understands what's the best
 // thing to do with passed arguments
 function hyper(HTML) {
-  return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? render.bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : wire).apply(null, arguments);
+  return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : wire).apply(null, arguments);
 }
 
 
