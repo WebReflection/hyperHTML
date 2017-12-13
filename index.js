@@ -658,7 +658,7 @@ var create$1 = function create$$1(root, paths, adopt) {
         updates.push(setAnyContent(node, childNodes));
         break;
       case 'attr':
-        updates.push(setAttribute(node, info.name, adopt ? node.getAttributeNode(info.name) : info.node, adopt));
+        updates.push(setAttribute(node, info.name, adopt ? node.getAttributeNode(info.name) || createAttribute(node, info.node.cloneNode(true)) : info.node, adopt));
         break;
       case 'text':
         updates.push(setTextContent(adopt ? childNodes[0] : node));
@@ -666,6 +666,12 @@ var create$1 = function create$$1(root, paths, adopt) {
     }
   }
   return updates;
+};
+
+// set an attribute node and return it
+var createAttribute = function createAttribute(node, attr) {
+  node.setAttributeNode(attr);
+  return attr;
 };
 
 // finding all paths is a one-off operation performed

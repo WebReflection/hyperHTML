@@ -73,7 +73,10 @@ const create = (root, paths, adopt) => {
             node,
             info.name,
             adopt ?
-              node.getAttributeNode(info.name) :
+              (
+                node.getAttributeNode(info.name) ||
+                createAttribute(node, info.node.cloneNode(true))
+              ) :
               info.node,
             adopt
           )
@@ -91,6 +94,12 @@ const create = (root, paths, adopt) => {
     }
   }
   return updates;
+};
+
+// set an attribute node and return it
+const createAttribute = (node, attr) => {
+  node.setAttributeNode(attr);
+  return attr;
 };
 
 // finding all paths is a one-off operation performed
