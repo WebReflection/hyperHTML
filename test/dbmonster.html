@@ -17,24 +17,28 @@
         // table render
         renderTABLE = hyperHTML.bind(document.querySelector('#app')),
         TRs = [],
-        TDs = [],
-        Top5 = []
+        TDfirst = [],
+        TDsecond = [],
+        TDothers = []
       ;
 
       function updateTable(dbs) {
         renderTABLE`
         <table class="table table-striped latest-data">
           <tbody>${dbs.map((db, i) => render(TRs, i)`
-            <tr key="${db.dbname}">${render(TDs, i)`
+            <tr key="${db.dbname}">${[
+              render(TDfirst, i)`
               <td class="dbname">
                 ${db.dbname}
-              </td>
+              </td>`,
+              render(TDsecond, i)`
               <td class="query-count">
                 <span class="${db.lastSample.countClassName}">
                   ${db.lastSample.nbQueries}
                 </span>
-              </td>`.concat(db.lastSample.topFiveQueries.map((query, j, a) =>
-                render(Top5, a.length * i + j)`
+              </td>`
+            ].concat(db.lastSample.topFiveQueries.map((query, j, a) =>
+              render(TDothers, a.length * i + j)`
               <td class="${query.elapsedClassName}">
                 <span class="foo">
                   ${query.formatElapsed}
