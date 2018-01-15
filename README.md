@@ -75,6 +75,15 @@ You can read more on this [hyperHTML vs lit-html](https://gist.github.com/WebRef
 ```js
 npm install hyperhtml
 ```
+If your bundler does not work with the following:
+```js
+// ES6
+import hyperHTML from 'hyperhtml';
+
+// CJS
+const hyperHTML = require('hyperhtml');
+```
+You can try any of these other options.
 ```js
 import hyperHTML from 'hyperhtml/esm';
 // or
