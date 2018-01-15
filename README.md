@@ -70,7 +70,7 @@ Please ask anything you'd like to know in [StackOverflow](https://stackoverflow.
 
 You can read more on this [hyperHTML vs lit-html](https://gist.github.com/WebReflection/fadcc419f5ccaae92bc167d8ff5c611b) comparison.
 
-### installation?
+#### installation?
 
 ```js
 npm install hyperhtml
