@@ -1097,12 +1097,21 @@ function update() {
 // no matter if these are attributes, text nodes, or regular one
 function createTemplate(template) {
   var paths = [];
-  var fragment = createFragment(this, template.join(UIDC));
+  var html = template.join(UIDC).replace(SC_RE, SC_PLACE);
+  var fragment = createFragment(this, html);
   Updates.find(fragment, paths, template.slice());
   var info = { fragment: fragment, paths: paths };
   templates.set(template, info);
   return info;
 }
+
+// some node could be special though, like a custom element
+// with a self closing tag, which should work through these changes.
+var SC_RE = /<([a-zA-Z0-9][a-zA-Z0-9_:-]+)([^>]*?)\/>/g;
+var SC_PLACE = function SC_PLACE($0, $1, $2) {
+  return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
+};
+var VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr$/i;
 
 // all wires used per each context
 var wires = new WeakMap();
