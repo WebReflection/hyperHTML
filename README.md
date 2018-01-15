@@ -69,3 +69,21 @@ Please ask anything you'd like to know in [StackOverflow](https://stackoverflow.
 #### hyper or lit ?
 
 You can read more on this [hyperHTML vs lit-html](https://gist.github.com/WebReflection/fadcc419f5ccaae92bc167d8ff5c611b) comparison.
+
+### installation?
+
+```js
+npm install hyperhtml
+```
+```js
+import hyperHTML from 'hyperhtml/esm';
+// or
+import {hyper, wire, bind, Component} from 'hyperhtml/esm';
+// or
+import hyperHTML from 'https://unpkg.com/hyperhtml?module';
+
+
+const hyperHTML = require('hyperhtml/cjs').default;
+// or
+const {hyper, wire, bind, Component} = require('hyperhtml/cjs');
+```
