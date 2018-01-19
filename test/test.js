@@ -958,6 +958,25 @@ tressa.async(function (done) {
   render`<p style=${'font-size: 18px'}></p>`;
   tressa.assert(p.style.fontSize, p.style.fontSize);
 })
+.then(function () {
+  tressa.log('## <self-closing/>');
+  var div = hyperHTML.wire()`<div><self-closing test=1/><input /><self-closing test="2" /></div>`;
+  tressa.assert(div.childNodes.length === 3, 'nodes did self close');
+  tressa.assert(div.childNodes[0].getAttribute('test') === "1", 'first node ok');
+  tressa.assert(/input/i.test(div.childNodes[1].nodeName), 'second node ok');
+  tressa.assert(div.childNodes[2].getAttribute('test') === "2", 'third node ok');
+  div = hyperHTML.wire()`<div>
+    <self-closing
+      test=1
+    /><input
+    /><self-closing test="2"
+     />
+     </div>`;
+  tressa.assert(div.children.length === 3, 'nodes did self close');
+  tressa.assert(div.children[0].getAttribute('test') === "1", 'first node ok');
+  tressa.assert(/input/i.test(div.children[1].nodeName), 'second node ok');
+  tressa.assert(div.children[2].getAttribute('test') === "2", 'third node ok');
+})
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END

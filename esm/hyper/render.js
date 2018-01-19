@@ -60,11 +60,20 @@ function update() {
 // no matter if these are attributes, text nodes, or regular one
 function createTemplate(template) {
   const paths = [];
-  const fragment = createFragment(this, template.join(UIDC));
+  const html = template.join(UIDC).replace(SC_RE, SC_PLACE);
+  const fragment = createFragment(this, html);
   Updates.find(fragment, paths, template.slice());
   const info = {fragment, paths};
   templates.set(template, info);
   return info;
 }
+
+// some node could be special though, like a custom element
+// with a self closing tag, which should work through these changes.
+const SC_RE = /<([a-zA-Z0-9][a-zA-Z0-9_:-]+)([^>]*?)\/>/g;
+const SC_PLACE = ($0, $1, $2) => {
+  return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
+};
+const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr$/i;
 
 export default render;
