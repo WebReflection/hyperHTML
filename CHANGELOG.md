@@ -1,5 +1,9 @@
 # hyper(html) Changelog
 
+### v2.5.0
+  * updated `domdiff` library to the latest version
+  * implemented self-closing tags (and after various tests)
+
 ### v2.4.3
   * ensure attributes values are updated when different from previous one
   * avoid the usage of the word `global` in the whole code
