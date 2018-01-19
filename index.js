@@ -581,26 +581,31 @@ beforeNode // optional item/node to use as insertBefore delimiter
       }
     }
   }
-  if (currentStart > currentEnd) {
-    var pin = futureNodes[futureEnd + 1];
-    var place = pin != null ? get(pin, 0) : before;
-    while (futureStart <= futureEnd) {
-      var ch = futureNodes[futureStart++];
-      // ignore until I am sure the else could never happen.
-      // it might be a vDOM thing 'cause it never happens here.
-      /* istanbul ignore else */
-      if (ch != null) parentNode.insertBefore(get(ch, 1), place);
-    }
-  }
-  // ignore until I am sure the else could never happen.
-  // it might be a vDOM thing 'cause it never happens here.
-  /* istanbul ignore else */
-  else if (futureStart > futureEnd) {
-      while (currentStart <= currentEnd) {
-        var _ch = currentNodes[currentStart++];
-        if (_ch != null) parentNode.removeChild(get(_ch, -1));
+  if (currentStart <= currentEnd || futureStart <= futureEnd) {
+    if (currentStart > currentEnd) {
+      var pin = futureNodes[futureEnd + 1];
+      var place = pin == null ? before : get(pin, 0);
+      if (futureStart === futureEnd) {
+        parentNode.insertBefore(get(futureNodes[futureStart], 1), place);
+      } else {
+        var fragment = parentNode.ownerDocument.createDocumentFragment();
+        while (futureStart <= futureEnd) {
+          fragment.appendChild(get(futureNodes[futureStart++], 1));
+        }
+        parentNode.insertBefore(fragment, place);
+      }
+    } else {
+      if (currentNodes[currentStart] == null) currentStart++;
+      if (currentStart === currentEnd) {
+        parentNode.removeChild(get(currentNodes[currentStart], -1));
+      } else {
+        var range = parentNode.ownerDocument.createRange();
+        range.setStartBefore(get(currentNodes[currentStart], -1));
+        range.setEndAfter(get(currentNodes[currentEnd], -1));
+        range.deleteContents();
       }
     }
+  }
   return futureNodes;
 };
 
