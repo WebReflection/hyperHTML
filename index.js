@@ -197,6 +197,17 @@ var text = function text(node, _text) {
   return doc(node).createTextNode(_text);
 };
 
+// TODO:  I'd love to code-cover RegExp too here
+//        these are fundamental for this library
+
+var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
+var tagName = '<([a-z]+[a-z0-9:_-]*)((?:';
+var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)';
+
+var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([^\\S]*/?>)', 'gi');
+
+var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([^\\S]*/>)', 'gi');
+
 var testFragment = fragment(document);
 
 // DOM4 node.append(...many)
@@ -229,14 +240,9 @@ var append = hasAppend ? function (node, childNodes) {
   }
 };
 
-// remove comments parts from attributes to avoid issues
-// with either old browsers or SVG elements
-// export const cleanAttributes = html => html.replace(no, comments);
-var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
-var no = new RegExp('(<[a-z]+[a-z0-9:_-]*)((?:' + attrName + '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)', 'gi');
 var findAttributes = new RegExp('(' + attrName + '=)([\'"]?)' + UIDC + '\\2', 'gi');
 var comments = function comments($0, $1, $2, $3) {
-  return $1 + $2.replace(findAttributes, replaceAttributes) + $3;
+  return '<' + $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 };
 var replaceAttributes = function replaceAttributes($0, $1, $2) {
   return $1 + ($2 || '"') + UID + ($2 || '"');
@@ -246,7 +252,7 @@ var replaceAttributes = function replaceAttributes($0, $1, $2) {
 // create either an SVG or an HTML fragment
 // where such content will be injected
 var createFragment = function createFragment(node, html) {
-  return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(no, comments));
+  return (OWNER_SVG_ELEMENT in node ? SVGFragment : HTMLFragment)(node, html.replace(attrSeeker, comments));
 };
 
 // IE/Edge shenanigans proof cloneNode
@@ -1112,7 +1118,7 @@ function createTemplate(template) {
 
 // some node could be special though, like a custom element
 // with a self closing tag, which should work through these changes.
-var SC_RE = /<([a-zA-Z0-9][a-zA-Z0-9_:-]+)([^>]*?)\/>/g;
+var SC_RE = selfClosing;
 var SC_PLACE = function SC_PLACE($0, $1, $2) {
   return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
 };

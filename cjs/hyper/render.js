@@ -8,6 +8,8 @@ const {
   unique
 } = require('../shared/utils.js');
 
+const {selfClosing} = require('../shared/re.js');
+
 // a weak collection of contexts that
 // are already known to hyperHTML
 const bewitched = new WeakMap;
@@ -71,7 +73,7 @@ function createTemplate(template) {
 
 // some node could be special though, like a custom element
 // with a self closing tag, which should work through these changes.
-const SC_RE = /<([a-zA-Z0-9][a-zA-Z0-9_:-]+)([^>]*?)\/>/g;
+const SC_RE = selfClosing;
 const SC_PLACE = ($0, $1, $2) => {
   return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
 };

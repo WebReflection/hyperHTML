@@ -63,7 +63,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject61 = _taggedTemplateLiteral(['<li data-id=', '>', '</li>'], ['<li data-id=', '>', '</li>']),
     _templateObject62 = _taggedTemplateLiteral(['\n        <p onconnected=', ' ondisconnected=', '>hello</p>'], ['\n        <p onconnected=', ' ondisconnected=', '>hello</p>']),
     _templateObject63 = _taggedTemplateLiteral(['<p style=', '></p>'], ['<p style=', '></p>']),
-    _templateObject64 = _taggedTemplateLiteral(['<div><self-closing test=1/><input /><self-closing test="2" /></div>'], ['<div><self-closing test=1/><input /><self-closing test="2" /></div>']),
+    _templateObject64 = _taggedTemplateLiteral(['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>'], ['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>']),
     _templateObject65 = _taggedTemplateLiteral(['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>'], ['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>']),
     _templateObject66 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
     _templateObject67 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
@@ -1040,17 +1040,17 @@ tressa.async(function (done) {
   render(_templateObject63, 'font-size: 18px');
   tressa.assert(p.style.fontSize, p.style.fontSize);
 }).then(function () {
-  tressa.log('## <self-closing/>');
-  var div = hyperHTML.wire()(_templateObject64);
+  tressa.log('## <self-closing />');
+  var div = hyperHTML.wire()(_templateObject64, 1);
   tressa.assert(div.childNodes.length === 3, 'nodes did self close');
-  tressa.assert(div.childNodes[0].getAttribute('test') === "1", 'first node ok');
+  tressa.assert(div.childNodes[0].getAttribute('test') == "1", 'first node ok');
   tressa.assert(/input/i.test(div.childNodes[1].nodeName), 'second node ok');
-  tressa.assert(div.childNodes[2].getAttribute('test') === "2", 'third node ok');
+  tressa.assert(div.childNodes[2].getAttribute('test') == "2", 'third node ok');
   div = hyperHTML.wire()(_templateObject65);
   tressa.assert(div.children.length === 3, 'nodes did self close');
-  tressa.assert(div.children[0].getAttribute('test') === "1", 'first node ok');
+  tressa.assert(div.children[0].getAttribute('test') == "1", 'first node ok');
   tressa.assert(/input/i.test(div.children[1].nodeName), 'second node ok');
-  tressa.assert(div.children[2].getAttribute('test') === "2", 'third node ok');
+  tressa.assert(div.children[2].getAttribute('test') == "2", 'third node ok');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END

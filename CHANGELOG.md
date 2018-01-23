@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.1
+  * improved self-closing reliability recycling and sharing attributes RegExp
+
 ### v2.5.0
   * updated `domdiff` library to the latest version
   * implemented self-closing tags (and after various tests)

@@ -1,4 +1,6 @@
 'use strict';
+const {attrName, attrSeeker} = require('./re.js');
+
 const {
   G,
   OWNER_SVG_ELEMENT,
@@ -32,19 +34,9 @@ const append = hasAppend ?
   };
 exports.append = append;
 
-// remove comments parts from attributes to avoid issues
-// with either old browsers or SVG elements
-// export const cleanAttributes = html => html.replace(no, comments);
-const attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
-const no = new RegExp(
-  '(<[a-z]+[a-z0-9:_-]*)((?:' +
-    attrName +
-  '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)+)([^\\S]*/?>)',
-  'gi'
-);
 const findAttributes = new RegExp('(' + attrName + '=)([\'"]?)' + UIDC + '\\2', 'gi');
 const comments = ($0, $1, $2, $3) =>
-  $1 + $2.replace(findAttributes, replaceAttributes) + $3;
+  '<' + $1 + $2.replace(findAttributes, replaceAttributes) + $3;
 const replaceAttributes = ($0, $1, $2) => $1 + ($2 || '"') + UID + ($2 || '"');
 
 // given a node and a generic HTML content,
@@ -54,7 +46,7 @@ const createFragment = (node, html) =>
   (OWNER_SVG_ELEMENT in node ?
     SVGFragment :
     HTMLFragment
-  )(node, html.replace(no, comments));
+  )(node, html.replace(attrSeeker, comments));
 exports.createFragment = createFragment;
 
 // IE/Edge shenanigans proof cloneNode
