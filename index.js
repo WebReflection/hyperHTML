@@ -200,9 +200,10 @@ var text = function text(node, _text) {
 // TODO:  I'd love to code-cover RegExp too here
 //        these are fundamental for this library
 
-var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/><"\'=]+';
+var almostEverything = '[^ \\f\\n\\r\\t\\/>"\'=]+';
+var attrName = '[^\\S]+' + almostEverything;
 var tagName = '<([a-z]+[a-z0-9:_-]*)((?:';
-var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)';
+var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|' + almostEverything + '))?)';
 
 var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([^\\S]*/?>)', 'gi');
 
