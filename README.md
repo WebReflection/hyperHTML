@@ -1,6 +1,6 @@
 # hyper(HTML)
 
-[![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate)
+[![Backers on Open Collective](https://opencollective.com/hyperhtml/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/hyperhtml/sponsors/badge.svg)](#sponsors) [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate)
 [![Coverage Status](https://coveralls.io/repos/github/WebReflection/hyperHTML/badge.svg?branch=master)](https://coveralls.io/github/WebReflection/hyperHTML?branch=master)
 [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
@@ -96,3 +96,33 @@ const hyperHTML = require('hyperhtml/cjs').default;
 // or
 const {hyper, wire, bind, Component} = require('hyperhtml/cjs');
 ```
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="graphs/contributors"><img src="https://opencollective.com/hyperhtml/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/hyperhtml#backer)]
+
+<a href="https://opencollective.com/hyperhtml#backers" target="_blank"><img src="https://opencollective.com/hyperhtml/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/hyperhtml#sponsor)]
+
+<a href="https://opencollective.com/hyperhtml/sponsor/0/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/1/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/2/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/3/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/4/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/5/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/6/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/7/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/8/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/9/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/9/avatar.svg"></a>
+
+
