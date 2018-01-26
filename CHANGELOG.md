@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.2
+  * fixed weird SVG case (see #172)
+
 ### v2.5.1
   * improved self-closing reliability recycling and sharing attributes RegExp
 

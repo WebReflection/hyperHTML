@@ -200,7 +200,7 @@ var text = function text(node, _text) {
 // TODO:  I'd love to code-cover RegExp too here
 //        these are fundamental for this library
 
-var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/>"\'=]+';
+var attrName = '[^\\S]+[^ \\f\\n\\r\\t\\/><"\'=]+';
 var tagName = '<([a-z]+[a-z0-9:_-]*)((?:';
 var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|\\S+))?)';
 
@@ -462,15 +462,15 @@ var Style = (function (node, original, isSVG) {
     var style = original.cloneNode(true);
     style.value = '';
     node.setAttributeNode(style);
-    return update$1(style, isSVG);
+    return update(style, isSVG);
   }
-  return update$1(node.style, isSVG);
+  return update(node.style, isSVG);
 });
 
 // the update takes care or changing/replacing
 // only properties that are different or
 // in case of string, the whole node
-var update$1 = function update(style, isSVG) {
+var update = function update(style, isSVG) {
   var oldType = void 0,
       oldValue = void 0;
   return function (newValue) {
@@ -1072,7 +1072,7 @@ var templates = new Map();
 function render(template) {
   var wicked = bewitched.get(this);
   if (wicked && wicked.template === unique(template)) {
-    update.apply(wicked.updates, arguments);
+    update$1.apply(wicked.updates, arguments);
   } else {
     upgrade.apply(this, arguments);
   }
@@ -1089,13 +1089,13 @@ function upgrade(template) {
   var fragment = importNode(this.ownerDocument, info.fragment);
   var updates = Updates.create(fragment, info.paths);
   bewitched.set(this, { template: template, updates: updates });
-  update.apply(updates, arguments);
+  update$1.apply(updates, arguments);
   this.textContent = '';
   this.appendChild(fragment);
 }
 
 // an update simply loops over all mapped DOM operations
-function update() {
+function update$1() {
   var length = arguments.length;
   for (var i = 1; i < length; i++) {
     this[i - 1](arguments[i]);

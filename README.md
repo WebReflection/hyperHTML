@@ -1,6 +1,7 @@
 # hyper(HTML)
 
-[![Backers on Open Collective](https://opencollective.com/hyperhtml/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/hyperhtml/sponsors/badge.svg)](#sponsors) [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate)
+[![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate) [![Backers on Open Collective](https://opencollective.com/hyperhtml/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/hyperhtml/sponsors/badge.svg)](#sponsors)
+
 [![Coverage Status](https://coveralls.io/repos/github/WebReflection/hyperHTML/badge.svg?branch=master)](https://coveralls.io/github/WebReflection/hyperHTML?branch=master)
 [![Build Status](https://travis-ci.org/WebReflection/hyperHTML.svg?branch=master)](https://travis-ci.org/WebReflection/hyperHTML)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)

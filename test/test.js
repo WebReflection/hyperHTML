@@ -976,6 +976,16 @@ tressa.async(function (done) {
   tressa.assert(div.children[0].getAttribute('test') == "1", 'first node ok');
   tressa.assert(/input/i.test(div.children[1].nodeName), 'second node ok');
   tressa.assert(div.children[2].getAttribute('test') == "2", 'third node ok');
+  div = hyperHTML.wire()`
+  <div style="width: 200px;">
+    <svg viewBox="0 0 30 30" fill="currentColor">
+      <path d="M 0,27 L 27,0 L 30,3 L 3,30 Z" />
+      <path d="M 0,3 L 3,0 L 30,27 L 27,30 Z" />
+    </svg>
+  </div>
+  `;
+  tressa.assert(div.children.length === 1, 'one svg');
+  tressa.assert(div.children[0].children.length === 2, 'two paths');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
