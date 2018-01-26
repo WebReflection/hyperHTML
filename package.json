@@ -17,7 +17,8 @@
     "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\" > min.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
     "brotli": "cat min.js | bro | wc -c",
-    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js"
+    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js",
+    "postinstall": "opencollective postinstall"
   },
   "repository": {
     "type": "git",
@@ -72,5 +73,12 @@
       "uglify-js"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "opencollective": "^1.0.3"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/hyperhtml",
+    "logo": "https://opencollective.com/hyperhtml/logo.txt"
+  }
 }
