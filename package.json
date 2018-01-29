@@ -18,7 +18,7 @@
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
     "brotli": "cat min.js | bro | wc -c",
     "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js",
-    "postinstall": "lightercollective && sleep 1"
+    "postinstall": "lightercollective"
   },
   "repository": {
     "type": "git",
