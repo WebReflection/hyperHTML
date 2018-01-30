@@ -13,6 +13,37 @@ A **Fast & Light Virtual DOM Alternative** available for [NodeJS](https://viperh
 
 - - -
 
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/hyperhtml#sponsor)]
+
+<a href="https://opencollective.com/hyperhtml/sponsor/0/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/1/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/2/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/3/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/4/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/5/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/6/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/7/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/8/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/hyperhtml/sponsor/9/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/9/avatar.svg"></a>
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/hyperhtml#backer)]
+
+<a href="https://opencollective.com/hyperhtml#backers" target="_blank"><img src="https://opencollective.com/hyperhtml/backers.svg?width=890"></a>
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="graphs/contributors"><img src="https://opencollective.com/hyperhtml/contributors.svg?width=890" /></a>
+
+- - -
+
+### V2.5 Highlights
+  * `<self-closing />` tags for both custom elements and any other as well 🎉
+
 ### V2 Highlights
 
 Following most important changes in version 2:
@@ -98,32 +129,4 @@ const hyperHTML = require('hyperhtml/cjs').default;
 const {hyper, wire, bind, Component} = require('hyperhtml/cjs');
 ```
 
-## Contributors
-
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="graphs/contributors"><img src="https://opencollective.com/hyperhtml/contributors.svg?width=890" /></a>
-
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/hyperhtml#backer)]
-
-<a href="https://opencollective.com/hyperhtml#backers" target="_blank"><img src="https://opencollective.com/hyperhtml/backers.svg?width=890"></a>
-
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/hyperhtml#sponsor)]
-
-<a href="https://opencollective.com/hyperhtml/sponsor/0/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/1/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/2/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/3/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/4/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/5/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/6/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/7/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/8/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/hyperhtml/sponsor/9/website" target="_blank"><img src="https://opencollective.com/hyperhtml/sponsor/9/avatar.svg"></a>
-
-
+In alternative, there is a pre-bundled `require("hyperhtml/umd")` or via unpkg as [UMD module](https://unpkg.com/hyperhtml@latest/umd.js).
