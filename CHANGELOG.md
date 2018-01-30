@@ -1,5 +1,9 @@
 # hyper(html) Changelog
 
+### v2.5.5
+  * build runs on macOS too
+  * added umd.js file
+
 ### v2.5.2
   * fixed weird SVG case (see #172)
 
