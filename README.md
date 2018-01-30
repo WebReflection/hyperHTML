@@ -1,4 +1,6 @@
-# hyper(HTML) <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
+<img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
+
+# hyper(HTML)
 
 [![donate](https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&style=flat)](https://github.com/WebReflection/donate) [![Backers on Open Collective](https://opencollective.com/hyperhtml/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/hyperhtml/sponsors/badge.svg)](#sponsors)
 
