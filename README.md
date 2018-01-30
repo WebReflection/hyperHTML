@@ -1,4 +1,4 @@
-## hyper(HTML)
+# hyper(HTML)
 
 <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
 
