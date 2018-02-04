@@ -25,7 +25,7 @@
         ((i + mod) % 2 ? args : template).push(arguments[i]);
         i++;
       }
-      if ((i + mod) % 2) template.push('');
+      if (template.length < args.length) template.push('');
       var key = template.join(uid);
       if (key in templates) {
         args[0] = templates[key];
