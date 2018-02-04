@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.6
+  * added `no.js` file for environments without the ability to use modern JS or based on other languages such Dart.
+
 ### v2.5.5
   * build runs on macOS too
   * added umd.js file

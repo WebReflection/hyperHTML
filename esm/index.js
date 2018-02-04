@@ -36,16 +36,16 @@ export default function hyper(HTML) {
     (HTML == null ?
       content('html') :
       (typeof HTML === 'string' ?
-        wire(null, HTML) :
+        hyper.wire(null, HTML) :
         ('raw' in HTML ?
           content('html')(HTML) :
           ('nodeType' in HTML ?
-            render.bind(HTML) :
+            hyper.bind(HTML) :
             weakly(HTML, 'html')
           )
         )
       )) :
     ('raw' in HTML ?
-      content('html') : wire
+      content('html') : hyper.wire
     ).apply(null, arguments);
 }
