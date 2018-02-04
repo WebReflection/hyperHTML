@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.7
+  * fixed `no.js` patch when wrong count of args is passed
+
 ### v2.5.6
   * added `no.js` file for environments without the ability to use modern JS or based on other languages such Dart.
 
