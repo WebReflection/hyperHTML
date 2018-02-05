@@ -75,7 +75,7 @@
     ]
   },
   "dependencies": {
-    "lightercollective": "^0.0.1"
+    "lightercollective": "^0.0.3"
   },
   "collective": {
     "type": "opencollective",
