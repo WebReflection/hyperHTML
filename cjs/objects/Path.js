@@ -53,6 +53,6 @@ Object.defineProperty(exports, '__esModule', {value: true}).default = {
     for (let i = 0; i < length; i++) {
       node = node.childNodes[path[i]];
     }
-    return node;
+    return {node, childNodes: []};
   }
 }

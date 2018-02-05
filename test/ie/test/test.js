@@ -66,8 +66,9 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject64 = _taggedTemplateLiteral(['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>'], ['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>']),
     _templateObject65 = _taggedTemplateLiteral(['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>'], ['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>']),
     _templateObject66 = _taggedTemplateLiteral(['\n  <div style="width: 200px;">\n    <svg viewBox="0 0 30 30" fill="currentColor">\n      <path d="M 0,27 L 27,0 L 30,3 L 3,30 Z" />\n      <path d="M 0,3 L 3,0 L 30,27 L 27,30 Z" />\n    </svg>\n  </div>\n  '], ['\n  <div style="width: 200px;">\n    <svg viewBox="0 0 30 30" fill="currentColor">\n      <path d="M 0,27 L 27,0 L 30,3 L 3,30 Z" />\n      <path d="M 0,3 L 3,0 L 30,27 L 27,30 Z" />\n    </svg>\n  </div>\n  ']),
-    _templateObject67 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject68 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject67 = _taggedTemplateLiteral(['\n  <div test="', '">\n    ', '\n    <ul aint=', '>\n      ', '\n    </ul>\n    ', '\n    <hr>\n    <input value=', '>\n  </div>'], ['\n  <div test="', '">\n    ', '\n    <ul aint=', '>\n      ', '\n    </ul>\n    ', '\n    <hr>\n    <input value=', '>\n  </div>']),
+    _templateObject68 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject69 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1055,6 +1056,25 @@ tressa.async(function (done) {
   div = hyperHTML.wire()(_templateObject66);
   tressa.assert(div.children.length === 1, 'one svg');
   tressa.assert(div.children[0].children.length === 2, 'two paths');
+}).then(function () {
+  tressa.log('## hyperHTML.adopt(liveNode)');
+  var div = document.createElement('div');
+  div.innerHTML = '\n  <div test="before">\n    <!--\x01:1-->before<!--\x01:1-->\n    <ul>\n      <!--\x01:2--><li> lonely </li><!--\x01:2-->\n    </ul>\n    <!--\x01:3-->NO<!--\x01:3-->\n    <hr>\n    <input value="test">\n  </div>';
+  hyperHTML.adopt(div)(_templateObject67, 'after', 'after', 'there', ['<li> ' + 'happy' + ' </li>'], 'yes', 'test');
+  tressa.assert(/^\s*\bafter\b/.test(div.firstElementChild.textContent), 'plain content is fine');
+  tressa.assert(div.querySelector('li').textContent === ' happy ', 'list elements are fine');
+  tressa.assert(/\byes\b\s*$/.test(div.firstElementChild.textContent), 'content in between is fine');
+
+  // TODO: textarea is not working and also nodes outside
+  //       the regular hierarchy. i.e. add <p> after the previous div
+  /*
+  div.innerHTML = `<textarea><!--:1-->nope<!--:1--></textarea>`;
+  hyperHTML.adopt(div)`<textarea>${'yep'}</textarea>`;
+  tressa.assert(
+    div.textContent === 'yep',
+    'text content is fine'
+  );
+  // */
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
@@ -1064,14 +1084,14 @@ tressa.async(function (done) {
   tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
-    hyperHTML.bind(output)(_templateObject67, '0 0 50 50');
+    hyperHTML.bind(output)(_templateObject68, '0 0 50 50');
     tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
 }).then(function () {
   tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject68);
+  var output = hyperHTML.wire()(_templateObject69);
   tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */

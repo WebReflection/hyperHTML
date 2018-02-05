@@ -13,10 +13,18 @@ const diff = (m => m.__esModule ? m.default : m)(require('./shared/domdiff.js'))
 // you can do the following
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
-const bind = context => render.bind(context);
+const adopt = context => function () {
+  render.adopt = true;
+  return render.apply(context, arguments);
+};
+const bind = context => function () {
+  render.adopt = false;
+  return render.apply(context, arguments);
+};
 const define = Intent.define;
 
 hyper.Component = Component;
+hyper.adopt = adopt;
 hyper.bind = bind;
 hyper.define = define;
 hyper.diff = diff;
@@ -30,6 +38,7 @@ setup(content);
 // everything is exported directly or through the
 // hyperHTML callback, when used as top level script
 exports.Component = Component;
+exports.adopt = adopt;
 exports.bind = bind;
 exports.define = define;
 exports.diff = diff;
