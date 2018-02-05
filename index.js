@@ -100,6 +100,9 @@ var TEXT_NODE = 3;
 var COMMENT_NODE = 8;
 var DOCUMENT_FRAGMENT_NODE = 11;
 
+// HTML related constants
+var VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr$/i;
+
 // SVG related constants
 var OWNER_SVG_ELEMENT = 'ownerSVGElement';
 var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
@@ -463,15 +466,15 @@ var Style = (function (node, original, isSVG) {
     var style = original.cloneNode(true);
     style.value = '';
     node.setAttributeNode(style);
-    return update$1(style, isSVG);
+    return update(style, isSVG);
   }
-  return update$1(node.style, isSVG);
+  return update(node.style, isSVG);
 });
 
 // the update takes care or changing/replacing
 // only properties that are different or
 // in case of string, the whole node
-var update$1 = function update(style, isSVG) {
+var update = function update(style, isSVG) {
   var oldType = void 0,
       oldValue = void 0;
   return function (newValue) {
@@ -588,26 +591,31 @@ beforeNode // optional item/node to use as insertBefore delimiter
       }
     }
   }
-  if (currentStart > currentEnd) {
-    var pin = futureNodes[futureEnd + 1];
-    var place = pin != null ? get(pin, 0) : before;
-    while (futureStart <= futureEnd) {
-      var ch = futureNodes[futureStart++];
-      // ignore until I am sure the else could never happen.
-      // it might be a vDOM thing 'cause it never happens here.
-      /* istanbul ignore else */
-      if (ch != null) parentNode.insertBefore(get(ch, 1), place);
-    }
-  }
-  // ignore until I am sure the else could never happen.
-  // it might be a vDOM thing 'cause it never happens here.
-  /* istanbul ignore else */
-  else if (futureStart > futureEnd) {
-      while (currentStart <= currentEnd) {
-        var _ch = currentNodes[currentStart++];
-        if (_ch != null) parentNode.removeChild(get(_ch, -1));
+  if (currentStart <= currentEnd || futureStart <= futureEnd) {
+    if (currentStart > currentEnd) {
+      var pin = futureNodes[futureEnd + 1];
+      var place = pin == null ? before : get(pin, 0);
+      if (futureStart === futureEnd) {
+        parentNode.insertBefore(get(futureNodes[futureStart], 1), place);
+      } else {
+        var fragment = parentNode.ownerDocument.createDocumentFragment();
+        while (futureStart <= futureEnd) {
+          fragment.appendChild(get(futureNodes[futureStart++], 1));
+        }
+        parentNode.insertBefore(fragment, place);
+      }
+    } else {
+      if (currentNodes[currentStart] == null) currentStart++;
+      if (currentStart === currentEnd) {
+        parentNode.removeChild(get(currentNodes[currentStart], -1));
+      } else {
+        var range = parentNode.ownerDocument.createRange();
+        range.setStartBefore(get(currentNodes[currentStart], -1));
+        range.setEndAfter(get(currentNodes[currentEnd], -1));
+        range.deleteContents();
       }
     }
+  }
   return futureNodes;
 };
 
@@ -1068,7 +1076,7 @@ var templates = new Map();
 function render(template) {
   var wicked = bewitched.get(this);
   if (wicked && wicked.template === unique(template)) {
-    update.apply(wicked.updates, arguments);
+    update$1.apply(wicked.updates, arguments);
   } else {
     upgrade.apply(this, arguments);
   }
@@ -1085,13 +1093,13 @@ function upgrade(template) {
   var fragment = importNode(this.ownerDocument, info.fragment);
   var updates = Updates.create(fragment, info.paths);
   bewitched.set(this, { template: template, updates: updates });
-  update.apply(updates, arguments);
+  update$1.apply(updates, arguments);
   this.textContent = '';
   this.appendChild(fragment);
 }
 
 // an update simply loops over all mapped DOM operations
-function update() {
+function update$1() {
   var length = arguments.length;
   for (var i = 1; i < length; i++) {
     this[i - 1](arguments[i]);
@@ -1118,7 +1126,6 @@ var SC_RE = selfClosing;
 var SC_PLACE = function SC_PLACE($0, $1, $2) {
   return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
 };
-var VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr$/i;
 
 // all wires used per each context
 var wires = new WeakMap();

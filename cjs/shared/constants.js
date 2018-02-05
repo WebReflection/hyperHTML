@@ -16,6 +16,10 @@ exports.COMMENT_NODE = COMMENT_NODE;
 const DOCUMENT_FRAGMENT_NODE = 11;
 exports.DOCUMENT_FRAGMENT_NODE = DOCUMENT_FRAGMENT_NODE;
 
+// HTML related constants
+const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr$/i;
+exports.VOID_ELEMENTS = VOID_ELEMENTS;
+
 // SVG related constants
 const OWNER_SVG_ELEMENT = 'ownerSVGElement';
 exports.OWNER_SVG_ELEMENT = OWNER_SVG_ELEMENT;

@@ -1,5 +1,5 @@
 import {Map, WeakMap} from '../shared/poorlyfills.js';
-import {UIDC} from '../shared/constants.js';
+import {UIDC, VOID_ELEMENTS} from '../shared/constants.js';
 import Updates from '../objects/Updates.js';
 import {
   createFragment,
@@ -76,6 +76,5 @@ const SC_RE = selfClosing;
 const SC_PLACE = ($0, $1, $2) => {
   return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
 };
-const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr$/i;
 
 export default render;

@@ -1,6 +1,6 @@
 'use strict';
 const {Map, WeakMap} = require('../shared/poorlyfills.js');
-const {UIDC} = require('../shared/constants.js');
+const {UIDC, VOID_ELEMENTS} = require('../shared/constants.js');
 const Updates = (m => m.__esModule ? m.default : m)(require('../objects/Updates.js'));
 const {
   createFragment,
@@ -77,6 +77,5 @@ const SC_RE = selfClosing;
 const SC_PLACE = ($0, $1, $2) => {
   return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
 };
-const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr$/i;
 
 Object.defineProperty(exports, '__esModule', {value: true}).default = render;

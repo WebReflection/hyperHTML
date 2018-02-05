@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.8
+  * improved `VOID_ELEMENTS` regular expression (aligned with the _viperHTML_ one)
+
 ### v2.5.7
   * fixed `no.js` patch when wrong count of args is passed
 
