@@ -14,7 +14,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\"))')",
     "max": "rollup --config rollup.config.js && npm run cleanup",
-    "min": "echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\" > min.js",
+    "min": "bash -c \"echo \\\"/*! (c) Andrea Giammarchi (ISC) */\\$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\\\" > min.js\"",
     "umd": "echo \"(function(A,G){if(typeof define=='function'&&define.amd)define([],G);else if(typeof module=='object'&&module.exports)module.exports=G();else A.hyperHTML=G()}(typeof self!='undefined'?self:this,function(){\">umd.js;cat min.js>>umd.js;echo \"return hyperHTML}));\">>umd.js",
     "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
     "brotli": "cat min.js | bro | wc -c",
