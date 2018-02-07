@@ -203,14 +203,15 @@ var text = function text(node, _text) {
 // TODO:  I'd love to code-cover RegExp too here
 //        these are fundamental for this library
 
-var almostEverything = '[^ \\f\\n\\r\\t\\/>"\'=]+';
-var attrName = '[^\\S]+' + almostEverything;
-var tagName = '<([a-z]+[a-z0-9:_-]*)((?:';
-var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|' + almostEverything + '))?)';
+var spaces = ' \\f\\n\\r\\t';
+var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
+var attrName = '[ ' + spaces + ']+' + almostEverything;
+var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
+var attrPartials = '(?:=(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
 
-var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([^\\S]*/?>)', 'gi');
+var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
 
-var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([^\\S]*/>)', 'gi');
+var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([ ' + spaces + ']*/>)', 'g');
 
 var testFragment = fragment(document);
 

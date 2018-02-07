@@ -1,7 +1,42 @@
 <!doctype html>
 <html>
   <head>
-    <script>document.write('<script src="../index.js?_=' + Math.random() + '"><' + '/script>')</script>
+    <script src="../index.js"></script>
+    <script>
+    this.onload = () => {
+      function onsubmit(e) {
+        e.preventDefault();
+        console.log('not working')
+      }
+      function check(form) {
+        return form.children.length === 2 &&
+                /input/i.test(form.children[0].nodeName) &&
+                /input/i.test(form.children[1].nodeName)
+      }
+      hyperHTML.bind(document.body)`${[
+        hyperHTML.wire()`
+        <form onsubmit=${onsubmit}>
+          <input type="email" placeholder="email">
+          <button>Button</button>
+        </form>`,
+        hyperHTML.wire()`
+        <form onsubmit=${onsubmit}>
+          <input type="email" placeholder="email"/>
+          <button>Button</button>
+        </form>`,
+        hyperHTML.wire()`
+        <form onsubmit="${onsubmit}">
+          <input type="email" placeholder="email">
+          <button>Button</button>
+        </form>`,
+        hyperHTML.wire()`
+        <form onsubmit="${onsubmit}">
+          <input type="email" placeholder="email"/>
+          <button>Button</button>
+        </form>`
+      ]}`;
+    };
+    </script>
   </head>
   <body></body>
 </html>

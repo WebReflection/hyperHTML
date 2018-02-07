@@ -66,8 +66,12 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject64 = _taggedTemplateLiteral(['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>'], ['<div><self-closing test=', ' /><input /><self-closing test="2" /></div>']),
     _templateObject65 = _taggedTemplateLiteral(['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>'], ['<div>\n    <self-closing\n      test=1\n    /><input\n    /><self-closing test="2"\n     />\n     </div>']),
     _templateObject66 = _taggedTemplateLiteral(['\n  <div style="width: 200px;">\n    <svg viewBox="0 0 30 30" fill="currentColor">\n      <path d="M 0,27 L 27,0 L 30,3 L 3,30 Z" />\n      <path d="M 0,3 L 3,0 L 30,27 L 27,30 Z" />\n    </svg>\n  </div>\n  '], ['\n  <div style="width: 200px;">\n    <svg viewBox="0 0 30 30" fill="currentColor">\n      <path d="M 0,27 L 27,0 L 30,3 L 3,30 Z" />\n      <path d="M 0,3 L 3,0 L 30,27 L 27,30 Z" />\n    </svg>\n  </div>\n  ']),
-    _templateObject67 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject68 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject67 = _taggedTemplateLiteral(['\n    <form onsubmit=', '>\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit=', '>\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>']),
+    _templateObject68 = _taggedTemplateLiteral(['\n    <form onsubmit=', '>\n      <label />\n      <input type="email" placeholder="email"/>\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit=', '>\n      <label />\n      <input type="email" placeholder="email"/>\n      <button>Button</button>\n    </form>']),
+    _templateObject69 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>']),
+    _templateObject70 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>']),
+    _templateObject71 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject72 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1055,6 +1059,15 @@ tressa.async(function (done) {
   div = hyperHTML.wire()(_templateObject66);
   tressa.assert(div.children.length === 1, 'one svg');
   tressa.assert(div.children[0].children.length === 2, 'two paths');
+}).then(function () {
+  tressa.log('## <with><self-closing /></with>');
+  function check(form) {
+    return form.children.length === 3 && /label/i.test(form.children[0].nodeName) && /input/i.test(form.children[1].nodeName) && /button/i.test(form.children[2].nodeName);
+  }
+  tressa.assert(check(hyperHTML.wire()(_templateObject67, check)), 'no quotes is OK');
+  tressa.assert(check(hyperHTML.wire()(_templateObject68, check)), 'self closing is OK');
+  tressa.assert(check(hyperHTML.wire()(_templateObject69, check)), 'quotes are OK');
+  tressa.assert(check(hyperHTML.wire()(_templateObject70, check)), 'quotes and self-closing too OK');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
@@ -1064,14 +1077,14 @@ tressa.async(function (done) {
   tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
-    hyperHTML.bind(output)(_templateObject67, '0 0 50 50');
+    hyperHTML.bind(output)(_templateObject71, '0 0 50 50');
     tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
 }).then(function () {
   tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject68);
+  var output = hyperHTML.wire()(_templateObject72);
   tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */

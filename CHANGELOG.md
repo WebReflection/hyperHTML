@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.10
+  * more rigid / explicit RegExp to avoid glitches with self-closing tags
+
 ### v2.5.8
   * improved `VOID_ELEMENTS` regular expression (aligned with the _viperHTML_ one)
 

@@ -987,6 +987,51 @@ tressa.async(function (done) {
   tressa.assert(div.children.length === 1, 'one svg');
   tressa.assert(div.children[0].children.length === 2, 'two paths');
 })
+.then(function () {
+  tressa.log('## <with><self-closing /></with>');
+  function check(form) {
+    return form.children.length === 3 &&
+            /label/i.test(form.children[0].nodeName) &&
+            /input/i.test(form.children[1].nodeName) &&
+            /button/i.test(form.children[2].nodeName)
+  }
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit=${check}>
+      <label/>
+      <input type="email" placeholder="email">
+      <button>Button</button>
+    </form>`),
+    'no quotes is OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit=${check}>
+      <label />
+      <input type="email" placeholder="email"/>
+      <button>Button</button>
+    </form>`),
+    'self closing is OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit="${check}">
+      <label/>
+      <input type="email" placeholder="email">
+      <button>Button</button>
+    </form>`),
+    'quotes are OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit="${check}">
+      <label/>
+      <input type="email" placeholder="email" />
+      <button>Button</button>
+    </form>`),
+    'quotes and self-closing too OK'
+  );
+})
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
