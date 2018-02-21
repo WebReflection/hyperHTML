@@ -477,12 +477,12 @@ function observe() {
   const dispatchTarget = (node, event) => {
     if (components.has(node)) {
       node.dispatchEvent(event);
-    } else {
-      const children = node.children;
-      const length = children.length;
-      for (let i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
-      }
+    }
+
+    const children = node.children;
+    const length = children.length;
+    for (let i = 0; i < length; i++) {
+      dispatchTarget(children[i], event);
     }
   }
 
