@@ -760,7 +760,7 @@ tressa.async(function (done) {
   }
   class Rect extends hyperHTML.Component {
     constructor(state) {
-      super().setState(state);
+      super().setState(state, false);
     }
     render() { return this.svg`
       <rect x=${this.state.x} y=${this.state.y} />`;
@@ -1032,32 +1032,6 @@ tressa.async(function (done) {
     'quotes and self-closing too OK'
   );
 })
-// WARNING THESE TEST MUST BE AT THE VERY END
-// WARNING THESE TEST MUST BE AT THE VERY END
-// WARNING THESE TEST MUST BE AT THE VERY END
-.then(function () {
-  // WARNING THESE TEST MUST BE AT THE VERY END
-  tressa.log('## IE9 double viewBox 🌈 🌈');
-  var output = document.createElement('div');
-  try {
-    hyperHTML.bind(output)`<svg viewBox=${'0 0 50 50'}></svg>`;
-    tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
-  } catch(o_O) {
-    tressa.assert(true, 'code coverage caveat');
-  }
-})
-.then(function () {
-  tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()`<a-scene></a-scene>`;
-  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
-})
-// */
-.then(function () {
-  if (!tressa.exitCode) {
-    document.body.style.backgroundColor = '#0FA';
-  }
-  tressa.end();
-})
 .then(function () {
   return tressa.async(function (done) {
     tressa.log('## Nested Component connected/disconnected');
@@ -1129,8 +1103,82 @@ tressa.async(function (done) {
           e.initEvent('DOMNodeRemoved', false, false);
           Object.defineProperty(e, 'target', {value: p});
           document.dispatchEvent(e);
+          if (p.parentNode)
+            p.parentNode.removeChild(p);
         }, 100);
       }
     }, 100);
   });
+})
+.then(function () {
+  tressa.log('## Declarative Components');
+  class MenuSimple extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <div>A simple menu</div>
+        <ul>
+          ${props.items.map(
+            (item, i) => MenuItem.for(this, i).render(item)
+          )}
+        </ul>
+      `;
+    }
+  }
+  class MenuWeakMap extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <div>A simple menu</div>
+        <ul>
+          ${props.items.map(
+            item => MenuItem.for(this, item).render(item)
+          )}
+        </ul>
+      `;
+    }
+  }
+  class MenuItem extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <li>${props.name}</li>
+      `;
+    }
+  }
+  var a = document.createElement('div');
+  var b = document.createElement('div');
+  hyperHTML.bind(a)`${MenuSimple.for(a).render({
+    items: [{name: 'item 1'}, {name: 'item 2'}, {name: 'item 3'}]
+  })}`;
+  tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same simple menu');
+  hyperHTML.bind(b)`${MenuWeakMap.for(b).render({
+    items: [{name: 'item 1'}, {name: 'item 2'}, {name: 'item 3'}]
+  })}`;
+  tressa.assert(MenuWeakMap.for(a) === MenuWeakMap.for(a), 'same weakmap menu');
+  tressa.assert(MenuSimple.for(a) === MenuWeakMap.for(a), 'different from simple');
+  tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
+})
+// WARNING THESE TEST MUST BE AT THE VERY END
+// WARNING THESE TEST MUST BE AT THE VERY END
+// WARNING THESE TEST MUST BE AT THE VERY END
+.then(function () {
+  // WARNING THESE TEST MUST BE AT THE VERY END
+  tressa.log('## IE9 double viewBox 🌈 🌈');
+  var output = document.createElement('div');
+  try {
+    hyperHTML.bind(output)`<svg viewBox=${'0 0 50 50'}></svg>`;
+    tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
+  } catch(o_O) {
+    tressa.assert(true, 'code coverage caveat');
+  }
+})
+.then(function () {
+  tressa.log('## A-Frame compatibility');
+  var output = hyperHTML.wire()`<a-scene></a-scene>`;
+  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
+})
+// */
+.then(function () {
+  if (!tressa.exitCode) {
+    document.body.style.backgroundColor = '#0FA';
+  }
+  tressa.end();
 });
