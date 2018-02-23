@@ -971,7 +971,8 @@ var setAttribute = function setAttribute(node, name, original) {
 // different from text there but it's worth checking
 // for possible defined intents.
 var setTextContent = function setTextContent(node) {
-  var oldValue = void 0;
+  // avoid hyper comments inside textarea/style when value is undefined
+  var oldValue = '';
   var textContent = function textContent(value) {
     if (oldValue !== value) {
       oldValue = value;

@@ -415,7 +415,8 @@ const setAttribute = (node, name, original) => {
 // different from text there but it's worth checking
 // for possible defined intents.
 const setTextContent = node => {
-  let oldValue;
+  // avoid hyper comments inside textarea/style when value is undefined
+  let oldValue = '';
   const textContent = value => {
     if (oldValue !== value) {
       oldValue = value;
