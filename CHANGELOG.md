@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.12
+  * fixed #200: textarea/style with initial undefined value
+
 ### v2.5.11
   * fixed #198: connected/disconnected events for nested components
 
