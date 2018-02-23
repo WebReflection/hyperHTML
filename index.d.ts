@@ -1,6 +1,6 @@
 type TemplateFunction<T> = (template: TemplateStringsArray, ...values: any[]) => T;
-type BoundTemplateFunction<T extends Element> = TemplateFunction<T>;
-type WiredTemplateFunction = TemplateFunction<any>;
+export type BoundTemplateFunction<T extends Element> = TemplateFunction<T>;
+export type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
   handleEvent(e: Event): void;
