@@ -1,4 +1,5 @@
 type TemplateFunction<T> = (template: TemplateStringsArray, ...values: any[]) => T;
+type BoundTemplateFunction<T extends Element> = TemplateFunction<T>;
 type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
@@ -10,7 +11,7 @@ export declare class Component<T = {}> {
   setState(state: Partial<T> | ((this: this, state: T) => Partial<T>)): void;
 }
 
-export declare function bind<T extends Element>(element: T): TemplateFunction<T>;
+export declare function bind<T extends Element>(element: T): BoundTemplateFunction<T>;
 
 export declare function define(intent: string, callback: Function): void;
 
@@ -30,7 +31,7 @@ export declare const hyper: {
   (type: string): WiredTemplateFunction;
   
   // hyper(element)`HTML`
-  <T extends Element>(element: T): TemplateFunction<T>;
+  <T extends Element>(element: T): BoundTemplateFunction<T>;
 
   // hyper`HTML`
   (template: TemplateStringsArray, ...values: any[]): any;
