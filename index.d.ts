@@ -1,10 +1,10 @@
 type TemplateFunction<T> = (template: TemplateStringsArray, ...values: any[]) => T;
-type HyperTemplateFunction = TemplateFunction<any>;
+type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
   handleEvent(e: Event): void;
-  html: HyperTemplateFunction;
-  svg: HyperTemplateFunction;
+  html: WiredTemplateFunction;
+  svg: WiredTemplateFunction;
   state: T;
   readonly defaultState: T;
   setState(state: Partial<T> | ((this: this, state: T) => Partial<T>)): void;
@@ -14,7 +14,7 @@ export declare function bind<T extends Element>(element: T): TemplateFunction<T>
 
 export declare function define(intent: string, callback: Function): void;
 
-export declare function wire(obj?: object | null, type?: string): HyperTemplateFunction;
+export declare function wire(obj?: object | null, type?: string): WiredTemplateFunction;
 
 export declare const hyper: {
   Component: typeof Component;
@@ -24,10 +24,10 @@ export declare const hyper: {
   wire: typeof wire;
 
   // hyper(null, 'html')`HTML`
-  (obj: null | undefined, type?: string): HyperTemplateFunction;
+  (obj: null | undefined, type?: string): WiredTemplateFunction;
 
   // hyper('html')`HTML`
-  (type: string): HyperTemplateFunction;
+  (type: string): WiredTemplateFunction;
   
   // hyper(element)`HTML`
   <T extends Element>(element: T): TemplateFunction<T>;
@@ -37,10 +37,10 @@ export declare const hyper: {
 
   // hyper(obj, 'html:id')`HTML`
   // hyper(obj)`HTML`
-  (obj: object, type_id?: string): HyperTemplateFunction;
+  (obj: object, type_id?: string): WiredTemplateFunction;
 
   // hyper()`HTML`
-  (): HyperTemplateFunction;
+  (): WiredTemplateFunction;
 };
 
 export default hyper;
