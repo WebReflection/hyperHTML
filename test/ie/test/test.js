@@ -71,7 +71,10 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject69 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>']),
     _templateObject70 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>']),
     _templateObject71 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject72 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject72 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']),
+    _templateObject73 = _taggedTemplateLiteral(['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>'], ['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>']),
+    _templateObject74 = _taggedTemplateLiteral(['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        '], ['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        ']),
+    _templateObject75 = _taggedTemplateLiteral(['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        '], ['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        ']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1093,4 +1096,123 @@ tressa.async(function (done) {
     document.body.style.backgroundColor = '#0FA';
   }
   tressa.end();
+}).then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Nested Component connected/disconnected');
+
+    var GrandChild = function (_hyperHTML$Component9) {
+      _inherits(GrandChild, _hyperHTML$Component9);
+
+      function GrandChild() {
+        _classCallCheck(this, GrandChild);
+
+        return _possibleConstructorReturn(this, (GrandChild.__proto__ || Object.getPrototypeOf(GrandChild)).apply(this, arguments));
+      }
+
+      _createClass(GrandChild, [{
+        key: 'onconnected',
+        value: function onconnected(e) {
+          tressa.assert(e.type === 'connected', 'grand child component connected');
+        }
+      }, {
+        key: 'ondisconnected',
+        value: function ondisconnected(e) {
+          tressa.assert(e.type === 'disconnected', 'grand child component disconnected');
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          return this.html(_templateObject73, this, this);
+        }
+      }]);
+
+      return GrandChild;
+    }(hyperHTML.Component);
+
+    var Child = function (_hyperHTML$Component10) {
+      _inherits(Child, _hyperHTML$Component10);
+
+      function Child() {
+        _classCallCheck(this, Child);
+
+        return _possibleConstructorReturn(this, (Child.__proto__ || Object.getPrototypeOf(Child)).apply(this, arguments));
+      }
+
+      _createClass(Child, [{
+        key: 'onconnected',
+        value: function onconnected(e) {
+          tressa.assert(e.type === 'connected', 'child component connected');
+        }
+      }, {
+        key: 'ondisconnected',
+        value: function ondisconnected(e) {
+          tressa.assert(e.type === 'disconnected', 'child component disconnected');
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          return this.html(_templateObject74, this, this, new GrandChild());
+        }
+      }]);
+
+      return Child;
+    }(hyperHTML.Component);
+
+    var connectedTimes = 0,
+        disconnectedTimes = 0;
+
+    var Parent = function (_hyperHTML$Component11) {
+      _inherits(Parent, _hyperHTML$Component11);
+
+      function Parent() {
+        _classCallCheck(this, Parent);
+
+        return _possibleConstructorReturn(this, (Parent.__proto__ || Object.getPrototypeOf(Parent)).apply(this, arguments));
+      }
+
+      _createClass(Parent, [{
+        key: 'onconnected',
+        value: function onconnected(e) {
+          connectedTimes++;
+          tressa.assert(e.type === 'connected', 'parent component connected');
+          tressa.assert(connectedTimes === 1, 'connected callback should only be triggered once');
+        }
+      }, {
+        key: 'ondisconnected',
+        value: function ondisconnected(e) {
+          disconnectedTimes++;
+          tressa.assert(e.type === 'disconnected', 'parent component disconnected');
+          tressa.assert(disconnectedTimes === 1, 'disconnected callback should only be triggered once');
+
+          done();
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          return this.html(_templateObject75, this, this, new Child());
+        }
+      }]);
+
+      return Parent;
+    }(hyperHTML.Component);
+
+    var p = new Parent().render();
+    document.body.appendChild(p);
+
+    setTimeout(function () {
+      if (p.parentNode) {
+        var e = document.createEvent('Event');
+        e.initEvent('DOMNodeInserted', false, false);
+        Object.defineProperty(e, 'target', { value: document.body });
+        document.dispatchEvent(e);
+
+        setTimeout(function () {
+          e = document.createEvent('Event');
+          e.initEvent('DOMNodeRemoved', false, false);
+          Object.defineProperty(e, 'target', { value: p });
+          document.dispatchEvent(e);
+        }, 100);
+      }
+    }, 100);
+  });
 });

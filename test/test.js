@@ -1057,4 +1057,80 @@ tressa.async(function (done) {
     document.body.style.backgroundColor = '#0FA';
   }
   tressa.end();
+})
+.then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Nested Component connected/disconnected');
+
+    class GrandChild extends hyperHTML.Component {
+      onconnected(e) {
+        tressa.assert(e.type === 'connected', 'grand child component connected');
+      }
+      ondisconnected(e) {
+        tressa.assert(e.type === 'disconnected', 'grand child component disconnected');
+      }
+      render() {
+        return this.html`
+        <p class="grandchild" onconnected=${this} ondisconnected=${this}>I'm grand child</p>`;
+      }
+    }
+
+    class Child extends hyperHTML.Component {
+      onconnected(e) {
+        tressa.assert(e.type === 'connected', 'child component connected');
+      }
+      ondisconnected(e) {
+        tressa.assert(e.type === 'disconnected', 'child component disconnected');
+      }
+      render() {
+        return this.html`
+          <div class="child" onconnected=${this} ondisconnected=${this}>I'm child
+            ${new GrandChild()}
+          </div>
+        `;
+      }
+    }
+
+    let connectedTimes = 0, disconnectedTimes = 0;
+    class Parent extends hyperHTML.Component {
+      onconnected(e) {
+        connectedTimes ++;
+        tressa.assert(e.type === 'connected', 'parent component connected');
+        tressa.assert(connectedTimes === 1, 'connected callback should only be triggered once');
+      }
+      ondisconnected(e) {
+        disconnectedTimes ++;
+        tressa.assert(e.type === 'disconnected', 'parent component disconnected');
+        tressa.assert(disconnectedTimes === 1, 'disconnected callback should only be triggered once');
+
+        done();
+      }
+      render() {
+        return this.html`
+          <div class="parent" onconnected=${this} ondisconnected=${this}>I'm parent
+            ${new Child()}
+          </div>
+        `;
+      }
+    }
+
+    var p = new Parent().render();
+    document.body.appendChild(p);
+
+    setTimeout(function () {
+      if (p.parentNode) {
+        var e = document.createEvent('Event');
+        e.initEvent('DOMNodeInserted', false, false);
+        Object.defineProperty(e, 'target', {value: document.body});
+        document.dispatchEvent(e);
+
+        setTimeout(function () {
+          e = document.createEvent('Event');
+          e.initEvent('DOMNodeRemoved', false, false);
+          Object.defineProperty(e, 'target', {value: p});
+          document.dispatchEvent(e);
+        }, 100);
+      }
+    }, 100);
+  });
 });

@@ -95,7 +95,6 @@ var G = document.defaultView;
 // 'cause some engine has no global Node defined
 // (i.e. Node, NativeScript, basicHTML ... )
 var ELEMENT_NODE = 1;
-
 var TEXT_NODE = 3;
 var COMMENT_NODE = 8;
 var DOCUMENT_FRAGMENT_NODE = 11;
@@ -133,6 +132,7 @@ try {
     return e;
   };
 }
+
 // used to store template literals
 var Map = G.Map || function Map() {
   var keys = [],
@@ -1030,12 +1030,12 @@ function observe() {
   var dispatchTarget = function dispatchTarget(node, event) {
     if (components.has(node)) {
       node.dispatchEvent(event);
-    } else {
-      var children = node.children;
-      var length = children.length;
-      for (var i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
-      }
+    }
+
+    var children = node.children;
+    var length = children.length;
+    for (var i = 0; i < length; i++) {
+      dispatchTarget(children[i], event);
     }
   };
 
