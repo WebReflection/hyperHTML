@@ -6,6 +6,7 @@
   "browser": "min.js",
   "main": "cjs/index.js",
   "module": "esm/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "add-domdiff": "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/shared/domdiff.js && cat node_modules/domdiff/esm/index.js >> esm/shared/domdiff.js",
     "build": "npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
