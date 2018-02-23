@@ -15,8 +15,8 @@ export declare function bind<T extends Element>(element: T): BoundTemplateFuncti
 
 export declare function define(intent: string, callback: Function): void;
 
-export declare function wire(obj?: object | null, type?: 'html' | 'svg'): WiredTemplateFunction;
-export declare function wire(obj?: object | null, type_id?: string): WiredTemplateFunction;
+export declare function wire(identity?: object | null, type?: 'html' | 'svg'): WiredTemplateFunction;
+export declare function wire(identity?: object | null, type_id?: string): WiredTemplateFunction;
 
 export declare const hyper: {
   Component: typeof Component;
@@ -26,7 +26,7 @@ export declare const hyper: {
   wire: typeof wire;
 
   // hyper(null, 'html')`HTML`
-  (obj: null | undefined, type?: 'html' | 'svg'): WiredTemplateFunction;
+  (identity: null | undefined, type?: 'html' | 'svg'): WiredTemplateFunction;
 
   // hyper('html')`HTML`
   (type: 'html' | 'svg'): WiredTemplateFunction;
@@ -39,8 +39,8 @@ export declare const hyper: {
 
   // hyper(obj, 'html:id')`HTML`
   // hyper(obj)`HTML`
-  (obj: object, type?: 'html' | 'svg'): WiredTemplateFunction;
-  (obj: object, type_id?: string): WiredTemplateFunction;
+  (identity: object, type?: 'html' | 'svg'): WiredTemplateFunction;
+  (identity: object, type_id?: string): WiredTemplateFunction;
 
   // hyper()`HTML`
   (): WiredTemplateFunction;
