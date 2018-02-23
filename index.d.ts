@@ -6,7 +6,7 @@ export declare class Component<T = {}> {
   html: HyperTemplateFunction;
   svg: HyperTemplateFunction;
   state: T;
-  defaultState: T;
+  readonly defaultState: T;
   setState(state: Partial<T> | ((this: this, state: T) => Partial<T>)): void;
 }
 
