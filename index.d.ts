@@ -14,21 +14,12 @@ export declare function bind<T extends Element>(element: T): TemplateFunction<T>
 
 export declare function define(intent: string, callback: Function): void;
 
-export declare function diff(
-  parentNode: Node,
-  currentNodes: Node[],
-  futureNodes: Node[],
-  getNode?: ((item: Node) => Node) | null,
-  beforeNode?: Node | null,
-): Node[];
-
 export declare function wire(obj?: object | null, type?: string): HyperTemplateFunction;
 
 export declare const hyper: {
   Component: typeof Component;
   bind: typeof bind;
   define: typeof define;
-  diff: typeof diff;
   hyper: typeof hyper;
   wire: typeof wire;
 
