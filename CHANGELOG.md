@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.5.11
+  * fixed #198: connected/disconnected events for nested components
+
 ### v2.5.10
   * more rigid / explicit RegExp to avoid glitches with self-closing tags
 
