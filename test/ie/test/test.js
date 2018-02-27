@@ -70,11 +70,13 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject68 = _taggedTemplateLiteral(['\n    <form onsubmit=', '>\n      <label />\n      <input type="email" placeholder="email"/>\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit=', '>\n      <label />\n      <input type="email" placeholder="email"/>\n      <button>Button</button>\n    </form>']),
     _templateObject69 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email">\n      <button>Button</button>\n    </form>']),
     _templateObject70 = _taggedTemplateLiteral(['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>'], ['\n    <form onsubmit="', '">\n      <label/>\n      <input type="email" placeholder="email" />\n      <button>Button</button>\n    </form>']),
-    _templateObject71 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject72 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']),
-    _templateObject73 = _taggedTemplateLiteral(['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>'], ['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>']),
-    _templateObject74 = _taggedTemplateLiteral(['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        '], ['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        ']),
-    _templateObject75 = _taggedTemplateLiteral(['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        '], ['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        ']);
+    _templateObject71 = _taggedTemplateLiteral(['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>'], ['\n        <p class="grandchild" onconnected=', ' ondisconnected=', '>I\'m grand child</p>']),
+    _templateObject72 = _taggedTemplateLiteral(['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        '], ['\n          <div class="child" onconnected=', ' ondisconnected=', '>I\'m child\n            ', '\n          </div>\n        ']),
+    _templateObject73 = _taggedTemplateLiteral(['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        '], ['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        ']),
+    _templateObject74 = _taggedTemplateLiteral(['\n        <div>A simple menu</div>\n        <ul>\n          ', '\n        </ul>\n      '], ['\n        <div>A simple menu</div>\n        <ul>\n          ', '\n        </ul>\n      ']),
+    _templateObject75 = _taggedTemplateLiteral(['\n        <li>', '</li>\n      '], ['\n        <li>', '</li>\n      ']),
+    _templateObject76 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject77 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -752,7 +754,7 @@ tressa.async(function (done) {
 
       _classCallCheck(this, Rect);
 
-      (_this2 = _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this)), _this2).setState(state);
+      (_this2 = _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this)), _this2).setState(state, false);
       return _this2;
     }
 
@@ -1071,31 +1073,6 @@ tressa.async(function (done) {
   tressa.assert(check(hyperHTML.wire()(_templateObject68, check)), 'self closing is OK');
   tressa.assert(check(hyperHTML.wire()(_templateObject69, check)), 'quotes are OK');
   tressa.assert(check(hyperHTML.wire()(_templateObject70, check)), 'quotes and self-closing too OK');
-})
-// WARNING THESE TEST MUST BE AT THE VERY END
-// WARNING THESE TEST MUST BE AT THE VERY END
-// WARNING THESE TEST MUST BE AT THE VERY END
-.then(function () {
-  // WARNING THESE TEST MUST BE AT THE VERY END
-  tressa.log('## IE9 double viewBox 🌈 🌈');
-  var output = document.createElement('div');
-  try {
-    hyperHTML.bind(output)(_templateObject71, '0 0 50 50');
-    tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
-  } catch (o_O) {
-    tressa.assert(true, 'code coverage caveat');
-  }
-}).then(function () {
-  tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject72);
-  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
-})
-// */
-.then(function () {
-  if (!tressa.exitCode) {
-    document.body.style.backgroundColor = '#0FA';
-  }
-  tressa.end();
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## Nested Component connected/disconnected');
@@ -1122,7 +1099,7 @@ tressa.async(function (done) {
       }, {
         key: 'render',
         value: function render() {
-          return this.html(_templateObject73, this, this);
+          return this.html(_templateObject71, this, this);
         }
       }]);
 
@@ -1151,7 +1128,7 @@ tressa.async(function (done) {
       }, {
         key: 'render',
         value: function render() {
-          return this.html(_templateObject74, this, this, new GrandChild());
+          return this.html(_templateObject72, this, this, new GrandChild());
         }
       }]);
 
@@ -1189,7 +1166,7 @@ tressa.async(function (done) {
       }, {
         key: 'render',
         value: function render() {
-          return this.html(_templateObject75, this, this, new Child());
+          return this.html(_templateObject73, this, this, new Child());
         }
       }]);
 
@@ -1211,8 +1188,114 @@ tressa.async(function (done) {
           e.initEvent('DOMNodeRemoved', false, false);
           Object.defineProperty(e, 'target', { value: p });
           document.dispatchEvent(e);
+          if (p.parentNode) p.parentNode.removeChild(p);
         }, 100);
       }
     }, 100);
   });
+}).then(function () {
+  tressa.log('## Declarative Components');
+
+  var MenuSimple = function (_hyperHTML$Component12) {
+    _inherits(MenuSimple, _hyperHTML$Component12);
+
+    function MenuSimple() {
+      _classCallCheck(this, MenuSimple);
+
+      return _possibleConstructorReturn(this, (MenuSimple.__proto__ || Object.getPrototypeOf(MenuSimple)).apply(this, arguments));
+    }
+
+    _createClass(MenuSimple, [{
+      key: 'render',
+      value: function render(props) {
+        var _this13 = this;
+
+        return this.setState(props, false).html(_templateObject74, props.items.map(function (item, i) {
+          return MenuItem.for(_this13, i).render(item);
+        }));
+      }
+    }]);
+
+    return MenuSimple;
+  }(hyperHTML.Component);
+
+  var MenuWeakMap = function (_hyperHTML$Component13) {
+    _inherits(MenuWeakMap, _hyperHTML$Component13);
+
+    function MenuWeakMap() {
+      _classCallCheck(this, MenuWeakMap);
+
+      return _possibleConstructorReturn(this, (MenuWeakMap.__proto__ || Object.getPrototypeOf(MenuWeakMap)).apply(this, arguments));
+    }
+
+    _createClass(MenuWeakMap, [{
+      key: 'render',
+      value: function render(props) {
+        var _this15 = this;
+
+        return this.setState(props, false).html(_templateObject74, props.items.map(function (item) {
+          return MenuItem.for(_this15, item).render(item);
+        }));
+      }
+    }]);
+
+    return MenuWeakMap;
+  }(hyperHTML.Component);
+
+  var MenuItem = function (_hyperHTML$Component14) {
+    _inherits(MenuItem, _hyperHTML$Component14);
+
+    function MenuItem() {
+      _classCallCheck(this, MenuItem);
+
+      return _possibleConstructorReturn(this, (MenuItem.__proto__ || Object.getPrototypeOf(MenuItem)).apply(this, arguments));
+    }
+
+    _createClass(MenuItem, [{
+      key: 'render',
+      value: function render(props) {
+        return this.setState(props, false).html(_templateObject75, props.name);
+      }
+    }]);
+
+    return MenuItem;
+  }(hyperHTML.Component);
+
+  var a = document.createElement('div');
+  var b = document.createElement('div');
+  hyperHTML.bind(a)(_templateObject10, MenuSimple.for(a).render({
+    items: [{ name: 'item 1' }, { name: 'item 2' }, { name: 'item 3' }]
+  }));
+  tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same simple menu');
+  hyperHTML.bind(b)(_templateObject10, MenuWeakMap.for(b).render({
+    items: [{ name: 'item 1' }, { name: 'item 2' }, { name: 'item 3' }]
+  }));
+  tressa.assert(MenuWeakMap.for(a) === MenuWeakMap.for(a), 'same weakmap menu');
+  tressa.assert(MenuSimple.for(a) === MenuWeakMap.for(a), 'different from simple');
+  tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
+})
+// WARNING THESE TEST MUST BE AT THE VERY END
+// WARNING THESE TEST MUST BE AT THE VERY END
+// WARNING THESE TEST MUST BE AT THE VERY END
+.then(function () {
+  // WARNING THESE TEST MUST BE AT THE VERY END
+  tressa.log('## IE9 double viewBox 🌈 🌈');
+  var output = document.createElement('div');
+  try {
+    hyperHTML.bind(output)(_templateObject76, '0 0 50 50');
+    tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
+  } catch (o_O) {
+    tressa.assert(true, 'code coverage caveat');
+  }
+}).then(function () {
+  tressa.log('## A-Frame compatibility');
+  var output = hyperHTML.wire()(_templateObject77);
+  tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
+})
+// */
+.then(function () {
+  if (!tressa.exitCode) {
+    document.body.style.backgroundColor = '#0FA';
+  }
+  tressa.end();
 });
