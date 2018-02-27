@@ -760,7 +760,7 @@ tressa.async(function (done) {
   }
   class Rect extends hyperHTML.Component {
     constructor(state) {
-      super().setState(state);
+      super().setState(state, false);
     }
     render() { return this.svg`
       <rect x=${this.state.x} y=${this.state.y} />`;
@@ -1033,7 +1033,175 @@ tressa.async(function (done) {
     'text content is fine'
   );
   // */
+})
+.then(function () {
+  tressa.log('## <with><self-closing /></with>');
+  function check(form) {
+    return form.children.length === 3 &&
+            /label/i.test(form.children[0].nodeName) &&
+            /input/i.test(form.children[1].nodeName) &&
+            /button/i.test(form.children[2].nodeName)
+  }
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit=${check}>
+      <label/>
+      <input type="email" placeholder="email">
+      <button>Button</button>
+    </form>`),
+    'no quotes is OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit=${check}>
+      <label />
+      <input type="email" placeholder="email"/>
+      <button>Button</button>
+    </form>`),
+    'self closing is OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit="${check}">
+      <label/>
+      <input type="email" placeholder="email">
+      <button>Button</button>
+    </form>`),
+    'quotes are OK'
+  );
+  tressa.assert(
+    check(hyperHTML.wire()`
+    <form onsubmit="${check}">
+      <label/>
+      <input type="email" placeholder="email" />
+      <button>Button</button>
+    </form>`),
+    'quotes and self-closing too OK'
+  );
+})
+.then(function () {
+  return tressa.async(function (done) {
+    tressa.log('## Nested Component connected/disconnected');
 
+    class GrandChild extends hyperHTML.Component {
+      onconnected(e) {
+        tressa.assert(e.type === 'connected', 'grand child component connected');
+      }
+      ondisconnected(e) {
+        tressa.assert(e.type === 'disconnected', 'grand child component disconnected');
+      }
+      render() {
+        return this.html`
+        <p class="grandchild" onconnected=${this} ondisconnected=${this}>I'm grand child</p>`;
+      }
+    }
+
+    class Child extends hyperHTML.Component {
+      onconnected(e) {
+        tressa.assert(e.type === 'connected', 'child component connected');
+      }
+      ondisconnected(e) {
+        tressa.assert(e.type === 'disconnected', 'child component disconnected');
+      }
+      render() {
+        return this.html`
+          <div class="child" onconnected=${this} ondisconnected=${this}>I'm child
+            ${new GrandChild()}
+          </div>
+        `;
+      }
+    }
+
+    let connectedTimes = 0, disconnectedTimes = 0;
+    class Parent extends hyperHTML.Component {
+      onconnected(e) {
+        connectedTimes ++;
+        tressa.assert(e.type === 'connected', 'parent component connected');
+        tressa.assert(connectedTimes === 1, 'connected callback should only be triggered once');
+      }
+      ondisconnected(e) {
+        disconnectedTimes ++;
+        tressa.assert(e.type === 'disconnected', 'parent component disconnected');
+        tressa.assert(disconnectedTimes === 1, 'disconnected callback should only be triggered once');
+
+        done();
+      }
+      render() {
+        return this.html`
+          <div class="parent" onconnected=${this} ondisconnected=${this}>I'm parent
+            ${new Child()}
+          </div>
+        `;
+      }
+    }
+
+    var p = new Parent().render();
+    document.body.appendChild(p);
+
+    setTimeout(function () {
+      if (p.parentNode) {
+        var e = document.createEvent('Event');
+        e.initEvent('DOMNodeInserted', false, false);
+        Object.defineProperty(e, 'target', {value: document.body});
+        document.dispatchEvent(e);
+
+        setTimeout(function () {
+          e = document.createEvent('Event');
+          e.initEvent('DOMNodeRemoved', false, false);
+          Object.defineProperty(e, 'target', {value: p});
+          document.dispatchEvent(e);
+          if (p.parentNode)
+            p.parentNode.removeChild(p);
+        }, 100);
+      }
+    }, 100);
+  });
+})
+.then(function () {
+  tressa.log('## Declarative Components');
+  class MenuSimple extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <div>A simple menu</div>
+        <ul>
+          ${props.items.map(
+            (item, i) => MenuItem.for(this, i).render(item)
+          )}
+        </ul>
+      `;
+    }
+  }
+  class MenuWeakMap extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <div>A simple menu</div>
+        <ul>
+          ${props.items.map(
+            item => MenuItem.for(this, item).render(item)
+          )}
+        </ul>
+      `;
+    }
+  }
+  class MenuItem extends hyperHTML.Component {
+    render(props) {
+      return this.setState(props, false).html`
+        <li>${props.name}</li>
+      `;
+    }
+  }
+  var a = document.createElement('div');
+  var b = document.createElement('div');
+  hyperHTML.bind(a)`${MenuSimple.for(a).render({
+    items: [{name: 'item 1'}, {name: 'item 2'}, {name: 'item 3'}]
+  })}`;
+  tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same simple menu');
+  hyperHTML.bind(b)`${MenuWeakMap.for(b).render({
+    items: [{name: 'item 1'}, {name: 'item 2'}, {name: 'item 3'}]
+  })}`;
+  tressa.assert(MenuWeakMap.for(a) === MenuWeakMap.for(a), 'same weakmap menu');
+  tressa.assert(MenuSimple.for(a) === MenuWeakMap.for(a), 'different from simple');
+  tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END

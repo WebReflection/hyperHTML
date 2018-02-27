@@ -87,6 +87,12 @@ You can verify directly through the following links:
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/) for browsers natively compatible with string literals
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/ie/) for IE9+ and browsers that need transpiled code
 
+## HTML Syntax Highlight
+
+If you are using Visual Studio Code you can install `literally-html` to highlight all literals handled by `hyperHTML` and others.
+
+![literally-html example](https://viperhtml.js.org/hyperhtml/documentation/img/literally-html.png)
+
 ## Questions ?
 
 Please ask anything you'd like to know in [StackOverflow](https://stackoverflow.com) using the tag [`hyperhtml`](https://stackoverflow.com/questions/tagged/hyperhtml) so that others can benefit from answers and examples.

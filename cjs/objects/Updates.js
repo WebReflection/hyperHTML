@@ -474,7 +474,8 @@ const setAttribute = (node, name, original, adopt) => {
 // different from text there but it's worth checking
 // for possible defined intents.
 const setTextContent = node => {
-  let oldValue;
+  // avoid hyper comments inside textarea/style when value is undefined
+  let oldValue = '';
   const textContent = value => {
     if (oldValue !== value) {
       oldValue = value;
@@ -533,12 +534,12 @@ function observe() {
   const dispatchTarget = (node, event) => {
     if (components.has(node)) {
       node.dispatchEvent(event);
-    } else {
-      const children = node.children;
-      const length = children.length;
-      for (let i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
-      }
+    }
+
+    const children = node.children;
+    const length = children.length;
+    for (let i = 0; i < length; i++) {
+      dispatchTarget(children[i], event);
     }
   }
 

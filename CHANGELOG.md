@@ -1,5 +1,18 @@
 # hyper(html) Changelog
 
+### v2.6.0
+  * declarative hyper.Component via `Component.for(context, uid?)` - #202
+  * hyperHTML TypeScript information - #201
+
+### v2.5.12
+  * fixed #200: textarea/style with initial undefined value
+
+### v2.5.11
+  * fixed #198: connected/disconnected events for nested components
+
+### v2.5.10
+  * more rigid / explicit RegExp to avoid glitches with self-closing tags
+
 ### v2.5.8
   * improved `VOID_ELEMENTS` regular expression (aligned with the _viperHTML_ one)
 

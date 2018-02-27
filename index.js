@@ -1,101 +1,12 @@
 var hyperHTML = (function (global) {
 'use strict';
 
-// hyperHTML.Component is a very basic class
-// able to create Custom Elements like components
-// including the ability to listen to connect/disconnect
-// events via onconnect/ondisconnect attributes
-function Component() {}
-
-// components will lazily define html or svg properties
-// as soon as these are invoked within the .render() method
-// Such render() method is not provided by the base class
-// but it must be available through the Component extend.
-function setup(content) {
-  Object.defineProperties(Component.prototype, {
-    handleEvent: {
-      value: function value(e) {
-        var ct = e.currentTarget;
-        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
-      }
-    },
-    html: lazyGetter('html', content),
-    svg: lazyGetter('svg', content),
-    state: lazyGetter('state', function () {
-      return this.defaultState;
-    }),
-    defaultState: {
-      get: function get() {
-        return {};
-      }
-    },
-    setState: {
-      value: function value(state) {
-        var target = this.state;
-        var source = typeof state === 'function' ? state.call(this, target) : state;
-        for (var key in source) {
-          target[key] = source[key];
-        }this.render();
-      }
-    }
-  });
-}
-
-// instead of a secret key I could've used a WeakMap
-// However, attaching a property directly will result
-// into better performance with thousands of components
-// hanging around, and less memory pressure caused by the WeakMap
-var lazyGetter = function lazyGetter(type, fn) {
-  var secret = '_' + type + '$';
-  return {
-    get: function get() {
-      return this[secret] || (this[type] = fn.call(this, type));
-    },
-    set: function set(value) {
-      Object.defineProperty(this, secret, { configurable: true, value: value });
-    }
-  };
-};
-
-var intents = {};
-var keys = [];
-var hasOwnProperty = intents.hasOwnProperty;
-
-var length = 0;
-
-var Intent = {
-
-  // hyperHTML.define('intent', (object, update) => {...})
-  // can be used to define a third parts update mechanism
-  // when every other known mechanism failed.
-  // hyper.define('user', info => info.name);
-  // hyper(node)`<p>${{user}}</p>`;
-  define: function define(intent, callback) {
-    if (!(intent in intents)) {
-      length = keys.push(intent);
-    }
-    intents[intent] = callback;
-  },
-
-  // this method is used internally as last resort
-  // to retrieve a value out of an object
-  invoke: function invoke(object, callback) {
-    for (var i = 0; i < length; i++) {
-      var key = keys[i];
-      if (hasOwnProperty.call(object, key)) {
-        return intents[key](object[key], callback);
-      }
-    }
-  }
-};
-
 var G = document.defaultView;
 
 // Node.CONSTANTS
 // 'cause some engine has no global Node defined
 // (i.e. Node, NativeScript, basicHTML ... )
 var ELEMENT_NODE = 1;
-
 var TEXT_NODE = 3;
 var COMMENT_NODE = 8;
 var DOCUMENT_FRAGMENT_NODE = 11;
@@ -133,6 +44,7 @@ try {
     return e;
   };
 }
+
 // used to store template literals
 var Map = G.Map || function Map() {
   var keys = [],
@@ -186,6 +98,132 @@ var trim = UID.trim || function () {
   return this.replace(/^\s+|\s+$/g, '');
 };
 
+// hyperHTML.Component is a very basic class
+// able to create Custom Elements like components
+// including the ability to listen to connect/disconnect
+// events via onconnect/ondisconnect attributes
+// Components can be created imperatively or declaratively.
+// The main difference is that declared components
+// will not automatically render on setState(...)
+// to simplify state handling on render.
+function Component() {}
+
+// components will lazily define html or svg properties
+// as soon as these are invoked within the .render() method
+// Such render() method is not provided by the base class
+// but it must be available through the Component extend.
+// Declared components could implement a
+// render(props) method too and use props as needed.
+function setup(content) {
+  var children = new WeakMap();
+  var create = Object.create;
+  var createEntry = function createEntry(wm, id, component) {
+    wm.set(id, component);
+    return component;
+  };
+  var get = function get(Class, info, id) {
+    switch (typeof id) {
+      case 'object':
+      case 'function':
+        var wm = info.w || (info.w = new WeakMap());
+        return wm.get(id) || createEntry(wm, id, new Class());
+      default:
+        var sm = info.p || (info.p = create(null));
+        return sm[id] || (sm[id] = new Class());
+    }
+  };
+  var set = function set(context) {
+    var info = { w: null, p: null };
+    children.set(context, info);
+    return info;
+  };
+  Object.defineProperties(Component, {
+    for: {
+      configurable: true,
+      value: function value(context, id) {
+        var info = children.get(context) || set(context);
+        return get(this, info, id == null ? 'default' : id);
+      }
+    }
+  });
+  Object.defineProperties(Component.prototype, {
+    handleEvent: {
+      value: function value(e) {
+        var ct = e.currentTarget;
+        this['getAttribute' in ct && ct.getAttribute('data-call') || 'on' + e.type](e);
+      }
+    },
+    html: lazyGetter('html', content),
+    svg: lazyGetter('svg', content),
+    state: lazyGetter('state', function () {
+      return this.defaultState;
+    }),
+    defaultState: {
+      get: function get() {
+        return {};
+      }
+    },
+    setState: {
+      value: function value(state, render) {
+        var target = this.state;
+        var source = typeof state === 'function' ? state.call(this, target) : state;
+        for (var key in source) {
+          target[key] = source[key];
+        }if (render !== false) this.render();
+        return this;
+      }
+    }
+  });
+}
+
+// instead of a secret key I could've used a WeakMap
+// However, attaching a property directly will result
+// into better performance with thousands of components
+// hanging around, and less memory pressure caused by the WeakMap
+var lazyGetter = function lazyGetter(type, fn) {
+  var secret = '_' + type + '$';
+  return {
+    get: function get() {
+      return this[secret] || (this[type] = fn.call(this, type));
+    },
+    set: function set(value) {
+      Object.defineProperty(this, secret, { configurable: true, value: value });
+    }
+  };
+};
+
+var intents = {};
+var keys = [];
+var hasOwnProperty = intents.hasOwnProperty;
+
+var length = 0;
+
+var Intent = {
+
+  // hyperHTML.define('intent', (object, update) => {...})
+  // can be used to define a third parts update mechanism
+  // when every other known mechanism failed.
+  // hyper.define('user', info => info.name);
+  // hyper(node)`<p>${{user}}</p>`;
+  define: function define(intent, callback) {
+    if (!(intent in intents)) {
+      length = keys.push(intent);
+    }
+    intents[intent] = callback;
+  },
+
+  // this method is used internally as last resort
+  // to retrieve a value out of an object
+  invoke: function invoke(object, callback) {
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (hasOwnProperty.call(object, key)) {
+        return intents[key](object[key], callback);
+      }
+    }
+  }
+};
+
 // these are tiny helpers to simplify most common operations needed here
 var create = function create(node, type) {
   return doc(node).createElement(type);
@@ -203,14 +241,15 @@ var text = function text(node, _text) {
 // TODO:  I'd love to code-cover RegExp too here
 //        these are fundamental for this library
 
-var almostEverything = '[^ \\f\\n\\r\\t\\/>"\'=]+';
-var attrName = '[^\\S]+' + almostEverything;
-var tagName = '<([a-z]+[a-z0-9:_-]*)((?:';
-var attrPartials = '(?:=(?:\'.*?\'|".*?"|<.+?>|' + almostEverything + '))?)';
+var spaces = ' \\f\\n\\r\\t';
+var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
+var attrName = '[ ' + spaces + ']+' + almostEverything;
+var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
+var attrPartials = '(?:=(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
 
-var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([^\\S]*/?>)', 'gi');
+var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
 
-var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([^\\S]*/>)', 'gi');
+var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([ ' + spaces + ']*/>)', 'g');
 
 var testFragment = fragment(document);
 
@@ -1009,7 +1048,8 @@ var setAttribute = function setAttribute(node, name, original, adopt) {
 // different from text there but it's worth checking
 // for possible defined intents.
 var setTextContent = function setTextContent(node) {
-  var oldValue = void 0;
+  // avoid hyper comments inside textarea/style when value is undefined
+  var oldValue = '';
   var textContent = function textContent(value) {
     if (oldValue !== value) {
       oldValue = value;
@@ -1068,12 +1108,12 @@ function observe() {
   var dispatchTarget = function dispatchTarget(node, event) {
     if (components.has(node)) {
       node.dispatchEvent(event);
-    } else {
-      var children = node.children;
-      var length = children.length;
-      for (var i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
-      }
+    }
+
+    var children = node.children;
+    var length = children.length;
+    for (var i = 0; i < length; i++) {
+      dispatchTarget(children[i], event);
     }
   };
 
