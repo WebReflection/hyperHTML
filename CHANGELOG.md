@@ -1,5 +1,9 @@
 # hyper(html) Changelog
 
+### v2.6.0
+  * declarative hyper.Component via `Component.for(context, uid?)` - #202
+  * hyperHTML TypeScript information - #201
+
 ### v2.5.12
   * fixed #200: textarea/style with initial undefined value
 

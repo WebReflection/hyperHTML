@@ -3,12 +3,13 @@ export type BoundTemplateFunction<T extends Element> = TemplateFunction<T>;
 export type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
+  static for(context: object, identity?: any): Component;
   handleEvent(e: Event): void;
   html: WiredTemplateFunction;
   svg: WiredTemplateFunction;
   state: T;
   readonly defaultState: T;
-  setState(state: Partial<T> | ((this: this, state: T) => Partial<T>)): void;
+  setState(state: Partial<T> | ((this: this, state: T) => Partial<T>), render?: boolean): this;
 }
 
 export declare function bind<T extends Element>(element: T): BoundTemplateFunction<T>;
