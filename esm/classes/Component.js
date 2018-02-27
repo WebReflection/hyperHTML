@@ -1,4 +1,3 @@
-import { UID } from '../shared/constants.js';
 import { WeakMap } from '../shared/poorlyfills.js';
 
 // hyperHTML.Component is a very basic class

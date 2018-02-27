@@ -1,5 +1,4 @@
 'use strict';
-const { UID } = require('../shared/constants.js');
 const { WeakMap } = require('../shared/poorlyfills.js');
 
 // hyperHTML.Component is a very basic class
