@@ -1,5 +1,5 @@
 type TemplateFunction<T> = (template: TemplateStringsArray, ...values: any[]) => T;
-export type BoundTemplateFunction<T extends Element> = TemplateFunction<T>;
+export type BoundTemplateFunction<T extends Element | ShadowRoot> = TemplateFunction<T>;
 export type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
@@ -12,7 +12,7 @@ export declare class Component<T = {}> {
   setState(state: Partial<T> | ((this: this, state: T) => Partial<T>), render?: boolean): this;
 }
 
-export declare function bind<T extends Element>(element: T): BoundTemplateFunction<T>;
+export declare function bind<T extends Element | ShadowRoot>(element: T): BoundTemplateFunction<T>;
 
 export declare function define(intent: string, callback: Function): void;
 
