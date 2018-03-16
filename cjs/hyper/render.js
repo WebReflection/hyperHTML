@@ -8,7 +8,7 @@ const {
   unique
 } = require('../shared/utils.js');
 
-const {selfClosing} = require('../shared/re.js');
+const {selfClosing: SC_RE} = require('../shared/re.js');
 
 // a weak collection of contexts that
 // are already known to hyperHTML
@@ -39,14 +39,22 @@ function render(template) {
 // to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
+  const adopt = render.adopt;
   const info =  templates.get(template) ||
                 createTemplate.call(this, template);
-  const fragment = importNode(this.ownerDocument, info.fragment);
-  const updates = Updates.create(fragment, info.paths);
+  let fragment, updates;
+  if (adopt) {
+    updates = Updates.create(this, info.paths, adopt);
+  } else {
+    fragment = importNode(this.ownerDocument, info.fragment);
+    updates = Updates.create(fragment, info.paths, adopt);
+  }
   bewitched.set(this, {template, updates});
   update.apply(updates, arguments);
-  this.textContent = '';
-  this.appendChild(fragment);
+  if (!adopt) {
+    this.textContent = '';
+    this.appendChild(fragment);
+  }
 }
 
 // an update simply loops over all mapped DOM operations
@@ -73,7 +81,6 @@ function createTemplate(template) {
 
 // some node could be special though, like a custom element
 // with a self closing tag, which should work through these changes.
-const SC_RE = selfClosing;
 const SC_PLACE = ($0, $1, $2) => {
   return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
 };

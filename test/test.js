@@ -988,6 +988,53 @@ tressa.async(function (done) {
   tressa.assert(div.children[0].children.length === 2, 'two paths');
 })
 .then(function () {
+  tressa.log('## hyperHTML.adopt(liveNode)');
+  var div = document.createElement('div');
+  div.innerHTML = `
+  <div test="before">
+    <!--:1-->before<!--:1-->
+    <ul>
+      <!--:2--><li> lonely </li><!--:2-->
+    </ul>
+    <!--:3-->NO<!--:3-->
+    <hr>
+    <input value="test">
+  </div>`;
+  hyperHTML.adopt(div)`
+  <div test="${'after'}">
+    ${'after'}
+    <ul aint=${'there'}>
+      ${[`<li> ${'happy'} </li>`]}
+    </ul>
+    ${'yes'}
+    <hr>
+    <input value=${'test'}>
+  </div>`;
+  tressa.assert(
+    /^\s*\bafter\b/.test(div.firstElementChild.textContent),
+    'plain content is fine'
+  );
+  tressa.assert(
+    div.querySelector('li').textContent === ' happy ',
+    'list elements are fine'
+  );
+  tressa.assert(
+    /\byes\b\s*$/.test(div.firstElementChild.textContent),
+    'content in between is fine'
+  );
+
+  // TODO: textarea is not working and also nodes outside
+  //       the regular hierarchy. i.e. add <p> after the previous div
+  /*
+  div.innerHTML = `<textarea><!--:1-->nope<!--:1--></textarea>`;
+  hyperHTML.adopt(div)`<textarea>${'yep'}</textarea>`;
+  tressa.assert(
+    div.textContent === 'yep',
+    'text content is fine'
+  );
+  // */
+})
+.then(function () {
   tressa.log('## <with><self-closing /></with>');
   function check(form) {
     return form.children.length === 3 &&

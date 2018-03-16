@@ -491,7 +491,7 @@ var Path = {
     for (var i = 0; i < length; i++) {
       node = node.childNodes[path[i]];
     }
-    return node;
+    return { node: node, childNodes: [] };
   }
 };
 
@@ -696,25 +696,36 @@ var canDiff = function canDiff(value) {
 // Updates can be related to any kind of content,
 // attributes, or special text-only cases such <style>
 // elements or <textarea>
-var create$1 = function create$$1(root, paths) {
+var create$1 = function create$$1(root, paths, adopt) {
+  var level = adopt ? [] : null;
   var updates = [];
   var length = paths.length;
   for (var i = 0; i < length; i++) {
     var info = paths[i];
-    var node = Path.find(root, info.path);
+
+    var _ref = adopt ? findNode(root, info.path, level) : Path.find(root, info.path),
+        node = _ref.node,
+        childNodes = _ref.childNodes;
+
     switch (info.type) {
       case 'any':
-        updates.push(setAnyContent(node, []));
+        updates.push(setAnyContent(node, childNodes));
         break;
       case 'attr':
-        updates.push(setAttribute(node, info.name, info.node));
+        updates.push(setAttribute(node, info.name, adopt ? node.getAttributeNode(info.name) || createAttribute(node, info.node.cloneNode(true)) : info.node, adopt));
         break;
       case 'text':
-        updates.push(setTextContent(node));
+        updates.push(setTextContent(adopt ? childNodes[0] : node));
         break;
     }
   }
   return updates;
+};
+
+// set an attribute node and return it
+var createAttribute = function createAttribute(node, attr) {
+  node.setAttributeNode(attr);
+  return attr;
 };
 
 // finding all paths is a one-off operation performed
@@ -814,6 +825,29 @@ var findAttributes$1 = function findAttributes(node, paths, parts) {
     script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
   }
+};
+
+// used to adopt live nodes from virtual paths
+var findNode = function findNode(node, path, level) {
+  var childNodes = [];
+  var length = path.length;
+  for (var i = 0; i < length; i++) {
+    var index = path[i] + (level[i] || 0);
+    node = node.childNodes[index];
+    if (node.nodeType === COMMENT_NODE && /^\u0001:[0-9a-zA-Z]+$/.test(node.textContent)) {
+      var textContent = node.textContent;
+      while (node = node.nextSibling) {
+        index++;
+        if (node.nodeType === COMMENT_NODE && node.textContent === textContent) {
+          break;
+        } else {
+          childNodes.push(node);
+        }
+      }
+    }
+    level[i] = index - path[i];
+  }
+  return { node: node, childNodes: childNodes };
 };
 
 // when a Promise is used as interpolation value
@@ -931,12 +965,13 @@ var setAnyContent = function setAnyContent(node, childNodes) {
 //  * style, the only regular attribute that also accepts an object as value
 //    so that you can style=${{width: 120}}. In this case, the behavior has been
 //    fully inspired by Preact library and its simplicity.
-var setAttribute = function setAttribute(node, name, original) {
+var setAttribute = function setAttribute(node, name, original, adopt) {
   var isSVG = OWNER_SVG_ELEMENT in node;
   var oldValue = void 0;
   // if the attribute is the style one
   // handle it differently from others
   if (name === 'style') {
+    if (adopt) node.removeAttribute(name);
     return Style(node, original, isSVG);
   }
   // the name is an event one,
@@ -952,6 +987,7 @@ var setAttribute = function setAttribute(node, name, original) {
       } else if (name.toLowerCase() in node) {
         type = type.toLowerCase();
       }
+      if (adopt) node.removeAttribute(name);
       return function (newValue) {
         if (oldValue !== newValue) {
           if (oldValue) node.removeEventListener(type, oldValue, false);
@@ -965,7 +1001,10 @@ var setAttribute = function setAttribute(node, name, original) {
     // in this case assign the value directly
     else if (name === 'data' || !isSVG && name in node) {
         return function (newValue) {
-          if (oldValue !== newValue) {
+          if (adopt) {
+            adopt = false;
+            oldValue = node[name];
+          } else if (oldValue !== newValue) {
             oldValue = newValue;
             if (node[name] !== newValue) {
               node[name] = newValue;
@@ -979,8 +1018,8 @@ var setAttribute = function setAttribute(node, name, original) {
       // in every other case, use the attribute node as it is
       // update only the value, set it as node only when/if needed
       else {
-          var owner = false;
-          var attribute = original.cloneNode(true);
+          var owner = adopt;
+          var attribute = adopt ? original : original.cloneNode(true);
           return function (newValue) {
             if (oldValue !== newValue) {
               oldValue = newValue;
@@ -1129,13 +1168,22 @@ function render(template) {
 // to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
+  var adopt = render.adopt;
   var info = templates.get(template) || createTemplate.call(this, template);
-  var fragment = importNode(this.ownerDocument, info.fragment);
-  var updates = Updates.create(fragment, info.paths);
+  var fragment = void 0,
+      updates = void 0;
+  if (adopt) {
+    updates = Updates.create(this, info.paths, adopt);
+  } else {
+    fragment = importNode(this.ownerDocument, info.fragment);
+    updates = Updates.create(fragment, info.paths, adopt);
+  }
   bewitched.set(this, { template: template, updates: updates });
   update$1.apply(updates, arguments);
-  this.textContent = '';
-  this.appendChild(fragment);
+  if (!adopt) {
+    this.textContent = '';
+    this.appendChild(fragment);
+  }
 }
 
 // an update simply loops over all mapped DOM operations
@@ -1152,7 +1200,7 @@ function update$1() {
 // no matter if these are attributes, text nodes, or regular one
 function createTemplate(template) {
   var paths = [];
-  var html = template.join(UIDC).replace(SC_RE, SC_PLACE);
+  var html = template.join(UIDC).replace(selfClosing, SC_PLACE);
   var fragment = createFragment(this, html);
   Updates.find(fragment, paths, template.slice());
   var info = { fragment: fragment, paths: paths };
@@ -1162,7 +1210,6 @@ function createTemplate(template) {
 
 // some node could be special though, like a custom element
 // with a self closing tag, which should work through these changes.
-var SC_RE = selfClosing;
 var SC_PLACE = function SC_PLACE($0, $1, $2) {
   return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
 };
@@ -1259,12 +1306,22 @@ var wireContent = function wireContent(node) {
 // you can do the following
 // const {bind, wire} = hyperHTML;
 // and use them right away: bind(node)`hello!`;
+var adopt = function adopt(context) {
+  return function () {
+    render.adopt = true;
+    return render.apply(context, arguments);
+  };
+};
 var bind = function bind(context) {
-  return render.bind(context);
+  return function () {
+    render.adopt = false;
+    return render.apply(context, arguments);
+  };
 };
 var define = Intent.define;
 
 hyper.Component = Component;
+hyper.adopt = adopt;
 hyper.bind = bind;
 hyper.define = define;
 hyper.diff = domdiff;
@@ -1281,6 +1338,7 @@ setup(content);
 function hyper(HTML) {
   return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? hyper.wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? hyper.bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : hyper.wire).apply(null, arguments);
 }
+
 
 
 
