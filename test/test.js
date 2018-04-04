@@ -784,11 +784,16 @@ tressa.async(function (done) {
   ]}`;
   tressa.assert(div.querySelector('button'), 'the <button> exists');
   tressa.assert(div.querySelector('rect'), 'the <rect /> exists');
+  tressa.assert(div.querySelector('rect').getAttribute('x') == '123', 'attributes are OK');
   var p = new Paragraph(() => ({attr: 'test'}));
   render`${p}`;
   tressa.assert(div.querySelector('p').getAttribute('attr') === 'test', 'the <p attr=test> is defined');
   p.render().click();
   tressa.assert(p.clicked, 'the event worked');
+  render`${[
+    Rect.for({x: 789, y: 123})
+  ]}`;
+  tressa.assert(div.querySelector('rect').getAttribute('x') == '789', 'the for(state) worked');
 })
 .then(function () {
   return tressa.async(function (done) {
