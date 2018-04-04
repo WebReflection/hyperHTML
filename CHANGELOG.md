@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.7.0
+  * the `Component.for(obj)` is now created first time via `new Component(obj)` - #216
+
 ### v2.6.0
   * declarative hyper.Component via `Component.for(context, uid?)` - #202
   * hyperHTML TypeScript information - #201
