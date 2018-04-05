@@ -34,6 +34,20 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 
 - - -
 
+### Seamlessly Isomorphic
+No matter if you use ESM or CommonJS, you can use [hypermorphic](https://github.com/WebReflection/hypermorphic#hypermorphic-)
+to load same features on both client and server.
+
+```js
+// ESM example (assuming bundlers/ESM loaders in place)
+import {bind, wire} from 'hypermorphic';
+
+// CommonJS example
+const {bind, wire} = require('hypermorphic');
+```
+
+- - -
+
 ### V2.5 Highlights
   * `<self-closing />` tags for both custom elements and any other as well 🎉
 
