@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.7.1
+  * fixed #218 which was a variant of #200
+
 ### v2.7.0
   * the `Component.for(obj)` is now created first time via `new Component(obj)` - #216
 

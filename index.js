@@ -726,6 +726,7 @@ var hyperHTML = (function (global) {
           break;
         case 'text':
           updates.push(setTextContent(node));
+          node.textContent = '';
           break;
       }
     }
@@ -1024,8 +1025,7 @@ var hyperHTML = (function (global) {
   // different from text there but it's worth checking
   // for possible defined intents.
   var setTextContent = function setTextContent(node) {
-    // avoid hyper comments inside textarea/style when value is undefined
-    var oldValue = '';
+    var oldValue = void 0;
     var textContent = function textContent(value) {
       if (oldValue !== value) {
         oldValue = value;
