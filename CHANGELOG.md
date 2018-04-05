@@ -1,6 +1,6 @@
 # hyper(html) Changelog
 
-### v2.7.1
+### v2.7.2
   * fixed #218 which was a variant of #200
 
 ### v2.7.0
