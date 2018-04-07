@@ -10,6 +10,13 @@
 
 const identity = O => O;
 
+const remove = (parentNode, before, after) => {
+  const range = parentNode.ownerDocument.createRange();
+  range.setStartBefore(before);
+  range.setEndAfter(after);
+  range.deleteContents();
+};
+
 const domdiff = (
   parentNode,     // where changes happen
   currentNodes,   // Array of current items/nodes
@@ -73,13 +80,36 @@ const domdiff = (
         futureStartNode = futureNodes[++futureStart];
       }
       else {
-        let el = currentNodes[index];
-        currentNodes[index] = null;
-        parentNode.insertBefore(
-          get(el, 1),
-          get(currentStartNode, 0)
-        );
-        futureStartNode = futureNodes[++futureStart];
+        let i = index;
+        let f = futureStart;
+        while (
+          i <= currentEnd &&
+          f <= futureEnd &&
+          currentNodes[i] === futureNodes[f]
+        ) {
+          i++;
+          f++;
+        }
+        if (1 < (i - index)) {
+          if (--index === currentStart) {
+            parentNode.removeChild(get(currentStartNode, -1));
+          } else {
+            remove(
+              parentNode,
+              get(currentStartNode, -1),
+              get(currentNodes[index], -1)
+            );
+          }
+          currentStart = i;
+          futureStart = f;
+          currentStartNode = currentNodes[i];
+          futureStartNode = futureNodes[f];
+        } else {
+          const el = currentNodes[index];
+          currentNodes[index] = null;
+          parentNode.insertBefore(get(el, 1), get(currentStartNode, 0));
+          futureStartNode = futureNodes[++futureStart];
+        }
       }
     }
   }
@@ -104,10 +134,11 @@ const domdiff = (
         parentNode.removeChild(get(currentNodes[currentStart], -1));
       }
       else {
-        const range = parentNode.ownerDocument.createRange();
-        range.setStartBefore(get(currentNodes[currentStart], -1));
-        range.setEndAfter(get(currentNodes[currentEnd], -1));
-        range.deleteContents();
+        remove(
+          parentNode,
+          get(currentNodes[currentStart], -1),
+          get(currentNodes[currentEnd], -1)
+        );
       }
     }
   }
