@@ -154,6 +154,13 @@ tressa.async(function (done) {
   tressa.assert(true, 'OK');
 })
 .then(function () {
+  tressa.log('## the attribute id');
+  var div = document.createElement('div');
+  hyperHTML.bind(div)`<p id=${'id'} class='class'>OK</p>`;
+  tressa.assert(div.firstChild.id === 'id', 'the id is preserved');
+  tressa.assert(div.firstChild.className === 'class', 'the class is preserved');
+})
+.then(function () {
   return tressa.async(function (done) {
     tressa.log('## hyperHTML.wire()');
 
@@ -775,6 +782,7 @@ tressa.async(function (done) {
       <p attr=${this.state.attr} onclick=${this}>hello</p>`;
     }
   }
+
   var div = document.createElement('div');
   var render = hyperHTML.bind(div);
   

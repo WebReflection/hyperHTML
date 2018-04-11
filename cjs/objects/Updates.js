@@ -9,7 +9,9 @@ const Path = (m => m.__esModule ? m.default : m)(require('./Path.js'));
 const Style = (m => m.__esModule ? m.default : m)(require('./Style.js'));
 const Intent = (m => m.__esModule ? m.default : m)(require('./Intent.js'));
 const domdiff = (m => m.__esModule ? m.default : m)(require('../shared/domdiff.js'));
-const { create: createElement, text } = require('../shared/easy-dom.js');
+// see /^script$/i.test(nodeName) bit down here
+// import { create as createElement, text } from '../shared/easy-dom.js';
+const { text } = require('../shared/easy-dom.js');
 const { Event, WeakSet, isArray, trim } = require('../shared/poorlyfills.js');
 const { createFragment, slice } = require('../shared/utils.js');
 
@@ -161,7 +163,13 @@ const findAttributes = (node, paths, parts) => {
   }
   const len = remove.length;
   for (let i = 0; i < len; i++) {
-    node.removeAttributeNode(remove[i]);
+    // Edge HTML bug #16878726
+    const attribute = remove[i];
+    if (/^id$/i.test(attribute.name))
+      node.removeAttribute(attribute.name);
+    // standard browsers would work just fine here
+    else
+      node.removeAttributeNode(remove[i]);
   }
 
   // This is a very specific Firefox/Safari issue
@@ -169,10 +177,15 @@ const findAttributes = (node, paths, parts) => {
   // it's probably worth patching regardless.
   // Basically, scripts created through strings are death.
   // You need to create fresh new scripts instead.
-  // TODO: is there any other node that needs such nonsense ?
+  // TODO: is there any other node that needs such nonsense?
   const nodeName = node.nodeName;
   if (/^script$/i.test(nodeName)) {
-    const script = createElement(node, nodeName);
+    // this used to be like that
+    // const script = createElement(node, nodeName);
+    // then Edge arrived and decided that scripts created
+    // through template documents aren't worth executing
+    // so it became this ... hopefully it won't hurt in the wild
+    const script = document.createElement(nodeName);
     for (let i = 0; i < attributes.length; i++) {
       script.setAttributeNode(attributes[i].cloneNode(true));
     }

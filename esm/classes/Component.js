@@ -8,7 +8,9 @@ import { WeakMap } from '../shared/poorlyfills.js';
 // The main difference is that declared components
 // will not automatically render on setState(...)
 // to simplify state handling on render.
-export default function Component() {}
+export default function Component() {
+  return this; // this is needed in Edge !!!
+}
 
 // Component is lazily setup because it needs
 // wire mechanism as lazy content

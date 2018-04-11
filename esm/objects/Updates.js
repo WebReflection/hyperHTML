@@ -12,7 +12,9 @@ import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
 import domdiff from '../shared/domdiff.js';
-import { create as createElement, text } from '../shared/easy-dom.js';
+// see /^script$/i.test(nodeName) bit down here
+// import { create as createElement, text } from '../shared/easy-dom.js';
+import { text } from '../shared/easy-dom.js';
 import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
 import { createFragment, slice } from '../shared/utils.js';
 
@@ -164,7 +166,13 @@ const findAttributes = (node, paths, parts) => {
   }
   const len = remove.length;
   for (let i = 0; i < len; i++) {
-    node.removeAttributeNode(remove[i]);
+    // Edge HTML bug #16878726
+    const attribute = remove[i];
+    if (/^id$/i.test(attribute.name))
+      node.removeAttribute(attribute.name);
+    // standard browsers would work just fine here
+    else
+      node.removeAttributeNode(remove[i]);
   }
 
   // This is a very specific Firefox/Safari issue
@@ -172,10 +180,15 @@ const findAttributes = (node, paths, parts) => {
   // it's probably worth patching regardless.
   // Basically, scripts created through strings are death.
   // You need to create fresh new scripts instead.
-  // TODO: is there any other node that needs such nonsense ?
+  // TODO: is there any other node that needs such nonsense?
   const nodeName = node.nodeName;
   if (/^script$/i.test(nodeName)) {
-    const script = createElement(node, nodeName);
+    // this used to be like that
+    // const script = createElement(node, nodeName);
+    // then Edge arrived and decided that scripts created
+    // through template documents aren't worth executing
+    // so it became this ... hopefully it won't hurt in the wild
+    const script = document.createElement(nodeName);
     for (let i = 0; i < attributes.length; i++) {
       script.setAttributeNode(attributes[i].cloneNode(true));
     }
