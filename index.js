@@ -262,7 +262,7 @@ var hyperHTML = (function (global) {
   var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
   var attrName = '[ ' + spaces + ']+' + almostEverything;
   var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
-  var attrPartials = '(?:=(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
+  var attrPartials = '(?:[' + spaces + ']*=[' + spaces + ']*(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
 
   var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
 
