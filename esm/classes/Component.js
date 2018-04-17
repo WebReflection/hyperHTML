@@ -1,4 +1,4 @@
-import { WeakMap } from '../shared/poorlyfills.js';
+import { Map, WeakMap } from '../shared/poorlyfills.js';
 
 // hyperHTML.Component is a very basic class
 // able to create Custom Elements like components
@@ -24,18 +24,24 @@ export function setup(content) {
     return component;
   };
   const get = (Class, info, context, id) => {
+    const relation = info.get(Class) || relate(Class, info);
     switch (typeof id) {
       case 'object':
       case 'function':
-        const wm = info.w || (info.w = new WeakMap);
+        const wm = relation.w || (relation.w = new WeakMap);
         return wm.get(id) || createEntry(wm, id, new Class(context));
       default:
-        const sm = info.p || (info.p = create(null));
+        const sm = relation.p || (relation.p = create(null));
         return sm[id] || (sm[id] = new Class(context));
     }
   };
+  const relate = (Class, info) => {
+    const relation = {w: null, p: null};
+    info.set(Class, relation);
+    return relation;
+  };
   const set = context => {
-    const info = {w: null, p: null};
+    const info = new Map;
     children.set(context, info);
     return info;
   };
@@ -50,8 +56,13 @@ export function setup(content) {
       for: {
         configurable: true,
         value(context, id) {
-          const info = children.get(context) || set(context);
-          return get(this, info, context, id == null ? 'default' : id);
+          return get(
+            this,
+            children.get(context) || set(context),
+            context,
+            id == null ?
+              'default' : id
+          );
         }
       }
     }

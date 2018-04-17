@@ -34,11 +34,13 @@ const Map = G.Map || function Map() {
 exports.Map = Map;
 
 // used to store wired content
+let ID = 0;
 const WeakMap = G.WeakMap || function WeakMap() {
+  const key = UID + ID++;
   return {
-    get(obj) { return obj[UID]; },
+    get(obj) { return obj[key]; },
     set(obj, value) {
-      Object.defineProperty(obj, UID, {
+      Object.defineProperty(obj, key, {
         configurable: true,
         value
       });

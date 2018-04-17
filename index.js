@@ -60,13 +60,15 @@ var hyperHTML = (function (global) {
   };
 
   // used to store wired content
+  var ID = 0;
   var WeakMap = G.WeakMap || function WeakMap() {
+    var key = UID + ID++;
     return {
       get: function get(obj) {
-        return obj[UID];
+        return obj[key];
       },
       set: function set(obj, value) {
-        Object.defineProperty(obj, UID, {
+        Object.defineProperty(obj, key, {
           configurable: true,
           value: value
         });
@@ -122,18 +124,24 @@ var hyperHTML = (function (global) {
       return component;
     };
     var get = function get(Class, info, context, id) {
+      var relation = info.get(Class) || relate(Class, info);
       switch (typeof id) {
         case 'object':
         case 'function':
-          var wm = info.w || (info.w = new WeakMap());
+          var wm = relation.w || (relation.w = new WeakMap());
           return wm.get(id) || createEntry(wm, id, new Class(context));
         default:
-          var sm = info.p || (info.p = create(null));
+          var sm = relation.p || (relation.p = create(null));
           return sm[id] || (sm[id] = new Class(context));
       }
     };
+    var relate = function relate(Class, info) {
+      var relation = { w: null, p: null };
+      info.set(Class, relation);
+      return relation;
+    };
     var set = function set(context) {
-      var info = { w: null, p: null };
+      var info = new Map();
       children.set(context, info);
       return info;
     };
@@ -146,8 +154,7 @@ var hyperHTML = (function (global) {
       for: {
         configurable: true,
         value: function value(context, id) {
-          var info = children.get(context) || set(context);
-          return get(this, info, context, id == null ? 'default' : id);
+          return get(this, children.get(context) || set(context), context, id == null ? 'default' : id);
         }
       }
     });

@@ -1281,7 +1281,8 @@ tressa.async(function (done) {
     items: [{ name: 'item 1' }, { name: 'item 2' }, { name: 'item 3' }]
   }));
   tressa.assert(MenuWeakMap.for(a) === MenuWeakMap.for(a), 'same weakmap menu');
-  tressa.assert(MenuSimple.for(a) === MenuWeakMap.for(a), 'different from simple');
+  tressa.assert(MenuSimple.for(a) !== MenuWeakMap.for(a), 'different from simple');
+  tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same as simple');
   tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
