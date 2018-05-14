@@ -9,7 +9,7 @@
   "types": "index.d.ts",
   "scripts": {
     "add-domdiff": "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/shared/domdiff.js && cat node_modules/domdiff/esm/index.js >> esm/shared/domdiff.js",
-    "build": "npm run cjs && npm run max && npm run min && npm run ie && npm test && npm run size",
+    "build": "npm run cjs && npm run max && npm run min && npm run ie && npm run umd && npm test && npm run size",
     "cleanup": "bash -c \"echo \\\"\\$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\\\" > index.js\"",
     "cjs": "npm run add-domdiff && ascjs ./esm ./cjs",
     "coveralls": "cat ./coverage/lcov.info | coveralls",

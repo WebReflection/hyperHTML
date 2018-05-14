@@ -46,6 +46,7 @@ var hyperHTML = (function (global) {
   }
 
   // used to store template literals
+  /* istanbul ignore next */
   var Map = G.Map || function Map() {
     var keys = [],
         values = [];

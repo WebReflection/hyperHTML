@@ -19,6 +19,7 @@ try {
 export {Event};
 
 // used to store template literals
+/* istanbul ignore next */
 export const Map = G.Map || function Map() {
   const keys = [], values = [];
   return {

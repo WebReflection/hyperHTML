@@ -20,6 +20,7 @@ try {
 exports.Event = Event;
 
 // used to store template literals
+/* istanbul ignore next */
 const Map = G.Map || function Map() {
   const keys = [], values = [];
   return {
