@@ -15,6 +15,14 @@ A **Fast & Light Virtual DOM Alternative** available for [NodeJS](https://viperh
 
 - - -
 
+## Bundlers
+
+You can require or import _hyperHTML_ with any bundler and in different ways.
+
+If requiring or importing from `"hyperhtml"` doesn't work, try requiring from `"hyperhtml/cjs"` for CommonJS friendly bundlers (WebPack), or `"hyperhtml/esm"` for ESM compatible bundlers (Rollup).
+
+- - -
+
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/hyperhtml#sponsor)]
