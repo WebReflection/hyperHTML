@@ -376,32 +376,16 @@ var hyperHTML = (function (global) {
   // literal to represent same static content
   // around its own interpolations.
   var unique = function unique(template) {
-    return _TL(template);
+    return TL(template);
   };
 
   // TL returns a unique version of the template
   // it needs lazy feature detection
   // (cannot trust literals with transpiled code)
-  var _TL = function TL(template) {
-    if (
-    // TypeScript template literals are not standard
-    template.propertyIsEnumerable('raw') ||
-    // Firefox < 55 has not standard implementation neither
-    /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-      // in these cases, address templates once
-      var templateObjects = {};
-      // but always return the same template
-      _TL = function TL(template) {
-        var key = '_' + template.join(UID);
-        return templateObjects[key] || (templateObjects[key] = template);
-      };
-    } else {
-      // make TL an identity like function
-      _TL = function TL(template) {
-        return template;
-      };
-    }
-    return _TL(template);
+  var T = {};
+  var TL = function TL(t) {
+    var k = '_' + t.join('_');
+    return T[k] || (T[k] = t);
   };
 
   // create document fragments via native template

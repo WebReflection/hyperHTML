@@ -106,31 +106,10 @@ exports.unique = unique;
 // TL returns a unique version of the template
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
-let TL = template => {
-  if (
-    // TypeScript template literals are not standard
-    template.propertyIsEnumerable('raw') ||
-    (
-      // Firefox < 55 has not standard implementation neither
-      /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) &&
-      parseFloat(RegExp.$1) < 55
-    )
-  ) {
-    // in these cases, address templates once
-    const templateObjects = {};
-    // but always return the same template
-    TL = template => {
-      const key = '_' + template.join(UID);
-      return templateObjects[key] || (
-        templateObjects[key] = template
-      );
-    };
-  }
-  else {
-    // make TL an identity like function
-    TL = template => template;
-  }
-  return TL(template);
+const T = {};
+const TL = t => {
+  const k = '_' + t.join('_');
+  return T[k] || (T[k] = t);
 };
 
 // create document fragments via native template

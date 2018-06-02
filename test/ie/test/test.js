@@ -264,15 +264,7 @@ tressa.async(function (done) {
     }), 'same list applied');
 
     render = hyperHTML.wire();
-    if (function (s) {
-      return s;
-    }(_templateObject12) === function (s) {
-      return s;
-    }(_templateObject12)) {
-      tressa.assert(render(_templateObject12) === render(_templateObject12) && render(_templateObject12) !== render(_templateObject13), 'template sensible wire');
-    } else {
-      tressa.log('⚠️ this *browser* is *not spec compliant*');
-    }
+    tressa.assert(render(_templateObject12) === render(_templateObject12) && render(_templateObject12) !== render(_templateObject13), 'template sensible wire');
 
     done();
   });
