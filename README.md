@@ -115,6 +115,10 @@ If you are using Visual Studio Code you can install `literally-html` to highligh
 
 ![literally-html example](https://viperhtml.js.org/hyperhtml/documentation/img/literally-html.png)
 
+## Prettier Templates
+
+If you'd like to make your templates prettier than usual, don't miss this plugin: https://github.com/sgtpep/prettier-plugin-html-template-literals
+
 ## Questions ?
 
 Please ask anything you'd like to know in [StackOverflow](https://stackoverflow.com) using the tag [`hyperhtml`](https://stackoverflow.com/questions/tagged/hyperhtml) so that others can benefit from answers and examples.
