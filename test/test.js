@@ -202,10 +202,12 @@ tressa.async(function (done) {
       'same list applied'
     );
 
+    function returnSame() {
+      return render`a`;
+    }
     render = hyperHTML.wire();
     tressa.assert(
-      render`a` === render`a` &&
-      render`a` !== render`b`,
+      returnSame() === returnSame(),
       'template sensible wire'
     );
 
@@ -328,13 +330,17 @@ tressa.async(function (done) {
   tressa.log('## wire by id');
   let ref = {};
   let wires = {
-    a: hyperHTML.wire(ref, ':a')`<a></a>`,
-    p: hyperHTML.wire(ref, ':p')`<p></p>`
+    a: function () {
+        return hyperHTML.wire(ref, ':a')`<a></a>`;
+      },
+    p: function () {
+      return hyperHTML.wire(ref, ':p')`<p></p>`;
+    }
   };
-  tressa.assert(wires.a.nodeName.toLowerCase() === 'a', '<a> is correct');
-  tressa.assert(wires.p.nodeName.toLowerCase() === 'p', '<p> is correct');
-  tressa.assert(hyperHTML.wire(ref, ':a')`<a></a>` === wires.a, 'same wire for <a>');
-  tressa.assert(hyperHTML.wire(ref, ':p')`<p></p>` === wires.p, 'same wire for <p>');
+  tressa.assert(wires.a().nodeName.toLowerCase() === 'a', '<a> is correct');
+  tressa.assert(wires.p().nodeName.toLowerCase() === 'p', '<p> is correct');
+  tressa.assert(wires.a() === wires.a(), 'same wire for <a>');
+  tressa.assert(wires.p() === wires.p(), 'same wire for <p>');
 })
 .then(function () {
   return tressa.async(function (done) {
@@ -385,43 +391,55 @@ tressa.async(function (done) {
   tressa.assert(/^node after<!--.+?--><br(?: ?\/)?>$/i.test(wrap.innerHTML), 'node after');
   hyperHTML.bind(wrap)`<style> ${'hyper-html{}'} </style>`;
   tressa.assert('<style>hyper-html{}</style>' === wrap.innerHTML.toLowerCase(), 'node style');
-  hyperHTML.bind(wrap)`${document.createTextNode('a')}`;
-  hyperHTML.bind(wrap)`${document.createDocumentFragment()}`;
-  hyperHTML.bind(wrap)`${document.createDocumentFragment()}`;
+  var empty = function (value) {
+    return hyperHTML.bind(wrap)`${value}`;
+  };
+  empty(document.createTextNode('a'));
+  empty(document.createDocumentFragment());
+  empty(document.createDocumentFragment());
   let fragment = document.createDocumentFragment();
   fragment.appendChild(document.createTextNode('b'));
-  hyperHTML.bind(wrap)`${fragment}`;
-  hyperHTML.bind(wrap)`${123}`;
+  empty(fragment);
+  empty(123);
   tressa.assert(wrap.textContent === '123', 'text as number');
-  hyperHTML.bind(wrap)`${true}`;
+  empty(true);
   tressa.assert(wrap.textContent === 'true', 'text as boolean');
-  hyperHTML.bind(wrap)`${[1]}`;
+  empty([1]);
   tressa.assert(wrap.textContent === '1', 'text as one entry array');
-  hyperHTML.bind(wrap)`${['1', '2']}`;
+  empty(['1', '2']);
   tressa.assert(wrap.textContent === '12', 'text as multi entry array of strings');
   let arr = [document.createTextNode('a'), document.createTextNode('b')];
-  hyperHTML.bind(wrap)`${[arr]}`;
+  empty([arr]);
   tressa.assert(wrap.textContent === 'ab', 'text as multi entry array of nodes');
-  hyperHTML.bind(wrap)`${[arr]}`;
+  empty([arr]);
   tressa.assert(wrap.textContent === 'ab', 'same array of nodes');
-  hyperHTML.bind(wrap)`${wrap.childNodes}`;
+  empty(wrap.childNodes);
   tressa.assert(wrap.textContent === 'ab', 'childNodes as list');
   hyperHTML.bind(wrap)`a=${{length:1, '0':'b'}}`;
   tressa.assert(wrap.textContent === 'a=b', 'childNodes as virtual list');
-  hyperHTML.bind(wrap)`[${'text'}]`;
-  hyperHTML.bind(wrap)`[${'text'}]`;
+  empty = function () {
+    return hyperHTML.bind(wrap)`[${'text'}]`;
+  };
+  empty();
+  empty();
   let onclick = (e) => {};
   let handler = {handleEvent: onclick};
-  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
+  empty = function () {
+    return hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
+  };
+  empty();
   handler = {handleEvent: onclick};
-  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
-  hyperHTML.bind(wrap)`<p onclick="${onclick}" onmouseover="${handler}" align="${'left'}"></p>`;
-  hyperHTML.bind(wrap)`<br/>${arr[0]}<br/>`;
-  hyperHTML.bind(wrap)`<br/>${arr}<br/>`;
-  hyperHTML.bind(wrap)`<br/>${arr}<br/>`;
-  hyperHTML.bind(wrap)`<br/>${[]}<br/>`;
-  hyperHTML.bind(wrap)`<br/>${['1', '2']}<br/>`;
-  hyperHTML.bind(wrap)`<br/>${document.createDocumentFragment()}<br/>`;
+  empty();
+  empty();
+  empty = function (value) {
+    return hyperHTML.bind(wrap)`<br/>${value}<br/>`;
+  };
+  empty(arr[0]);
+  empty(arr);
+  empty(arr);
+  empty([]);
+  empty(['1', '2']);
+  empty(document.createDocumentFragment());
   tressa.assert(true, 'passed various virtual content scenarios');
   let svgContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   if (!('ownerSVGElement' in svgContainer)) svgContainer.ownerSVGElement = null;
@@ -440,17 +458,23 @@ tressa.async(function (done) {
   tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
 
   let last = hyperHTML.wire();
-  last`<textarea style=${'border:0'}>${'same text'}</textarea>`;
-  last`<textarea style=${{border: 0}}>${'same text'}</textarea>`;
-  last`<textarea style=${{vh: 100}}>${'same text'}</textarea>`;
-  last`<textarea style=${{vh: 10, vw: 1}}>${'same text'}</textarea>`;
-  last`<textarea style=${null}>${'same text'}</textarea>`;
-  last`<textarea style=${''}>${'same text'}</textarea>`;
+  empty = function (style) {
+    return last`<textarea style=${style}>${'same text'}</textarea>`;
+  };
+  empty('border:0');
+  empty({border: 0});
+  empty({vh: 100});
+  empty({vh: 10, vw: 1});
+  empty(null);
+  empty('');
   const sameStyle = {ord: 0};
-  last`<textarea style=${sameStyle}>${'same text'}</textarea>`;
-  last`<textarea style=${sameStyle}>${'same text'}</textarea>`;
-  last`<p data=${last}></p>`;
-  last`<p data=${last}></p>`;
+  empty(sameStyle);
+  empty(sameStyle);
+  empty = function () {
+    return last`<p data=${last}></p>`;
+  };
+  empty();
+  empty();
   let p = last`<p data=${last}>${0}</p>`;
   const UID = p.childNodes[1].data;
   last`<textarea new>${`<!--${UID}-->`}</textarea>`;
@@ -477,14 +501,17 @@ tressa.async(function (done) {
   tressa.log('## SVG and style');
   var render = hyperHTML.wire(null, 'svg');
   Object.prototype.ownerSVGElement = null;
-  var node = render`<rect style=${{}} />`;
+  function rect(style) {
+    return render`<rect style=${style} />`;
+  }
+  var node = rect({});
   delete Object.prototype.ownerSVGElement;
-  render`<rect style=${{width: 100}} />`;
+  rect({width: 100});
   console.log(node.getAttribute('style'));
   tressa.assert(/width:\s*100px;/.test(node.getAttribute('style')), 'correct style object');
-  render`<rect style=${'height:10px;'} />`;
+  rect('height:10px;');
   tressa.assert(/height:\s*10px;/.test(node.getAttribute('style')), 'correct style string');
-  render`<rect style=${null} />`;
+  rect(null);
   tressa.assert(/^(?:|null)$/.test(node.getAttribute('style')), 'correct style reset');
 })
 .then(function () {
@@ -569,29 +596,32 @@ tressa.async(function (done) {
   tressa.assert(div.childElementCount === 1, 'only one element left');
 })
 .then(function () {return tressa.async(function (done) {
+  function textarea(value) {
+    return hyperHTML.bind(div)`<textarea>${value}</textarea>`;
+  }
   tressa.log('## textarea text');
   var div = document.createElement('div');
-  hyperHTML.bind(div)`<textarea>${1}</textarea>`;
+  textarea(1);
   var ta = div.firstElementChild;
   tressa.assert(ta.textContent === '1', 'primitives are fine');
-  hyperHTML.bind(div)`<textarea>${null}</textarea>`;
+  textarea(null);
   tressa.assert(ta.textContent === '', 'null/undefined is fine');
   var p = Promise.resolve('OK');
-  hyperHTML.bind(div)`<textarea>${p}</textarea>`;
+  textarea(p);
   p.then(function () {
     console.log(div.innerHTML);
     tressa.assert(ta.textContent === 'OK', 'promises are fine');
-    hyperHTML.bind(div)`<textarea>${{text: 'text'}}</textarea>`;
+    textarea({text: 'text'});
     tressa.assert(ta.textContent === 'text', 'text is fine');
-    hyperHTML.bind(div)`<textarea>${{html: 'html'}}</textarea>`;
+    textarea({html: 'html'});
     tressa.assert(ta.textContent === 'html', 'html is fine');
-    hyperHTML.bind(div)`<textarea>${{any: 'any'}}</textarea>`;
+    textarea({any: 'any'});
     tressa.assert(ta.textContent === 'any', 'any is fine');
-    hyperHTML.bind(div)`<textarea>${['ar', 'ray']}</textarea>`;
+    textarea(['ar', 'ray']);
     tressa.assert(ta.textContent === 'array', 'array is fine');
-    hyperHTML.bind(div)`<textarea>${{placeholder: 'placeholder'}}</textarea>`;
+    textarea({placeholder: 'placeholder'});
     tressa.assert(ta.textContent === 'placeholder', 'placeholder is fine');
-    hyperHTML.bind(div)`<textarea>${{unknown: 'unknown'}}</textarea>`;
+    textarea({unknown: 'unknown'});
     tressa.assert(ta.textContent === '', 'intents are fine');
     done();
   });
@@ -957,12 +987,15 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## style=${fun}');
   var render = hyperHTML.wire();
-  var p = render`<p style=${{fontSize:24}}></p>`;
-  tressa.assert(p.style.fontSize, p.style.fontSize);
-  render`<p style=${{}}></p>`;
-  tressa.assert(!p.style.fontSize, 'object cleaned');
-  render`<p style=${'font-size: 18px'}></p>`;
-  tressa.assert(p.style.fontSize, p.style.fontSize);
+  function p(style) {
+    return render`<p style=${style}></p>`;
+  }
+  var node = p({fontSize:24});
+  tressa.assert(node.style.fontSize, node.style.fontSize);
+  p({});
+  tressa.assert(!node.style.fontSize, 'object cleaned');
+  p('font-size: 18px');
+  tressa.assert(node.style.fontSize, node.style.fontSize);
 })
 .then(function () {
   tressa.log('## <self-closing />');

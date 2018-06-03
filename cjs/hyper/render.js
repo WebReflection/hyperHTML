@@ -1,6 +1,6 @@
 'use strict';
 const {Map, WeakMap} = require('../shared/poorlyfills.js');
-const {UIDC, VOID_ELEMENTS} = require('../shared/constants.js');
+const {G, UIDC, VOID_ELEMENTS} = require('../shared/constants.js');
 const Updates = (m => m.__esModule ? m.default : m)(require('../objects/Updates.js'));
 const {
   createFragment,
@@ -14,10 +14,11 @@ const {selfClosing} = require('../shared/re.js');
 // are already known to hyperHTML
 const bewitched = new WeakMap;
 
-// the collection of all template literals
-// since these are unique and immutable
-// for the whole application life-cycle
-const templates = new Map;
+// all unique template literals
+// if the WeakMap is the global one, use it
+// otherwise uses a Map because polyfilled WeakMaps
+// cannot set any property to frozen objects (templates)
+const templates = WeakMap === G.WeakMap ? new WeakMap : new Map;
 
 // better known as hyper.bind(node), the render is
 // the main tag function in charge of fully upgrading

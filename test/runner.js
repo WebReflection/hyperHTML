@@ -88,7 +88,7 @@ setTimeout(function () {
   };
 
   window.hyperHTML = require('../index.c.js');
+  require('./domdiff.js');
   require('./test.js');
 
-  require('./domdiff.js');
 }, 1000);
