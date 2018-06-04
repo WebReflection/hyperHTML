@@ -390,7 +390,7 @@ var _TL = function TL(t) {
   /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
     var T = {};
     _TL = function TL(t) {
-      var k = '_' + t.join('_');
+      var k = '^' + t.join('^');
       return T[k] || (T[k] = t);
     };
   } else {

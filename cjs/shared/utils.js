@@ -118,7 +118,7 @@ let TL = t => {
   ) {
     const T = {};
     TL = t => {
-      const k = '_' + t.join('_');
+      const k = '^' + t.join('^');
       return T[k] || (T[k] = t);
     };
   } else {

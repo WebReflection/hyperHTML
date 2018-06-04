@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.10.5
+  * various fixes and changes after [changes applied to ECMAScript 2015](https://github.com/tc39/ecma262/pull/890)
+
 ### v2.8.0
   * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) engine to boost performance with segments and lists
 
