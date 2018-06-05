@@ -8,6 +8,8 @@ function usableAfter(object, property, times) {
   });
 }
 
+const $WeakMap = global.WeakMap;
+
 global.tressa = require('tressa');
 
 const {Document, HTMLElement} = require('basichtml');
@@ -38,7 +40,10 @@ setTimeout(function () {
   usableAfter(Array, 'isArray', 1);
   usableAfter(String.prototype, 'trim', 1);
 
-  global.navigator = {userAgent: 'Firefox/54'};
+  const propertyIsEnumerable = {}.propertyIsEnumerable;
+  Object.prototype.propertyIsEnumerable = function (key) {
+    return key === 'raw' ? true : propertyIsEnumerable.call(this, key);
+  };
 
   delete global.Int32Array;
   delete document.importNode;
@@ -91,4 +96,15 @@ setTimeout(function () {
   require('./domdiff.js');
   require('./test.js');
 
-}, 1000);
+  if ($WeakMap) setTimeout(() => {
+    delete require.cache[require.resolve('../index.c.js')];
+    delete require.cache[require.resolve('./test.js')];
+    global.WeakMap = function () {
+      const wm = new $WeakMap;
+      wm.get = () => false;
+      return wm;
+    };
+    require('../index.c.js');
+    require('./test.js');
+  }, 2000);
+}, 2000);

@@ -17,6 +17,8 @@ import {
 
 import {create, doc, fragment} from './easy-dom.js';
 
+import {Map, WeakMap} from './poorlyfills.js';
+
 // appends an array of nodes
 // to a generic node/fragment
 // When available, uses append passing all arguments at once
@@ -101,15 +103,8 @@ export const unique = template => TL(template);
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
 let TL = t => {
-  if (
-    // TypeScript template literals are not standard
-    t.propertyIsEnumerable('raw') ||
-    (
-      // Firefox < 55 has not standard implementation neither
-      /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) &&
-      parseFloat(RegExp.$1) < 55
-    )
-  ) {
+  // TypeScript template literals are not standard
+  if (t.propertyIsEnumerable('raw')) {
     const T = {};
     TL = t => {
       const k = '^' + t.join('^');
@@ -120,6 +115,22 @@ let TL = t => {
     TL = t => t;
   }
   return TL(t);
+};
+
+// used to store templates objects
+// since neither Map nor WeakMap are safe
+export const TemplateMap = () => {
+  try {
+    const wm = new WeakMap;
+    const o_O = Object.freeze([]);
+    wm.set(o_O, true);
+    if (!wm.get(o_O)) throw o_O;
+    return wm;
+  } catch(o_O) {
+    // inevitable legacy code leaks due
+    // https://github.com/tc39/ecma262/pull/890
+    return new Map;
+  }
 };
 
 // create document fragments via native template

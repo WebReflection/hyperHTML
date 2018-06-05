@@ -5,7 +5,8 @@ const Updates = (m => m.__esModule ? m.default : m)(require('../objects/Updates.
 const {
   createFragment,
   importNode,
-  unique
+  unique,
+  TemplateMap
 } = require('../shared/utils.js');
 
 const {selfClosing} = require('../shared/re.js');
@@ -15,10 +16,8 @@ const {selfClosing} = require('../shared/re.js');
 const bewitched = new WeakMap;
 
 // all unique template literals
-// if the WeakMap is the global one, use it
-// otherwise uses a Map because polyfilled WeakMaps
-// cannot set any property to frozen objects (templates)
-const templates = WeakMap === G.WeakMap ? new WeakMap : new Map;
+debugger;
+const templates = TemplateMap();
 
 // better known as hyper.bind(node), the render is
 // the main tag function in charge of fully upgrading
