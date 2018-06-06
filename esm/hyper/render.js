@@ -15,7 +15,6 @@ import {selfClosing} from '../shared/re.js';
 const bewitched = new WeakMap;
 
 // all unique template literals
-debugger;
 const templates = TemplateMap();
 
 // better known as hyper.bind(node), the render is

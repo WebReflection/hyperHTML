@@ -1172,7 +1172,6 @@ var hyperHTML = (function (global) {
   var bewitched = new WeakMap();
 
   // all unique template literals
-  debugger;
   var templates = TemplateMap();
 
   // better known as hyper.bind(node), the render is
