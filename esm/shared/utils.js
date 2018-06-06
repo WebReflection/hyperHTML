@@ -103,8 +103,15 @@ export const unique = template => TL(template);
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
 let TL = t => {
-  // TypeScript template literals are not standard
-  if (t.propertyIsEnumerable('raw')) {
+  if (
+    // TypeScript template literals are not standard
+    t.propertyIsEnumerable('raw') ||
+    (
+        // Firefox < 55 has not standard implementation neither
+        /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) &&
+          parseFloat(RegExp.$1) < 55
+        )
+  ) {
     const T = {};
     TL = t => {
       const k = '^' + t.join('^');

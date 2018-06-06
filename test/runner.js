@@ -40,10 +40,14 @@ setTimeout(function () {
   usableAfter(Array, 'isArray', 1);
   usableAfter(String.prototype, 'trim', 1);
 
+  global.navigator = {userAgent: 'Firefox/54'};
+
+  /*
   const propertyIsEnumerable = {}.propertyIsEnumerable;
   Object.prototype.propertyIsEnumerable = function (key) {
     return key === 'raw' ? true : propertyIsEnumerable.call(this, key);
   };
+  */
 
   delete global.Int32Array;
   delete document.importNode;

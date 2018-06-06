@@ -383,8 +383,11 @@ var hyperHTML = (function (global) {
   // it needs lazy feature detection
   // (cannot trust literals with transpiled code)
   var _TL = function TL(t) {
+    if (
     // TypeScript template literals are not standard
-    if (t.propertyIsEnumerable('raw')) {
+    t.propertyIsEnumerable('raw') ||
+    // Firefox < 55 has not standard implementation neither
+    /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
       var T = {};
       _TL = function TL(t) {
         var k = '^' + t.join('^');
