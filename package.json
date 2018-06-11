@@ -8,19 +8,86 @@
   "module": "esm/index.js",
   "types": "index.d.ts",
   "scripts": {
-    "add-domdiff": "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/shared/domdiff.js && cat node_modules/domdiff/esm/index.js >> esm/shared/domdiff.js",
-    "build": "npm run cjs && npm run max && npm run min && npm run ie && npm run umd && npm test && npm run size",
-    "cleanup": "bash -c \"echo \\\"\\$(cat index.js | sed 's/(exports)/(global)/' | sed 's/return exports;/return hyper;/' | sed -e 's/exports.*;//g' | sed 's/({})/(window)/')\\\" > index.js\"",
-    "cjs": "npm run add-domdiff && ascjs ./esm ./cjs",
+    "$": "npm-dollar",
+    "build": "npm run $ build",
+    "bundle": "npm run $ bundle",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "ie": "babel ./test/test.js --out-dir ./test/ie --plugins=$(node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\"))')",
-    "max": "rollup --config rollup.config.js && npm run cleanup",
-    "min": "bash -c 'echo \"/*! (c) Andrea Giammarchi (ISC) */$(uglifyjs index.js --support-ie8 --comments=/^!/ -c -m)\" > min.js'",
-    "umd": "echo \"(function(A,G){if(typeof define=='function'&&define.amd)define([],G);else if(typeof module=='object'&&module.exports)module.exports=G();else A.hyperHTML=G()}(typeof self!='undefined'?self:this,function(){\">umd.js;cat min.js>>umd.js;echo \"return hyperHTML}));\">>umd.js",
-    "size": "cat index.js | wc -c;cat min.js | wc -c;gzip -c9 min.js | wc -c",
-    "brotli": "cat min.js | bro | wc -c",
-    "test": "cp index.js index.c.js && echo 'module.exports = hyperHTML;' >> index.c.js && istanbul cover test/runner.js && rm index.c.js",
-    "postinstall": "lightercollective"
+    "postinstall": "lightercollective",
+    "test": "npm run $ test"
+  },
+  "$": {
+    "bundle": {
+      "max": [
+        "rollup --config rollup.config.js",
+        "$ cleanup"
+      ],
+      "min": [
+        [
+          "echo \"/*! (c) Andrea Giammarchi (ISC) */$(",
+          "uglifyjs index.js --support-ie8 --comments=/^!/ -c -m",
+          ")\" > min.js"
+        ]
+      ],
+      "ie": [
+        [
+          "babel ./test/test.js --out-dir ./test/ie --plugins=$(",
+          "node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\")",
+          ")')"
+        ]
+      ],
+      "umd": [
+        [
+          "echo \"(function(A,G){if(typeof define=='function'&&define.amd)define([],G);else",
+          "if(typeof module=='object'&&module.exports)module.exports=G();else",
+          "A.hyperHTML=G()}(typeof self!='undefined'?self:this,function(){\">umd.js;cat",
+          "min.js>>umd.js;echo \"return hyperHTML}));\">>umd.js"
+        ]
+      ]
+    },
+    "build": [
+      "$ cjs",
+      "$ bundle.max",
+      "$ bundle.min",
+      "$ bundle.ie",
+      "$ bundle.umd",
+      "$ test",
+      "$ size"
+    ],
+    "cleanup": [
+      [
+        "cat index.js |",
+        "sed 's/(exports)/(global)/' |",
+        "sed 's/return exports;/return hyper;/' |",
+        "sed -e 's/exports.*;//g' |",
+        "sed 's/({})/(window)/' > index.clean"
+      ],
+      "mv index.clean index.js"
+    ],
+    "cjs": [
+      "$ domdiff",
+      "ascjs ./esm ./cjs"
+    ],
+    "domdiff": [
+      "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/shared/domdiff.js",
+      "cat node_modules/domdiff/esm/index.js >> esm/shared/domdiff.js"
+    ],
+    "size": {
+      "gzip": [
+        [
+          "cat index.js |",
+          "wc -c;cat min.js |",
+          "wc -c;gzip -c9 min.js |",
+          "wc -c"
+        ]
+      ],
+      "brotli": "cat min.js | brotli | wc -c"
+    },
+    "test": [
+      "cp index.js index.c.js",
+      "echo 'module.exports = hyperHTML;' >> index.c.js",
+      "istanbul cover test/runner.js",
+      "rm index.c.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -64,6 +131,7 @@
     "coveralls": "^3.0.0",
     "domdiff": "^0.4.0",
     "istanbul": "^0.4.5",
+    "npm-dollar": "^0.1.1",
     "rollup": "^0.60.0",
     "rollup-plugin-babel": "^3.0.2",
     "tressa": "^0.3.1",
