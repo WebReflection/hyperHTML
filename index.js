@@ -618,10 +618,14 @@ var hyperHTML = (function (global) {
   };
 
   var remove = function remove(parentNode, before, after) {
-    var range = parentNode.ownerDocument.createRange();
-    range.setStartBefore(before);
-    range.setEndAfter(after);
-    range.deleteContents();
+    if (after == null) {
+      parentNode.removeChild(before);
+    } else {
+      var range = parentNode.ownerDocument.createRange();
+      range.setStartBefore(before);
+      range.setEndAfter(after);
+      range.deleteContents();
+    }
   };
 
   var domdiff = function domdiff(parentNode, // where changes happen

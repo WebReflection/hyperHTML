@@ -11,10 +11,14 @@
 const identity = O => O;
 
 const remove = (parentNode, before, after) => {
-  const range = parentNode.ownerDocument.createRange();
-  range.setStartBefore(before);
-  range.setEndAfter(after);
-  range.deleteContents();
+  if (after == null) {
+    parentNode.removeChild(before);
+  } else {
+    const range = parentNode.ownerDocument.createRange();
+    range.setStartBefore(before);
+    range.setEndAfter(after);
+    range.deleteContents();
+  }
 };
 
 const domdiff = (
@@ -129,7 +133,8 @@ const domdiff = (
       }
     }
     else {
-      if (currentNodes[currentStart] == null) currentStart++;
+      if (currentNodes[currentStart] == null)
+        currentStart++;
       if (currentStart === currentEnd) {
         parentNode.removeChild(get(currentNodes[currentStart], -1));
       }
