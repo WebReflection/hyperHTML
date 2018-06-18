@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.10.9
+  * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to solve issue #243 (breaking with some sorted list)
+
 ### v2.10.5
   * various fixes and changes after [changes applied to ECMAScript 2015](https://github.com/tc39/ecma262/pull/890)
 
