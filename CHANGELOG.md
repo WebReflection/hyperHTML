@@ -1,6 +1,6 @@
 # hyper(html) Changelog
 
-### v2.10.9
+### v2.10.10
   * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to solve issue #243 (breaking with some sorted list)
 
 ### v2.10.5

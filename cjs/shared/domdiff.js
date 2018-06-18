@@ -10,13 +10,13 @@
 
 const identity = O => O;
 
-const remove = (parentNode, before, after) => {
+const remove = (get, parentNode, before, after) => {
   if (after == null) {
-    parentNode.removeChild(before);
+    parentNode.removeChild(get(before, -1));
   } else {
     const range = parentNode.ownerDocument.createRange();
-    range.setStartBefore(before);
-    range.setEndAfter(after);
+    range.setStartBefore(get(before, -1));
+    range.setEndAfter(get(after, -1));
     range.deleteContents();
   }
 };
@@ -99,9 +99,10 @@ const domdiff = (
             parentNode.removeChild(get(currentStartNode, -1));
           } else {
             remove(
+              get,
               parentNode,
-              get(currentStartNode, -1),
-              get(currentNodes[index], -1)
+              currentStartNode,
+              currentNodes[index]
             );
           }
           currentStart = i;
@@ -140,9 +141,10 @@ const domdiff = (
       }
       else {
         remove(
+          get,
           parentNode,
-          get(currentNodes[currentStart], -1),
-          get(currentNodes[currentEnd], -1)
+          currentNodes[currentStart],
+          currentNodes[currentEnd]
         );
       }
     }

@@ -617,13 +617,13 @@ var hyperHTML = (function (global) {
     return O;
   };
 
-  var remove = function remove(parentNode, before, after) {
+  var remove = function remove(get, parentNode, before, after) {
     if (after == null) {
-      parentNode.removeChild(before);
+      parentNode.removeChild(get(before, -1));
     } else {
       var range = parentNode.ownerDocument.createRange();
-      range.setStartBefore(before);
-      range.setEndAfter(after);
+      range.setStartBefore(get(before, -1));
+      range.setEndAfter(get(after, -1));
       range.deleteContents();
     }
   };
@@ -683,7 +683,7 @@ var hyperHTML = (function (global) {
             if (--index === currentStart) {
               parentNode.removeChild(get(currentStartNode, -1));
             } else {
-              remove(parentNode, get(currentStartNode, -1), get(currentNodes[index], -1));
+              remove(get, parentNode, currentStartNode, currentNodes[index]);
             }
             currentStart = i;
             futureStart = f;
@@ -716,7 +716,7 @@ var hyperHTML = (function (global) {
         if (currentStart === currentEnd) {
           parentNode.removeChild(get(currentNodes[currentStart], -1));
         } else {
-          remove(parentNode, get(currentNodes[currentStart], -1), get(currentNodes[currentEnd], -1));
+          remove(get, parentNode, currentNodes[currentStart], currentNodes[currentEnd]);
         }
       }
     }
