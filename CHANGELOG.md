@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.10.12
+  * patched missing `.children` in SVG node in IE / Edge https://github.com/WebReflection/hyperHTML/issues/244
+
 ### v2.10.10
   * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to solve issue #243 (breaking with some sorted list)
 

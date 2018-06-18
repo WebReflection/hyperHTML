@@ -2,6 +2,7 @@ import {attrName, attrSeeker} from './re.js';
 
 import {
   G,
+  ELEMENT_NODE,
   OWNER_SVG_ELEMENT,
   SVG_NAMESPACE,
   UID,
@@ -79,6 +80,19 @@ const cloneNode = hasDoomedCloneNode ?
   /* istanbul ignore next */
   node => node.cloneNode(true);
 
+// IE and Edge do not support children in SVG nodes
+/* istanbul ignore next */
+export const getChildren = node => {
+  const children = [];
+  const childNodes = node.childNodes;
+  const length = childNodes.length;
+  for (let i = 0; i < length; i++) {
+    if (childNodes[i].nodeType === ELEMENT_NODE)
+      children.push(childNodes[i]);
+  }
+  return children;
+};
+
 // used to import html into fragments
 export const importNode = hasImportNode ?
   (doc, node) => doc.importNode(node, true) :
@@ -131,7 +145,8 @@ export const TemplateMap = () => {
     const wm = new WeakMap;
     const o_O = Object.freeze([]);
     wm.set(o_O, true);
-    if (!wm.get(o_O)) throw o_O;
+    if (!wm.get(o_O))
+      throw o_O;
     return wm;
   } catch(o_O) {
     // inevitable legacy code leaks due

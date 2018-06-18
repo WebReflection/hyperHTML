@@ -355,6 +355,18 @@ var hyperHTML = (function (global) {
     return node.cloneNode(true);
   };
 
+  // IE and Edge do not support children in SVG nodes
+  /* istanbul ignore next */
+  var getChildren = function getChildren(node) {
+    var children = [];
+    var childNodes = node.childNodes;
+    var length = childNodes.length;
+    for (var i = 0; i < length; i++) {
+      if (childNodes[i].nodeType === ELEMENT_NODE) children.push(childNodes[i]);
+    }
+    return children;
+  };
+
   // used to import html into fragments
   var importNode = hasImportNode ? function (doc$$1, node) {
     return doc$$1.importNode(node, true);
@@ -1145,7 +1157,8 @@ var hyperHTML = (function (global) {
         node.dispatchEvent(event);
       }
 
-      var children = node.children;
+      /* istanbul ignore next */
+      var children = node.children || getChildren(node);
       var length = children.length;
       for (var i = 0; i < length; i++) {
         dispatchTarget(children[i], event);

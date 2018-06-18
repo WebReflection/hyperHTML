@@ -16,7 +16,7 @@ import domdiff from '../shared/domdiff.js';
 // import { create as createElement, text } from '../shared/easy-dom.js';
 import { text } from '../shared/easy-dom.js';
 import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
-import { createFragment, slice } from '../shared/utils.js';
+import { createFragment, getChildren, slice } from '../shared/utils.js';
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -493,7 +493,8 @@ function observe() {
       node.dispatchEvent(event);
     }
 
-    const children = node.children;
+    /* istanbul ignore next */
+    const children = node.children || getChildren(node);
     const length = children.length;
     for (let i = 0; i < length; i++) {
       dispatchTarget(children[i], event);

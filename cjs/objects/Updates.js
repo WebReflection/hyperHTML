@@ -13,7 +13,7 @@ const domdiff = (m => m.__esModule ? m.default : m)(require('../shared/domdiff.j
 // import { create as createElement, text } from '../shared/easy-dom.js';
 const { text } = require('../shared/easy-dom.js');
 const { Event, WeakSet, isArray, trim } = require('../shared/poorlyfills.js');
-const { createFragment, slice } = require('../shared/utils.js');
+const { createFragment, getChildren, slice } = require('../shared/utils.js');
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -490,7 +490,8 @@ function observe() {
       node.dispatchEvent(event);
     }
 
-    const children = node.children;
+    /* istanbul ignore next */
+    const children = node.children || getChildren(node);
     const length = children.length;
     for (let i = 0; i < length; i++) {
       dispatchTarget(children[i], event);
