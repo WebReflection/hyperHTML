@@ -128,7 +128,7 @@
     "babel-plugin-transform-es2015-spread": "^6.22.0",
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
     "basichtml": "^0.14.0",
-    "coveralls": "^3.0.0",
+    "coveralls": "^2.11.16",
     "domdiff": "^0.4.2",
     "istanbul": "^0.4.5",
     "npm-dollar": "^0.1.3",
