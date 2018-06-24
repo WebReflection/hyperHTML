@@ -7,6 +7,8 @@
  * @credits https://github.com/snabbdom/snabbdom
  */
 
+const eqeq = (a, b) => a == b;
+
 const identity = O => O;
 
 const remove = (get, parentNode, before, after) => {
@@ -24,11 +26,16 @@ const domdiff = (
   parentNode,     // where changes happen
   currentNodes,   // Array of current items/nodes
   futureNodes,    // Array of future items/nodes
-  getNode,        // optional way to retrieve a node from an item
-  beforeNode      // optional item/node to use as insertBefore delimiter
+  options         // optional object with one of the following properties
+                  //  before: domNode
+                  //  compare(generic, generic) => true if same generic
+                  //  node(generic) => Node
 ) => {
-  const get = getNode || identity;
-  const before = beforeNode == null ? null : get(beforeNode, 0);
+  if (!options)
+    options = {};
+  const compare = options.compare || eqeq;
+  const get = options.node || identity;
+  const before = options.before == null ? null : get(options.before, 0);
   let currentStart = 0, futureStart = 0;
   let currentEnd = currentNodes.length - 1;
   let currentStartNode = currentNodes[0];
@@ -49,15 +56,15 @@ const domdiff = (
     else if (futureEndNode == null) {
       futureEndNode = futureNodes[--futureEnd];
     }
-    else if (currentStartNode == futureStartNode) {
+    else if (compare(currentStartNode, futureStartNode)) {
       currentStartNode = currentNodes[++currentStart];
       futureStartNode = futureNodes[++futureStart];
     }
-    else if (currentEndNode == futureEndNode) {
+    else if (compare(currentEndNode, futureEndNode)) {
       currentEndNode = currentNodes[--currentEnd];
       futureEndNode = futureNodes[--futureEnd];
     }
-    else if (currentStartNode == futureEndNode) {
+    else if (compare(currentStartNode, futureEndNode)) {
       parentNode.insertBefore(
         get(currentStartNode, 1),
         get(currentEndNode, -0).nextSibling
@@ -65,7 +72,7 @@ const domdiff = (
       currentStartNode = currentNodes[++currentStart];
       futureEndNode = futureNodes[--futureEnd];
     }
-    else if (currentEndNode == futureStartNode) {
+    else if (compare(currentEndNode, futureStartNode)) {
       parentNode.insertBefore(
         get(currentEndNode, 1),
         get(currentStartNode, 0)

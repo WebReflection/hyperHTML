@@ -227,6 +227,7 @@ const isPromise_ish = value => value != null && 'then' in value;
 //  * it's an Array, resolve all values if Promises and/or
 //    update the node with the resulting list of content
 const setAnyContent = (node, childNodes) => {
+  const diffOptions = {node: asNode, before: node};
   let fastPath = false;
   let oldValue;
   const anyContent = value => {
@@ -246,8 +247,7 @@ const setAnyContent = (node, childNodes) => {
             node.parentNode,
             childNodes,
             [text(node, value)],
-            asNode,
-            node
+            diffOptions
           );
         }
         break;
@@ -259,8 +259,7 @@ const setAnyContent = (node, childNodes) => {
             node.parentNode,
             childNodes,
             [],
-            asNode,
-            node
+            diffOptions
           );
           break;
         }
@@ -274,8 +273,7 @@ const setAnyContent = (node, childNodes) => {
                 node.parentNode,
                 childNodes,
                 [],
-                asNode,
-                node
+                diffOptions
               );
             }
           } else {
@@ -298,8 +296,7 @@ const setAnyContent = (node, childNodes) => {
                   node.parentNode,
                   childNodes,
                   value,
-                  asNode,
-                  node
+                  diffOptions
                 );
                 break;
             }
@@ -311,8 +308,7 @@ const setAnyContent = (node, childNodes) => {
             value.nodeType === DOCUMENT_FRAGMENT_NODE ?
               slice.call(value.childNodes) :
               [value],
-            asNode,
-            node
+            diffOptions
           );
         } else if (isPromise_ish(value)) {
           value.then(anyContent);
@@ -332,8 +328,7 @@ const setAnyContent = (node, childNodes) => {
                 [].concat(value.html).join('')
               ).childNodes
             ),
-            asNode,
-            node
+            diffOptions
           );
         } else if ('length' in value) {
           anyContent(slice.call(value));

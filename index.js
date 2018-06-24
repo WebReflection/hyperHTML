@@ -625,6 +625,10 @@ var hyperHTML = (function (global) {
    * @credits https://github.com/snabbdom/snabbdom
    */
 
+  var eqeq = function eqeq(a, b) {
+    return a == b;
+  };
+
   var identity = function identity(O) {
     return O;
   };
@@ -643,11 +647,15 @@ var hyperHTML = (function (global) {
   var domdiff = function domdiff(parentNode, // where changes happen
   currentNodes, // Array of current items/nodes
   futureNodes, // Array of future items/nodes
-  getNode, // optional way to retrieve a node from an item
-  beforeNode // optional item/node to use as insertBefore delimiter
+  options // optional object with one of the following properties
+  //  before: domNode
+  //  compare(generic, generic) => true if same generic
+  //  node(generic) => Node
   ) {
-    var get = getNode || identity;
-    var before = beforeNode == null ? null : get(beforeNode, 0);
+    if (!options) options = {};
+    var compare = options.compare || eqeq;
+    var get = options.node || identity;
+    var before = options.before == null ? null : get(options.before, 0);
     var currentStart = 0,
         futureStart = 0;
     var currentEnd = currentNodes.length - 1;
@@ -665,17 +673,17 @@ var hyperHTML = (function (global) {
         futureStartNode = futureNodes[++futureStart];
       } else if (futureEndNode == null) {
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentStartNode == futureStartNode) {
+      } else if (compare(currentStartNode, futureStartNode)) {
         currentStartNode = currentNodes[++currentStart];
         futureStartNode = futureNodes[++futureStart];
-      } else if (currentEndNode == futureEndNode) {
+      } else if (compare(currentEndNode, futureEndNode)) {
         currentEndNode = currentNodes[--currentEnd];
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentStartNode == futureEndNode) {
+      } else if (compare(currentStartNode, futureEndNode)) {
         parentNode.insertBefore(get(currentStartNode, 1), get(currentEndNode, -0).nextSibling);
         currentStartNode = currentNodes[++currentStart];
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentEndNode == futureStartNode) {
+      } else if (compare(currentEndNode, futureStartNode)) {
         parentNode.insertBefore(get(currentEndNode, 1), get(currentStartNode, 0));
         currentEndNode = currentNodes[--currentEnd];
         futureStartNode = futureNodes[++futureStart];
@@ -935,6 +943,7 @@ var hyperHTML = (function (global) {
   //  * it's an Array, resolve all values if Promises and/or
   //    update the node with the resulting list of content
   var setAnyContent = function setAnyContent(node, childNodes) {
+    var diffOptions = { node: asNode, before: node };
     var fastPath = false;
     var oldValue = void 0;
     var anyContent = function anyContent(value) {
@@ -950,14 +959,14 @@ var hyperHTML = (function (global) {
           } else {
             fastPath = true;
             oldValue = value;
-            childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], diffOptions);
           }
           break;
         case 'object':
         case 'undefined':
           if (value == null) {
             fastPath = false;
-            childNodes = domdiff(node.parentNode, childNodes, [], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, [], diffOptions);
             break;
           }
         default:
@@ -966,7 +975,7 @@ var hyperHTML = (function (global) {
           if (isArray(value)) {
             if (value.length === 0) {
               if (childNodes.length) {
-                childNodes = domdiff(node.parentNode, childNodes, [], asNode, node);
+                childNodes = domdiff(node.parentNode, childNodes, [], diffOptions);
               }
             } else {
               switch (typeof value[0]) {
@@ -984,12 +993,12 @@ var hyperHTML = (function (global) {
                     break;
                   }
                 default:
-                  childNodes = domdiff(node.parentNode, childNodes, value, asNode, node);
+                  childNodes = domdiff(node.parentNode, childNodes, value, diffOptions);
                   break;
               }
             }
           } else if (canDiff(value)) {
-            childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], diffOptions);
           } else if (isPromise_ish(value)) {
             value.then(anyContent);
           } else if ('placeholder' in value) {
@@ -999,7 +1008,7 @@ var hyperHTML = (function (global) {
           } else if ('any' in value) {
             anyContent(value.any);
           } else if ('html' in value) {
-            childNodes = domdiff(node.parentNode, childNodes, slice.call(createFragment(node, [].concat(value.html).join('')).childNodes), asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, slice.call(createFragment(node, [].concat(value.html).join('')).childNodes), diffOptions);
           } else if ('length' in value) {
             anyContent(slice.call(value));
           } else {

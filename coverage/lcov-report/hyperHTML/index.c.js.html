@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>668/668</span>
+        <span class='fraction'>674/674</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>361/361</span>
+        <span class='fraction'>365/365</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>103/103</span>
+        <span class='fraction'>104/104</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>654/654</span>
+        <span class='fraction'>659/659</span>
       </div>
       <div class='fl pad1y'>
         <span class="strong">14 statements, 5 functions, 12 branches</span>
@@ -1428,7 +1428,16 @@
 1379
 1380
 1381
-1382</td><td class="line-coverage quiet"><span class="cline-any cline-yes">3×</span>
+1382
+1383
+1384
+1385
+1386
+1387
+1388
+1389
+1390
+1391</td><td class="line-coverage quiet"><span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
@@ -2056,7 +2065,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">531×</span>
+<span class="cline-any cline-yes">1362×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">487×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
@@ -2076,6 +2089,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">399×</span>
+<span class="cline-any cline-yes">399×</span>
 <span class="cline-any cline-yes">399×</span>
 <span class="cline-any cline-yes">399×</span>
 <span class="cline-any cline-yes">399×</span>
@@ -2365,6 +2382,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">168×</span>
 <span class="cline-any cline-yes">168×</span>
 <span class="cline-any cline-yes">168×</span>
 <span class="cline-any cline-yes">168×</span>
@@ -3436,6 +3454,10 @@
    * @credits https://github.com/snabbdom/snabbdom
    */
 &nbsp;
+  var eqeq = function eqeq(a, b) {
+    return a == b;
+  };
+&nbsp;
   var identity = function identity(O) {
     return O;
   };
@@ -3454,11 +3476,15 @@
   var domdiff = function domdiff(parentNode, // where changes happen
   currentNodes, // Array of current items/nodes
   futureNodes, // Array of future items/nodes
-  getNode, // optional way to retrieve a node from an item
-  beforeNode // optional item/node to use as insertBefore delimiter
+  options // optional object with one of the following properties
+  //  before: domNode
+  //  compare(generic, generic) =&gt; true if same generic
+  //  node(generic) =&gt; Node
   ) {
-    var get = getNode || identity;
-    var before = beforeNode == null ? null : get(beforeNode, 0);
+    if (!options) options = {};
+    var compare = options.compare || eqeq;
+    var get = options.node || identity;
+    var before = options.before == null ? null : get(options.before, 0);
     var currentStart = 0,
         futureStart = 0;
     var currentEnd = currentNodes.length - 1;
@@ -3476,17 +3502,17 @@
         futureStartNode = futureNodes[++futureStart];
       } else if (futureEndNode == null) {
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentStartNode == futureStartNode) {
+      } else if (compare(currentStartNode, futureStartNode)) {
         currentStartNode = currentNodes[++currentStart];
         futureStartNode = futureNodes[++futureStart];
-      } else if (currentEndNode == futureEndNode) {
+      } else if (compare(currentEndNode, futureEndNode)) {
         currentEndNode = currentNodes[--currentEnd];
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentStartNode == futureEndNode) {
+      } else if (compare(currentStartNode, futureEndNode)) {
         parentNode.insertBefore(get(currentStartNode, 1), get(currentEndNode, -0).nextSibling);
         currentStartNode = currentNodes[++currentStart];
         futureEndNode = futureNodes[--futureEnd];
-      } else if (currentEndNode == futureStartNode) {
+      } else if (compare(currentEndNode, futureStartNode)) {
         parentNode.insertBefore(get(currentEndNode, 1), get(currentStartNode, 0));
         currentEndNode = currentNodes[--currentEnd];
         futureStartNode = futureNodes[++futureStart];
@@ -3746,6 +3772,7 @@
   //  * it's an Array, resolve all values if Promises and/or
   //    update the node with the resulting list of content
   var setAnyContent = function setAnyContent(node, childNodes) {
+    var diffOptions = { node: asNode, before: node };
     var fastPath = false;
     var oldValue = void 0;
     var anyContent = function anyContent(value) {
@@ -3761,14 +3788,14 @@
           } else {
             fastPath = true;
             oldValue = value;
-            childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], diffOptions);
           }
           break;
         case 'object':
         case 'undefined':
           if (value == null) {
             fastPath = false;
-            childNodes = domdiff(node.parentNode, childNodes, [], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, [], diffOptions);
             break;
           }
         default:
@@ -3777,7 +3804,7 @@
           if (isArray(value)) {
             if (value.length === 0) {
               if (childNodes.length) {
-                childNodes = domdiff(node.parentNode, childNodes, [], asNode, node);
+                childNodes = domdiff(node.parentNode, childNodes, [], diffOptions);
               }
             } else {
               switch (typeof value[0]) {
@@ -3795,12 +3822,12 @@
                     break;
                   }
                 default:
-                  childNodes = domdiff(node.parentNode, childNodes, value, asNode, node);
+                  childNodes = domdiff(node.parentNode, childNodes, value, diffOptions);
                   break;
               }
             }
           } else if (canDiff(value)) {
-            childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], diffOptions);
           } else if (isPromise_ish(value)) {
             value.then(anyContent);
           } else if ('placeholder' in value) {
@@ -3810,7 +3837,7 @@
           } else if ('any' in value) {
             anyContent(value.any);
           } else if ('html' in value) {
-            childNodes = domdiff(node.parentNode, childNodes, slice.call(createFragment(node, [].concat(value.html).join('')).childNodes), asNode, node);
+            childNodes = domdiff(node.parentNode, childNodes, slice.call(createFragment(node, [].concat(value.html).join('')).childNodes), diffOptions);
           } else if ('length' in value) {
             anyContent(slice.call(value));
           } else {
@@ -4196,7 +4223,7 @@ module.exports = hyperHTML;
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jun 18 2018 20:16:16 GMT+0200 (CEST)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Jun 24 2018 15:37:46 GMT+0200 (CEST)
 </div>
 </div>
 <script src="../prettify.js"></script>
