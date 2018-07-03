@@ -3,7 +3,7 @@
   "version": "2.11.0",
   "description": "A Fast & Light Virtual DOM Alternative",
   "homepage": "https://viperhtml.js.org/hyper.html",
-  "browser": "min.js",
+  "unpkg": "min.js",
   "main": "cjs/index.js",
   "module": "esm/index.js",
   "types": "index.d.ts",
