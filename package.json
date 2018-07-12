@@ -149,6 +149,6 @@
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/hyperhtml",
-    "logo": "https://opencollective.com/hyperhtml/logo.txt"
+    "logo": "logo.txt"
   }
 }
