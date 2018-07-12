@@ -143,7 +143,7 @@
       "uglify-js"
     ]
   },
-  "dependencies": {
+  "optionalDependencies": {
     "lightercollective": "^0.1.0"
   },
   "collective": {
