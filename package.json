@@ -42,6 +42,11 @@
           "A.hyperHTML=G()}(typeof self!='undefined'?self:this,function(){\">umd.js;cat",
           "min.js>>umd.js;echo \"return hyperHTML}));\">>umd.js"
         ]
+      ],
+      "esm": [
+        "cp min.js esm.js",
+        "echo 'export default hyperHTML;' >> esm.js",
+        "echo 'export const {Component, bind, define, diff, hyper, wire} = hyperHTML;' >> esm.js"
       ]
     },
     "build": [
@@ -50,6 +55,7 @@
       "$ bundle.min",
       "$ bundle.ie",
       "$ bundle.umd",
+      "$ bundle.esm",
       "$ test",
       "$ size"
     ],
