@@ -185,6 +185,24 @@ var hyperHTML = (function (global) {
           return {};
         }
       },
+      // dispatch a bubbling, cancelable, custom event
+      // through the first known/available node
+      dispatch: {
+        value: function value(type, detail) {
+          var _wire$ = this._wire$;
+
+          if (_wire$) {
+            var event = new CustomEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              detail: detail
+            });
+            event.component = this;
+            return (_wire$.dispatchEvent ? _wire$ : _wire$.childNodes[0]).dispatchEvent(event);
+          }
+          return false;
+        }
+      },
       // setting some property state through a new object
       // or a callback, triggers also automatically a render
       // unless explicitly specified to not do so (render === false)
@@ -209,12 +227,22 @@ var hyperHTML = (function (global) {
     var secret = '_' + type + '$';
     return {
       get: function get() {
-        return this[secret] || (this[type] = fn.call(this, type));
+        return this[secret] || setValue(this, secret, fn.call(this, type));
       },
       set: function set(value) {
-        Object.defineProperty(this, secret, { configurable: true, value: value });
+        setValue(this, secret, value);
       }
     };
+  };
+
+  // shortcut to set value on get or set(value)
+  var setValue = function setValue(self, secret, value) {
+    return Object.defineProperty(self, secret, {
+      configurable: true,
+      value: typeof value === 'function' ? function () {
+        return self._wire$ = value.apply(this, arguments);
+      } : value
+    })[secret];
   };
 
   var intents = {};

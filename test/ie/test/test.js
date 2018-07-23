@@ -75,8 +75,10 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject73 = _taggedTemplateLiteral(['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        '], ['\n          <div class="parent" onconnected=', ' ondisconnected=', '>I\'m parent\n            ', '\n          </div>\n        ']),
     _templateObject74 = _taggedTemplateLiteral(['\n        <div>A simple menu</div>\n        <ul>\n          ', '\n        </ul>\n      '], ['\n        <div>A simple menu</div>\n        <ul>\n          ', '\n        </ul>\n      ']),
     _templateObject75 = _taggedTemplateLiteral(['\n        <li>', '</li>\n      '], ['\n        <li>', '</li>\n      ']),
-    _templateObject76 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject77 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject76 = _taggedTemplateLiteral(['<p>a</p><p>b</p>'], ['<p>a</p><p>b</p>']),
+    _templateObject77 = _taggedTemplateLiteral(['<p>c</p>'], ['<p>c</p>']),
+    _templateObject78 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject79 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1309,6 +1311,66 @@ tressa.async(function (done) {
   tressa.assert(MenuSimple.for(a) !== MenuWeakMap.for(a), 'different from simple');
   tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same as simple');
   tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
+}).then(function () {
+  tressa.log('## Component.dispatch');
+
+  var Pomponent = function (_hyperHTML$Component15) {
+    _inherits(Pomponent, _hyperHTML$Component15);
+
+    function Pomponent() {
+      _classCallCheck(this, Pomponent);
+
+      return _possibleConstructorReturn(this, (Pomponent.__proto__ || Object.getPrototypeOf(Pomponent)).apply(this, arguments));
+    }
+
+    _createClass(Pomponent, [{
+      key: 'trigger',
+      value: function trigger() {
+        this.dispatch('event', 123);
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        return this.html(_templateObject76);
+      }
+    }]);
+
+    return Pomponent;
+  }(hyperHTML.Component);
+
+  var Solonent = function (_hyperHTML$Component16) {
+    _inherits(Solonent, _hyperHTML$Component16);
+
+    function Solonent() {
+      _classCallCheck(this, Solonent);
+
+      return _possibleConstructorReturn(this, (Solonent.__proto__ || Object.getPrototypeOf(Solonent)).apply(this, arguments));
+    }
+
+    _createClass(Solonent, [{
+      key: 'render',
+      value: function render() {
+        return this.html(_templateObject77);
+      }
+    }]);
+
+    return Solonent;
+  }(hyperHTML.Component);
+
+  var a = document.createElement('div');
+  var p = new Pomponent();
+  p.trigger();
+  var s = new Solonent();
+  var dispatched = false;
+  hyperHTML.bind(a)(_templateObject11, [p, s]);
+  a.addEventListener('event', function (event) {
+    tressa.assert(event.detail === 123, 'expected details');
+    tressa.assert(event.component === p, 'expected component');
+    dispatched = true;
+  });
+  p.trigger();
+  s.dispatch('test');
+  if (!dispatched) throw new Error('broken dispatch');
 })
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
@@ -1318,14 +1380,14 @@ tressa.async(function (done) {
   tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
-    hyperHTML.bind(output)(_templateObject76, '0 0 50 50');
+    hyperHTML.bind(output)(_templateObject78, '0 0 50 50');
     tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
 }).then(function () {
   tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject77);
+  var output = hyperHTML.wire()(_templateObject79);
   tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */

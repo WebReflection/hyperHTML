@@ -12,10 +12,11 @@ const $WeakMap = global.WeakMap;
 
 global.tressa = require('tressa');
 
-const {Document, HTMLElement} = require('basichtml');
+const {CustomEvent, Document, HTMLElement} = require('basichtml');
 global.window = global;
 global.document = new Document();
 global.customElements = document.customElements;
+global.CustomEvent = CustomEvent;
 
 document.importNode = function (node, deep) {
   return node.cloneNode(deep);
