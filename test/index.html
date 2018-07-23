@@ -17,6 +17,8 @@
   </body>
   <script src="https://unpkg.com/consolemd@0.1.2"></script>
   <script src="https://unpkg.com/tressa@0.3.1"></script>
-  <script src="../index.js?1"></script>
-  <script src="./test.js"></script>
+  <script>
+  document.write('<script src="../index.js?_=' + Math.random() + '"><\x2fscript>');
+  document.write('<script src="./test.js?_=' + Math.random() + '"><\x2fscript>');
+  </script>
 </html>

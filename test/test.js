@@ -1196,6 +1196,36 @@ tressa.async(function (done) {
   tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same as simple');
   tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
 })
+.then(function () {
+  tressa.log('## Component.dispatch');
+  class Pomponent extends hyperHTML.Component {
+    trigger() {
+      this.dispatch('event', 123);
+    }
+    render() {
+      return this.html`<p>a</p><p>b</p>`;
+    }
+  }
+  class Solonent extends hyperHTML.Component {
+    render() {
+      return this.html`<p>c</p>`;
+    }
+  }
+  var a = document.createElement('div');
+  var p = new Pomponent;
+  p.trigger();
+  var s = new Solonent;
+  var dispatched = false;
+  hyperHTML.bind(a)`${[p, s]}`;
+  a.addEventListener('event', event => {
+    tressa.assert(event.detail === 123, 'expected details');
+    tressa.assert(event.component === p, 'expected component');
+    dispatched = true;
+  });
+  p.trigger();
+  s.dispatch('test');
+  if (!dispatched) throw new Error('broken dispatch');
+})
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END

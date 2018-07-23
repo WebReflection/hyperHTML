@@ -90,6 +90,24 @@ export function setup(content) {
       state: lazyGetter('state', function () { return this.defaultState; }),
       // it is possible to define a default state that'd be always an object otherwise
       defaultState: {get() { return {}; }},
+      // dispatch a bubbling, cancelable, custom event
+      // through the first known/available node
+      dispatch: {value(type, detail) {
+        const {_wire$} = this;
+        if (_wire$) {
+          const event = new CustomEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            detail
+          });
+          event.component = this;
+          return (_wire$.dispatchEvent ?
+                    _wire$ :
+                    _wire$.childNodes[0]
+                  ).dispatchEvent(event);
+        }
+        return false;
+      }},
       // setting some property state through a new object
       // or a callback, triggers also automatically a render
       // unless explicitly specified to not do so (render === false)
@@ -97,7 +115,8 @@ export function setup(content) {
         const target = this.state;
         const source = typeof state === 'function' ? state.call(this, target) : state;
         for (const key in source) target[key] = source[key];
-        if (render !== false) this.render();
+        if (render !== false)
+          this.render();
         return this;
       }}
     }
@@ -112,10 +131,22 @@ const lazyGetter = (type, fn) => {
   const secret = '_' + type + '$';
   return {
     get() {
-      return this[secret] || (this[type] = fn.call(this, type));
+      return this[secret] || setValue(this, secret, fn.call(this, type));
     },
     set(value) {
-      Object.defineProperty(this, secret, {configurable: true, value});
+      setValue(this, secret, value);
     }
   };
 };
+
+// shortcut to set value on get or set(value)
+const setValue = (self, secret, value) =>
+  Object.defineProperty(self, secret, {
+    configurable: true,
+    value: typeof value === 'function' ?
+      function () {
+        return (self._wire$ = value.apply(this, arguments));
+      } :
+      value
+  })[secret]
+;
