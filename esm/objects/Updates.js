@@ -394,6 +394,12 @@ const setAttribute = (node, name, original) => {
       }
     };
   }
+  else if (name in Intent.attributes) {
+    return any => {
+      oldValue = Intent.attributes[name](node, any);
+      node.setAttribute(name, oldValue == null ? '' : oldValue);
+    };
+  }
   // in every other case, use the attribute node as it is
   // update only the value, set it as node only when/if needed
   else {

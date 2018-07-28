@@ -1,4 +1,5 @@
 'use strict';
+const attributes = {};
 const intents = {};
 const keys = [];
 const hasOwnProperty = intents.hasOwnProperty;
@@ -7,16 +8,23 @@ let length = 0;
 
 Object.defineProperty(exports, '__esModule', {value: true}).default = {
 
+  // used to invoke right away hyper:attributes
+  attributes,
+
   // hyperHTML.define('intent', (object, update) => {...})
   // can be used to define a third parts update mechanism
   // when every other known mechanism failed.
   // hyper.define('user', info => info.name);
   // hyper(node)`<p>${{user}}</p>`;
   define: (intent, callback) => {
-    if (!(intent in intents)) {
-      length = keys.push(intent);
+    if (intent.indexOf('-') < 0) {
+      if (!(intent in intents)) {
+        length = keys.push(intent);
+      }
+      intents[intent] = callback;
+    } else {
+      attributes[intent] = callback;
     }
-    intents[intent] = callback;
   },
 
   // this method is used internally as last resort
