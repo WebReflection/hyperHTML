@@ -1226,6 +1226,42 @@ tressa.async(function (done) {
   s.dispatch('test');
   if (!dispatched) throw new Error('broken dispatch');
 })
+.then(function () {
+  tressa.log('## define(hyper-attribute, callback)');
+  var a = document.createElement('div');
+  var random = Math.random();
+  var result = [];
+  hyperHTML.define('hyper-attribute', function (target, value) {
+    result.push(target, value);
+    return random;
+  });
+  hyperHTML.bind(a)`<p hyper-attribute=${random}/>`;
+  if (!result.length)
+    throw new Error('attributes intents failed');
+  else {
+    tressa.assert(result[0] === a.firstElementChild, 'expected target');
+    tressa.assert(result[1] === random, 'expected value');
+    tressa.assert(
+      a.firstElementChild.getAttribute('hyper-attribute') == random,
+      'expected attribute'
+    );
+  }
+  result.splice(0);
+  hyperHTML.define('other-attribute', function (target, value) {
+    result.push(target, value);
+  });
+  hyperHTML.bind(a)`<p other-attribute=${random}/>`;
+  if (!result.length)
+    throw new Error('attributes intents failed');
+  else {
+    tressa.assert(result[0] === a.firstElementChild, 'expected other target');
+    tressa.assert(result[1] === random, 'expected other value');
+    tressa.assert(
+      a.firstElementChild.getAttribute('other-attribute') === '',
+      'expected other attribute'
+    );
+  }
+})
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END
 // WARNING THESE TEST MUST BE AT THE VERY END

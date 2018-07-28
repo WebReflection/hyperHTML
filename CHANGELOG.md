@@ -1,5 +1,11 @@
 # hyper(html) Changelog
 
+### v2.13
+  * added the ability to define custom attributes via `hyperHTML.define("hyper-attribute", callback)`, so that `<p hyper-attribute=${anyValue}/>` would invoke `callback(target, anyValue)` where `p` would be the target.
+
+### v2.12
+  * added `hyper.Component#dispatch(type, detail)` method to simplify events dispatching between lightweight components, bubbling a cancelable Custom Event with a `.component` property that points at the dispatcher, while the `event.currentTarget` will be the first node found within the component render.
+
 ### v2.11
   * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to v1.0
 

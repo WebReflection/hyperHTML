@@ -245,6 +245,7 @@ var hyperHTML = (function (global) {
     })[secret];
   };
 
+  var attributes = {};
   var intents = {};
   var keys = [];
   var hasOwnProperty = intents.hasOwnProperty;
@@ -253,16 +254,23 @@ var hyperHTML = (function (global) {
 
   var Intent = {
 
+    // used to invoke right away hyper:attributes
+    attributes: attributes,
+
     // hyperHTML.define('intent', (object, update) => {...})
     // can be used to define a third parts update mechanism
     // when every other known mechanism failed.
     // hyper.define('user', info => info.name);
     // hyper(node)`<p>${{user}}</p>`;
     define: function define(intent, callback) {
-      if (!(intent in intents)) {
-        length = keys.push(intent);
+      if (intent.indexOf('-') < 0) {
+        if (!(intent in intents)) {
+          length = keys.push(intent);
+        }
+        intents[intent] = callback;
+      } else {
+        attributes[intent] = callback;
       }
-      intents[intent] = callback;
     },
 
     // this method is used internally as last resort
@@ -1098,6 +1106,11 @@ var hyperHTML = (function (global) {
                 }
               }
             }
+          };
+        } else if (name in Intent.attributes) {
+          return function (any) {
+            oldValue = Intent.attributes[name](node, any);
+            node.setAttribute(name, oldValue == null ? '' : oldValue);
           };
         }
         // in every other case, use the attribute node as it is
