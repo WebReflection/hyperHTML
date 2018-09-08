@@ -996,6 +996,8 @@ tressa.async(function (done) {
   tressa.assert(!node.style.fontSize, 'object cleaned');
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
+  // p({ '--primary': 'red' });
+  // tressa.assert(node.style.getPropertyValue('--primary') === 'red', 'custom property ok');
 })
 .then(function () {
   tressa.log('## <self-closing />');
