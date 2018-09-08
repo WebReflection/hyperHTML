@@ -113,6 +113,7 @@ export const slice = [].slice;
 // around its own interpolations.
 export const unique = template => TL(template);
 
+// https://codepen.io/WebReflection/pen/dqZrpV?editors=0010
 // TL returns a unique version of the template
 // it needs lazy feature detection
 // (cannot trust literals with transpiled code)
@@ -120,6 +121,7 @@ let TL = t => {
   if (
     // TypeScript template literals are not standard
     t.propertyIsEnumerable('raw') ||
+    !Object.isFrozen(t.raw) ||
     (
         // Firefox < 55 has not standard implementation neither
         /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) &&

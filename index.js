@@ -427,13 +427,14 @@ var hyperHTML = (function (global) {
     return _TL(template);
   };
 
+  // https://codepen.io/WebReflection/pen/dqZrpV?editors=0010
   // TL returns a unique version of the template
   // it needs lazy feature detection
   // (cannot trust literals with transpiled code)
   var _TL = function TL(t) {
     if (
     // TypeScript template literals are not standard
-    t.propertyIsEnumerable('raw') ||
+    t.propertyIsEnumerable('raw') || !Object.isFrozen(t.raw) ||
     // Firefox < 55 has not standard implementation neither
     /Firefox\/(\d+)/.test((G.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
       var T = {};
