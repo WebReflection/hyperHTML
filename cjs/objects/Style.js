@@ -40,9 +40,11 @@ const update = (style, isSVG) => {
           const info = isSVG ? {} : style;
           for (const key in newValue) {
             const value = newValue[key];
-            info[key] = typeof value === 'number' &&
+            const styleValue = typeof value === 'number' &&
                         !IS_NON_DIMENSIONAL.test(key) ?
                           (value + 'px') : value;
+            if (key.indexOf('--') === 0) info.setProperty(key, styleValue);
+            else info[key] = styleValue;
           }
           oldType = 'object';
           if (isSVG) style.value = toStyle((oldValue = info));
