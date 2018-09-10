@@ -1,5 +1,11 @@
 # hyper(html) Changelog
 
+### v2.13.2
+  * added support for custom CSS properties as object keys.
+
+### v2.13.1
+  * worked around [TypeScript transpilation bug with Template Literals](https://twitter.com/WebReflection/status/1038115439539363840).
+
 ### v2.13
   * added the ability to define custom attributes via `hyperHTML.define("hyper-attribute", callback)`, so that `<p hyper-attribute=${anyValue}/>` would invoke `callback(target, anyValue)` where `p` would be the target.
 
