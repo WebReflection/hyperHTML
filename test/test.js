@@ -485,10 +485,10 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     var div = document.createElement('div');
     document.body.appendChild(div);
-    hyperHTML.bind(div)`<script src="../min.js" onload=${() => {
+    hyperHTML.bind(div)`<script src="../min.js" onload="${() => {
       tressa.assert(true, 'executed');
       done();
-    }}></script>`;
+    }}"></script>`;
     // in nodejs case
     if (!('onload' in document.defaultView)) {
       var evt = document.createEvent('Event');
@@ -996,6 +996,8 @@ tressa.async(function (done) {
   tressa.assert(!node.style.fontSize, 'object cleaned');
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
+  p({'--custom-color': 'red'});
+  tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
 })
 .then(function () {
   tressa.log('## <self-closing />');

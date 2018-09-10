@@ -37,7 +37,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject35 = _taggedTemplateLiteral(['<p data=', '>', '</p>'], ['<p data=', '>', '</p>']),
     _templateObject36 = _taggedTemplateLiteral(['<textarea new>', '</textarea>'], ['<textarea new>', '</textarea>']),
     _templateObject37 = _taggedTemplateLiteral(['<p><!--ok--></p>'], ['<p><!--ok--></p>']),
-    _templateObject38 = _taggedTemplateLiteral(['<script src="../min.js" onload=', '></script>'], ['<script src="../min.js" onload=', '></script>']),
+    _templateObject38 = _taggedTemplateLiteral(['<script src="../min.js" onload="', '"></script>'], ['<script src="../min.js" onload="', '"></script>']),
     _templateObject39 = _taggedTemplateLiteral(['<rect style=', ' />'], ['<rect style=', ' />']),
     _templateObject40 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
     _templateObject41 = _taggedTemplateLiteral(['\n      <div>First name: ', '</div>\n      <p></p>'], ['\n      <div>First name: ', '</div>\n      <p></p>']),
@@ -1088,6 +1088,8 @@ tressa.async(function (done) {
   tressa.assert(!node.style.fontSize, 'object cleaned');
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
+  p({ '--custom-color': 'red' });
+  tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
 }).then(function () {
   tressa.log('## <self-closing />');
   var div = hyperHTML.wire()(_templateObject64, 1);

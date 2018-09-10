@@ -33,27 +33,37 @@ const update = (style, isSVG) => {
               }
             }
           } else {
-            if (isSVG) style.value = '';
-            else style.cssText = '';
+            if (isSVG)
+              style.value = '';
+            else
+              style.cssText = '';
           }
           const info = isSVG ? {} : style;
           for (const key in newValue) {
             const value = newValue[key];
-            info[key] = typeof value === 'number' &&
-                        !IS_NON_DIMENSIONAL.test(key) ?
-                          (value + 'px') : value;
+            const styleValue = typeof value === 'number' &&
+                                !IS_NON_DIMENSIONAL.test(key) ?
+                                (value + 'px') : value;
+            if (/^--/.test(key))
+              info.setProperty(key, styleValue);
+            else
+              info[key] = styleValue;
           }
           oldType = 'object';
-          if (isSVG) style.value = toStyle((oldValue = info));
-          else oldValue = newValue;
+          if (isSVG)
+            style.value = toStyle((oldValue = info));
+          else
+            oldValue = newValue;
           break;
         }
       default:
         if (oldValue != newValue) {
           oldType = 'string';
           oldValue = newValue;
-          if (isSVG) style.value = newValue || '';
-          else style.cssText = newValue || '';
+          if (isSVG)
+            style.value = newValue || '';
+          else
+            style.cssText = newValue || '';
         }
         break;
     }

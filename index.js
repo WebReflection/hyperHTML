@@ -624,7 +624,8 @@ var hyperHTML = (function (global) {
             var info = isSVG ? {} : style;
             for (var _key in newValue) {
               var value = newValue[_key];
-              info[_key] = typeof value === 'number' && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
+              var styleValue = typeof value === 'number' && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
+              if (/^--/.test(_key)) info.setProperty(_key, styleValue);else info[_key] = styleValue;
             }
             oldType = 'object';
             if (isSVG) style.value = toStyle(oldValue = info);else oldValue = newValue;
