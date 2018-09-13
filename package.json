@@ -135,7 +135,7 @@
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
     "basichtml": "^0.19.0",
     "coveralls": "^3.0.2",
-    "domdiff": "^1.0.0",
+    "domdiff": "^2.0.0",
     "istanbul": "^0.4.5",
     "npm-dollar": "^0.2.0",
     "rollup": "^0.65.0",
