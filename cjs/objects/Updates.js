@@ -8,7 +8,7 @@ const Wire = (m => m.__esModule ? m.default : m)(require('../classes/Wire.js'));
 const Path = (m => m.__esModule ? m.default : m)(require('./Path.js'));
 const Style = (m => m.__esModule ? m.default : m)(require('./Style.js'));
 const Intent = (m => m.__esModule ? m.default : m)(require('./Intent.js'));
-const domdiff = (m => m.__esModule ? m.default : m)(require('../shared/domdiff.js'));
+const domdiff = (m => m.__esModule ? m.default : m)(require('../3rd/domdiff.js'));
 // see /^script$/i.test(nodeName) bit down here
 // import { create as createElement, text } from '../shared/easy-dom.js';
 const { text } = require('../shared/easy-dom.js');

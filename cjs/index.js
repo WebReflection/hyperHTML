@@ -7,7 +7,7 @@ const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
-const diff = (m => m.__esModule ? m.default : m)(require('./shared/domdiff.js'));
+const diff = (m => m.__esModule ? m.default : m)(require('./3rd/domdiff.js'));
 
 // all functions are self bound to the right context
 // you can do the following

@@ -1,10 +1,11 @@
-'use strict';
 /* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
 /*! (c) 2018 Andrea Giammarchi (ISC) */
 
-const {
-  eqeq, identity, indexOf, isReversed, next, append, remove, smartDiff
-} = require('./utils.js');
+import {
+  eqeq, identity, indexOf, isReversed, next,
+  append, remove,
+  smartDiff
+} from './utils.js';
 
 const domdiff = (
   parentNode,     // where changes happen
@@ -220,4 +221,4 @@ const domdiff = (
   return futureNodes;
 };
 
-Object.defineProperty(exports, '__esModule', {value: true}).default = domdiff;
+export default domdiff;

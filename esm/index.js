@@ -4,7 +4,7 @@ import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
-import diff from './shared/domdiff.js';
+import diff from './3rd/domdiff.js';
 
 // all functions are self bound to the right context
 // you can do the following

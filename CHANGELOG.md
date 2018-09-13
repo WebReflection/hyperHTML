@@ -1,5 +1,11 @@
 # hyper(html) Changelog
 
+### v2.14
+  * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to match [petit-dom](https://github.com/yelouafi/petit-dom) performance
+    * up to 3X performance on huge lists
+    * improved reliability over random changes
+    * unfortunately there's a +0.6K overall size increase due amount of extra logic involved
+
 ### v2.13.2
   * added support for custom CSS properties as object keys.
 

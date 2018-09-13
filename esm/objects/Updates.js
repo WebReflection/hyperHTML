@@ -11,7 +11,7 @@ import Wire from '../classes/Wire.js';
 import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
-import domdiff from '../shared/domdiff.js';
+import domdiff from '../3rd/domdiff.js';
 // see /^script$/i.test(nodeName) bit down here
 // import { create as createElement, text } from '../shared/easy-dom.js';
 import { text } from '../shared/easy-dom.js';
