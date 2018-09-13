@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script defer src="https://unpkg.com/hyperhtml@latest/min.js"></script>
+  <script>
+this.onload = () => {
+  const numberOfElements = 10000;
+  const items = Array.apply(null, Array(numberOfElements)).map((el, i) => ({text: i})).sort(() => .5 < Math.random())
+  const sortMethods = [
+    () => 0,
+    (a, b) => a.text - b.text,
+    (a, b) => b.text - a.text
+  ];
+
+  function hyperHtmlTest() {
+    
+    const $node = document.createElement('div');
+    const $div = document.createElement('div');
+    const $button = document.createElement('button');
+
+    const bound = hyperHTML.bind($div);
+    const wire = hyperHTML.wire;
+
+    let sortMethodIndex = 0;
+
+    function render () {
+    
+      const sortMethod = sortMethods[sortMethodIndex++ % sortMethods.length];
+      bound`${items.concat().sort(sortMethod).map(
+        item => wire(item)`<p>${item.text}</p>`
+      )}`;
+    }
+    
+    $node.appendChild($button);
+    $node.appendChild($div);
+
+    $button.textContent = 'HyperHTml Sort';
+    $button.onclick = render;
+    
+    return $node;
+    
+  }
+
+  function normalHtmlTest() {
+    
+    const $node = document.createElement('div')
+    const $div = document.createElement('div')
+    const $button = document.createElement('button')
+
+    let sortMethodIndex = 0
+
+    function render () {
+    
+      const sortMethod = sortMethods[sortMethodIndex++ % sortMethods.length];
+      
+      while($div.childNodes.length)
+        $div.removeChild($div.childNodes[0]);
+      
+      const frag = document.createDocumentFragment();
+      
+      items.concat().sort(sortMethod).forEach(item => {
+        
+        const p = document.createElement('p');
+        
+        p.textContent = item.text;
+        
+        frag.appendChild(p);
+        
+      })
+      
+      $div.appendChild(frag);
+
+    }
+    
+    $node.appendChild($button);
+    $node.appendChild($div);
+
+    $button.textContent = 'NormalHtml Sort';
+    $button.onclick = render;
+    
+    return $node;
+    
+  }
+
+  document.body.appendChild(normalHtmlTest());
+  document.body.appendChild(hyperHtmlTest());
+
+};
+  </script>
+</head>
+<body>
+  
+</body>
+</html>
