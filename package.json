@@ -139,7 +139,7 @@
     "coveralls": "^3.0.2",
     "domdiff": "^2.0.0",
     "istanbul": "^0.4.5",
-    "npm-dollar": "^0.2.0",
+    "npm-dollar": "^2.0.0",
     "rollup": "^0.66.0",
     "rollup-plugin-babel": "^3.0.7",
     "tressa": "^0.3.1",
