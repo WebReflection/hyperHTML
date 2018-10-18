@@ -48,7 +48,7 @@
           log('connected: ' + this.getAttribute('name'));
         }
       });
-      
+
       function nameGenerator(length) {
         var name = [];
         while (length--) {
@@ -56,7 +56,7 @@
         }
         return String.fromCharCode.apply(null, name);
       }
-      
+
       function usersGenerator(many) {
         var users = [];
         while (many--) {
@@ -67,14 +67,14 @@
         }
         return users;
       }
-      
+
       var perf = console.time ? console : {
         time() { this._ = (new Date).getTime(); },
         timeEnd() {
           console.log((new Date).getTime() - this._);
         }
       };
-      
+
       var wire = hyperHTML.wire;
       var users = [
         {name: 'A', age: 34},
@@ -96,7 +96,6 @@
         } :
         function (text) {};
 
-      hyperHTML.engine.MAX_LIST_SIZE = Infinity;
       // first update, populate the body
       log('<strong>DOM changes</strong>');
       log('- - - - - - - - - -');
@@ -106,7 +105,7 @@
 
       // after one second
       setTimeout(() => {
-      
+
         // sort the users list by name
         users.sort((a, b) => a.name < b.name ? -1 : 1);
 
@@ -116,16 +115,15 @@
 
         // after another second
         setTimeout(() => {
-      
+
           // sort the users list by age
           users.sort((a, b) => a.age - b.age);
-      
+
           // update + see which user was moved around
           update();
           results.majinbuu.push(window[target].innerHTML);
 
           setTimeout(() => {
-            hyperHTML.engine.MAX_LIST_SIZE = 0;
             target = 'user-list-default';
             logs = 'logs-default';
             log('<strong>DOM changes</strong>');
@@ -151,7 +149,7 @@
           }, DELAY);
 
         }, DELAY);
-      
+
       }, DELAY);
 
       function update() {
@@ -167,6 +165,6 @@
         perf.timeEnd();
         if (users.length) setTimeout(log, DELAY / 10, '- - - - - - - - - -');
       }
-      
+
       </script>
 </html>
