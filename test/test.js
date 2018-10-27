@@ -273,7 +273,7 @@ tressa.async(function (done) {
         <ul>${
           items.map(function (item, i) {
             return hyperHTML.wire((listItems[i] || (listItems[i] = {})))`
-            <li data-test="${i}">${item.text}</li>
+            <li data-test="${i}">${() => item.text}</li>
             `;
           })
         }</ul>
@@ -459,7 +459,7 @@ tressa.async(function (done) {
 
   let last = hyperHTML.wire();
   empty = function (style) {
-    return last`<textarea style=${style}>${'same text'}</textarea>`;
+    return last`<textarea style=${style}>${() => 'same text'}</textarea>`;
   };
   empty('border:0');
   empty({border: 0});

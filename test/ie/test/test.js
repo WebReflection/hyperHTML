@@ -327,7 +327,9 @@ tressa.async(function (done) {
 
     function update(items) {
       render(_templateObject14, items.map(function (item, i) {
-        return hyperHTML.wire(listItems[i] || (listItems[i] = {}))(_templateObject15, i, item.text);
+        return hyperHTML.wire(listItems[i] || (listItems[i] = {}))(_templateObject15, i, function () {
+          return item.text;
+        });
       }));
     }
 
@@ -497,7 +499,9 @@ tressa.async(function (done) {
 
   var last = hyperHTML.wire();
   empty = function empty(style) {
-    return last(_templateObject33, style, 'same text');
+    return last(_templateObject33, style, function () {
+      return 'same text';
+    });
   };
   empty('border:0');
   empty({ border: 0 });
