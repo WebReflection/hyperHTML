@@ -248,6 +248,9 @@ const setAnyContent = (node, childNodes) => {
           );
         }
         break;
+      case 'function':
+        anyContent(value(node));
+        break;
       case 'object':
       case 'undefined':
         if (value == null) {
@@ -434,7 +437,8 @@ const setTextContent = node => {
   const textContent = value => {
     if (oldValue !== value) {
       oldValue = value;
-      if (typeof value === 'object' && value) {
+      const type = typeof value;
+      if (type === 'object' && value) {
         if (isPromise_ish(value)) {
           value.then(textContent);
         } else if ('placeholder' in value) {
@@ -450,6 +454,8 @@ const setTextContent = node => {
         } else {
           textContent(Intent.invoke(value, textContent));
         }
+      } else if (type === 'function') {
+        textContent(value(node));
       } else {
         node.textContent = value == null ? '' : value;
       }

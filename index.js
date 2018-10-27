@@ -1241,6 +1241,9 @@ var hyperHTML = (function (global) {
             childNodes = domdiff(node.parentNode, childNodes, [text(node, value)], diffOptions);
           }
           break;
+        case 'function':
+          anyContent(value(node));
+          break;
         case 'object':
         case 'undefined':
           if (value == null) {
@@ -1393,7 +1396,8 @@ var hyperHTML = (function (global) {
     var textContent = function textContent(value) {
       if (oldValue !== value) {
         oldValue = value;
-        if (typeof value === 'object' && value) {
+        var type = typeof value;
+        if (type === 'object' && value) {
           if (isPromise_ish(value)) {
             value.then(textContent);
           } else if ('placeholder' in value) {
@@ -1409,6 +1413,8 @@ var hyperHTML = (function (global) {
           } else {
             textContent(Intent.invoke(value, textContent));
           }
+        } else if (type === 'function') {
+          textContent(value(node));
         } else {
           node.textContent = value == null ? '' : value;
         }
