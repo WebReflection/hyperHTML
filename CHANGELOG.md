@@ -1,7 +1,7 @@
 # hyper(html) Changelog
 
 ### v2.15
-  * added [invokable slots](https://github.com/WebReflection/hyperHTML/pull/282#issuecomment-433614081) to let developers explore patterns through callbacks that will receive a parent node while rendered.
+  * added [invokable slots](https://github.com/WebReflection/hyperHTML/pull/282#issuecomment-433614081) to let developers explore patterns through callbacks that will receive a unique live node for weak references while rendered.
 
 ### v2.14
   * updated [domdiff](https://github.com/WebReflection/domdiff#domdiff) to match [petit-dom](https://github.com/yelouafi/petit-dom) performance
