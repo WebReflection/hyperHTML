@@ -77,10 +77,11 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject75 = _taggedTemplateLiteral(['\n        <li>', '</li>\n      '], ['\n        <li>', '</li>\n      ']),
     _templateObject76 = _taggedTemplateLiteral(['<p>a</p><p>b</p>'], ['<p>a</p><p>b</p>']),
     _templateObject77 = _taggedTemplateLiteral(['<p>c</p>'], ['<p>c</p>']),
-    _templateObject78 = _taggedTemplateLiteral(['<p hyper-attribute=', '/>'], ['<p hyper-attribute=', '/>']),
-    _templateObject79 = _taggedTemplateLiteral(['<p other-attribute=', '/>'], ['<p other-attribute=', '/>']),
-    _templateObject80 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
-    _templateObject81 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
+    _templateObject78 = _taggedTemplateLiteral(['', ' - ', ''], ['', ' - ', '']),
+    _templateObject79 = _taggedTemplateLiteral(['<p hyper-attribute=', '/>'], ['<p hyper-attribute=', '/>']),
+    _templateObject80 = _taggedTemplateLiteral(['<p other-attribute=', '/>'], ['<p other-attribute=', '/>']),
+    _templateObject81 = _taggedTemplateLiteral(['<svg viewBox=', '></svg>'], ['<svg viewBox=', '></svg>']),
+    _templateObject82 = _taggedTemplateLiteral(['<a-scene></a-scene>'], ['<a-scene></a-scene>']);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1380,6 +1381,25 @@ tressa.async(function (done) {
   s.dispatch('test');
   if (!dispatched) throw new Error('broken dispatch');
 }).then(function () {
+  tressa.log('## slotted callback');
+  var div = document.createElement('div');
+  var result = [];
+  function A() {
+    result.push(arguments);
+    return { html: '<b>a</b>' };
+  }
+  function B() {
+    result.push(arguments);
+    return { html: '<b>b</b>' };
+  }
+  function update() {
+    hyperHTML.bind(div)(_templateObject78, A, B);
+  }
+  update();
+  console.log(result[0]);
+  tressa.assert(result[0][0].parentNode === div, 'expected parent node for A');
+  tressa.assert(result[1][0].parentNode === div, 'expected parent node for B');
+}).then(function () {
   tressa.log('## define(hyper-attribute, callback)');
   var a = document.createElement('div');
   var random = Math.random();
@@ -1388,7 +1408,7 @@ tressa.async(function (done) {
     result.push(target, value);
     return random;
   });
-  hyperHTML.bind(a)(_templateObject78, random);
+  hyperHTML.bind(a)(_templateObject79, random);
   if (!result.length) throw new Error('attributes intents failed');else {
     tressa.assert(result[0] === a.firstElementChild, 'expected target');
     tressa.assert(result[1] === random, 'expected value');
@@ -1398,7 +1418,7 @@ tressa.async(function (done) {
   hyperHTML.define('other-attribute', function (target, value) {
     result.push(target, value);
   });
-  hyperHTML.bind(a)(_templateObject79, random);
+  hyperHTML.bind(a)(_templateObject80, random);
   if (!result.length) throw new Error('attributes intents failed');else {
     tressa.assert(result[0] === a.firstElementChild, 'expected other target');
     tressa.assert(result[1] === random, 'expected other value');
@@ -1413,14 +1433,14 @@ tressa.async(function (done) {
   tressa.log('## IE9 double viewBox 🌈 🌈');
   var output = document.createElement('div');
   try {
-    hyperHTML.bind(output)(_templateObject80, '0 0 50 50');
+    hyperHTML.bind(output)(_templateObject81, '0 0 50 50');
     tressa.assert(output.firstChild.getAttribute('viewBox') == '0 0 50 50', 'correct camelCase attribute');
   } catch (o_O) {
     tressa.assert(true, 'code coverage caveat');
   }
 }).then(function () {
   tressa.log('## A-Frame compatibility');
-  var output = hyperHTML.wire()(_templateObject81);
+  var output = hyperHTML.wire()(_templateObject82);
   tressa.assert(output.nodeName.toLowerCase() === 'a-scene', 'correct element');
 })
 // */

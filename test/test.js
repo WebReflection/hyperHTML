@@ -1229,6 +1229,25 @@ tressa.async(function (done) {
   if (!dispatched) throw new Error('broken dispatch');
 })
 .then(function () {
+  tressa.log('## slotted callback');
+  var div = document.createElement('div');
+  var result = [];
+  function A() {
+    result.push(arguments);
+    return {html: '<b>a</b>'};
+  }
+  function B() {
+    result.push(arguments);
+    return {html: '<b>b</b>'};
+  }
+  function update() {
+    hyperHTML.bind(div)`${A} - ${B}`;
+  }
+  update();
+  tressa.assert(result[0][0].parentNode === div, 'expected parent node for A');
+  tressa.assert(result[1][0].parentNode === div, 'expected parent node for B');
+})
+.then(function () {
   tressa.log('## define(hyper-attribute, callback)');
   var a = document.createElement('div');
   var random = Math.random();
