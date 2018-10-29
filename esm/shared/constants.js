@@ -10,7 +10,7 @@ export const COMMENT_NODE = 8;
 export const DOCUMENT_FRAGMENT_NODE = 11;
 
 // HTML related constants
-export const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr$/i;
+export const VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
 
 // SVG related constants
 export const OWNER_SVG_ELEMENT = 'ownerSVGElement';
@@ -22,6 +22,6 @@ export const DISCONNECTED = 'dis' + CONNECTED;
 
 // hyperHTML related constants
 export const EXPANDO = '_hyper: ';
-export const SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
+export const SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
 export const UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
 export const UIDC = '<!--' + UID + '-->';

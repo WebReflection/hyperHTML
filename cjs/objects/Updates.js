@@ -214,6 +214,9 @@ const invokeAtDistance = (value, callback) => {
 // quick and dirty way to check for Promise/ish values
 const isPromise_ish = value => value != null && 'then' in value;
 
+// list of attributes that should not be directly assigned
+const readOnly = /^(?:form)$/i;
+
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
 //  * it's a JS primitive, stored as text
@@ -381,7 +384,10 @@ const setAttribute = (node, name, original) => {
   // the attribute is special ('value' in input)
   // and it's not SVG *or* the name is exactly data,
   // in this case assign the value directly
-  else if (name === 'data' || (!isSVG && name in node)) {
+  else if (
+    name === 'data' ||
+    (!isSVG && name in node && !readOnly.test(name))
+  ) {
     return newValue => {
       if (oldValue !== newValue) {
         oldValue = newValue;

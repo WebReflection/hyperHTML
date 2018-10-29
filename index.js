@@ -12,7 +12,7 @@ var hyperHTML = (function (global) {
   var DOCUMENT_FRAGMENT_NODE = 11;
 
   // HTML related constants
-  var VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr$/i;
+  var VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
 
   // SVG related constants
   var OWNER_SVG_ELEMENT = 'ownerSVGElement';
@@ -24,7 +24,7 @@ var hyperHTML = (function (global) {
 
   // hyperHTML related constants
   var EXPANDO = '_hyper: ';
-  var SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
+  var SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
   var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
   var UIDC = '<!--' + UID + '-->';
 
@@ -1212,6 +1212,9 @@ var hyperHTML = (function (global) {
     return value != null && 'then' in value;
   };
 
+  // list of attributes that should not be directly assigned
+  var readOnly = /^(?:form)$/i;
+
   // in a hyper(node)`<div>${content}</div>` case
   // everything could happen:
   //  * it's a JS primitive, stored as text
@@ -1341,7 +1344,7 @@ var hyperHTML = (function (global) {
       // the attribute is special ('value' in input)
       // and it's not SVG *or* the name is exactly data,
       // in this case assign the value directly
-      else if (name === 'data' || !isSVG && name in node) {
+      else if (name === 'data' || !isSVG && name in node && !readOnly.test(name)) {
           return function (newValue) {
             if (oldValue !== newValue) {
               oldValue = newValue;

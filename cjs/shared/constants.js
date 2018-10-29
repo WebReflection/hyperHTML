@@ -17,7 +17,7 @@ const DOCUMENT_FRAGMENT_NODE = 11;
 exports.DOCUMENT_FRAGMENT_NODE = DOCUMENT_FRAGMENT_NODE;
 
 // HTML related constants
-const VOID_ELEMENTS = /^area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr$/i;
+const VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
 exports.VOID_ELEMENTS = VOID_ELEMENTS;
 
 // SVG related constants
@@ -35,7 +35,7 @@ exports.DISCONNECTED = DISCONNECTED;
 // hyperHTML related constants
 const EXPANDO = '_hyper: ';
 exports.EXPANDO = EXPANDO;
-const SHOULD_USE_TEXT_CONTENT = /^style|textarea$/i;
+const SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
 exports.SHOULD_USE_TEXT_CONTENT = SHOULD_USE_TEXT_CONTENT;
 const UID = EXPANDO + ((Math.random() * new Date) | 0) + ';';
 exports.UID = UID;

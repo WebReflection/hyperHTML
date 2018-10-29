@@ -1396,7 +1396,6 @@ tressa.async(function (done) {
     hyperHTML.bind(div)(_templateObject78, A, B);
   }
   update();
-  console.log(result[0]);
   tressa.assert(result[0][0].parentNode === div, 'expected parent node for A');
   tressa.assert(result[1][0].parentNode === div, 'expected parent node for B');
 }).then(function () {
