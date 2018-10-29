@@ -1213,7 +1213,7 @@ var hyperHTML = (function (global) {
   };
 
   // list of attributes that should not be directly assigned
-  var readOnly = /^(?:form)$/i;
+  var readOnly = /^(?:form|list)$/i;
 
   // in a hyper(node)`<div>${content}</div>` case
   // everything could happen:

@@ -215,7 +215,7 @@ const invokeAtDistance = (value, callback) => {
 const isPromise_ish = value => value != null && 'then' in value;
 
 // list of attributes that should not be directly assigned
-const readOnly = /^(?:form)$/i;
+const readOnly = /^(?:form|list)$/i;
 
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
