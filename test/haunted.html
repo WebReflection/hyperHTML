@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>hyperHTML &amp; haunted</title>
+</head>
+<body>
+  <my-counter></my-counter>
+  <script type="module">
+  import { wire } from '../esm/index.js';
+  import { component, useState } from 'https://unpkg.com/@matthewp/haunted/haunted.js';
+
+  function Counter(el) {
+    const [count, setCount] = useState(0);
+
+    return wire(el)`
+      <div id="count">${count}</div>
+      <button type="button" onclick=${() => setCount(count + 1)}>Increment</button>
+    `.valueOf();
+  }
+
+  customElements.define('my-counter', component(Counter));
+  </script>
+</body>
+</html>

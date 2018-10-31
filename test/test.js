@@ -574,23 +574,17 @@ tressa.async(function (done) {
     {first: 'Bob', last: 'Li'},
     {first: 'Ayesha', last: 'Johnson'}
   ];
-  hyperHTML.bind(div)`${
-    employees.map(
-      employee => hyperHTML.wire(employee)`
-      <div>First name: ${employee.first}</div>
-      <p></p>`
-    )
-  }`;
+  var getEmployee = employee => hyperHTML.wire(employee)`
+    <div>First name: ${employee.first}</div>
+    <p></p>`;
+
+  hyperHTML.bind(div)`${employees.map(getEmployee)}`;
   tressa.assert(div.childElementCount === 4, 'correct elements as setAny');
+
   hyperHTML.bind(div)`
-    <p></p>${
-    employees.map(
-      employee => hyperHTML.wire(employee)`
-      <div>First name: ${employee.first}</div>
-      <p></p>`
-    )
-  }`;
+    <p></p>${employees.map(getEmployee)}`;
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
+
   hyperHTML.bind(div)`
   <p></p>${[]}`;
   tressa.assert(div.childElementCount === 1, 'only one element left');

@@ -43,7 +43,7 @@ const asNode = (item, i) => {
       /* istanbul ignore next */
       ((1 / i) < 0 ?
         (i ? item.remove() : item.last) :
-        (i ? item.insert() : item.first)) :
+        (i ? item.valueOf(true) : item.first)) :
       asNode(item.render(), i));
 }
 

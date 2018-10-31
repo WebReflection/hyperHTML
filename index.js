@@ -509,17 +509,20 @@ var hyperHTML = (function (global) {
     this.length = childNodes.length;
     this.first = childNodes[0];
     this.last = childNodes[this.length - 1];
+    this._ = null;
   }
 
   // when a wire is inserted, all its nodes will follow
-  Wire.prototype.insert = function insert() {
-    var df = fragment(this.first);
-    append(df, this.childNodes);
-    return df;
+  Wire.prototype.valueOf = function valueOf(different) {
+    var noFragment = this._ == null;
+    if (noFragment) this._ = fragment(this.first);
+    if (noFragment || different) append(this._, this.childNodes);
+    return this._;
   };
 
   // when a wire is removed, all its nodes must be removed as well
   Wire.prototype.remove = function remove() {
+    this._ = null;
     var first = this.first;
     var last = this.last;
     if (this.length === 2) {
@@ -1045,7 +1048,7 @@ var hyperHTML = (function (global) {
     // removed, post-pended, inserted, or pre-pended and
     // all these cases are handled by domdiff already
     /* istanbul ignore next */
-    1 / i < 0 ? i ? item.remove() : item.last : i ? item.insert() : item.first : asNode(item.render(), i);
+    1 / i < 0 ? i ? item.remove() : item.last : i ? item.valueOf(true) : item.first : asNode(item.render(), i);
   };
 
   // returns true if domdiff can handle the value
