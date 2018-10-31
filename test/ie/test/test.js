@@ -40,7 +40,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject38 = _taggedTemplateLiteral(['<script src="../min.js" onload="', '"></script>'], ['<script src="../min.js" onload="', '"></script>']),
     _templateObject39 = _taggedTemplateLiteral(['<rect style=', ' />'], ['<rect style=', ' />']),
     _templateObject40 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
-    _templateObject41 = _taggedTemplateLiteral(['\n      <div>First name: ', '</div>\n      <p></p>'], ['\n      <div>First name: ', '</div>\n      <p></p>']),
+    _templateObject41 = _taggedTemplateLiteral(['\n    <div>First name: ', '</div>\n    <p></p>'], ['\n    <div>First name: ', '</div>\n    <p></p>']),
     _templateObject42 = _taggedTemplateLiteral(['\n    <p></p>', ''], ['\n    <p></p>', '']),
     _templateObject43 = _taggedTemplateLiteral(['\n  <p></p>', ''], ['\n  <p></p>', '']),
     _templateObject44 = _taggedTemplateLiteral(['<textarea>', '</textarea>'], ['<textarea>', '</textarea>']),
@@ -608,14 +608,16 @@ tressa.async(function (done) {
   tressa.log('## wired arrays are rendered properly');
   var div = document.createElement('div');
   var employees = [{ first: 'Bob', last: 'Li' }, { first: 'Ayesha', last: 'Johnson' }];
-  hyperHTML.bind(div)(_templateObject11, employees.map(function (employee) {
+  var getEmployee = function getEmployee(employee) {
     return hyperHTML.wire(employee)(_templateObject41, employee.first);
-  }));
+  };
+
+  hyperHTML.bind(div)(_templateObject11, employees.map(getEmployee));
   tressa.assert(div.childElementCount === 4, 'correct elements as setAny');
-  hyperHTML.bind(div)(_templateObject42, employees.map(function (employee) {
-    return hyperHTML.wire(employee)(_templateObject41, employee.first);
-  }));
+
+  hyperHTML.bind(div)(_templateObject42, employees.map(getEmployee));
   tressa.assert(div.childElementCount === 5, 'correct elements as setVirtual');
+
   hyperHTML.bind(div)(_templateObject43, []);
   tressa.assert(div.childElementCount === 1, 'only one element left');
 }).then(function () {
