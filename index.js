@@ -516,6 +516,7 @@ var hyperHTML = (function (global) {
   Wire.prototype.valueOf = function valueOf(different) {
     var noFragment = this._ == null;
     if (noFragment) this._ = fragment(this.first);
+    /* istanbul ignore else */
     if (noFragment || different) append(this._, this.childNodes);
     return this._;
   };
@@ -1660,6 +1661,10 @@ var hyperHTML = (function (global) {
   hyper.diff = domdiff;
   hyper.hyper = hyper;
   hyper.wire = wire;
+
+  // exported as shared utils
+  // for projects based on hyperHTML
+  hyper._WeakMap = WeakMap;
 
   // the wire content is the lazy defined
   // html or svg property of each hyper.Component

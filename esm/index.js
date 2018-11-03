@@ -5,6 +5,7 @@ import Intent from './objects/Intent.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 import diff from './3rd/domdiff.js';
+import { WeakMap } from './shared/poorlyfills.js';
 
 // all functions are self bound to the right context
 // you can do the following
@@ -19,6 +20,10 @@ hyper.define = define;
 hyper.diff = diff;
 hyper.hyper = hyper;
 hyper.wire = wire;
+
+// exported as shared utils
+// for projects based on hyperHTML
+hyper._WeakMap = WeakMap;
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component
