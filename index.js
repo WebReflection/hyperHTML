@@ -516,6 +516,7 @@ var hyperHTML = (function (global) {
   Wire.prototype.valueOf = function valueOf(different) {
     var noFragment = this._ == null;
     if (noFragment) this._ = fragment(this.first);
+    /* istanbul ignore else */
     if (noFragment || different) append(this._, this.childNodes);
     return this._;
   };
