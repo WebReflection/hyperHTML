@@ -46,7 +46,7 @@
       "esm": [
         "cp min.js esm.js",
         "echo 'export default hyperHTML;' >> esm.js",
-        "echo 'export const {Component, bind, define, diff, hyper, wire, _WeakMap} = hyperHTML;' >> esm.js"
+        "echo 'export const {Component, bind, define, diff, hyper, wire} = hyperHTML;' >> esm.js"
       ]
     },
     "build": [

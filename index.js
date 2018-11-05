@@ -1664,7 +1664,12 @@ var hyperHTML = (function (global) {
 
   // exported as shared utils
   // for projects based on hyperHTML
-  hyper._WeakMap = WeakMap;
+  // that don't necessarily need upfront polyfills
+  // i.e. those still targeting IE
+  hyper._ = {
+    WeakMap: WeakMap,
+    WeakSet: WeakSet
+  };
 
   // the wire content is the lazy defined
   // html or svg property of each hyper.Component

@@ -8,7 +8,7 @@ const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
 const diff = (m => m.__esModule ? m.default : m)(require('./3rd/domdiff.js'));
-const { WeakMap } = require('./shared/poorlyfills.js');
+const { WeakMap, WeakSet } = require('./shared/poorlyfills.js');
 
 // all functions are self bound to the right context
 // you can do the following
@@ -26,7 +26,12 @@ hyper.wire = wire;
 
 // exported as shared utils
 // for projects based on hyperHTML
-hyper._WeakMap = WeakMap;
+// that don't necessarily need upfront polyfills
+// i.e. those still targeting IE
+hyper._ = {
+  WeakMap,
+  WeakSet
+};
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component
