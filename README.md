@@ -15,6 +15,15 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 
 - - -
 
+## [new] Neverland 🦄
+
+If you like REact hooks concept, don't miss the little wrap tha adds nothing to the already lightweight hyperHTML, bringing in very similar concepts.
+
+[Blog Post](https://medium.com/@WebReflection/neverland-the-hyperhtmls-hook-a0c3e11324bb)
+
+[GitHub Repository](https://github.com/WebReflection/neverland)
+
+
 ## Bundlers
 
 You can require or import _hyperHTML_ with any bundler and in different ways.
