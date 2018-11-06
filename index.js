@@ -1667,6 +1667,7 @@ var hyperHTML = (function (global) {
   // that don't necessarily need upfront polyfills
   // i.e. those still targeting IE
   hyper._ = {
+    global: G,
     WeakMap: WeakMap,
     WeakSet: WeakSet
   };
