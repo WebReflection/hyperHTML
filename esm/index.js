@@ -6,6 +6,7 @@ import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 import diff from './3rd/domdiff.js';
 import { WeakMap, WeakSet } from './shared/poorlyfills.js';
+import { G } from './shared/constants.js';
 
 // all functions are self bound to the right context
 // you can do the following
@@ -26,6 +27,7 @@ hyper.wire = wire;
 // that don't necessarily need upfront polyfills
 // i.e. those still targeting IE
 hyper._ = {
+  global: G,
   WeakMap,
   WeakSet
 };
