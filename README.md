@@ -15,13 +15,17 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 
 - - -
 
-## [new] Neverland 🦄
+## Neverland 🌈🦄
 
 If you like React hooks concept, don't miss this little wrap tha adds 0._something_ overhead to the already lightweight hyperHTML, bringing in very similar concepts.
 
 [Blog Post](https://medium.com/@WebReflection/neverland-the-hyperhtmls-hook-a0c3e11324bb)
 
 [GitHub Repository](https://github.com/WebReflection/neverland)
+
+## Haunted 🦇 🎃
+
+If you also like React hooks mechanism and you'd like to combine these via hyperHTML or [HyperHTMLElement](https://github.com/WebReflection/hyperHTML-Element), try [haunted](https://github.com/matthewp/haunted#haunted--) out!
 
 
 ## Bundlers
