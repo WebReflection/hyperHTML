@@ -140,7 +140,7 @@
     "domdiff": "^2.0.0",
     "istanbul": "^0.4.5",
     "npm-dollar": "^1.0.1",
-    "rollup": "^0.66.0",
+    "rollup": "^0.67.0",
     "rollup-plugin-babel": "^3.0.7",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.29"
