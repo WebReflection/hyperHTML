@@ -65,6 +65,9 @@ var hyperHTML = (function (global) {
   var WeakMap = G.WeakMap || function WeakMap() {
     var key = UID + ID++;
     return {
+      delete: function _delete(obj) {
+        delete obj[key];
+      },
       get: function get(obj) {
         return obj[key];
       },
@@ -81,6 +84,9 @@ var hyperHTML = (function (global) {
   var WeakSet = G.WeakSet || function WeakSet() {
     var wm = new WeakMap();
     return {
+      delete: function _delete(obj) {
+        wm.delete(obj);
+      },
       add: function add(obj) {
         wm.set(obj, true);
       },
@@ -1445,27 +1451,44 @@ var hyperHTML = (function (global) {
   var notObserving = true;
   function startObserving() {
 
+    // used to avoid duplicated invokes of
+    // dis/connected nodes and their children
+    // - - -
+    // this has been verified in Neverland,
+    // a node observed and dispatched via children loop
+    // might also be part of the nodes that have been inserted
+    // or removed, so but triggering twice should **never** happen
+    var dispatched = null;
+    var init = function init() {
+      dispatched = {
+        disconnected: new WeakSet(),
+        connected: new WeakSet()
+      };
+    };
+
     // when hyper.Component related DOM nodes
     // are appended or removed from the live tree
     // these might listen to connected/disconnected events
     // This utility is in charge of finding all components
     // involved in the DOM update/change and dispatch
     // related information to them
-    var dispatchAll = function dispatchAll(nodes, type) {
+    var dispatchAll = function dispatchAll(nodes, type, counter) {
       var event = new Event(type);
       var length = nodes.length;
       for (var i = 0; i < length; i++) {
         var node = nodes[i];
         if (node.nodeType === ELEMENT_NODE) {
-          dispatchTarget(node, event);
+          dispatchTarget(node, event, type, counter);
         }
       }
     };
 
     // the way it's done is via the components weak set
     // and recursively looking for nested components too
-    var dispatchTarget = function dispatchTarget(node, event) {
-      if (components.has(node)) {
+    var dispatchTarget = function dispatchTarget(node, event, type, counter) {
+      if (components.has(node) && !dispatched[type].has(node)) {
+        dispatched[counter].delete(node);
+        dispatched[type].add(node);
         node.dispatchEvent(event);
       }
 
@@ -1473,7 +1496,7 @@ var hyperHTML = (function (global) {
       var children = node.children || getChildren(node);
       var length = children.length;
       for (var i = 0; i < length; i++) {
-        dispatchTarget(children[i], event);
+        dispatchTarget(children[i], event, type, counter);
       }
     };
 
@@ -1483,18 +1506,24 @@ var hyperHTML = (function (global) {
     try {
       new MutationObserver(function (records) {
         var length = records.length;
+        init();
         for (var i = 0; i < length; i++) {
           var record = records[i];
-          dispatchAll(record.removedNodes, DISCONNECTED);
-          dispatchAll(record.addedNodes, CONNECTED);
+          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
         }
+        dispatched = null;
       }).observe(document, { subtree: true, childList: true });
     } catch (o_O) {
       document.addEventListener('DOMNodeRemoved', function (event) {
-        dispatchAll([event.target], DISCONNECTED);
+        init();
+        dispatchAll([event.target], DISCONNECTED, CONNECTED);
+        dispatched = null;
       }, false);
       document.addEventListener('DOMNodeInserted', function (event) {
-        dispatchAll([event.target], CONNECTED);
+        init();
+        dispatchAll([event.target], CONNECTED, DISCONNECTED);
+        dispatched = null;
       }, false);
     }
   }

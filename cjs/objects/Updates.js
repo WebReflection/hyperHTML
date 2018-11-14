@@ -487,27 +487,44 @@ exports.observe = observe;
 let notObserving = true;
 function startObserving() {
 
+  // used to avoid duplicated invokes of
+  // dis/connected nodes and their children
+  // - - -
+  // this has been verified in Neverland,
+  // a node observed and dispatched via children loop
+  // might also be part of the nodes that have been inserted
+  // or removed, so but triggering twice should **never** happen
+  let dispatched = null;
+  const init = () => {
+    dispatched = {
+      disconnected: new WeakSet,
+      connected: new WeakSet
+    };
+  };
+
   // when hyper.Component related DOM nodes
   // are appended or removed from the live tree
   // these might listen to connected/disconnected events
   // This utility is in charge of finding all components
   // involved in the DOM update/change and dispatch
   // related information to them
-  const dispatchAll = (nodes, type) => {
+  const dispatchAll = (nodes, type, counter) => {
     const event = new Event(type);
     const length = nodes.length;
     for (let i = 0; i < length; i++) {
       let node = nodes[i];
       if (node.nodeType === ELEMENT_NODE) {
-        dispatchTarget(node, event);
+        dispatchTarget(node, event, type, counter);
       }
     }
   };
 
   // the way it's done is via the components weak set
   // and recursively looking for nested components too
-  const dispatchTarget = (node, event) => {
-    if (components.has(node)) {
+  const dispatchTarget = (node, event, type, counter) => {
+    if (components.has(node) && !dispatched[type].has(node)) {
+      dispatched[counter].delete(node);
+      dispatched[type].add(node);
       node.dispatchEvent(event);
     }
 
@@ -515,7 +532,7 @@ function startObserving() {
     const children = node.children || getChildren(node);
     const length = children.length;
     for (let i = 0; i < length; i++) {
-      dispatchTarget(children[i], event);
+      dispatchTarget(children[i], event, type, counter);
     }
   }
 
@@ -525,18 +542,24 @@ function startObserving() {
   try {
     (new MutationObserver(records => {
       const length = records.length;
+      init();
       for (let i = 0; i < length; i++) {
         let record = records[i];
-        dispatchAll(record.removedNodes, DISCONNECTED);
-        dispatchAll(record.addedNodes, CONNECTED);
+        dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+        dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
       }
+      dispatched = null;
     })).observe(document, {subtree: true, childList: true});
   } catch(o_O) {
     document.addEventListener('DOMNodeRemoved', event => {
-      dispatchAll([event.target], DISCONNECTED);
+      init();
+      dispatchAll([event.target], DISCONNECTED, CONNECTED);
+      dispatched = null;
     }, false);
     document.addEventListener('DOMNodeInserted', event => {
-      dispatchAll([event.target], CONNECTED);
+      init();
+      dispatchAll([event.target], CONNECTED, DISCONNECTED);
+      dispatched = null;
     }, false);
   }
 }

@@ -39,6 +39,7 @@ let ID = 0;
 const WeakMap = G.WeakMap || function WeakMap() {
   const key = UID + ID++;
   return {
+    delete(obj) { delete obj[key]; },
     get(obj) { return obj[key]; },
     set(obj, value) {
       Object.defineProperty(obj, key, {
@@ -54,6 +55,7 @@ exports.WeakMap = WeakMap;
 const WeakSet = G.WeakSet || function WeakSet() {
   const wm = new WeakMap;
   return {
+    delete(obj) { wm.delete(obj); },
     add(obj) { wm.set(obj, true); },
     has(obj) { return wm.get(obj) === true; }
   };
