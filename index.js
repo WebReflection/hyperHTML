@@ -1436,7 +1436,7 @@ var hyperHTML = (function (global) {
     return textContent;
   };
 
-  var Updates = { create: create$1, find: find, observe: observe };
+  var Updates = { create: create$1, find: find };
 
   // hyper.Components might need connected/disconnected notifications
   // used by components and their onconnect/ondisconnect callbacks.
@@ -1666,7 +1666,7 @@ var hyperHTML = (function (global) {
   hyper.define = define;
   hyper.diff = domdiff;
   hyper.hyper = hyper;
-  hyper.observe = Updates;
+  hyper.observe = observe;
   hyper.wire = wire;
 
   // exported as shared utils

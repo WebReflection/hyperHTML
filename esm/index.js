@@ -2,7 +2,7 @@
 
 import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
-import observe from './objects/Updates.js';
+import {observe} from './objects/Updates.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 import diff from './3rd/domdiff.js';

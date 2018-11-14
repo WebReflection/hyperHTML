@@ -4,7 +4,7 @@
 const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
 const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'));
-const observe = (m => m.__esModule ? m.default : m)(require('./objects/Updates.js'));
+const {observe} = require('./objects/Updates.js');
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));

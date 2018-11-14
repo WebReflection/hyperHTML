@@ -479,7 +479,9 @@ const setTextContent = node => {
   return textContent;
 };
 
-export default {create, find, observe};
+export default {create, find};
+
+export {observe};
 
 // hyper.Components might need connected/disconnected notifications
 // used by components and their onconnect/ondisconnect callbacks.

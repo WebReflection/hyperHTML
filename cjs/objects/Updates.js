@@ -476,7 +476,9 @@ const setTextContent = node => {
   return textContent;
 };
 
-Object.defineProperty(exports, '__esModule', {value: true}).default = {create, find, observe};
+Object.defineProperty(exports, '__esModule', {value: true}).default = {create, find};
+
+exports.observe = observe;
 
 // hyper.Components might need connected/disconnected notifications
 // used by components and their onconnect/ondisconnect callbacks.
