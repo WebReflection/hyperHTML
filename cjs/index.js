@@ -4,6 +4,7 @@
 const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
 const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'));
+const observe = (m => m.__esModule ? m.default : m)(require('./objects/Updates.js'));
 const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
@@ -23,6 +24,7 @@ hyper.bind = bind;
 hyper.define = define;
 hyper.diff = diff;
 hyper.hyper = hyper;
+hyper.observe = observe;
 hyper.wire = wire;
 
 // exported as shared utils
@@ -46,6 +48,7 @@ exports.bind = bind;
 exports.define = define;
 exports.diff = diff;
 exports.hyper = hyper;
+exports.observe = observe;
 exports.wire = wire;
 
 // by default, hyperHTML is a smart function

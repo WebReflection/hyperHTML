@@ -285,6 +285,19 @@ var hyperHTML = (function (global) {
     }
   };
 
+  // TODO:  I'd love to code-cover RegExp too here
+  //        these are fundamental for this library
+
+  var spaces = ' \\f\\n\\r\\t';
+  var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
+  var attrName = '[ ' + spaces + ']+' + almostEverything;
+  var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
+  var attrPartials = '(?:=(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
+
+  var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
+
+  var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([ ' + spaces + ']*/>)', 'g');
+
   // these are tiny helpers to simplify most common operations needed here
   var create = function create(node, type) {
     return doc(node).createElement(type);
@@ -298,19 +311,6 @@ var hyperHTML = (function (global) {
   var text = function text(node, _text) {
     return doc(node).createTextNode(_text);
   };
-
-  // TODO:  I'd love to code-cover RegExp too here
-  //        these are fundamental for this library
-
-  var spaces = ' \\f\\n\\r\\t';
-  var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
-  var attrName = '[ ' + spaces + ']+' + almostEverything;
-  var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
-  var attrPartials = '(?:=(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
-
-  var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
-
-  var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([ ' + spaces + ']*/>)', 'g');
 
   var testFragment = fragment(document);
 
@@ -1219,6 +1219,16 @@ var hyperHTML = (function (global) {
   // list of attributes that should not be directly assigned
   var readOnly = /^(?:form|list)$/i;
 
+  // exposed to make any node observable through
+  // connected / disconnected event listeners
+  var observe = function observe(node) {
+    if (notObserving) {
+      notObserving = false;
+      startObserving();
+    }
+    components.add(node);
+  };
+
   // in a hyper(node)`<div>${content}</div>` case
   // everything could happen:
   //  * it's a JS primitive, stored as text
@@ -1329,11 +1339,7 @@ var hyperHTML = (function (global) {
     else if (/^on/.test(name)) {
         var type = name.slice(2);
         if (type === CONNECTED || type === DISCONNECTED) {
-          if (notObserving) {
-            notObserving = false;
-            observe();
-          }
-          components.add(node);
+          observe(node);
         } else if (name.toLowerCase() in node) {
           type = type.toLowerCase();
         }
@@ -1430,14 +1436,14 @@ var hyperHTML = (function (global) {
     return textContent;
   };
 
-  var Updates = { create: create$1, find: find };
+  var Updates = { create: create$1, find: find, observe: observe };
 
   // hyper.Components might need connected/disconnected notifications
   // used by components and their onconnect/ondisconnect callbacks.
   // When one of these callbacks is encountered,
   // the document starts being observed.
   var notObserving = true;
-  function observe() {
+  function startObserving() {
 
     // when hyper.Component related DOM nodes
     // are appended or removed from the live tree
@@ -1660,6 +1666,7 @@ var hyperHTML = (function (global) {
   hyper.define = define;
   hyper.diff = domdiff;
   hyper.hyper = hyper;
+  hyper.observe = Updates;
   hyper.wire = wire;
 
   // exported as shared utils
@@ -1683,6 +1690,7 @@ var hyperHTML = (function (global) {
     return arguments.length < 2 ? HTML == null ? content('html') : typeof HTML === 'string' ? hyper.wire(null, HTML) : 'raw' in HTML ? content('html')(HTML) : 'nodeType' in HTML ? hyper.bind(HTML) : weakly(HTML, 'html') : ('raw' in HTML ? content('html') : hyper.wire).apply(null, arguments);
   }
 
+  
   
   
   

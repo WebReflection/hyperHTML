@@ -220,6 +220,16 @@ const isPromise_ish = value => value != null && 'then' in value;
 // list of attributes that should not be directly assigned
 const readOnly = /^(?:form|list)$/i;
 
+// exposed to make any node observable through
+// connected / disconnected event listeners
+const observe = node => {
+  if (notObserving) {
+    notObserving = false;
+    startObserving();
+  }
+  components.add(node);
+};
+
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
 //  * it's a JS primitive, stored as text
@@ -367,11 +377,7 @@ const setAttribute = (node, name, original) => {
   else if (/^on/.test(name)) {
     let type = name.slice(2);
     if (type === CONNECTED || type === DISCONNECTED) {
-      if (notObserving) {
-        notObserving = false;
-        observe();
-      }
-      components.add(node);
+      observe(node);
     }
     else if (name.toLowerCase() in node) {
       type = type.toLowerCase();
@@ -473,14 +479,14 @@ const setTextContent = node => {
   return textContent;
 };
 
-export default {create, find};
+export default {create, find, observe};
 
 // hyper.Components might need connected/disconnected notifications
 // used by components and their onconnect/ondisconnect callbacks.
 // When one of these callbacks is encountered,
 // the document starts being observed.
 let notObserving = true;
-function observe() {
+function startObserving() {
 
   // when hyper.Component related DOM nodes
   // are appended or removed from the live tree

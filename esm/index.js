@@ -2,6 +2,7 @@
 
 import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
+import observe from './objects/Updates.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 import diff from './3rd/domdiff.js';
@@ -20,6 +21,7 @@ hyper.bind = bind;
 hyper.define = define;
 hyper.diff = diff;
 hyper.hyper = hyper;
+hyper.observe = observe;
 hyper.wire = wire;
 
 // exported as shared utils
@@ -38,7 +40,7 @@ setup(content);
 
 // everything is exported directly or through the
 // hyperHTML callback, when used as top level script
-export {Component, bind, define, diff, hyper, wire};
+export {Component, bind, define, diff, hyper, observe, wire};
 
 // by default, hyperHTML is a smart function
 // that "magically" understands what's the best
