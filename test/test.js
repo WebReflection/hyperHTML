@@ -939,14 +939,16 @@ tressa.async(function (done) {
 .then(function () {
   return tressa.async(function (done) {
     tressa.log('## Component connected/disconnected');
+    var calls = 0;
     class Paragraph extends hyperHTML.Component {
       onconnected(e) {
+        calls++;
         tressa.assert(e.type === 'connected', 'component connected');
         e.currentTarget.parentNode.removeChild(e.currentTarget);
       }
       ondisconnected(e) {
+        calls++;
         tressa.assert(e.type === 'disconnected', 'component disconnected');
-        done();
       }
       render() { return this.html`
         <p onconnected=${this} ondisconnected=${this}>hello</p>`;
@@ -970,8 +972,10 @@ tressa.async(function (done) {
             e.initEvent('DOMNodeRemoved', false, false);
             Object.defineProperty(e, 'target', {value: p});
             document.dispatchEvent(e);
-            delete p.disconnected;
-            document.dispatchEvent(e);
+            setTimeout(function () {
+              tressa.assert(calls === 2, 'correct amount of calls');
+              done();
+            }, 100);
           }, 100);
         }, 100);
       }

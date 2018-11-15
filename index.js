@@ -1032,10 +1032,15 @@ var hyperHTML = (function (global) {
     return futureNodes;
   };
 
+  var document$1 = G.document,
+      clearTimeout = G.clearTimeout,
+      setTimeout = G.setTimeout;
+
   // hyper.Component have a connected/disconnected
   // mechanism provided by MutationObserver
   // This weak set is used to recognize components
   // as DOM node that needs to trigger connected/disconnected events
+
   var components = new WeakSet();
 
   // a basic dictionary used to filter already cached attributes
@@ -1191,7 +1196,7 @@ var hyperHTML = (function (global) {
       // then Edge arrived and decided that scripts created
       // through template documents aren't worth executing
       // so it became this ... hopefully it won't hurt in the wild
-      var script = document.createElement(nodeName);
+      var script = document$1.createElement(nodeName);
       for (var _i2 = 0; _i2 < attributes.length; _i2++) {
         script.setAttributeNode(attributes[_i2].cloneNode(true));
       }
@@ -1500,30 +1505,38 @@ var hyperHTML = (function (global) {
       }
     };
 
+    var changes = function changes(records) {
+      var length = records.length;
+      init();
+      for (var i = 0; i < length; i++) {
+        var record = records[i];
+        dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+        dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+      }
+      dispatched = null;
+    };
+
     // The MutationObserver is the best way to implement that
     // but there is a fallback to deprecated DOMNodeInserted/Removed
     // so that even older browsers/engines can help components life-cycle
     try {
-      new MutationObserver(function (records) {
-        var length = records.length;
-        init();
-        for (var i = 0; i < length; i++) {
-          var record = records[i];
-          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-        }
-        dispatched = null;
-      }).observe(document, { subtree: true, childList: true });
+      new MutationObserver(changes).observe(document$1, { subtree: true, childList: true });
     } catch (o_O) {
-      document.addEventListener('DOMNodeRemoved', function (event) {
-        init();
-        dispatchAll([event.target], DISCONNECTED, CONNECTED);
-        dispatched = null;
+      var timer = 0;
+      var records = [];
+      var reschedule = function reschedule(record) {
+        records.push(record);
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          timer = 0;
+          changes(records.splice(0, records.length));
+        }, 0);
+      };
+      document$1.addEventListener('DOMNodeRemoved', function (event) {
+        reschedule({ addedNodes: [], removedNodes: [event.target] });
       }, false);
-      document.addEventListener('DOMNodeInserted', function (event) {
-        init();
-        dispatchAll([event.target], CONNECTED, DISCONNECTED);
-        dispatched = null;
+      document$1.addEventListener('DOMNodeInserted', function (event) {
+        reschedule({ addedNodes: [event.target], removedNodes: [] });
       }, false);
     }
   }

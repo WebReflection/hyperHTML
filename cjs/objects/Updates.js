@@ -1,6 +1,6 @@
 'use strict';
 const {
-  CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_TEXT_CONTENT, UID, UIDC
+  CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_TEXT_CONTENT, G, UID, UIDC
 } = require('../shared/constants.js');
 
 const Component = (m => m.__esModule ? m.default : m)(require('../classes/Component.js'));
@@ -14,6 +14,8 @@ const domdiff = (m => m.__esModule ? m.default : m)(require('../3rd/domdiff.js')
 const { text } = require('../shared/easy-dom.js');
 const { Event, WeakSet, isArray, trim } = require('../shared/poorlyfills.js');
 const { createFragment, getChildren, slice } = require('../shared/utils.js');
+
+const { document, clearTimeout, setTimeout } = G;
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -536,30 +538,44 @@ function startObserving() {
     }
   }
 
+  const changes = records => {
+    const length = records.length;
+    init();
+    for (let i = 0; i < length; i++) {
+      let record = records[i];
+      dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+      dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+    }
+    dispatched = null;
+  };
+
   // The MutationObserver is the best way to implement that
   // but there is a fallback to deprecated DOMNodeInserted/Removed
   // so that even older browsers/engines can help components life-cycle
   try {
-    (new MutationObserver(records => {
-      const length = records.length;
-      init();
-      for (let i = 0; i < length; i++) {
-        let record = records[i];
-        dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-        dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-      }
-      dispatched = null;
-    })).observe(document, {subtree: true, childList: true});
+    (new MutationObserver(changes)).observe(
+      document,
+      {subtree: true, childList: true}
+    );
   } catch(o_O) {
+    let timer = 0;
+    const records = [];
+    const reschedule = record => {
+      records.push(record);
+      clearTimeout(timer);
+      timer = setTimeout(
+        () => {
+          timer = 0;
+          changes(records.splice(0, records.length));
+        },
+        0
+      );
+    };
     document.addEventListener('DOMNodeRemoved', event => {
-      init();
-      dispatchAll([event.target], DISCONNECTED, CONNECTED);
-      dispatched = null;
+      reschedule({addedNodes: [], removedNodes: [event.target]});
     }, false);
     document.addEventListener('DOMNodeInserted', event => {
-      init();
-      dispatchAll([event.target], CONNECTED, DISCONNECTED);
-      dispatched = null;
+      reschedule({addedNodes: [event.target], removedNodes: []});
     }, false);
   }
 }

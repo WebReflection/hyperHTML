@@ -3,7 +3,7 @@ import {
   COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE,
   OWNER_SVG_ELEMENT,
   SHOULD_USE_TEXT_CONTENT,
-  UID, UIDC
+  G, UID, UIDC
 } from '../shared/constants.js';
 
 import Component from '../classes/Component.js';
@@ -17,6 +17,8 @@ import domdiff from '../3rd/domdiff.js';
 import { text } from '../shared/easy-dom.js';
 import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
 import { createFragment, getChildren, slice } from '../shared/utils.js';
+
+const { document, clearTimeout, setTimeout } = G;
 
 // hyper.Component have a connected/disconnected
 // mechanism provided by MutationObserver
@@ -539,30 +541,44 @@ function startObserving() {
     }
   }
 
+  const changes = records => {
+    const length = records.length;
+    init();
+    for (let i = 0; i < length; i++) {
+      let record = records[i];
+      dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+      dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+    }
+    dispatched = null;
+  };
+
   // The MutationObserver is the best way to implement that
   // but there is a fallback to deprecated DOMNodeInserted/Removed
   // so that even older browsers/engines can help components life-cycle
   try {
-    (new MutationObserver(records => {
-      const length = records.length;
-      init();
-      for (let i = 0; i < length; i++) {
-        let record = records[i];
-        dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-        dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-      }
-      dispatched = null;
-    })).observe(document, {subtree: true, childList: true});
+    (new MutationObserver(changes)).observe(
+      document,
+      {subtree: true, childList: true}
+    );
   } catch(o_O) {
+    let timer = 0;
+    const records = [];
+    const reschedule = record => {
+      records.push(record);
+      clearTimeout(timer);
+      timer = setTimeout(
+        () => {
+          timer = 0;
+          changes(records.splice(0, records.length));
+        },
+        0
+      );
+    };
     document.addEventListener('DOMNodeRemoved', event => {
-      init();
-      dispatchAll([event.target], DISCONNECTED, CONNECTED);
-      dispatched = null;
+      reschedule({addedNodes: [], removedNodes: [event.target]});
     }, false);
     document.addEventListener('DOMNodeInserted', event => {
-      init();
-      dispatchAll([event.target], CONNECTED, DISCONNECTED);
-      dispatched = null;
+      reschedule({addedNodes: [event.target], removedNodes: []});
     }, false);
   }
 }

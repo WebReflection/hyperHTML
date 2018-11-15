@@ -1026,6 +1026,7 @@ tressa.async(function (done) {
 }).then(function () {
   return tressa.async(function (done) {
     tressa.log('## Component connected/disconnected');
+    var calls = 0;
 
     var Paragraph = function (_hyperHTML$Component8) {
       _inherits(Paragraph, _hyperHTML$Component8);
@@ -1039,14 +1040,15 @@ tressa.async(function (done) {
       _createClass(Paragraph, [{
         key: 'onconnected',
         value: function onconnected(e) {
+          calls++;
           tressa.assert(e.type === 'connected', 'component connected');
           e.currentTarget.parentNode.removeChild(e.currentTarget);
         }
       }, {
         key: 'ondisconnected',
         value: function ondisconnected(e) {
+          calls++;
           tressa.assert(e.type === 'disconnected', 'component disconnected');
-          done();
         }
       }, {
         key: 'render',
@@ -1076,8 +1078,10 @@ tressa.async(function (done) {
             e.initEvent('DOMNodeRemoved', false, false);
             Object.defineProperty(e, 'target', { value: p });
             document.dispatchEvent(e);
-            delete p.disconnected;
-            document.dispatchEvent(e);
+            setTimeout(function () {
+              tressa.assert(calls === 2, 'correct amount of calls');
+              done();
+            }, 100);
           }, 100);
         }, 100);
       }
