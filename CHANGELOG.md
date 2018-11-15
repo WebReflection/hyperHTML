@@ -1,5 +1,9 @@
 # hyper(html) Changelog
 
+### v2.16.8
+  * improved MutationObserver and fallback so that double `dis/connected` events won't happen again
+  * exposed `observe` utility for 3rd parts so that it is possible to observe any node, not only those defined via template literals. Once observed, a node can have `connected` and `disconnected` listeners that will be triggered automatically.
+
 ### v2.16
   * modified `Wire` class to better handle "_same target_" case, making the `haunted.html` demo work same way as if it was bound to the node, through `valueOf()` invoke which would result in just exactly the same node if the wired content produced a node instead of a fragment. While regular users won't be affected, this is an implementation detail that changes a lot for libraries integrating `hyperHTML.wire` in their logic, making wires as fast as `bind` in most component related use cases.
 
