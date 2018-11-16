@@ -16,15 +16,11 @@ import domdiff from '../3rd/domdiff.js';
 // import { create as createElement, text } from '../shared/easy-dom.js';
 import { text } from '../shared/easy-dom.js';
 import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
-import { createFragment, getChildren, slice } from '../shared/utils.js';
+import { createFragment, slice } from '../shared/utils.js';
+import disconnected from '../3rd/disconnected.js';
 
-const { document, clearTimeout, setTimeout } = G;
-
-// hyper.Component have a connected/disconnected
-// mechanism provided by MutationObserver
-// This weak set is used to recognize components
-// as DOM node that needs to trigger connected/disconnected events
-const components = new WeakSet;
+const { document } = G;
+const observe = disconnected({Event, WeakSet});
 
 // a basic dictionary used to filter already cached attributes
 // while looking for special hyperHTML values.
@@ -222,16 +218,6 @@ const isPromise_ish = value => value != null && 'then' in value;
 // list of attributes that should not be directly assigned
 const readOnly = /^(?:form|list)$/i;
 
-// exposed to make any node observable through
-// connected / disconnected event listeners
-const observe = node => {
-  if (notObserving) {
-    notObserving = false;
-    startObserving();
-  }
-  components.add(node);
-};
-
 // in a hyper(node)`<div>${content}</div>` case
 // everything could happen:
 //  * it's a JS primitive, stored as text
@@ -381,14 +367,17 @@ const setAttribute = (node, name, original) => {
     if (type === CONNECTED || type === DISCONNECTED) {
       observe(node);
     }
-    else if (name.toLowerCase() in node) {
+    else if (name.toLowerCase()
+      in node) {
       type = type.toLowerCase();
     }
     return newValue => {
       if (oldValue !== newValue) {
-        if (oldValue) node.removeEventListener(type, oldValue, false);
+        if (oldValue)
+          node.removeEventListener(type, oldValue, false);
         oldValue = newValue;
-        if (newValue) node.addEventListener(type, newValue, false);
+        if (newValue)
+          node.addEventListener(type, newValue, false);
       }
     };
   }
@@ -484,101 +473,3 @@ const setTextContent = node => {
 export default {create, find};
 
 export {observe};
-
-// hyper.Components might need connected/disconnected notifications
-// used by components and their onconnect/ondisconnect callbacks.
-// When one of these callbacks is encountered,
-// the document starts being observed.
-let notObserving = true;
-function startObserving() {
-
-  // used to avoid duplicated invokes of
-  // dis/connected nodes and their children
-  // - - -
-  // this has been verified in Neverland,
-  // a node observed and dispatched via children loop
-  // might also be part of the nodes that have been inserted
-  // or removed, so but triggering twice should **never** happen
-  let dispatched = null;
-  const init = () => {
-    dispatched = {
-      disconnected: new WeakSet,
-      connected: new WeakSet
-    };
-  };
-
-  // when hyper.Component related DOM nodes
-  // are appended or removed from the live tree
-  // these might listen to connected/disconnected events
-  // This utility is in charge of finding all components
-  // involved in the DOM update/change and dispatch
-  // related information to them
-  const dispatchAll = (nodes, type, counter) => {
-    const event = new Event(type);
-    const length = nodes.length;
-    for (let i = 0; i < length; i++) {
-      let node = nodes[i];
-      if (node.nodeType === ELEMENT_NODE) {
-        dispatchTarget(node, event, type, counter);
-      }
-    }
-  };
-
-  // the way it's done is via the components weak set
-  // and recursively looking for nested components too
-  const dispatchTarget = (node, event, type, counter) => {
-    if (components.has(node) && !dispatched[type].has(node)) {
-      dispatched[counter].delete(node);
-      dispatched[type].add(node);
-      node.dispatchEvent(event);
-    }
-
-    /* istanbul ignore next */
-    const children = node.children || getChildren(node);
-    const length = children.length;
-    for (let i = 0; i < length; i++) {
-      dispatchTarget(children[i], event, type, counter);
-    }
-  }
-
-  const changes = records => {
-    const length = records.length;
-    init();
-    for (let i = 0; i < length; i++) {
-      let record = records[i];
-      dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-      dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-    }
-    dispatched = null;
-  };
-
-  // The MutationObserver is the best way to implement that
-  // but there is a fallback to deprecated DOMNodeInserted/Removed
-  // so that even older browsers/engines can help components life-cycle
-  try {
-    (new MutationObserver(changes)).observe(
-      document,
-      {subtree: true, childList: true}
-    );
-  } catch(o_O) {
-    let timer = 0;
-    const records = [];
-    const reschedule = record => {
-      records.push(record);
-      clearTimeout(timer);
-      timer = setTimeout(
-        () => {
-          timer = 0;
-          changes(records.splice(0, records.length));
-        },
-        0
-      );
-    };
-    document.addEventListener('DOMNodeRemoved', event => {
-      reschedule({addedNodes: [], removedNodes: [event.target]});
-    }, false);
-    document.addEventListener('DOMNodeInserted', event => {
-      reschedule({addedNodes: [event.target], removedNodes: []});
-    }, false);
-  }
-}

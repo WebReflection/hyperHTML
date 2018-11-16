@@ -397,18 +397,6 @@ var hyperHTML = (function (global) {
     return node.cloneNode(true);
   };
 
-  // IE and Edge do not support children in SVG nodes
-  /* istanbul ignore next */
-  var getChildren = function getChildren(node) {
-    var children = [];
-    var childNodes = node.childNodes;
-    var length = childNodes.length;
-    for (var i = 0; i < length; i++) {
-      if (childNodes[i].nodeType === ELEMENT_NODE) children.push(childNodes[i]);
-    }
-    return children;
-  };
-
   // used to import html into fragments
   var importNode = hasImportNode ? function (doc$$1, node) {
     return doc$$1.importNode(node, true);
@@ -1032,16 +1020,88 @@ var hyperHTML = (function (global) {
     return futureNodes;
   };
 
-  var document$1 = G.document,
-      clearTimeout = G.clearTimeout,
-      setTimeout = G.setTimeout;
+  /* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
+  /*! (c) Andrea Giammarchi */
+  function disconnected(poly) {
 
-  // hyper.Component have a connected/disconnected
-  // mechanism provided by MutationObserver
-  // This weak set is used to recognize components
-  // as DOM node that needs to trigger connected/disconnected events
+    var CONNECTED = 'connected';
+    var DISCONNECTED = 'dis' + CONNECTED;
+    var Event = poly.Event;
+    var WeakSet = poly.WeakSet;
+    var notObserving = true;
+    var observer = new WeakSet();
+    return function observe(node) {
+      if (notObserving) {
+        notObserving = !notObserving;
+        startObserving(node.ownerDocument);
+      }
+      observer.add(node);
+      return node;
+    };
+    function startObserving(document) {
+      var dispatched = null;
+      try {
+        new MutationObserver(changes).observe(document, { subtree: true, childList: true });
+      } catch (o_O) {
+        var timer = 0;
+        var records = [];
+        var reschedule = function reschedule(record) {
+          records.push(record);
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            changes(records.splice(timer = 0, records.length));
+          }, 0);
+        };
+        document.addEventListener('DOMNodeRemoved', function (event) {
+          reschedule({ addedNodes: [], removedNodes: [event.target] });
+        }, true);
+        document.addEventListener('DOMNodeInserted', function (event) {
+          reschedule({ addedNodes: [event.target], removedNodes: [] });
+        }, true);
+      }
+      function changes(records) {
+        dispatched = new Tracker();
+        for (var record, length = records.length, i = 0; i < length; i++) {
+          record = records[i];
+          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+        }
+        dispatched = null;
+      }
+      function dispatchAll(nodes, type, counter) {
+        for (var node, event = new Event(type), length = nodes.length, i = 0; i < length; (node = nodes[i++]).nodeType === 1 && dispatchTarget(node, event, type, counter)) {}
+      }
+      function dispatchTarget(node, event, type, counter) {
+        if (observer.has(node) && !dispatched[type].has(node)) {
+          dispatched[counter].delete(node);
+          dispatched[type].add(node);
+          node.dispatchEvent(event);
+          /*
+          // The event is not bubbling (perf reason: should it?),
+          // hence there's no way to know if
+          // stop/Immediate/Propagation() was called.
+          // Should DOM Level 0 work at all?
+          // I say it's a YAGNI case for the time being,
+          // and easy to implement in user-land.
+          if (!event.cancelBubble) {
+            var fn = node['on' + type];
+            if (fn)
+              fn.call(node, event);
+          }
+          */
+        }
+        for (var children = node.children, length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
+      }
+      function Tracker() {
+        this[CONNECTED] = new WeakSet();
+        this[DISCONNECTED] = new WeakSet();
+      }
+    }
+  }
 
-  var components = new WeakSet();
+  var document$1 = G.document;
+
+  var observe = disconnected({ Event: Event, WeakSet: WeakSet });
 
   // a basic dictionary used to filter already cached attributes
   // while looking for special hyperHTML values.
@@ -1229,16 +1289,6 @@ var hyperHTML = (function (global) {
 
   // list of attributes that should not be directly assigned
   var readOnly = /^(?:form|list)$/i;
-
-  // exposed to make any node observable through
-  // connected / disconnected event listeners
-  var observe = function observe(node) {
-    if (notObserving) {
-      notObserving = false;
-      startObserving();
-    }
-    components.add(node);
-  };
 
   // in a hyper(node)`<div>${content}</div>` case
   // everything could happen:
@@ -1448,98 +1498,6 @@ var hyperHTML = (function (global) {
   };
 
   var Updates = { create: create$1, find: find };
-
-  // hyper.Components might need connected/disconnected notifications
-  // used by components and their onconnect/ondisconnect callbacks.
-  // When one of these callbacks is encountered,
-  // the document starts being observed.
-  var notObserving = true;
-  function startObserving() {
-
-    // used to avoid duplicated invokes of
-    // dis/connected nodes and their children
-    // - - -
-    // this has been verified in Neverland,
-    // a node observed and dispatched via children loop
-    // might also be part of the nodes that have been inserted
-    // or removed, so but triggering twice should **never** happen
-    var dispatched = null;
-    var init = function init() {
-      dispatched = {
-        disconnected: new WeakSet(),
-        connected: new WeakSet()
-      };
-    };
-
-    // when hyper.Component related DOM nodes
-    // are appended or removed from the live tree
-    // these might listen to connected/disconnected events
-    // This utility is in charge of finding all components
-    // involved in the DOM update/change and dispatch
-    // related information to them
-    var dispatchAll = function dispatchAll(nodes, type, counter) {
-      var event = new Event(type);
-      var length = nodes.length;
-      for (var i = 0; i < length; i++) {
-        var node = nodes[i];
-        if (node.nodeType === ELEMENT_NODE) {
-          dispatchTarget(node, event, type, counter);
-        }
-      }
-    };
-
-    // the way it's done is via the components weak set
-    // and recursively looking for nested components too
-    var dispatchTarget = function dispatchTarget(node, event, type, counter) {
-      if (components.has(node) && !dispatched[type].has(node)) {
-        dispatched[counter].delete(node);
-        dispatched[type].add(node);
-        node.dispatchEvent(event);
-      }
-
-      /* istanbul ignore next */
-      var children = node.children || getChildren(node);
-      var length = children.length;
-      for (var i = 0; i < length; i++) {
-        dispatchTarget(children[i], event, type, counter);
-      }
-    };
-
-    var changes = function changes(records) {
-      var length = records.length;
-      init();
-      for (var i = 0; i < length; i++) {
-        var record = records[i];
-        dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-        dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-      }
-      dispatched = null;
-    };
-
-    // The MutationObserver is the best way to implement that
-    // but there is a fallback to deprecated DOMNodeInserted/Removed
-    // so that even older browsers/engines can help components life-cycle
-    try {
-      new MutationObserver(changes).observe(document$1, { subtree: true, childList: true });
-    } catch (o_O) {
-      var timer = 0;
-      var records = [];
-      var reschedule = function reschedule(record) {
-        records.push(record);
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          timer = 0;
-          changes(records.splice(0, records.length));
-        }, 0);
-      };
-      document$1.addEventListener('DOMNodeRemoved', function (event) {
-        reschedule({ addedNodes: [], removedNodes: [event.target] });
-      }, false);
-      document$1.addEventListener('DOMNodeInserted', function (event) {
-        reschedule({ addedNodes: [event.target], removedNodes: [] });
-      }, false);
-    }
-  }
 
   // a weak collection of contexts that
   // are already known to hyperHTML

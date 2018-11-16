@@ -956,8 +956,8 @@ tressa.async(function (done) {
     }
     var p = new Paragraph().render();
     document.body.appendChild(p);
-    setTimeout(function () {
-      if (p.parentNode) {
+    if (p.parentNode) {
+      setTimeout(function () {
         var e = document.createEvent('Event');
         e.initEvent('DOMNodeInserted', false, false);
         Object.defineProperty(e, 'target', {value: document.body});
@@ -978,8 +978,8 @@ tressa.async(function (done) {
             }, 100);
           }, 100);
         }, 100);
-      }
-    }, 100);
+      }, 100);
+    }
   });
 })
 .then(function () {

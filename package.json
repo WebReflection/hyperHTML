@@ -70,8 +70,13 @@
       "mv index.clean index.js"
     ],
     "cjs": [
+      "$ disconnected",
       "$ domdiff",
       "ascjs ./esm ./cjs"
+    ],
+    "disconnected": [
+      "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/3rd/disconnected.js",
+      "cat node_modules/disconnected/esm/index.js >> esm/3rd/disconnected.js"
     ],
     "domdiff": [
       "echo '/* AUTOMATICALLY IMPORTED, DO NOT MODIFY */' > esm/3rd/domdiff.js",
@@ -137,6 +142,7 @@
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
     "basichtml": "^0.20.0",
     "coveralls": "^3.0.2",
+    "disconnected": "^0.1.2",
     "domdiff": "^2.0.0",
     "istanbul": "^0.4.5",
     "npm-dollar": "^1.0.1",

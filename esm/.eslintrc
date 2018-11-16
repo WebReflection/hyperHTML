@@ -1,6 +1,9 @@
 {
   "extends": "eslint:recommended",
   "globals": {
+    "setTimeout": true,
+    "clearTimeout": true,
+    "MutationObserver": true,
     "Promise": true
   },
   "parserOptions": {
