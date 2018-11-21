@@ -45,7 +45,7 @@ const update = (style, isSVG) => {
             const styleValue = typeof value === 'number' &&
                                 !IS_NON_DIMENSIONAL.test(key) ?
                                 (value + 'px') : value;
-            if (/^--/.test(key))
+            if (!isSVG && /^--/.test(key))
               info.setProperty(key, styleValue);
             else
               info[key] = styleValue;
