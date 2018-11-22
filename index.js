@@ -721,15 +721,15 @@ var hyperHTML = (function (global) {
     var k = [],
         v = [];
     return {
-      has: function has(value) {
-        return -1 < k.indexOf(value);
+      has: function has(key) {
+        return -1 < k.indexOf(key);
       },
-      get: function get(value) {
-        return v[k.indexOf(value)];
+      get: function get(key) {
+        return v[k.indexOf(key)];
       },
-      set: function set(value) {
-        var i = k.indexOf(value);
-        v[i < 0 ? k.push(value) - 1 : i] = value;
+      set: function set(key, value) {
+        var i = k.indexOf(key);
+        v[i < 0 ? k.push(key) - 1 : i] = value;
       }
     };
   } : Map;
