@@ -73,8 +73,6 @@ setTimeout(function () {
       createDocumentFragment.call(document);
   };
 
-  global.WeakMap = global.WeakSet = void 0;
-
   global.Event = function (type) {
     var e = global.document.createEvent('Event');
     e.initEvent(type, false, false);

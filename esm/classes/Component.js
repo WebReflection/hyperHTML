@@ -1,4 +1,6 @@
-import { Map, WeakMap } from '../shared/poorlyfills.js';
+import CustomEvent from '@ungap/custom-event';
+import Map from '@ungap/essential-map';
+import WeakMap from '@ungap/weakmap';
 
 // hyperHTML.Component is a very basic class
 // able to create Custom Elements like components

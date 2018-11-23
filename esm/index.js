@@ -1,12 +1,13 @@
 /*! (c) Andrea Giammarchi (ISC) */
+import WeakMap from '@ungap/weakmap';
+import WeakSet from '@ungap/essential-weakset';
 
+import diff from 'domdiff';
 import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
 import {observe} from './objects/Updates.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
-import diff from './3rd/domdiff.js';
-import { WeakMap, WeakSet } from './shared/poorlyfills.js';
 import { G } from './shared/constants.js';
 
 // all functions are self bound to the right context

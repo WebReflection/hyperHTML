@@ -1,3 +1,11 @@
+import CustomEvent from '@ungap/custom-event';
+import WeakSet from '@ungap/essential-weakset';
+import isArray from '@ungap/is-array';
+import trim from '@ungap/trim';
+
+import disconnected from 'disconnected';
+import domdiff from 'domdiff';
+
 import {
   CONNECTED, DISCONNECTED,
   COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE,
@@ -11,16 +19,13 @@ import Wire from '../classes/Wire.js';
 import Path from './Path.js';
 import Style from './Style.js';
 import Intent from './Intent.js';
-import domdiff from '../3rd/domdiff.js';
 // see /^script$/i.test(nodeName) bit down here
 // import { create as createElement, text } from '../shared/easy-dom.js';
 import { text } from '../shared/easy-dom.js';
-import { Event, WeakSet, isArray, trim } from '../shared/poorlyfills.js';
 import { createFragment, slice } from '../shared/utils.js';
-import disconnected from '../3rd/disconnected.js';
 
 const { document } = G;
-const observe = disconnected({Event, WeakSet});
+const observe = disconnected({Event: CustomEvent, WeakSet});
 
 // a basic dictionary used to filter already cached attributes
 // while looking for special hyperHTML values.

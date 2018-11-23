@@ -1,5 +1,7 @@
+import WeakMap from '@ungap/weakmap';
+import trim from '@ungap/trim';
+
 import {ELEMENT_NODE, SVG_NAMESPACE} from '../shared/constants.js';
-import {WeakMap, trim} from '../shared/poorlyfills.js';
 import {fragment} from '../shared/easy-dom.js';
 import {append, slice, unique} from '../shared/utils.js';
 import Wire from '../classes/Wire.js';

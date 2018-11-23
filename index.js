@@ -1,111 +1,473 @@
 var hyperHTML = (function (global) {
   'use strict';
 
-  var G = document.defaultView;
-
-  // Node.CONSTANTS
-  // 'cause some engine has no global Node defined
-  // (i.e. Node, NativeScript, basicHTML ... )
-  var ELEMENT_NODE = 1;
-  var TEXT_NODE = 3;
-  var COMMENT_NODE = 8;
-  var DOCUMENT_FRAGMENT_NODE = 11;
-
-  // HTML related constants
-  var VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
-
-  // SVG related constants
-  var OWNER_SVG_ELEMENT = 'ownerSVGElement';
-  var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-
-  // Custom Elements / MutationObserver constants
-  var CONNECTED = 'connected';
-  var DISCONNECTED = 'dis' + CONNECTED;
-
-  // hyperHTML related constants
-  var EXPANDO = '_hyper: ';
-  var SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
-  var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
-  var UIDC = '<!--' + UID + '-->';
-
-  // you know that kind of basics you need to cover
-  // your use case only but you don't want to bloat the library?
-  // There's even a package in here:
-  // https://www.npmjs.com/package/poorlyfills
-
-  // used to dispatch simple events
-  var Event = G.Event;
+  /*! (c) Andrea Giammarchi - ISC */
+  var self = null || /* istanbul ignore next */{};
   try {
-    new Event('Event');
-  } catch (o_O) {
-    Event = function Event(type) {
+    self.WeakMap = WeakMap;
+  } catch (WeakMap) {
+    // this could be better but 90% of the time
+    // it's everything developers need as fallback
+    self.WeakMap = function (id, Object) {
+
+      var dP = Object.defineProperty;
+      var hOP = Object.hasOwnProperty;
+      var proto = WeakMap.prototype;
+      proto.delete = function (key) {
+        return this.has(key) && delete key[this._];
+      };
+      proto.get = function (key) {
+        return this.has(key) ? key[this._] : void 0;
+      };
+      proto.has = function (key) {
+        return hOP.call(key, this._);
+      };
+      proto.set = function (key, value) {
+        dP(key, this._, { configurable: true, value: value });
+        return this;
+      };
+      return WeakMap;
+      function WeakMap(iterable) {
+        dP(this, '_', { value: '_@ungap/weakmap' + id++ });
+        if (iterable) iterable.forEach(add, this);
+      }
+      function add(pair) {
+        this.set(pair[0], pair[1]);
+      }
+    }(Math.random(), Object);
+  }
+  var WeakMap$1 = self.WeakMap;
+
+  /*! (c) Andrea Giammarchi - ISC */
+  var self$1 = null || /* istanbul ignore next */{};
+  try {
+    self$1.WeakSet = WeakSet;
+  } catch (WeakSet) {
+    (function (id, dP) {
+      var proto = WeakSet.prototype;
+      proto.add = function (object) {
+        if (!this.has(object)) dP(object, this._, { value: true, configurable: true });
+        return this;
+      };
+      proto.has = function (object) {
+        return this.hasOwnProperty.call(object, this._);
+      };
+      proto.delete = function (object) {
+        return this.has(object) && delete object[this._];
+      };
+      self$1.WeakSet = WeakSet;
+      function WeakSet() {
+
+        dP(this, '_', { value: '_@ungap/weakmap' + id++ });
+      }
+    })(Math.random(), Object.defineProperty);
+  }
+  var WeakSet$1 = self$1.WeakSet;
+
+  /*! (c) Andrea Giammarchi - ISC */
+  var self$2 = null || /* istanbul ignore next */{};
+  try {
+    self$2.Map = Map;
+  } catch (Map) {
+    self$2.Map = function Map() {
+      var i = 0;
+      var k = [];
+      var v = [];
+      return {
+        delete: function _delete(key) {
+          var had = contains(key);
+          if (had) {
+            k.splice(i, 1);
+            v.splice(i, 1);
+          }
+          return had;
+        },
+        get: function get(key) {
+          return contains(key) ? v[i] : void 0;
+        },
+        has: function has(key) {
+          return contains(key);
+        },
+        set: function set(key, value) {
+          v[contains(key) ? i : k.push(key) - 1] = value;
+          return this;
+        }
+      };
+      function contains(v) {
+        i = k.indexOf(v);
+        return -1 < i;
+      }
+    };
+  }
+  var Map$1 = self$2.Map;
+
+  var append = function append(get, parent, children, start, end, before) {
+    if (end - start < 2) parent.insertBefore(get(children[start], 1), before);else {
+      var fragment = parent.ownerDocument.createDocumentFragment();
+      while (start < end) {
+        fragment.appendChild(get(children[start++], 1));
+      }parent.insertBefore(fragment, before);
+    }
+  };
+
+  var eqeq = function eqeq(a, b) {
+    return a == b;
+  };
+
+  var identity = function identity(O) {
+    return O;
+  };
+
+  var indexOf = function indexOf(moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) {
+    var length = lessEnd - lessStart;
+    /* istanbul ignore if */
+    if (length < 1) return -1;
+    while (moreEnd - moreStart >= length) {
+      var m = moreStart;
+      var l = lessStart;
+      while (m < moreEnd && l < lessEnd && compare(moreNodes[m], lessNodes[l])) {
+        m++;
+        l++;
+      }
+      if (l === lessEnd) return moreStart;
+      moreStart = m + 1;
+    }
+    return -1;
+  };
+
+  var isReversed = function isReversed(futureNodes, futureEnd, currentNodes, currentStart, currentEnd, compare) {
+    while (currentStart < currentEnd && compare(currentNodes[currentStart], futureNodes[futureEnd - 1])) {
+      currentStart++;
+      futureEnd--;
+    }  return futureEnd === 0;
+  };
+
+  var next = function next(get, list, i, length, before) {
+    return i < length ? get(list[i], 0) : 0 < i ? get(list[i - 1], -0).nextSibling : before;
+  };
+
+  var remove = function remove(get, parent, children, start, end) {
+    if (end - start < 2) parent.removeChild(get(children[start], -1));else {
+      var range = parent.ownerDocument.createRange();
+      range.setStartBefore(get(children[start], -1));
+      range.setEndAfter(get(children[end - 1], -1));
+      range.deleteContents();
+    }
+  };
+
+  // - - - - - - - - - - - - - - - - - - -
+  // diff related constants and utilities
+  // - - - - - - - - - - - - - - - - - - -
+
+  var DELETION = -1;
+  var INSERTION = 1;
+  var SKIP = 0;
+  var SKIP_OND = 50;
+
+  var HS = function HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges) {
+
+    var k = 0;
+    /* istanbul ignore next */
+    var minLen = futureChanges < currentChanges ? futureChanges : currentChanges;
+    var link = Array(minLen++);
+    var tresh = Array(minLen);
+    tresh[0] = -1;
+
+    for (var i = 1; i < minLen; i++) {
+      tresh[i] = currentEnd;
+    }var keymap = new Map$1();
+    for (var _i = currentStart; _i < currentEnd; _i++) {
+      keymap.set(currentNodes[_i], _i);
+    }for (var _i2 = futureStart; _i2 < futureEnd; _i2++) {
+      var idxInOld = keymap.get(futureNodes[_i2]);
+      if (idxInOld != null) {
+        k = findK(tresh, minLen, idxInOld);
+        /* istanbul ignore else */
+        if (-1 < k) {
+          tresh[k] = idxInOld;
+          link[k] = {
+            newi: _i2,
+            oldi: idxInOld,
+            prev: link[k - 1]
+          };
+        }
+      }
+    }
+
+    k = --minLen;
+    --currentEnd;
+    while (tresh[k] > currentEnd) {
+      --k;
+    }minLen = currentChanges + futureChanges - k;
+    var diff = Array(minLen);
+    var ptr = link[k];
+    --futureEnd;
+    while (ptr) {
+      var _ptr = ptr,
+          newi = _ptr.newi,
+          oldi = _ptr.oldi;
+
+      while (futureEnd > newi) {
+        diff[--minLen] = INSERTION;
+        --futureEnd;
+      }
+      while (currentEnd > oldi) {
+        diff[--minLen] = DELETION;
+        --currentEnd;
+      }
+      diff[--minLen] = SKIP;
+      --futureEnd;
+      --currentEnd;
+      ptr = ptr.prev;
+    }
+    while (futureEnd >= futureStart) {
+      diff[--minLen] = INSERTION;
+      --futureEnd;
+    }
+    while (currentEnd >= currentStart) {
+      diff[--minLen] = DELETION;
+      --currentEnd;
+    }
+    return diff;
+  };
+
+  // this is pretty much the same petit-dom code without the delete map part
+  // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L556-L561
+  var OND = function OND(futureNodes, futureStart, rows, currentNodes, currentStart, cols, compare) {
+    var length = rows + cols;
+    var v = [];
+    var d = void 0,
+        k = void 0,
+        r = void 0,
+        c = void 0,
+        pv = void 0,
+        cv = void 0,
+        pd = void 0;
+    outer: for (d = 0; d <= length; d++) {
+      /* istanbul ignore if */
+      if (d > SKIP_OND) return null;
+      pd = d - 1;
+      /* istanbul ignore next */
+      pv = d ? v[d - 1] : [0, 0];
+      cv = v[d] = [];
+      for (k = -d; k <= d; k += 2) {
+        if (k === -d || k !== d && pv[pd + k - 1] < pv[pd + k + 1]) {
+          c = pv[pd + k + 1];
+        } else {
+          c = pv[pd + k - 1] + 1;
+        }
+        r = c - k;
+        while (c < cols && r < rows && compare(currentNodes[currentStart + c], futureNodes[futureStart + r])) {
+          c++;
+          r++;
+        }
+        if (c === cols && r === rows) {
+          break outer;
+        }
+        cv[d + k] = c;
+      }
+    }
+
+    var diff = Array(d / 2 + length / 2);
+    var diffIdx = diff.length - 1;
+    for (d = v.length - 1; d >= 0; d--) {
+      while (c > 0 && r > 0 && compare(currentNodes[currentStart + c - 1], futureNodes[futureStart + r - 1])) {
+        // diagonal edge = equality
+        diff[diffIdx--] = SKIP;
+        c--;
+        r--;
+      }
+      if (!d) break;
+      pd = d - 1;
+      /* istanbul ignore next */
+      pv = d ? v[d - 1] : [0, 0];
+      k = c - r;
+      if (k === -d || k !== d && pv[pd + k - 1] < pv[pd + k + 1]) {
+        // vertical edge = insertion
+        r--;
+        diff[diffIdx--] = INSERTION;
+      } else {
+        // horizontal edge = deletion
+        c--;
+        diff[diffIdx--] = DELETION;
+      }
+    }
+    return diff;
+  };
+
+  var applyDiff = function applyDiff(diff, get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before) {
+    var live = new Map$1();
+    var length = diff.length;
+    var currentIndex = currentStart;
+    var i = 0;
+    while (i < length) {
+      switch (diff[i++]) {
+        case SKIP:
+          futureStart++;
+          currentIndex++;
+          break;
+        case INSERTION:
+          // TODO: bulk appends for sequential nodes
+          live.set(futureNodes[futureStart], 1);
+          append(get, parentNode, futureNodes, futureStart++, futureStart, currentIndex < currentLength ? get(currentNodes[currentIndex], 1) : before);
+          break;
+        case DELETION:
+          currentIndex++;
+          break;
+      }
+    }
+    i = 0;
+    while (i < length) {
+      switch (diff[i++]) {
+        case SKIP:
+          currentStart++;
+          break;
+        case DELETION:
+          // TODO: bulk removes for sequential nodes
+          if (live.has(currentNodes[currentStart])) currentStart++;else remove(get, parentNode, currentNodes, currentStart++, currentStart);
+          break;
+      }
+    }
+  };
+
+  var findK = function findK(ktr, length, j) {
+    var lo = 1;
+    var hi = length;
+    while (lo < hi) {
+      var mid = (lo + hi) / 2 >>> 0;
+      if (j < ktr[mid]) hi = mid;else lo = mid + 1;
+    }
+    return lo;
+  };
+
+  var smartDiff = function smartDiff(get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before) {
+    applyDiff(OND(futureNodes, futureStart, futureChanges, currentNodes, currentStart, currentChanges, compare) || HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges), get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before);
+  };
+
+  /*! (c) 2018 Andrea Giammarchi (ISC) */
+
+  var domdiff = function domdiff(parentNode, // where changes happen
+  currentNodes, // Array of current items/nodes
+  futureNodes, // Array of future items/nodes
+  options // optional object with one of the following properties
+  //  before: domNode
+  //  compare(generic, generic) => true if same generic
+  //  node(generic) => Node
+  ) {
+    if (!options) options = {};
+
+    var compare = options.compare || eqeq;
+    var get = options.node || identity;
+    var before = options.before == null ? null : get(options.before, 0);
+
+    var currentLength = currentNodes.length;
+    var currentEnd = currentLength;
+    var currentStart = 0;
+
+    var futureEnd = futureNodes.length;
+    var futureStart = 0;
+
+    // common prefix
+    while (currentStart < currentEnd && futureStart < futureEnd && compare(currentNodes[currentStart], futureNodes[futureStart])) {
+      currentStart++;
+      futureStart++;
+    }
+
+    // common suffix
+    while (currentStart < currentEnd && futureStart < futureEnd && compare(currentNodes[currentEnd - 1], futureNodes[futureEnd - 1])) {
+      currentEnd--;
+      futureEnd--;
+    }
+
+    var currentSame = currentStart === currentEnd;
+    var futureSame = futureStart === futureEnd;
+
+    // same list
+    if (currentSame && futureSame) return futureNodes;
+
+    // only stuff to add
+    if (currentSame && futureStart < futureEnd) {
+      append(get, parentNode, futureNodes, futureStart, futureEnd, next(get, currentNodes, currentStart, currentLength, before));
+      return futureNodes;
+    }
+
+    // only stuff to remove
+    if (futureSame && currentStart < currentEnd) {
+      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      return futureNodes;
+    }
+
+    var currentChanges = currentEnd - currentStart;
+    var futureChanges = futureEnd - futureStart;
+    var i = -1;
+
+    // 2 simple indels: the shortest sequence is a subsequence of the longest
+    if (currentChanges < futureChanges) {
+      i = indexOf(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare);
+      // inner diff
+      if (-1 < i) {
+        append(get, parentNode, futureNodes, futureStart, i, get(currentNodes[currentStart], 0));
+        append(get, parentNode, futureNodes, i + currentChanges, futureEnd, next(get, currentNodes, currentEnd, currentLength, before));
+        return futureNodes;
+      }
+    }
+    /* istanbul ignore else */
+    else if (futureChanges < currentChanges) {
+        i = indexOf(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare);
+        // outer diff
+        if (-1 < i) {
+          remove(get, parentNode, currentNodes, currentStart, i);
+          remove(get, parentNode, currentNodes, i + futureChanges, currentEnd);
+          return futureNodes;
+        }
+      }
+
+    // common case with one replacement for many nodes
+    // or many nodes replaced for a single one
+    /* istanbul ignore else */
+    if (currentChanges < 2 || futureChanges < 2) {
+      append(get, parentNode, futureNodes, futureStart, futureEnd, get(currentNodes[currentStart], 0));
+      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      return futureNodes;
+    }
+
+    // the half match diff part has been skipped in petit-dom
+    // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L391-L397
+    // accordingly, I think it's safe to skip in here too
+    // if one day it'll come out like the speediest thing ever to do
+    // then I might add it in here too
+
+    // Extra: before going too fancy, what about reversed lists ?
+    //        This should bail out pretty quickly if that's not the case.
+    if (currentChanges === futureChanges && isReversed(futureNodes, futureEnd, currentNodes, currentStart, currentEnd, compare)) {
+      append(get, parentNode, futureNodes, futureStart, futureEnd, next(get, currentNodes, currentEnd, currentLength, before));
+      return futureNodes;
+    }
+
+    // last resort through a smart diff
+    smartDiff(get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before);
+
+    return futureNodes;
+  };
+
+  /*! (c) Andrea Giammarchi - ISC */
+  var self$3 = null || /* istanbul ignore next */{};
+  try {
+    self$3.CustomEvent = new CustomEvent('.').constructor;
+  } catch (CustomEvent) {
+    self$3.CustomEvent = function CustomEvent(type, init) {
+      if (!init) init = {};
       var e = document.createEvent('Event');
-      e.initEvent(type, false, false);
+      var bubbles = !!init.bubbles;
+      var cancelable = !!init.cancelable;
+      e.initEvent(type, bubbles, cancelable);
+      e.bubbles = bubbles;
+      e.cancelable = cancelable;
+      e.detail = init.detail;
       return e;
     };
   }
-
-  // used to store template literals
-  /* istanbul ignore next */
-  var Map$1 = G.Map || function Map() {
-    var keys = [],
-        values = [];
-    return {
-      get: function get(obj) {
-        return values[keys.indexOf(obj)];
-      },
-      set: function set(obj, value) {
-        values[keys.push(obj) - 1] = value;
-      }
-    };
-  };
-
-  // used to store wired content
-  var ID = 0;
-  var WeakMap = G.WeakMap || function WeakMap() {
-    var key = UID + ID++;
-    return {
-      delete: function _delete(obj) {
-        delete obj[key];
-      },
-      get: function get(obj) {
-        return obj[key];
-      },
-      set: function set(obj, value) {
-        Object.defineProperty(obj, key, {
-          configurable: true,
-          value: value
-        });
-      }
-    };
-  };
-
-  // used to store hyper.Components
-  var WeakSet = G.WeakSet || function WeakSet() {
-    var wm = new WeakMap();
-    return {
-      delete: function _delete(obj) {
-        wm.delete(obj);
-      },
-      add: function add(obj) {
-        wm.set(obj, true);
-      },
-      has: function has(obj) {
-        return wm.get(obj) === true;
-      }
-    };
-  };
-
-  // used to be sure IE9 or older Androids work as expected
-  var isArray = Array.isArray || function (toString) {
-    return function (arr) {
-      return toString.call(arr) === '[object Array]';
-    };
-  }({}.toString);
-
-  var trim = UID.trim || function () {
-    return this.replace(/^\s+|\s+$/g, '');
-  };
+  var CustomEvent$1 = self$3.CustomEvent;
 
   // hyperHTML.Component is a very basic class
   // able to create Custom Elements like components
@@ -124,7 +486,7 @@ var hyperHTML = (function (global) {
   function setup(content) {
     // there are various weakly referenced variables in here
     // and mostly are to use Component.for(...) static method.
-    var children = new WeakMap();
+    var children = new WeakMap$1();
     var create = Object.create;
     var createEntry = function createEntry(wm, id, component) {
       wm.set(id, component);
@@ -135,7 +497,7 @@ var hyperHTML = (function (global) {
       switch (typeof id) {
         case 'object':
         case 'function':
-          var wm = relation.w || (relation.w = new WeakMap());
+          var wm = relation.w || (relation.w = new WeakMap$1());
           return wm.get(id) || createEntry(wm, id, new Class(context));
         default:
           var sm = relation.p || (relation.p = create(null));
@@ -198,7 +560,7 @@ var hyperHTML = (function (global) {
           var _wire$ = this._wire$;
 
           if (_wire$) {
-            var event = new CustomEvent(type, {
+            var event = new CustomEvent$1(type, {
               bubbles: true,
               cancelable: true,
               detail: detail
@@ -291,6 +653,122 @@ var hyperHTML = (function (global) {
     }
   };
 
+  var isArray = Array.isArray || function (toString) {
+    var $ = toString.call([]);
+    return function isArray(object) {
+      return toString.call(object) === $;
+    };
+  }({}.toString);
+
+  var trim = ''.trim || function () {
+    return String(this).replace(/^\s+|\s+/g, '');
+  };
+
+  /*! (c) Andrea Giammarchi */
+  function disconnected(poly) {
+
+    var CONNECTED = 'connected';
+    var DISCONNECTED = 'dis' + CONNECTED;
+    var Event = poly.Event;
+    var WeakSet = poly.WeakSet;
+    var notObserving = true;
+    var observer = new WeakSet();
+    return function observe(node) {
+      if (notObserving) {
+        notObserving = !notObserving;
+        startObserving(node.ownerDocument);
+      }
+      observer.add(node);
+      return node;
+    };
+    function startObserving(document) {
+      var dispatched = null;
+      try {
+        new MutationObserver(changes).observe(document, { subtree: true, childList: true });
+      } catch (o_O) {
+        var timer = 0;
+        var records = [];
+        var reschedule = function reschedule(record) {
+          records.push(record);
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            changes(records.splice(timer = 0, records.length));
+          }, 0);
+        };
+        document.addEventListener('DOMNodeRemoved', function (event) {
+          reschedule({ addedNodes: [], removedNodes: [event.target] });
+        }, true);
+        document.addEventListener('DOMNodeInserted', function (event) {
+          reschedule({ addedNodes: [event.target], removedNodes: [] });
+        }, true);
+      }
+      function changes(records) {
+        dispatched = new Tracker();
+        for (var record, length = records.length, i = 0; i < length; i++) {
+          record = records[i];
+          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
+          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+        }
+        dispatched = null;
+      }
+      function dispatchAll(nodes, type, counter) {
+        for (var node, event = new Event(type), length = nodes.length, i = 0; i < length; (node = nodes[i++]).nodeType === 1 && dispatchTarget(node, event, type, counter)) {}
+      }
+      function dispatchTarget(node, event, type, counter) {
+        if (observer.has(node) && !dispatched[type].has(node)) {
+          dispatched[counter].delete(node);
+          dispatched[type].add(node);
+          node.dispatchEvent(event);
+          /*
+          // The event is not bubbling (perf reason: should it?),
+          // hence there's no way to know if
+          // stop/Immediate/Propagation() was called.
+          // Should DOM Level 0 work at all?
+          // I say it's a YAGNI case for the time being,
+          // and easy to implement in user-land.
+          if (!event.cancelBubble) {
+            var fn = node['on' + type];
+            if (fn)
+              fn.call(node, event);
+          }
+          */
+        }
+        for (var children = node.children, length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
+      }
+      function Tracker() {
+        this[CONNECTED] = new WeakSet();
+        this[DISCONNECTED] = new WeakSet();
+      }
+    }
+  }
+
+  var G = document.defaultView;
+
+  // Node.CONSTANTS
+  // 'cause some engine has no global Node defined
+  // (i.e. Node, NativeScript, basicHTML ... )
+  var ELEMENT_NODE = 1;
+  var TEXT_NODE = 3;
+  var COMMENT_NODE = 8;
+  var DOCUMENT_FRAGMENT_NODE = 11;
+
+  // HTML related constants
+  var VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
+
+  // SVG related constants
+  var OWNER_SVG_ELEMENT = 'ownerSVGElement';
+  var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+  // Custom Elements / MutationObserver constants
+  var CONNECTED = 'connected';
+  var DISCONNECTED = 'dis' + CONNECTED;
+
+  // hyperHTML related constants
+  var EXPANDO = '_hyper: ';
+  var SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
+  var UID = EXPANDO + (Math.random() * new Date() | 0) + ';';
+  var UIDC = '<!--' + UID + '-->';
+
   // TODO:  I'd love to code-cover RegExp too here
   //        these are fundamental for this library
 
@@ -341,7 +819,7 @@ var hyperHTML = (function (global) {
   // to a generic node/fragment
   // When available, uses append passing all arguments at once
   // hoping that's somehow faster, even if append has more checks on type
-  var append = hasAppend ? function (node, childNodes) {
+  var append$1 = hasAppend ? function (node, childNodes) {
     node.append.apply(node, childNodes);
   } : function (node, childNodes) {
     var length = childNodes.length;
@@ -449,7 +927,7 @@ var hyperHTML = (function (global) {
   // since neither Map nor WeakMap are safe
   var TemplateMap = function TemplateMap() {
     try {
-      var wm = new WeakMap();
+      var wm = new WeakMap$1();
       var o_O = Object.freeze([]);
       wm.set(o_O, true);
       if (!wm.get(o_O)) throw o_O;
@@ -474,10 +952,10 @@ var hyperHTML = (function (global) {
     if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
       var selector = RegExp.$1;
       container.innerHTML = '<table>' + html + '</table>';
-      append(content, slice.call(container.querySelectorAll(selector)));
+      append$1(content, slice.call(container.querySelectorAll(selector)));
     } else {
       container.innerHTML = html;
-      append(content, slice.call(container.childNodes));
+      append$1(content, slice.call(container.childNodes));
     }
     return content;
   };
@@ -488,13 +966,13 @@ var hyperHTML = (function (global) {
     var content = fragment(node);
     var container = doc(node).createElementNS(SVG_NAMESPACE, 'svg');
     container.innerHTML = html;
-    append(content, slice.call(container.childNodes));
+    append$1(content, slice.call(container.childNodes));
     return content;
   } : function (node, html) {
     var content = fragment(node);
     var container = create(node, 'div');
     container.innerHTML = '<svg xmlns="' + SVG_NAMESPACE + '">' + html + '</svg>';
-    append(content, slice.call(container.firstChild.childNodes));
+    append$1(content, slice.call(container.firstChild.childNodes));
     return content;
   };
 
@@ -511,7 +989,7 @@ var hyperHTML = (function (global) {
     var noFragment = this._ == null;
     if (noFragment) this._ = fragment(this.first);
     /* istanbul ignore else */
-    if (noFragment || different) append(this._, this.childNodes);
+    if (noFragment || different) append$1(this._, this.childNodes);
     return this._;
   };
 
@@ -652,456 +1130,9 @@ var hyperHTML = (function (global) {
     return css.join('');
   };
 
-  /* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
-  var append$1 = function append(get, parent, children, start, end, before) {
-    if (end - start < 2) parent.insertBefore(get(children[start], 1), before);else {
-      var fragment = parent.ownerDocument.createDocumentFragment();
-      while (start < end) {
-        fragment.appendChild(get(children[start++], 1));
-      }parent.insertBefore(fragment, before);
-    }
-  };
-
-  var eqeq = function eqeq(a, b) {
-    return a == b;
-  };
-
-  var identity = function identity(O) {
-    return O;
-  };
-
-  var indexOf = function indexOf(moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) {
-    var length = lessEnd - lessStart;
-    /* istanbul ignore if */
-    if (length < 1) return -1;
-    while (moreEnd - moreStart >= length) {
-      var m = moreStart;
-      var l = lessStart;
-      while (m < moreEnd && l < lessEnd && compare(moreNodes[m], lessNodes[l])) {
-        m++;
-        l++;
-      }
-      if (l === lessEnd) return moreStart;
-      moreStart = m + 1;
-    }
-    return -1;
-  };
-
-  var isReversed = function isReversed(futureNodes, futureEnd, currentNodes, currentStart, currentEnd, compare) {
-    while (currentStart < currentEnd && compare(currentNodes[currentStart], futureNodes[futureEnd - 1])) {
-      currentStart++;
-      futureEnd--;
-    }  return futureEnd === 0;
-  };
-
-  var next = function next(get, list, i, length, before) {
-    return i < length ? get(list[i], 0) : 0 < i ? get(list[i - 1], -0).nextSibling : before;
-  };
-
-  var remove = function remove(get, parent, children, start, end) {
-    if (end - start < 2) parent.removeChild(get(children[start], -1));else {
-      var range = parent.ownerDocument.createRange();
-      range.setStartBefore(get(children[start], -1));
-      range.setEndAfter(get(children[end - 1], -1));
-      range.deleteContents();
-    }
-  };
-
-  // - - - - - - - - - - - - - - - - - - -
-  // diff related constants and utilities
-  // - - - - - - - - - - - - - - - - - - -
-
-  var DELETION = -1;
-  var INSERTION = 1;
-  var SKIP = 0;
-  var SKIP_OND = 50;
-
-  /* istanbul ignore next */
-  var Rel = typeof Map === 'undefined' ? function () {
-    var k = [],
-        v = [];
-    return {
-      has: function has(key) {
-        return -1 < k.indexOf(key);
-      },
-      get: function get(key) {
-        return v[k.indexOf(key)];
-      },
-      set: function set(key, value) {
-        var i = k.indexOf(key);
-        v[i < 0 ? k.push(key) - 1 : i] = value;
-      }
-    };
-  } : Map;
-
-  var HS = function HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges) {
-
-    var k = 0;
-    /* istanbul ignore next */
-    var minLen = futureChanges < currentChanges ? futureChanges : currentChanges;
-    var link = Array(minLen++);
-    var tresh = Array(minLen);
-    tresh[0] = -1;
-
-    for (var i = 1; i < minLen; i++) {
-      tresh[i] = currentEnd;
-    }var keymap = new Rel();
-    for (var _i = currentStart; _i < currentEnd; _i++) {
-      keymap.set(currentNodes[_i], _i);
-    }for (var _i2 = futureStart; _i2 < futureEnd; _i2++) {
-      var idxInOld = keymap.get(futureNodes[_i2]);
-      if (idxInOld != null) {
-        k = findK(tresh, minLen, idxInOld);
-        /* istanbul ignore else */
-        if (-1 < k) {
-          tresh[k] = idxInOld;
-          link[k] = {
-            newi: _i2,
-            oldi: idxInOld,
-            prev: link[k - 1]
-          };
-        }
-      }
-    }
-
-    k = --minLen;
-    --currentEnd;
-    while (tresh[k] > currentEnd) {
-      --k;
-    }minLen = currentChanges + futureChanges - k;
-    var diff = Array(minLen);
-    var ptr = link[k];
-    --futureEnd;
-    while (ptr) {
-      var _ptr = ptr,
-          newi = _ptr.newi,
-          oldi = _ptr.oldi;
-
-      while (futureEnd > newi) {
-        diff[--minLen] = INSERTION;
-        --futureEnd;
-      }
-      while (currentEnd > oldi) {
-        diff[--minLen] = DELETION;
-        --currentEnd;
-      }
-      diff[--minLen] = SKIP;
-      --futureEnd;
-      --currentEnd;
-      ptr = ptr.prev;
-    }
-    while (futureEnd >= futureStart) {
-      diff[--minLen] = INSERTION;
-      --futureEnd;
-    }
-    while (currentEnd >= currentStart) {
-      diff[--minLen] = DELETION;
-      --currentEnd;
-    }
-    return diff;
-  };
-
-  // this is pretty much the same petit-dom code without the delete map part
-  // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L556-L561
-  var OND = function OND(futureNodes, futureStart, rows, currentNodes, currentStart, cols, compare) {
-    var length = rows + cols;
-    var v = [];
-    var d = void 0,
-        k = void 0,
-        r = void 0,
-        c = void 0,
-        pv = void 0,
-        cv = void 0,
-        pd = void 0;
-    outer: for (d = 0; d <= length; d++) {
-      /* istanbul ignore if */
-      if (d > SKIP_OND) return null;
-      pd = d - 1;
-      /* istanbul ignore next */
-      pv = d ? v[d - 1] : [0, 0];
-      cv = v[d] = [];
-      for (k = -d; k <= d; k += 2) {
-        if (k === -d || k !== d && pv[pd + k - 1] < pv[pd + k + 1]) {
-          c = pv[pd + k + 1];
-        } else {
-          c = pv[pd + k - 1] + 1;
-        }
-        r = c - k;
-        while (c < cols && r < rows && compare(currentNodes[currentStart + c], futureNodes[futureStart + r])) {
-          c++;
-          r++;
-        }
-        if (c === cols && r === rows) {
-          break outer;
-        }
-        cv[d + k] = c;
-      }
-    }
-
-    var diff = Array(d / 2 + length / 2);
-    var diffIdx = diff.length - 1;
-    for (d = v.length - 1; d >= 0; d--) {
-      while (c > 0 && r > 0 && compare(currentNodes[currentStart + c - 1], futureNodes[futureStart + r - 1])) {
-        // diagonal edge = equality
-        diff[diffIdx--] = SKIP;
-        c--;
-        r--;
-      }
-      if (!d) break;
-      pd = d - 1;
-      /* istanbul ignore next */
-      pv = d ? v[d - 1] : [0, 0];
-      k = c - r;
-      if (k === -d || k !== d && pv[pd + k - 1] < pv[pd + k + 1]) {
-        // vertical edge = insertion
-        r--;
-        diff[diffIdx--] = INSERTION;
-      } else {
-        // horizontal edge = deletion
-        c--;
-        diff[diffIdx--] = DELETION;
-      }
-    }
-    return diff;
-  };
-
-  var applyDiff = function applyDiff(diff, get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before) {
-    var live = new Rel();
-    var length = diff.length;
-    var currentIndex = currentStart;
-    var i = 0;
-    while (i < length) {
-      switch (diff[i++]) {
-        case SKIP:
-          futureStart++;
-          currentIndex++;
-          break;
-        case INSERTION:
-          // TODO: bulk appends for sequential nodes
-          live.set(futureNodes[futureStart], 1);
-          append$1(get, parentNode, futureNodes, futureStart++, futureStart, currentIndex < currentLength ? get(currentNodes[currentIndex], 1) : before);
-          break;
-        case DELETION:
-          currentIndex++;
-          break;
-      }
-    }
-    i = 0;
-    while (i < length) {
-      switch (diff[i++]) {
-        case SKIP:
-          currentStart++;
-          break;
-        case DELETION:
-          // TODO: bulk removes for sequential nodes
-          if (live.has(currentNodes[currentStart])) currentStart++;else remove(get, parentNode, currentNodes, currentStart++, currentStart);
-          break;
-      }
-    }
-  };
-
-  var findK = function findK(ktr, length, j) {
-    var lo = 1;
-    var hi = length;
-    while (lo < hi) {
-      var mid = (lo + hi) / 2 >>> 0;
-      if (j < ktr[mid]) hi = mid;else lo = mid + 1;
-    }
-    return lo;
-  };
-
-  var smartDiff = function smartDiff(get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before) {
-    applyDiff(OND(futureNodes, futureStart, futureChanges, currentNodes, currentStart, currentChanges, compare) || HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges), get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before);
-  };
-
-  /* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
-
-  var domdiff = function domdiff(parentNode, // where changes happen
-  currentNodes, // Array of current items/nodes
-  futureNodes, // Array of future items/nodes
-  options // optional object with one of the following properties
-  //  before: domNode
-  //  compare(generic, generic) => true if same generic
-  //  node(generic) => Node
-  ) {
-    if (!options) options = {};
-
-    var compare = options.compare || eqeq;
-    var get = options.node || identity;
-    var before = options.before == null ? null : get(options.before, 0);
-
-    var currentLength = currentNodes.length;
-    var currentEnd = currentLength;
-    var currentStart = 0;
-
-    var futureEnd = futureNodes.length;
-    var futureStart = 0;
-
-    // common prefix
-    while (currentStart < currentEnd && futureStart < futureEnd && compare(currentNodes[currentStart], futureNodes[futureStart])) {
-      currentStart++;
-      futureStart++;
-    }
-
-    // common suffix
-    while (currentStart < currentEnd && futureStart < futureEnd && compare(currentNodes[currentEnd - 1], futureNodes[futureEnd - 1])) {
-      currentEnd--;
-      futureEnd--;
-    }
-
-    var currentSame = currentStart === currentEnd;
-    var futureSame = futureStart === futureEnd;
-
-    // same list
-    if (currentSame && futureSame) return futureNodes;
-
-    // only stuff to add
-    if (currentSame && futureStart < futureEnd) {
-      append$1(get, parentNode, futureNodes, futureStart, futureEnd, next(get, currentNodes, currentStart, currentLength, before));
-      return futureNodes;
-    }
-
-    // only stuff to remove
-    if (futureSame && currentStart < currentEnd) {
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
-      return futureNodes;
-    }
-
-    var currentChanges = currentEnd - currentStart;
-    var futureChanges = futureEnd - futureStart;
-    var i = -1;
-
-    // 2 simple indels: the shortest sequence is a subsequence of the longest
-    if (currentChanges < futureChanges) {
-      i = indexOf(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare);
-      // inner diff
-      if (-1 < i) {
-        append$1(get, parentNode, futureNodes, futureStart, i, get(currentNodes[currentStart], 0));
-        append$1(get, parentNode, futureNodes, i + currentChanges, futureEnd, next(get, currentNodes, currentEnd, currentLength, before));
-        return futureNodes;
-      }
-    }
-    /* istanbul ignore else */
-    else if (futureChanges < currentChanges) {
-        i = indexOf(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare);
-        // outer diff
-        if (-1 < i) {
-          remove(get, parentNode, currentNodes, currentStart, i);
-          remove(get, parentNode, currentNodes, i + futureChanges, currentEnd);
-          return futureNodes;
-        }
-      }
-
-    // common case with one replacement for many nodes
-    // or many nodes replaced for a single one
-    /* istanbul ignore else */
-    if (currentChanges < 2 || futureChanges < 2) {
-      append$1(get, parentNode, futureNodes, futureStart, futureEnd, get(currentNodes[currentStart], 0));
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
-      return futureNodes;
-    }
-
-    // the half match diff part has been skipped in petit-dom
-    // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L391-L397
-    // accordingly, I think it's safe to skip in here too
-    // if one day it'll come out like the speediest thing ever to do
-    // then I might add it in here too
-
-    // Extra: before going too fancy, what about reversed lists ?
-    //        This should bail out pretty quickly if that's not the case.
-    if (currentChanges === futureChanges && isReversed(futureNodes, futureEnd, currentNodes, currentStart, currentEnd, compare)) {
-      append$1(get, parentNode, futureNodes, futureStart, futureEnd, next(get, currentNodes, currentEnd, currentLength, before));
-      return futureNodes;
-    }
-
-    // last resort through a smart diff
-    smartDiff(get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before);
-
-    return futureNodes;
-  };
-
-  /* AUTOMATICALLY IMPORTED, DO NOT MODIFY */
-  /*! (c) Andrea Giammarchi */
-  function disconnected(poly) {
-
-    var CONNECTED = 'connected';
-    var DISCONNECTED = 'dis' + CONNECTED;
-    var Event = poly.Event;
-    var WeakSet = poly.WeakSet;
-    var notObserving = true;
-    var observer = new WeakSet();
-    return function observe(node) {
-      if (notObserving) {
-        notObserving = !notObserving;
-        startObserving(node.ownerDocument);
-      }
-      observer.add(node);
-      return node;
-    };
-    function startObserving(document) {
-      var dispatched = null;
-      try {
-        new MutationObserver(changes).observe(document, { subtree: true, childList: true });
-      } catch (o_O) {
-        var timer = 0;
-        var records = [];
-        var reschedule = function reschedule(record) {
-          records.push(record);
-          clearTimeout(timer);
-          timer = setTimeout(function () {
-            changes(records.splice(timer = 0, records.length));
-          }, 0);
-        };
-        document.addEventListener('DOMNodeRemoved', function (event) {
-          reschedule({ addedNodes: [], removedNodes: [event.target] });
-        }, true);
-        document.addEventListener('DOMNodeInserted', function (event) {
-          reschedule({ addedNodes: [event.target], removedNodes: [] });
-        }, true);
-      }
-      function changes(records) {
-        dispatched = new Tracker();
-        for (var record, length = records.length, i = 0; i < length; i++) {
-          record = records[i];
-          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
-        }
-        dispatched = null;
-      }
-      function dispatchAll(nodes, type, counter) {
-        for (var node, event = new Event(type), length = nodes.length, i = 0; i < length; (node = nodes[i++]).nodeType === 1 && dispatchTarget(node, event, type, counter)) {}
-      }
-      function dispatchTarget(node, event, type, counter) {
-        if (observer.has(node) && !dispatched[type].has(node)) {
-          dispatched[counter].delete(node);
-          dispatched[type].add(node);
-          node.dispatchEvent(event);
-          /*
-          // The event is not bubbling (perf reason: should it?),
-          // hence there's no way to know if
-          // stop/Immediate/Propagation() was called.
-          // Should DOM Level 0 work at all?
-          // I say it's a YAGNI case for the time being,
-          // and easy to implement in user-land.
-          if (!event.cancelBubble) {
-            var fn = node['on' + type];
-            if (fn)
-              fn.call(node, event);
-          }
-          */
-        }
-        for (var children = node.children, length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
-      }
-      function Tracker() {
-        this[CONNECTED] = new WeakSet();
-        this[DISCONNECTED] = new WeakSet();
-      }
-    }
-  }
-
   var document$1 = G.document;
 
-  var observe = disconnected({ Event: Event, WeakSet: WeakSet });
+  var observe = disconnected({ Event: CustomEvent$1, WeakSet: WeakSet$1 });
 
   // a basic dictionary used to filter already cached attributes
   // while looking for special hyperHTML values.
@@ -1501,7 +1532,7 @@ var hyperHTML = (function (global) {
 
   // a weak collection of contexts that
   // are already known to hyperHTML
-  var bewitched = new WeakMap();
+  var bewitched = new WeakMap$1();
 
   // all unique template literals
   var templates = TemplateMap();
@@ -1565,7 +1596,7 @@ var hyperHTML = (function (global) {
   };
 
   // all wires used per each context
-  var wires = new WeakMap();
+  var wires = new WeakMap$1();
 
   // A wire is a callback used as tag function
   // to lazily relate a generic object to a template literal.
@@ -1604,7 +1635,7 @@ var hyperHTML = (function (global) {
       updates.apply(null, arguments);
       if (setup) {
         if (type === 'svg') {
-          append(content, slice.call(container.childNodes));
+          append$1(content, slice.call(container.childNodes));
         }
         wire = wireContent(content);
       }
@@ -1675,8 +1706,8 @@ var hyperHTML = (function (global) {
   // i.e. those still targeting IE
   hyper._ = {
     global: G,
-    WeakMap: WeakMap,
-    WeakSet: WeakSet
+    WeakMap: WeakMap$1,
+    WeakSet: WeakSet$1
   };
 
   // the wire content is the lazy defined

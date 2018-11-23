@@ -1,4 +1,5 @@
-import {WeakMap} from '../shared/poorlyfills.js';
+import WeakMap from '@ungap/weakmap';
+
 import {UIDC, VOID_ELEMENTS} from '../shared/constants.js';
 import Updates from '../objects/Updates.js';
 import {

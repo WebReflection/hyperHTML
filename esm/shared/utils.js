@@ -1,3 +1,6 @@
+import Map from '@ungap/essential-map';
+import WeakMap from '@ungap/weakmap';
+
 import {attrName, attrSeeker} from './re.js';
 
 import {
@@ -17,8 +20,6 @@ import {
 } from './features-detection.js';
 
 import {create, doc, fragment} from './easy-dom.js';
-
-import {Map, WeakMap} from './poorlyfills.js';
 
 // appends an array of nodes
 // to a generic node/fragment
