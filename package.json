@@ -143,7 +143,7 @@
     "basichtml": "^0.20.0",
     "coveralls": "^3.0.2",
     "disconnected": "^0.1.2",
-    "domdiff": "^1.0.2",
+    "domdiff": "^2.0.2",
     "istanbul": "^0.4.5",
     "npm-dollar": "^1.0.1",
     "rollup": "^0.67.0",
