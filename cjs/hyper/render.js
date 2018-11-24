@@ -1,5 +1,6 @@
 'use strict';
-const {WeakMap} = require('../shared/poorlyfills.js');
+const WeakMap = (m => m.__esModule ? m.default : m)(require('@ungap/weakmap'));
+
 const {UIDC, VOID_ELEMENTS} = require('../shared/constants.js');
 const Updates = (m => m.__esModule ? m.default : m)(require('../objects/Updates.js'));
 const {

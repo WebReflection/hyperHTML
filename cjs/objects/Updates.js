@@ -1,4 +1,12 @@
 'use strict';
+const CustomEvent = (m => m.__esModule ? m.default : m)(require('@ungap/custom-event'));
+const WeakSet = (m => m.__esModule ? m.default : m)(require('@ungap/essential-weakset'));
+const isArray = (m => m.__esModule ? m.default : m)(require('@ungap/is-array'));
+const trim = (m => m.__esModule ? m.default : m)(require('@ungap/trim'));
+
+const disconnected = (m => m.__esModule ? m.default : m)(require('disconnected'));
+const domdiff = (m => m.__esModule ? m.default : m)(require('domdiff'));
+
 const {
   CONNECTED, DISCONNECTED, COMMENT_NODE, DOCUMENT_FRAGMENT_NODE, ELEMENT_NODE, TEXT_NODE, OWNER_SVG_ELEMENT, SHOULD_USE_TEXT_CONTENT, G, UID, UIDC
 } = require('../shared/constants.js');
@@ -8,16 +16,13 @@ const Wire = (m => m.__esModule ? m.default : m)(require('../classes/Wire.js'));
 const Path = (m => m.__esModule ? m.default : m)(require('./Path.js'));
 const Style = (m => m.__esModule ? m.default : m)(require('./Style.js'));
 const Intent = (m => m.__esModule ? m.default : m)(require('./Intent.js'));
-const domdiff = (m => m.__esModule ? m.default : m)(require('../3rd/domdiff.js'));
 // see /^script$/i.test(nodeName) bit down here
 // import { create as createElement, text } from '../shared/easy-dom.js';
 const { text } = require('../shared/easy-dom.js');
-const { Event, WeakSet, isArray, trim } = require('../shared/poorlyfills.js');
 const { createFragment, slice } = require('../shared/utils.js');
-const disconnected = (m => m.__esModule ? m.default : m)(require('../3rd/disconnected.js'));
 
 const { document } = G;
-const observe = disconnected({Event, WeakSet});
+const observe = disconnected({Event: CustomEvent, WeakSet});
 
 // a basic dictionary used to filter already cached attributes
 // while looking for special hyperHTML values.

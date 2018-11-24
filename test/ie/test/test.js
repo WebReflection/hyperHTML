@@ -37,7 +37,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject35 = _taggedTemplateLiteral(['<p data=', '>', '</p>'], ['<p data=', '>', '</p>']),
     _templateObject36 = _taggedTemplateLiteral(['<textarea new>', '</textarea>'], ['<textarea new>', '</textarea>']),
     _templateObject37 = _taggedTemplateLiteral(['<p><!--ok--></p>'], ['<p><!--ok--></p>']),
-    _templateObject38 = _taggedTemplateLiteral(['<script src="../min.js" onload="', '"></script>'], ['<script src="../min.js" onload="', '"></script>']),
+    _templateObject38 = _taggedTemplateLiteral(['<script\n      src="../min.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>'], ['<script\n      src="../min.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>']),
     _templateObject39 = _taggedTemplateLiteral(['<rect style=', ' />'], ['<rect style=', ' />']),
     _templateObject40 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
     _templateObject41 = _taggedTemplateLiteral(['\n    <div>First name: ', '</div>\n    <p></p>'], ['\n    <div>First name: ', '</div>\n    <p></p>']),
@@ -527,7 +527,15 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     var div = document.createElement('div');
     document.body.appendChild(div);
-    hyperHTML.bind(div)(_templateObject38, function () {
+    hyperHTML.bind(div)(_templateObject38, function (event) {
+      if (/loaded|complete/.test(event.readyState)) setTimeout(function () {
+        tressa.assert(true, 'executed');
+        done();
+      });
+    }, function () {
+      tressa.assert(true, 'executed');
+      done();
+    }, function () {
       tressa.assert(true, 'executed');
       done();
     });
@@ -849,7 +857,7 @@ tressa.async(function (done) {
   tressa.assert(div.querySelector('p').getAttribute('attr') === 'test', 'the <p attr=test> is defined');
   p.render().click();
   tressa.assert(p.clicked, 'the event worked');
-  render(_templateObject11, [Rect.for({ x: 789, y: 123 })]);
+  render(_templateObject11, [hyperHTML.Component.for.call(Rect, { x: 789, y: 123 })]);
   tressa.assert(div.querySelector('rect').getAttribute('x') == '789', 'the for(state) worked');
 }).then(function () {
   return tressa.async(function (done) {
@@ -1115,7 +1123,7 @@ tressa.async(function (done) {
   tressa.assert(div.children[2].getAttribute('test') == "2", 'third node ok');
   div = hyperHTML.wire()(_templateObject66);
   tressa.assert(div.children.length === 1, 'one svg');
-  tressa.assert(div.children[0].children.length === 2, 'two paths');
+  tressa.assert(div.querySelectorAll('path').length === 2, 'two paths');
 }).then(function () {
   tressa.log('## <with><self-closing /></with>');
   function check(form) {
@@ -1315,6 +1323,12 @@ tressa.async(function (done) {
 
   var a = document.createElement('div');
   var b = document.createElement('div');
+  var method = hyperHTML.Component.for;
+  if (!MenuSimple.for) {
+    MenuSimple.for = method;
+    MenuWeakMap.for = method;
+    MenuItem.for = method;
+  }
   hyperHTML.bind(a)(_templateObject11, MenuSimple.for(a).render({
     items: [{ name: 'item 1' }, { name: 'item 2' }, { name: 'item 3' }]
   }));

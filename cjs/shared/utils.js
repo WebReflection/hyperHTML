@@ -1,4 +1,7 @@
 'use strict';
+const Map = (m => m.__esModule ? m.default : m)(require('@ungap/essential-map'));
+const WeakMap = (m => m.__esModule ? m.default : m)(require('@ungap/weakmap'));
+
 const {attrName, attrSeeker} = require('./re.js');
 
 const {
@@ -18,8 +21,6 @@ const {
 } = require('./features-detection.js');
 
 const {create, doc, fragment} = require('./easy-dom.js');
-
-const {Map, WeakMap} = require('./poorlyfills.js');
 
 // appends an array of nodes
 // to a generic node/fragment

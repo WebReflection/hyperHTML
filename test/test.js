@@ -485,10 +485,24 @@ tressa.async(function (done) {
   return tressa.async(function (done) {
     var div = document.createElement('div');
     document.body.appendChild(div);
-    hyperHTML.bind(div)`<script src="../min.js" onload="${() => {
-      tressa.assert(true, 'executed');
-      done();
-    }}"></script>`;
+    hyperHTML.bind(div)`<script
+      src="../min.js"
+      onreadystatechange="${event => {
+        if (/loaded|complete/.test(event.readyState))
+          setTimeout(() => {
+            tressa.assert(true, 'executed');
+            done();
+          });
+      }}"
+      onload="${() => {
+        tressa.assert(true, 'executed');
+        done();
+      }}"
+      onerror="${() => {
+        tressa.assert(true, 'executed');
+        done();
+      }}"
+    ></script>`;
     // in nodejs case
     if (!('onload' in document.defaultView)) {
       var evt = document.createEvent('Event');
@@ -816,7 +830,7 @@ tressa.async(function (done) {
   p.render().click();
   tressa.assert(p.clicked, 'the event worked');
   render`${[
-    Rect.for({x: 789, y: 123})
+    hyperHTML.Component.for.call(Rect, {x: 789, y: 123})
   ]}`;
   tressa.assert(div.querySelector('rect').getAttribute('x') == '789', 'the for(state) worked');
 })
@@ -1024,7 +1038,7 @@ tressa.async(function (done) {
   </div>
   `;
   tressa.assert(div.children.length === 1, 'one svg');
-  tressa.assert(div.children[0].children.length === 2, 'two paths');
+  tressa.assert(div.querySelectorAll('path').length === 2, 'two paths');
 })
 .then(function () {
   tressa.log('## <with><self-closing /></with>');
@@ -1184,6 +1198,12 @@ tressa.async(function (done) {
   }
   var a = document.createElement('div');
   var b = document.createElement('div');
+  var method = hyperHTML.Component.for;
+  if (!MenuSimple.for) {
+    MenuSimple.for = method;
+    MenuWeakMap.for = method;
+    MenuItem.for = method;
+  }
   hyperHTML.bind(a)`${MenuSimple.for(a).render({
     items: [{name: 'item 1'}, {name: 'item 2'}, {name: 'item 3'}]
   })}`;

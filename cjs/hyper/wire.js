@@ -1,6 +1,8 @@
 'use strict';
+const WeakMap = (m => m.__esModule ? m.default : m)(require('@ungap/weakmap'));
+const trim = (m => m.__esModule ? m.default : m)(require('@ungap/trim'));
+
 const {ELEMENT_NODE, SVG_NAMESPACE} = require('../shared/constants.js');
-const {WeakMap, trim} = require('../shared/poorlyfills.js');
 const {fragment} = require('../shared/easy-dom.js');
 const {append, slice, unique} = require('../shared/utils.js');
 const Wire = (m => m.__esModule ? m.default : m)(require('../classes/Wire.js'));
