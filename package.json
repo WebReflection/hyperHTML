@@ -143,7 +143,7 @@
     "basichtml": "^0.20.0",
     "coveralls": "^3.0.2",
     "istanbul": "^0.4.5",
-    "npm-dollar": "^1.0.1",
+    "npm-dollar": "^2.1.0",
     "rollup": "^0.67.0",
     "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-node-resolve": "^3.4.0",
