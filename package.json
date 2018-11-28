@@ -11,7 +11,7 @@
     "$": "npm-dollar",
     "build": "npm run $ build",
     "bundle": "npm run $ bundle",
-    "coveralls": "coveralls",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "postinstall": "lightercollective",
     "test": "npm run $ test"
   },
