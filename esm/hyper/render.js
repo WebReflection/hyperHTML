@@ -1,22 +1,12 @@
 import WeakMap from '@ungap/weakmap';
+import unique from '@ungap/template-literal';
 
-import {UIDC, VOID_ELEMENTS} from '../shared/constants.js';
-import Updates from '../objects/Updates.js';
-import {
-  createFragment,
-  importNode,
-  unique,
-  TemplateMap
-} from '../shared/utils.js';
-
-import {selfClosing} from '../shared/re.js';
+import {OWNER_SVG_ELEMENT} from '../shared/constants.js';
+import {Tagger} from '../objects/Updates.js';
 
 // a weak collection of contexts that
 // are already known to hyperHTML
 const bewitched = new WeakMap;
-
-// all unique template literals
-const templates = TemplateMap();
 
 // better known as hyper.bind(node), the render is
 // the main tag function in charge of fully upgrading
@@ -25,7 +15,7 @@ const templates = TemplateMap();
 function render(template) {
   const wicked = bewitched.get(this);
   if (wicked && wicked.template === unique(template)) {
-    update.apply(wicked.updates, arguments);
+    wicked.tagger.apply(null, arguments);
   } else {
     upgrade.apply(this, arguments);
   }
@@ -38,43 +28,11 @@ function render(template) {
 // to the current context, and render it after cleaning the context up
 function upgrade(template) {
   template = unique(template);
-  const info =  templates.get(template) ||
-                createTemplate.call(this, template);
-  const fragment = importNode(this.ownerDocument, info.fragment);
-  const updates = Updates.create(fragment, info.paths);
-  bewitched.set(this, {template, updates});
-  update.apply(updates, arguments);
+  const type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
+  const tagger = new Tagger(type);
+  bewitched.set(this, {tagger, template});
   this.textContent = '';
-  this.appendChild(fragment);
+  this.appendChild(tagger.apply(null, arguments));
 }
-
-// an update simply loops over all mapped DOM operations
-function update() {
-  const length = arguments.length;
-  for (let i = 1; i < length; i++) {
-    this[i - 1](arguments[i]);
-  }
-}
-
-// a template can be used to create a document fragment
-// aware of all interpolations and with a list
-// of paths used to find once those nodes that need updates,
-// no matter if these are attributes, text nodes, or regular one
-function createTemplate(template) {
-  const paths = [];
-  const html = template.join(UIDC).replace(SC_RE, SC_PLACE);
-  const fragment = createFragment(this, html);
-  Updates.find(fragment, paths, template.slice());
-  const info = {fragment, paths};
-  templates.set(template, info);
-  return info;
-}
-
-// some node could be special though, like a custom element
-// with a self closing tag, which should work through these changes.
-const SC_RE = selfClosing;
-const SC_PLACE = ($0, $1, $2) => {
-  return VOID_ELEMENTS.test($1) ? $0 : ('<' + $1 + $2 + '></' + $1 + '>');
-};
 
 export default render;

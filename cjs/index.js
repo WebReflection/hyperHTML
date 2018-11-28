@@ -1,16 +1,16 @@
 'use strict';
 /*! (c) Andrea Giammarchi (ISC) */
-const WeakMap = (m => m.__esModule ? m.default : m)(require('@ungap/weakmap'));
-const WeakSet = (m => m.__esModule ? m.default : m)(require('@ungap/essential-weakset'));
+const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
+const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-weakset'));
 
-const diff = (m => m.__esModule ? m.default : m)(require('domdiff'));
-const Component = (m => m.__esModule ? m.default : m)(require('./classes/Component.js'));
+const diff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domdiff'));
+const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
-const Intent = (m => m.__esModule ? m.default : m)(require('./objects/Intent.js'));
+const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./objects/Intent.js'));
 const {observe} = require('./objects/Updates.js');
-const wire = (m => m.__esModule ? m.default : m)(require('./hyper/wire.js'));
+const wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
-const render = (m => m.__esModule ? m.default : m)(require('./hyper/render.js'));
+const render = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/render.js'));
 const { G } = require('./shared/constants.js');
 
 // all functions are self bound to the right context

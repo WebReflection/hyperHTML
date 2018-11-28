@@ -29,13 +29,14 @@ customElements.define('input', class extends HTMLElement {
   set value(text) { this.setAttribute('value', text); }
 });
 
-global.hyperHTML = require('../index.c.js');
+global.hyperHTML = require('../cjs').default;
 
 require('./test.js');
 
 setTimeout(function () {
+  return;
 
-  delete require.cache[require.resolve('../index.c.js')];
+  delete require.cache[require.resolve('../cjs')];
   delete require.cache[require.resolve('./test.js')];
 
   usableAfter(Array, 'isArray', 1);
@@ -95,19 +96,19 @@ setTimeout(function () {
     }};
   };
 
-  window.hyperHTML = require('../index.c.js');
+  window.hyperHTML = require('../cjs').default;
   require('./domdiff.js');
   require('./test.js');
 
   if ($WeakMap) setTimeout(() => {
-    delete require.cache[require.resolve('../index.c.js')];
+    delete require.cache[require.resolve('../cjs')];
     delete require.cache[require.resolve('./test.js')];
     global.WeakMap = function () {
       const wm = new $WeakMap;
       wm.get = () => false;
       return wm;
     };
-    require('../index.c.js');
+    require('../cjs');
     require('./test.js');
   }, 2000);
 }, 2000);

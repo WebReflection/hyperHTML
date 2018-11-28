@@ -1,5 +1,4 @@
-import { append } from '../shared/utils.js';
-import { doc, fragment } from '../shared/easy-dom.js';
+import { append, doc, fragment } from '../shared/utils.js';
 
 export default function Wire(childNodes) {
   this.childNodes = childNodes;
