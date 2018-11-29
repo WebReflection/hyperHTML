@@ -37,7 +37,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject35 = _taggedTemplateLiteral(['<p data=', '>', '</p>'], ['<p data=', '>', '</p>']),
     _templateObject36 = _taggedTemplateLiteral(['<textarea new>', '</textarea>'], ['<textarea new>', '</textarea>']),
     _templateObject37 = _taggedTemplateLiteral(['<p><!--ok--></p>'], ['<p><!--ok--></p>']),
-    _templateObject38 = _taggedTemplateLiteral(['<script\n      src="../min.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>'], ['<script\n      src="../min.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>']),
+    _templateObject38 = _taggedTemplateLiteral(['<script\n      src="../index.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>'], ['<script\n      src="../index.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>']),
     _templateObject39 = _taggedTemplateLiteral(['<rect style=', ' />'], ['<rect style=', ' />']),
     _templateObject40 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
     _templateObject41 = _taggedTemplateLiteral(['\n    <div>First name: ', '</div>\n    <p></p>'], ['\n    <div>First name: ', '</div>\n    <p></p>']),

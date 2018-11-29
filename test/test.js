@@ -486,7 +486,7 @@ tressa.async(function (done) {
     var div = document.createElement('div');
     document.body.appendChild(div);
     hyperHTML.bind(div)`<script
-      src="../min.js"
+      src="../index.js"
       onreadystatechange="${event => {
         if (/loaded|complete/.test(event.readyState))
           setTimeout(() => {
@@ -816,7 +816,7 @@ tressa.async(function (done) {
 
   var div = document.createElement('div');
   var render = hyperHTML.bind(div);
-  
+
   render`${[
     new Button,
     new Rect({x: 123, y: 456})

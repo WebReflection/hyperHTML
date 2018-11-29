@@ -1,11 +1,11 @@
 import WeakMap from '@ungap/weakmap';
+import unique from '@ungap/template-literal';
 import trim from '@ungap/trim';
 
-import {ELEMENT_NODE, SVG_NAMESPACE} from '../shared/constants.js';
-import {fragment} from '../shared/easy-dom.js';
-import {append, slice, unique} from '../shared/utils.js';
+import {ELEMENT_NODE} from '../shared/constants.js';
 import Wire from '../classes/Wire.js';
-import render from './render.js';
+
+import {Tagger} from '../objects/Updates.js';
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -30,24 +30,15 @@ const wire = (obj, type) => obj == null ?
 // In few words, a wire content is like an invisible parent node
 // in charge of updating its content like a bound element would do.
 const content = type => {
-  let wire, container, content, template, updates;
+  let wire, tagger, template;
   return function (statics) {
     statics = unique(statics);
-    let setup = template !== statics;
-    if (setup) {
+    if (template !== statics) {
       template = statics;
-      content = fragment(document);
-      container = type === 'svg' ?
-        document.createElementNS(SVG_NAMESPACE, 'svg') :
-        content;
-      updates = render.bind(container);
-    }
-    updates.apply(null, arguments);
-    if (setup) {
-      if (type === 'svg') {
-        append(content, slice.call(container.childNodes));
-      }
-      wire = wireContent(content);
+      tagger = new Tagger(type);
+      wire = wireContent(tagger.apply(tagger, arguments));
+    } else {
+      tagger.apply(tagger, arguments);
     }
     return wire;
   };
@@ -64,7 +55,8 @@ const weakly = (obj, type) => {
     id = type.slice(i + 1);
     type = type.slice(0, i) || 'html';
   }
-  if (!wire) wires.set(obj, wire = {});
+  if (!wire)
+    wires.set(obj, wire = {});
   return wire[id] || (wire[id] = content(type));
 };
 

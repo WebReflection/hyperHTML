@@ -1,7 +1,7 @@
 'use strict';
-const CustomEvent = (m => m.__esModule ? m.default : m)(require('@ungap/custom-event'));
-const Map = (m => m.__esModule ? m.default : m)(require('@ungap/essential-map'));
-const WeakMap = (m => m.__esModule ? m.default : m)(require('@ungap/weakmap'));
+const CustomEvent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/custom-event'));
+const Map = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-map'));
+const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
 
 // hyperHTML.Component is a very basic class
 // able to create Custom Elements like components

@@ -4,7 +4,8 @@
     "setTimeout": true,
     "clearTimeout": true,
     "MutationObserver": true,
-    "Promise": true
+    "Promise": true,
+    "document": true
   },
   "parserOptions": {
     "sourceType": "module"

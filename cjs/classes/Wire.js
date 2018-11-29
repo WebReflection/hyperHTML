@@ -1,6 +1,5 @@
 'use strict';
-const { append } = require('../shared/utils.js');
-const { doc, fragment } = require('../shared/easy-dom.js');
+const { append, doc, fragment } = require('../shared/utils.js');
 
 function Wire(childNodes) {
   this.childNodes = childNodes;
