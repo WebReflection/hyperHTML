@@ -68,7 +68,7 @@ const weakly = (obj, type) => {
 // node wouldn't know which node was there
 // associated to the interpolation.
 // To prevent hyperHTML to forget about wired nodes,
-// these are either returned as Array or, if there's ony one entry,
+// these are either returned as Array or, if there's only one entry,
 // as single referenced node that won't disappear from the fragment.
 // The initial fragment, at this point, would be used as unique reference.
 const wireContent = node => {

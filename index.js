@@ -661,7 +661,7 @@ var hyperHTML = (function (document) {
   }({}.toString);
 
   /*! (c) Andrea Giammarchi - ISC */
-  var createContent = function (document, forEach) {
+  var createContent = function (document) {
 
     var FRAGMENT = 'fragment';
     var TEMPLATE = 'template';
@@ -683,7 +683,7 @@ var hyperHTML = (function (document) {
         template.innerHTML = html;
         childNodes = template.childNodes;
       }
-      forEach.call(childNodes, append, content);
+      append(content, childNodes);
       return content;
     };
 
@@ -691,8 +691,11 @@ var hyperHTML = (function (document) {
       return (type === 'svg' ? createSVG : createHTML)(markup);
     };
 
-    function append(child) {
-      this.appendChild(child);
+    function append(root, childNodes) {
+      var length = childNodes.length;
+      while (length--) {
+        root.appendChild(childNodes[0]);
+      }
     }
 
     function create(element) {
@@ -706,10 +709,10 @@ var hyperHTML = (function (document) {
       var content = create(FRAGMENT);
       var template = create('div');
       template.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + svg + '</svg>';
-      forEach.call(template.firstChild.childNodes, append, content);
+      append(content, template.firstChild.childNodes);
       return content;
     }
-  }(document, [].forEach);
+  }(document);
 
   /*! (c) Andrea Giammarchi */
   function disconnected(poly) {
@@ -788,60 +791,6 @@ var hyperHTML = (function (document) {
       }
     }
   }
-
-  /*! (c) Andrea Giammarchi - ISC */
-  var createContent$1 = function (document) {
-
-    var FRAGMENT = 'fragment';
-    var TEMPLATE = 'template';
-    var HAS_CONTENT = 'content' in create(TEMPLATE);
-
-    var createHTML = HAS_CONTENT ? function (html) {
-      var template = create(TEMPLATE);
-      template.innerHTML = html;
-      return template.content;
-    } : function (html) {
-      var content = create(FRAGMENT);
-      var template = create(TEMPLATE);
-      var childNodes = null;
-      if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
-        var selector = RegExp.$1;
-        template.innerHTML = '<table>' + html + '</table>';
-        childNodes = template.querySelectorAll(selector);
-      } else {
-        template.innerHTML = html;
-        childNodes = template.childNodes;
-      }
-      append(content, childNodes);
-      return content;
-    };
-
-    return function createContent(markup, type) {
-      return (type === 'svg' ? createSVG : createHTML)(markup);
-    };
-
-    function append(root, childNodes) {
-      var length = childNodes.length;
-      while (length--) {
-        root.appendChild(childNodes[0]);
-      }
-    }
-
-    function create(element) {
-      return element === FRAGMENT ? document.createDocumentFragment() : document.createElement(element);
-    }
-
-    // it could use createElementNS when hasNode is there
-    // but this fallback is equally fast and easier to maintain
-    // it is also battle tested already in all IE
-    function createSVG(svg) {
-      var content = create(FRAGMENT);
-      var template = create('div');
-      template.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + svg + '</svg>';
-      append(content, template.firstChild.childNodes);
-      return content;
-    }
-  }(document);
 
   /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
@@ -1050,7 +999,7 @@ var hyperHTML = (function (document) {
     var markup = sanitize(template);
     var transform = options.transform;
     if (transform) markup = transform(markup);
-    var content = createContent$1(markup, options.type);
+    var content = createContent(markup, options.type);
     var holes = [];
     parse(content, holes, template.slice(0));
     var info = {
@@ -1617,7 +1566,7 @@ var hyperHTML = (function (document) {
   // node wouldn't know which node was there
   // associated to the interpolation.
   // To prevent hyperHTML to forget about wired nodes,
-  // these are either returned as Array or, if there's ony one entry,
+  // these are either returned as Array or, if there's only one entry,
   // as single referenced node that won't disappear from the fragment.
   // The initial fragment, at this point, would be used as unique reference.
   var wireContent = function wireContent(node) {
