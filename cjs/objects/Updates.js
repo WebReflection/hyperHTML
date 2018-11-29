@@ -7,6 +7,7 @@ const createContent = (m => m.__esModule ? /* istanbul ignore next */ m.default 
 const disconnected = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('disconnected'));
 const domdiff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domdiff'));
 const domtagger = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domtagger'));
+const hyperStyle = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-style'));
 
 const {
   CONNECTED, DISCONNECTED, DOCUMENT_FRAGMENT_NODE, OWNER_SVG_ELEMENT
@@ -14,7 +15,6 @@ const {
 
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
-const Style = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Style.js'));
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
 const { slice, text } = require('../shared/utils.js');
 
@@ -89,9 +89,8 @@ Tagger.prototype = {
     let oldValue;
     // if the attribute is the style one
     // handle it differently from others
-    if (name === 'style') {
-      return Style(node, original, isSVG);
-    }
+    if (name === 'style')
+      return hyperStyle(node);
     // the name is an event one,
     // add/remove event listeners accordingly
     else if (/^on/.test(name)) {

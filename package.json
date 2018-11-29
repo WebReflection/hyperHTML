@@ -161,6 +161,7 @@
     "disconnected": "^0.1.5",
     "domdiff": "^2.0.2",
     "domtagger": "^0.1.4",
+    "hyperhtml-style": "^0.1.1",
     "lightercollective": "^0.1.0"
   },
   "collective": {

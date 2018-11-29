@@ -17,7 +17,7 @@ const wires = new WeakMap;
 // This provides the ability to have a unique DOM structure
 // related to a unique JS object through a reusable template literal.
 // A wire can specify a type, as svg or html, and also an id
-// via html:id or :id convention. Such :id allows same JS objects
+// via the html:id or :id convention. Such :id allows same JS objects
 // to be associated to different DOM structures accordingly with
 // the used template literal without losing previously rendered parts.
 const wire = (obj, type) => obj == null ?
@@ -47,7 +47,7 @@ const content = type => {
 
 // wires are weakly created through objects.
 // Each object can have multiple wires associated
-// and this is thanks to the type + :id feature.
+// thanks to the type + :id feature.
 const weakly = (obj, type) => {
   const i = type.indexOf(':');
   let wire = wires.get(obj);
@@ -61,7 +61,7 @@ const weakly = (obj, type) => {
   return wire[id] || (wire[id] = content(type));
 };
 
-// a document fragment loses its nodes as soon
+// A document fragment loses its nodes as soon
 // as it's appended into another node.
 // This would easily lose wired content
 // so that on a second render call, the parent
