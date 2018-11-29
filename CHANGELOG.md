@@ -1,5 +1,13 @@
 # hyper(html) Changelog
 
+### v2.19
+  * refactored out most of the code
+  * finally managed to have coveralls show coverage stats
+  * attributes can have spaces around as per DOM standard - [#244](https://github.com/WebReflection/hyperHTML/issues/224)
+  * fixed SVG (non-critical) errors when interpolations are used for numerically expected values
+  * fixed minor issues with Edge attributes
+  * changed the unique id so if any of your logic was trusting `_hyper: ....;` comments you need to update your logic - [#300](https://github.com/WebReflection/hyperHTML/issues/300)
+
 ### v2.16.8
   * improved MutationObserver and fallback so that double `dis/connected` events won't happen again
   * exposed `observe` utility for 3rd parts so that it is possible to observe any node, not only those defined via template literals. Once observed, a node can have `connected` and `disconnected` listeners that will be triggered automatically.
