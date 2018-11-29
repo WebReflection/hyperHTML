@@ -10,13 +10,13 @@ import render from './render.js';
 // all wires used per each context
 const wires = new WeakMap;
 
-// A wire is a callback used as tag function
+// A wire is a callback used as tag a function
 // to lazily relate a generic object to a template literal.
 // hyper.wire(user)`<div id=user>${user.name}</div>`; => the div#user
 // This provides the ability to have a unique DOM structure
 // related to a unique JS object through a reusable template literal.
 // A wire can specify a type, as svg or html, and also an id
-// via html:id or :id convention. Such :id allows same JS objects
+// via the html:id or :id convention. Such :id allows same JS objects
 // to be associated to different DOM structures accordingly with
 // the used template literal without losing previously rendered parts.
 const wire = (obj, type) => obj == null ?
@@ -55,7 +55,7 @@ const content = type => {
 
 // wires are weakly created through objects.
 // Each object can have multiple wires associated
-// and this is thanks to the type + :id feature.
+// thanks to the type + :id feature.
 const weakly = (obj, type) => {
   const i = type.indexOf(':');
   let wire = wires.get(obj);
@@ -68,16 +68,18 @@ const weakly = (obj, type) => {
   return wire[id] || (wire[id] = content(type));
 };
 
-// a document fragment loses its nodes as soon
+// A document fragment loses its nodes as soon
 // as it's appended into another node.
-// This would easily lose wired content
-// so that on a second render call, the parent
-// node wouldn't know which node was there
-// associated to the interpolation.
-// To prevent hyperHTML to forget about wired nodes,
-// these are either returned as Array or, if there's ony one entry,
-// as single referenced node that won't disappear from the fragment.
-// The initial fragment, at this point, would be used as unique reference.
+// Consequently, this would easily lose wired content
+// on a second render call, because (by then) the fragment would empty and could
+// no longer be used as a means of appending the sub-nodes it once contained that
+// were ultimately associated with the original interpolation.
+// To prevent hyperHTML from forgetting about a fragment's sub-nodes,
+// fragments are instead returned as Array of nodes or, if there's only one entry,
+// as single referenced node which, unlike framents, will persist wire content
+// throughout multiple renderings.
+// The initial fragment, at this point, would be used as unique reference to this
+// array of node or single referenced node.
 const wireContent = node => {
   const childNodes = node.childNodes;
   const length = childNodes.length;
