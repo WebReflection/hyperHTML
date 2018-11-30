@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v2.20
+  * re-tested every single supported browser nd fixed few outstanding issues with the 2.19 release
+
 ### v2.19
   * refactored out most of the code
   * finally managed to have coveralls show coverage stats
