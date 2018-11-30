@@ -1,11 +1,11 @@
 import WeakMap from '@ungap/weakmap';
-import unique from '@ungap/template-literal';
 import trim from '@ungap/trim';
 
 import {ELEMENT_NODE} from '../shared/constants.js';
 import Wire from '../classes/Wire.js';
 
 import {Tagger} from '../objects/Updates.js';
+import {reArguments} from '../shared/utils.js';
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -31,14 +31,14 @@ const wire = (obj, type) => obj == null ?
 // in charge of updating its content like a bound element would do.
 const content = type => {
   let wire, tagger, template;
-  return function (statics) {
-    statics = unique(statics);
-    if (template !== statics) {
-      template = statics;
+  return function () {
+    const args = reArguments.apply(null, arguments);
+    if (template !== args[0]) {
+      template = args[0];
       tagger = new Tagger(type);
-      wire = wireContent(tagger.apply(tagger, arguments));
+      wire = wireContent(tagger.apply(tagger, args));
     } else {
-      tagger.apply(tagger, arguments);
+      tagger.apply(tagger, args);
     }
     return wire;
   };

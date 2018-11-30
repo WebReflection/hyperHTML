@@ -1,12 +1,12 @@
 'use strict';
 const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
-const unique = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/template-literal'));
 const trim = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/trim'));
 
 const {ELEMENT_NODE} = require('../shared/constants.js');
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
 
 const {Tagger} = require('../objects/Updates.js');
+const {reArguments} = require('../shared/utils.js');
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -32,14 +32,14 @@ const wire = (obj, type) => obj == null ?
 // in charge of updating its content like a bound element would do.
 const content = type => {
   let wire, tagger, template;
-  return function (statics) {
-    statics = unique(statics);
-    if (template !== statics) {
-      template = statics;
+  return function () {
+    const args = reArguments.apply(null, arguments);
+    if (template !== args[0]) {
+      template = args[0];
       tagger = new Tagger(type);
-      wire = wireContent(tagger.apply(tagger, arguments));
+      wire = wireContent(tagger.apply(tagger, args));
     } else {
-      tagger.apply(tagger, arguments);
+      tagger.apply(tagger, args);
     }
     return wire;
   };

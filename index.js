@@ -1142,6 +1142,36 @@ var hyperHTML = (function (document) {
   var CONNECTED = 'connected';
   var DISCONNECTED = 'dis' + CONNECTED;
 
+  var templateLiteral = function () {
+
+    var RAW = 'raw';
+    var isNoOp = false;
+    var _templateLiteral = function templateLiteral(tl) {
+      if (
+      // for badly transpiled literals
+      !(RAW in tl) ||
+      // for some version of TypeScript
+      tl.propertyIsEnumerable(RAW) ||
+      // and some other version of TypeScript
+      !Object.isFrozen(tl.raw) ||
+      // or for Firefox < 55
+      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
+        var forever = {};
+        _templateLiteral = function templateLiteral(tl) {
+          var key = RAW + tl.join(RAW);
+          return forever[key] || (forever[key] = tl);
+        };
+        return _templateLiteral(tl);
+      } else {
+        isNoOp = true;
+        return tl;
+      }
+    };
+    return function (tl) {
+      return isNoOp ? tl : _templateLiteral(tl);
+    };
+  }();
+
   // these are tiny helpers to simplify most common operations needed here
   var doc = function doc(node) {
     return node.ownerDocument || node;
@@ -1165,6 +1195,14 @@ var hyperHTML = (function (document) {
     for (var i = 0; i < length; i++) {
       node.appendChild(childNodes[i]);
     }
+  };
+
+  // normalizes the template once for all arguments cases
+  var reArguments = function reArguments(template) {
+    var args = [templateLiteral(template)];
+    for (var i = 1, length = arguments.length; i < length; i++) {
+      args[i] = arguments[i];
+    }return args;
   };
 
   // just recycling a one-off array to use slice
@@ -1467,36 +1505,6 @@ var hyperHTML = (function (document) {
     }
   };
 
-  var templateLiteral = function () {
-
-    var RAW = 'raw';
-    var isNoOp = false;
-    var _templateLiteral = function templateLiteral(tl) {
-      if (
-      // for badly transpiled literals
-      !(RAW in tl) ||
-      // for some version of TypeScript
-      tl.propertyIsEnumerable(RAW) ||
-      // and some other version of TypeScript
-      !Object.isFrozen(tl.raw) ||
-      // or for Firefox < 55
-      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-        var forever = {};
-        _templateLiteral = function templateLiteral(tl) {
-          var key = RAW + tl.join(RAW);
-          return forever[key] || (forever[key] = tl);
-        };
-        return _templateLiteral(tl);
-      } else {
-        isNoOp = true;
-        return tl;
-      }
-    };
-    return function (tl) {
-      return isNoOp ? tl : _templateLiteral(tl);
-    };
-  }();
-
   // all wires used per each context
   var wires = new WeakMap$1();
 
@@ -1523,14 +1531,14 @@ var hyperHTML = (function (document) {
     var wire = void 0,
         tagger = void 0,
         template = void 0;
-    return function (statics) {
-      statics = templateLiteral(statics);
-      if (template !== statics) {
-        template = statics;
+    return function () {
+      var args = reArguments.apply(null, arguments);
+      if (template !== args[0]) {
+        template = args[0];
         tagger = new Tagger(type);
-        wire = wireContent(tagger.apply(tagger, arguments));
+        wire = wireContent(tagger.apply(tagger, args));
       } else {
-        tagger.apply(tagger, arguments);
+        tagger.apply(tagger, args);
       }
       return wire;
     };
@@ -1582,12 +1590,13 @@ var hyperHTML = (function (document) {
   // the main tag function in charge of fully upgrading
   // or simply updating, contexts used as hyperHTML targets.
   // The `this` context is either a regular DOM node or a fragment.
-  function render(template) {
+  function render() {
     var wicked = bewitched.get(this);
-    if (wicked && wicked.template === templateLiteral(template)) {
-      wicked.tagger.apply(null, arguments);
+    var args = reArguments.apply(null, arguments);
+    if (wicked && wicked.template === args[0]) {
+      wicked.tagger.apply(null, args);
     } else {
-      upgrade.apply(this, arguments);
+      upgrade.apply(this, args);
     }
     return this;
   }
@@ -1596,13 +1605,13 @@ var hyperHTML = (function (document) {
   // parse it once, if unknown, to map all interpolations
   // as single DOM callbacks, relate such template
   // to the current context, and render it after cleaning the context up
-  function upgrade(template) {
-    template = templateLiteral(template);
+  function upgrade() {
+    var args = reArguments.apply(null, arguments);
     var type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
     var tagger = new Tagger(type);
-    bewitched.set(this, { tagger: tagger, template: template });
+    bewitched.set(this, { tagger: tagger, template: args[0] });
     this.textContent = '';
-    this.appendChild(tagger.apply(null, arguments));
+    this.appendChild(tagger.apply(null, args));
   }
 
   /*! (c) Andrea Giammarchi (ISC) */

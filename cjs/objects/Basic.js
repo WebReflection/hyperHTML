@@ -4,8 +4,7 @@ const WeakSet = (m => m.__esModule ? m.default : m)(require('@ungap/essential-we
 const disconnected = (m => m.__esModule ? m.default : m)(require('disconnected'));
 const domdiff = (m => m.__esModule ? m.default : m)(require('domdiff'));
 const domtagger = (m => m.__esModule ? m.default : m)(require('domtagger'));
-
-const hyperStyle = (m => m.__esModule ? m.default : m)(require('./hyperstyle.js'));
+const hyperStyle = (m => m.__esModule ? m.default : m)(require('hyperhtml-style'));
 
 const CONNECTED = 'connected';
 const DISCONNECTED = 'dis' + CONNECTED;
