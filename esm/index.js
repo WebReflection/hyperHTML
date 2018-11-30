@@ -5,7 +5,7 @@ import WeakSet from '@ungap/essential-weakset';
 import diff from 'domdiff';
 import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
-import {observe} from './objects/Updates.js';
+import {observe, Tagger} from './objects/Updates.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
 import { G } from './shared/constants.js';
@@ -16,6 +16,7 @@ import { G } from './shared/constants.js';
 // and use them right away: bind(node)`hello!`;
 const bind = context => render.bind(context);
 const define = Intent.define;
+const tagger = Tagger.prototype;
 
 hyper.Component = Component;
 hyper.bind = bind;
@@ -23,6 +24,7 @@ hyper.define = define;
 hyper.diff = diff;
 hyper.hyper = hyper;
 hyper.observe = observe;
+hyper.tagger = tagger;
 hyper.wire = wire;
 
 // exported as shared utils
@@ -41,7 +43,7 @@ setup(content);
 
 // everything is exported directly or through the
 // hyperHTML callback, when used as top level script
-export {Component, bind, define, diff, hyper, observe, wire};
+export {Component, bind, define, diff, hyper, observe, tagger, wire};
 
 // by default, hyperHTML is a smart function
 // that "magically" understands what's the best

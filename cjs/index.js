@@ -7,7 +7,7 @@ const diff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* ista
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./objects/Intent.js'));
-const {observe} = require('./objects/Updates.js');
+const {observe, Tagger} = require('./objects/Updates.js');
 const wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/render.js'));
@@ -19,6 +19,7 @@ const { G } = require('./shared/constants.js');
 // and use them right away: bind(node)`hello!`;
 const bind = context => render.bind(context);
 const define = Intent.define;
+const tagger = Tagger.prototype;
 
 hyper.Component = Component;
 hyper.bind = bind;
@@ -26,6 +27,7 @@ hyper.define = define;
 hyper.diff = diff;
 hyper.hyper = hyper;
 hyper.observe = observe;
+hyper.tagger = tagger;
 hyper.wire = wire;
 
 // exported as shared utils
@@ -50,6 +52,7 @@ exports.define = define;
 exports.diff = diff;
 exports.hyper = hyper;
 exports.observe = observe;
+exports.tagger = tagger;
 exports.wire = wire;
 
 // by default, hyperHTML is a smart function
