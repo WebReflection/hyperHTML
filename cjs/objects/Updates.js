@@ -90,7 +90,7 @@ Tagger.prototype = {
     // if the attribute is the style one
     // handle it differently from others
     if (name === 'style')
-      return hyperStyle(node);
+      return hyperStyle(node, original, isSVG);
     // the name is an event one,
     // add/remove event listeners accordingly
     else if (/^on/.test(name)) {

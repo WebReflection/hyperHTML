@@ -457,13 +457,15 @@ var hyperHTML = (function (document) {
   } catch (CustomEvent) {
     self$3.CustomEvent = function CustomEvent(type, init) {
       if (!init) init = {};
-      var e = document.createEvent('Event');
       var bubbles = !!init.bubbles;
       var cancelable = !!init.cancelable;
+      var e = document.createEvent('Event');
       e.initEvent(type, bubbles, cancelable);
-      e.bubbles = bubbles;
-      e.cancelable = cancelable;
       e.detail = init.detail;
+      try {
+        e.bubbles = bubbles;
+        e.cancelable = cancelable;
+      } catch (e) {}
       return e;
     };
   }
@@ -783,7 +785,10 @@ var hyperHTML = (function (document) {
           }
           */
         }
-        for (var children = node.children, length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
+        for (var
+        // apparently is node.children || IE11 ... ^_^;;
+        // https://github.com/WebReflection/disconnected/issues/1
+        children = node.children || [], length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
       }
       function Tracker() {
         this[CONNECTED] = new WeakSet();
@@ -1068,15 +1073,21 @@ var hyperHTML = (function (document) {
 
     var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
     var hyphen = /([^A-Z])([A-Z]+)/g;
-    return function hyperStyle(node) {
-      return 'ownerSVGElement' in node ? svg(node) : update(node.style, false);
+    return function hyperStyle(node, original) {
+      return 'ownerSVGElement' in node ? svg(node, original) : update(node.style, false);
     };
     function ized($0, $1, $2) {
       return $1 + '-' + $2.toLowerCase();
     }
-    function svg(node) {
-      node.setAttribute('style', '');
-      return update(node.getAttributeNode('style'), true);
+    function svg(node, original) {
+      var style;
+      if (original) style = original.cloneNode(true);else {
+        node.setAttribute('style', '--hyper:style;');
+        style = node.getAttributeNode('style');
+      }
+      style.value = '';
+      node.setAttributeNode(style);
+      return update(style, true);
     }
     function toStyle(object) {
       var key,
@@ -1308,7 +1319,7 @@ var hyperHTML = (function (document) {
       var oldValue = void 0;
       // if the attribute is the style one
       // handle it differently from others
-      if (name === 'style') return hyperStyle(node);
+      if (name === 'style') return hyperStyle(node, original, isSVG);
       // the name is an event one,
       // add/remove event listeners accordingly
       else if (/^on/.test(name)) {

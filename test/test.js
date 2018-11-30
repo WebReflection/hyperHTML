@@ -1023,7 +1023,10 @@ tressa.async(function (done) {
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
   p({'--custom-color': 'red'});
-  tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
+  if (node.style.cssText !== '')
+    tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
+  else
+    console.log('skipping CSS properties for IE');
 })
 .then(function () {
   tressa.log('## <self-closing />');
@@ -1282,7 +1285,7 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## define(hyper-attribute, callback)');
   var a = document.createElement('div');
-  var random = Math.random();
+  var random = Math.random().toPrecision(6); // IE < 11
   var result = [];
   hyperHTML.define('hyper-attribute', function (target, value) {
     result.push(target, value);
