@@ -1,4 +1,6 @@
 'use strict';
+const unique = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/template-literal'));
+
 // these are tiny helpers to simplify most common operations needed here
 const doc = node => node.ownerDocument || node;
 exports.doc = doc;
@@ -23,6 +25,15 @@ const append = 'append' in fragment(document) ?
     }
   };
 exports.append = append;
+
+// normalizes the template once for all arguments cases
+const reArguments = function (template) {
+  const args = [unique(template)];
+  for (let i = 1, length = arguments.length; i < length; i++)
+    args[i] = arguments[i];
+  return args;
+}
+exports.reArguments = reArguments
 
 // just recycling a one-off array to use slice
 // in every needed place

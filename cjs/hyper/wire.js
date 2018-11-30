@@ -1,12 +1,12 @@
 'use strict';
 const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
-const unique = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/template-literal'));
 const trim = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/trim'));
 
 const {ELEMENT_NODE} = require('../shared/constants.js');
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
 
 const {Tagger} = require('../objects/Updates.js');
+const {reArguments} = require('../shared/utils.js');
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -17,7 +17,7 @@ const wires = new WeakMap;
 // This provides the ability to have a unique DOM structure
 // related to a unique JS object through a reusable template literal.
 // A wire can specify a type, as svg or html, and also an id
-// via html:id or :id convention. Such :id allows same JS objects
+// via the html:id or :id convention. Such :id allows same JS objects
 // to be associated to different DOM structures accordingly with
 // the used template literal without losing previously rendered parts.
 const wire = (obj, type) => obj == null ?
@@ -32,14 +32,14 @@ const wire = (obj, type) => obj == null ?
 // in charge of updating its content like a bound element would do.
 const content = type => {
   let wire, tagger, template;
-  return function (statics) {
-    statics = unique(statics);
-    if (template !== statics) {
-      template = statics;
+  return function () {
+    const args = reArguments.apply(null, arguments);
+    if (template !== args[0]) {
+      template = args[0];
       tagger = new Tagger(type);
-      wire = wireContent(tagger.apply(tagger, arguments));
+      wire = wireContent(tagger.apply(tagger, args));
     } else {
-      tagger.apply(tagger, arguments);
+      tagger.apply(tagger, args);
     }
     return wire;
   };
@@ -47,7 +47,7 @@ const content = type => {
 
 // wires are weakly created through objects.
 // Each object can have multiple wires associated
-// and this is thanks to the type + :id feature.
+// thanks to the type + :id feature.
 const weakly = (obj, type) => {
   const i = type.indexOf(':');
   let wire = wires.get(obj);
@@ -61,7 +61,7 @@ const weakly = (obj, type) => {
   return wire[id] || (wire[id] = content(type));
 };
 
-// a document fragment loses its nodes as soon
+// A document fragment loses its nodes as soon
 // as it's appended into another node.
 // This would easily lose wired content
 // so that on a second render call, the parent

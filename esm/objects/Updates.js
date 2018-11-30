@@ -6,6 +6,7 @@ import createContent from '@ungap/create-content';
 import disconnected from 'disconnected';
 import domdiff from 'domdiff';
 import domtagger from 'domtagger';
+import hyperStyle from 'hyperhtml-style';
 
 import {
   CONNECTED, DISCONNECTED,
@@ -15,7 +16,6 @@ import {
 
 import Component from '../classes/Component.js';
 import Wire from '../classes/Wire.js';
-import Style from './Style.js';
 import Intent from './Intent.js';
 import { slice, text } from '../shared/utils.js';
 
@@ -89,9 +89,8 @@ Tagger.prototype = {
     let oldValue;
     // if the attribute is the style one
     // handle it differently from others
-    if (name === 'style') {
-      return Style(node, original, isSVG);
-    }
+    if (name === 'style')
+      return hyperStyle(node, original, isSVG);
     // the name is an event one,
     // add/remove event listeners accordingly
     else if (/^on/.test(name)) {

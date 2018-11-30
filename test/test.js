@@ -486,7 +486,7 @@ tressa.async(function (done) {
     var div = document.createElement('div');
     document.body.appendChild(div);
     hyperHTML.bind(div)`<script
-      src="../index.js"
+      src="../index.js?_=asd"
       onreadystatechange="${event => {
         if (/loaded|complete/.test(event.readyState))
           setTimeout(() => {
@@ -649,6 +649,18 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## any content extras');
   var div = document.createElement('div');
+  var html = hyperHTML.bind(div);
+  setContent(undefined);
+  tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
+  setContent({text: '<img/>'});
+  tressa.assert(/<p>&lt;img(?: ?\/)?&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
+  function setContent(which) {
+    return html`<p>${which}</p>`;
+  }
+})
+.then(function () {
+  tressa.log('## any different content extras');
+  var div = document.createElement('div');
   hyperHTML.bind(div)`<p>${undefined}</p>`;
   tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
   hyperHTML.bind(div)`<p>${{text: '<img/>'}}</p>`;
@@ -798,7 +810,8 @@ tressa.async(function (done) {
   }
   class Rect extends hyperHTML.Component {
     constructor(state) {
-      super().setState(state, false);
+      super();
+      this.setState(state, false);
     }
     render() { return this.svg`
       <rect x=${this.state.x} y=${this.state.y} />`;
@@ -806,7 +819,8 @@ tressa.async(function (done) {
   }
   class Paragraph extends hyperHTML.Component {
     constructor(state) {
-      super().setState(state);
+      super();
+      this.setState(state);
     }
     onclick() { this.clicked = true; }
     render() { return this.html`
@@ -1009,7 +1023,10 @@ tressa.async(function (done) {
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
   p({'--custom-color': 'red'});
-  tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
+  if (node.style.cssText !== '')
+    tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
+  else
+    console.log('skipping CSS properties for IE');
 })
 .then(function () {
   tressa.log('## <self-closing />');
@@ -1268,7 +1285,7 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## define(hyper-attribute, callback)');
   var a = document.createElement('div');
-  var random = Math.random();
+  var random = Math.random().toPrecision(6); // IE < 11
   var result = [];
   hyperHTML.define('hyper-attribute', function (target, value) {
     result.push(target, value);

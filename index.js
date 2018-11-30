@@ -457,13 +457,15 @@ var hyperHTML = (function (document) {
   } catch (CustomEvent) {
     self$3.CustomEvent = function CustomEvent(type, init) {
       if (!init) init = {};
-      var e = document.createEvent('Event');
       var bubbles = !!init.bubbles;
       var cancelable = !!init.cancelable;
+      var e = document.createEvent('Event');
       e.initEvent(type, bubbles, cancelable);
-      e.bubbles = bubbles;
-      e.cancelable = cancelable;
       e.detail = init.detail;
+      try {
+        e.bubbles = bubbles;
+        e.cancelable = cancelable;
+      } catch (e) {}
       return e;
     };
   }
@@ -783,7 +785,10 @@ var hyperHTML = (function (document) {
           }
           */
         }
-        for (var children = node.children, length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
+        for (var
+        // apparently is node.children || IE11 ... ^_^;;
+        // https://github.com/WebReflection/disconnected/issues/1
+        children = node.children || [], length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {}
       }
       function Tracker() {
         this[CONNECTED] = new WeakSet();
@@ -1062,6 +1067,77 @@ var hyperHTML = (function (document) {
     };
   }
 
+  /*! (c) Andrea Giammarchi - ISC */
+  var hyperStyle = function () {
+    // from https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/varants.js
+
+    var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
+    var hyphen = /([^A-Z])([A-Z]+)/g;
+    return function hyperStyle(node, original) {
+      return 'ownerSVGElement' in node ? svg(node, original) : update(node.style, false);
+    };
+    function ized($0, $1, $2) {
+      return $1 + '-' + $2.toLowerCase();
+    }
+    function svg(node, original) {
+      var style;
+      if (original) style = original.cloneNode(true);else {
+        node.setAttribute('style', '--hyper:style;');
+        style = node.getAttributeNode('style');
+      }
+      style.value = '';
+      node.setAttributeNode(style);
+      return update(style, true);
+    }
+    function toStyle(object) {
+      var key,
+          css = [];
+      for (key in object) {
+        css.push(key.replace(hyphen, ized), ':', object[key], ';');
+      }return css.join('');
+    }
+    function update(style, isSVG) {
+      var oldType, oldValue;
+      return function (newValue) {
+        var info, key, styleValue, value;
+        switch (typeof newValue) {
+          case 'object':
+            if (newValue) {
+              if (oldType === 'object') {
+                if (!isSVG) {
+                  if (oldValue !== newValue) {
+                    for (key in oldValue) {
+                      if (!(key in newValue)) {
+                        style[key] = '';
+                      }
+                    }
+                  }
+                }
+              } else {
+                if (isSVG) style.value = '';else style.cssText = '';
+              }
+              info = isSVG ? {} : style;
+              for (key in newValue) {
+                value = newValue[key];
+                styleValue = typeof value === 'number' && !IS_NON_DIMENSIONAL.test(key) ? value + 'px' : value;
+                if (!isSVG && /^--/.test(key)) info.setProperty(key, styleValue);else info[key] = styleValue;
+              }
+              oldType = 'object';
+              if (isSVG) style.value = toStyle(oldValue = info);else oldValue = newValue;
+              break;
+            }
+          default:
+            if (oldValue != newValue) {
+              oldType = 'string';
+              oldValue = newValue;
+              if (isSVG) style.value = newValue || '';else style.cssText = newValue || '';
+            }
+            break;
+        }
+      };
+    }
+  }();
+
   var G = document.defaultView;
 
   // Node.CONSTANTS
@@ -1076,6 +1152,36 @@ var hyperHTML = (function (document) {
   // Custom Elements / MutationObserver constants
   var CONNECTED = 'connected';
   var DISCONNECTED = 'dis' + CONNECTED;
+
+  var templateLiteral = function () {
+
+    var RAW = 'raw';
+    var isNoOp = false;
+    var _templateLiteral = function templateLiteral(tl) {
+      if (
+      // for badly transpiled literals
+      !(RAW in tl) ||
+      // for some version of TypeScript
+      tl.propertyIsEnumerable(RAW) ||
+      // and some other version of TypeScript
+      !Object.isFrozen(tl.raw) ||
+      // or for Firefox < 55
+      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
+        var forever = {};
+        _templateLiteral = function templateLiteral(tl) {
+          var key = RAW + tl.join(RAW);
+          return forever[key] || (forever[key] = tl);
+        };
+        return _templateLiteral(tl);
+      } else {
+        isNoOp = true;
+        return tl;
+      }
+    };
+    return function (tl) {
+      return isNoOp ? tl : _templateLiteral(tl);
+    };
+  }();
 
   // these are tiny helpers to simplify most common operations needed here
   var doc = function doc(node) {
@@ -1100,6 +1206,14 @@ var hyperHTML = (function (document) {
     for (var i = 0; i < length; i++) {
       node.appendChild(childNodes[i]);
     }
+  };
+
+  // normalizes the template once for all arguments cases
+  var reArguments = function reArguments(template) {
+    var args = [templateLiteral(template)];
+    for (var i = 1, length = arguments.length; i < length; i++) {
+      args[i] = arguments[i];
+    }return args;
   };
 
   // just recycling a one-off array to use slice
@@ -1137,77 +1251,6 @@ var hyperHTML = (function (document) {
       range.deleteContents();
     }
     return first;
-  };
-
-  // from https://github.com/developit/preact/blob/33fc697ac11762a1cb6e71e9847670d047af7ce5/src/constants.js
-  var IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|ows|mnc|ntw|ine[ch]|zoo|^ord/i;
-
-  // style is handled as both string and object
-  // even if the target is an SVG element (consistency)
-  var Style = (function (node, original, isSVG) {
-    if (isSVG) {
-      var style = original.cloneNode(true);
-      style.value = '';
-      node.setAttributeNode(style);
-      return update(style, isSVG);
-    }
-    return update(node.style, isSVG);
-  });
-
-  // the update takes care or changing/replacing
-  // only properties that are different or
-  // in case of string, the whole node
-  var update = function update(style, isSVG) {
-    var oldType = void 0,
-        oldValue = void 0;
-    return function (newValue) {
-      switch (typeof newValue) {
-        case 'object':
-          if (newValue) {
-            if (oldType === 'object') {
-              if (!isSVG) {
-                if (oldValue !== newValue) {
-                  for (var key in oldValue) {
-                    if (!(key in newValue)) {
-                      style[key] = '';
-                    }
-                  }
-                }
-              }
-            } else {
-              if (isSVG) style.value = '';else style.cssText = '';
-            }
-            var info = isSVG ? {} : style;
-            for (var _key in newValue) {
-              var value = newValue[_key];
-              var styleValue = typeof value === 'number' && !IS_NON_DIMENSIONAL.test(_key) ? value + 'px' : value;
-              if (!isSVG && /^--/.test(_key)) info.setProperty(_key, styleValue);else info[_key] = styleValue;
-            }
-            oldType = 'object';
-            if (isSVG) style.value = toStyle(oldValue = info);else oldValue = newValue;
-            break;
-          }
-        default:
-          if (oldValue != newValue) {
-            oldType = 'string';
-            oldValue = newValue;
-            if (isSVG) style.value = newValue || '';else style.cssText = newValue || '';
-          }
-          break;
-      }
-    };
-  };
-
-  var hyphen = /([^A-Z])([A-Z]+)/g;
-  var ized = function ized($0, $1, $2) {
-    return $1 + '-' + $2.toLowerCase();
-  };
-  var toStyle = function toStyle(object) {
-    var css = [];
-    for (var key in object) {
-      css.push(key.replace(hyphen, ized), ':', object[key], ';');
-    }
-    return css.join('');
   };
 
   var observe = disconnected({ Event: CustomEvent$1, WeakSet: WeakSet$1 });
@@ -1276,9 +1319,7 @@ var hyperHTML = (function (document) {
       var oldValue = void 0;
       // if the attribute is the style one
       // handle it differently from others
-      if (name === 'style') {
-        return Style(node, original, isSVG);
-      }
+      if (name === 'style') return hyperStyle(node, original, isSVG);
       // the name is an event one,
       // add/remove event listeners accordingly
       else if (/^on/.test(name)) {
@@ -1475,36 +1516,6 @@ var hyperHTML = (function (document) {
     }
   };
 
-  var templateLiteral = function () {
-
-    var RAW = 'raw';
-    var isNoOp = false;
-    var _templateLiteral = function templateLiteral(tl) {
-      if (
-      // for badly transpiled literals
-      !(RAW in tl) ||
-      // for some version of TypeScript
-      tl.propertyIsEnumerable(RAW) ||
-      // and some other version of TypeScript
-      !Object.isFrozen(tl.raw) ||
-      // or for Firefox < 55
-      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-        var forever = {};
-        _templateLiteral = function templateLiteral(tl) {
-          var key = RAW + tl.join(RAW);
-          return forever[key] || (forever[key] = tl);
-        };
-        return _templateLiteral(tl);
-      } else {
-        isNoOp = true;
-        return tl;
-      }
-    };
-    return function (tl) {
-      return isNoOp ? tl : _templateLiteral(tl);
-    };
-  }();
-
   // all wires used per each context
   var wires = new WeakMap$1();
 
@@ -1514,7 +1525,7 @@ var hyperHTML = (function (document) {
   // This provides the ability to have a unique DOM structure
   // related to a unique JS object through a reusable template literal.
   // A wire can specify a type, as svg or html, and also an id
-  // via html:id or :id convention. Such :id allows same JS objects
+  // via the html:id or :id convention. Such :id allows same JS objects
   // to be associated to different DOM structures accordingly with
   // the used template literal without losing previously rendered parts.
   var wire = function wire(obj, type) {
@@ -1531,14 +1542,14 @@ var hyperHTML = (function (document) {
     var wire = void 0,
         tagger = void 0,
         template = void 0;
-    return function (statics) {
-      statics = templateLiteral(statics);
-      if (template !== statics) {
-        template = statics;
+    return function () {
+      var args = reArguments.apply(null, arguments);
+      if (template !== args[0]) {
+        template = args[0];
         tagger = new Tagger(type);
-        wire = wireContent(tagger.apply(tagger, arguments));
+        wire = wireContent(tagger.apply(tagger, args));
       } else {
-        tagger.apply(tagger, arguments);
+        tagger.apply(tagger, args);
       }
       return wire;
     };
@@ -1546,7 +1557,7 @@ var hyperHTML = (function (document) {
 
   // wires are weakly created through objects.
   // Each object can have multiple wires associated
-  // and this is thanks to the type + :id feature.
+  // thanks to the type + :id feature.
   var weakly = function weakly(obj, type) {
     var i = type.indexOf(':');
     var wire = wires.get(obj);
@@ -1559,7 +1570,7 @@ var hyperHTML = (function (document) {
     return wire[id] || (wire[id] = content(type));
   };
 
-  // a document fragment loses its nodes as soon
+  // A document fragment loses its nodes as soon
   // as it's appended into another node.
   // This would easily lose wired content
   // so that on a second render call, the parent
@@ -1590,12 +1601,13 @@ var hyperHTML = (function (document) {
   // the main tag function in charge of fully upgrading
   // or simply updating, contexts used as hyperHTML targets.
   // The `this` context is either a regular DOM node or a fragment.
-  function render(template) {
+  function render() {
     var wicked = bewitched.get(this);
-    if (wicked && wicked.template === templateLiteral(template)) {
-      wicked.tagger.apply(null, arguments);
+    var args = reArguments.apply(null, arguments);
+    if (wicked && wicked.template === args[0]) {
+      wicked.tagger.apply(null, args);
     } else {
-      upgrade.apply(this, arguments);
+      upgrade.apply(this, args);
     }
     return this;
   }
@@ -1604,13 +1616,13 @@ var hyperHTML = (function (document) {
   // parse it once, if unknown, to map all interpolations
   // as single DOM callbacks, relate such template
   // to the current context, and render it after cleaning the context up
-  function upgrade(template) {
-    template = templateLiteral(template);
+  function upgrade() {
+    var args = reArguments.apply(null, arguments);
     var type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
     var tagger = new Tagger(type);
-    bewitched.set(this, { tagger: tagger, template: template });
+    bewitched.set(this, { tagger: tagger, template: args[0] });
     this.textContent = '';
-    this.appendChild(tagger.apply(null, arguments));
+    this.appendChild(tagger.apply(null, args));
   }
 
   /*! (c) Andrea Giammarchi (ISC) */

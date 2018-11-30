@@ -37,7 +37,7 @@ var _templateObject = _taggedTemplateLiteral(['\n    <p data-counter="', '">\n  
     _templateObject35 = _taggedTemplateLiteral(['<p data=', '>', '</p>'], ['<p data=', '>', '</p>']),
     _templateObject36 = _taggedTemplateLiteral(['<textarea new>', '</textarea>'], ['<textarea new>', '</textarea>']),
     _templateObject37 = _taggedTemplateLiteral(['<p><!--ok--></p>'], ['<p><!--ok--></p>']),
-    _templateObject38 = _taggedTemplateLiteral(['<script\n      src="../index.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>'], ['<script\n      src="../index.js"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>']),
+    _templateObject38 = _taggedTemplateLiteral(['<script\n      src="../index.js?_=asd"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>'], ['<script\n      src="../index.js?_=asd"\n      onreadystatechange="', '"\n      onload="', '"\n      onerror="', '"\n    ></script>']),
     _templateObject39 = _taggedTemplateLiteral(['<rect style=', ' />'], ['<rect style=', ' />']),
     _templateObject40 = _taggedTemplateLiteral(['\n    <input value="', '" shaka="', '">'], ['\n    <input value="', '" shaka="', '">']),
     _templateObject41 = _taggedTemplateLiteral(['\n    <div>First name: ', '</div>\n    <p></p>'], ['\n    <div>First name: ', '</div>\n    <p></p>']),
@@ -673,6 +673,17 @@ tressa.async(function (done) {
 }).then(function () {
   tressa.log('## any content extras');
   var div = document.createElement('div');
+  var html = hyperHTML.bind(div);
+  setContent(undefined);
+  tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
+  setContent({ text: '<img/>' });
+  tressa.assert(/<p>&lt;img(?: ?\/)?&gt;<!--.+?--><\/p>/.test(div.innerHTML), 'expected text');
+  function setContent(which) {
+    return html(_templateObject3, which);
+  }
+}).then(function () {
+  tressa.log('## any different content extras');
+  var div = document.createElement('div');
   hyperHTML.bind(div)(_templateObject3, undefined);
   tressa.assert(/<p><!--.+?--><\/p>/.test(div.innerHTML), 'expected layout');
   hyperHTML.bind(div)(_templateObject3, { text: '<img/>' });
@@ -798,11 +809,11 @@ tressa.async(function (done) {
     _inherits(Rect, _hyperHTML$Component2);
 
     function Rect(state) {
-      var _this2;
-
       _classCallCheck(this, Rect);
 
-      (_this2 = _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this)), _this2).setState(state, false);
+      var _this2 = _possibleConstructorReturn(this, (Rect.__proto__ || Object.getPrototypeOf(Rect)).call(this));
+
+      _this2.setState(state, false);
       return _this2;
     }
 
@@ -820,11 +831,11 @@ tressa.async(function (done) {
     _inherits(Paragraph, _hyperHTML$Component3);
 
     function Paragraph(state) {
-      var _this3;
-
       _classCallCheck(this, Paragraph);
 
-      (_this3 = _possibleConstructorReturn(this, (Paragraph.__proto__ || Object.getPrototypeOf(Paragraph)).call(this)), _this3).setState(state);
+      var _this3 = _possibleConstructorReturn(this, (Paragraph.__proto__ || Object.getPrototypeOf(Paragraph)).call(this));
+
+      _this3.setState(state);
       return _this3;
     }
 
@@ -1108,7 +1119,7 @@ tressa.async(function (done) {
   p('font-size: 18px');
   tressa.assert(node.style.fontSize, node.style.fontSize);
   p({ '--custom-color': 'red' });
-  tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');
+  if (node.style.cssText !== '') tressa.assert(node.style.getPropertyValue('--custom-color') === 'red', 'custom style');else console.log('skipping CSS properties for IE');
 }).then(function () {
   tressa.log('## <self-closing />');
   var div = hyperHTML.wire()(_templateObject64, 1);
@@ -1421,7 +1432,7 @@ tressa.async(function (done) {
 }).then(function () {
   tressa.log('## define(hyper-attribute, callback)');
   var a = document.createElement('div');
-  var random = Math.random();
+  var random = Math.random().toPrecision(6); // IE < 11
   var result = [];
   hyperHTML.define('hyper-attribute', function (target, value) {
     result.push(target, value);
