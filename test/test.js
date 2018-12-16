@@ -455,7 +455,7 @@ tressa.async(function (done) {
   tressa.assert(wrap.textContent === ' 1 ', 'text in between');
 
   hyperHTML.bind(wrap)` <br/>${1}<br/> `;
-  tressa.assert(/ <br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?> /.test(wrap.innerHTML), 'virtual content in between');
+  tressa.assert(/^\s*<br(?: ?\/)?>1<!--.+?--><br(?: ?\/)?>\s*$/.test(wrap.innerHTML), 'virtual content in between');
 
   let last = hyperHTML.wire();
   empty = function (style) {

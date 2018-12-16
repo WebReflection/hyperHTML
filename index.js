@@ -452,23 +452,16 @@ var hyperHTML = (function (document) {
 
   /*! (c) Andrea Giammarchi - ISC */
   var self$3 = null || /* istanbul ignore next */{};
-  try {
-    self$3.CustomEvent = new CustomEvent('.').constructor;
-  } catch (CustomEvent) {
-    self$3.CustomEvent = function CustomEvent(type, init) {
+  self$3.CustomEvent = typeof CustomEvent === 'function' ? CustomEvent : function (__p__) {
+    CustomEvent[__p__] = new CustomEvent('').constructor[__p__];
+    return CustomEvent;
+    function CustomEvent(type, init) {
       if (!init) init = {};
-      var bubbles = !!init.bubbles;
-      var cancelable = !!init.cancelable;
-      var e = document.createEvent('Event');
-      e.initEvent(type, bubbles, cancelable);
-      e.detail = init.detail;
-      try {
-        e.bubbles = bubbles;
-        e.cancelable = cancelable;
-      } catch (e) {}
+      var e = document.createEvent('CustomEvent');
+      e.initCustomEvent(type, !!init.bubbles, !!init.cancelable, init.detail);
       return e;
-    };
-  }
+    }
+  }('prototype');
   var CustomEvent$1 = self$3.CustomEvent;
 
   // hyperHTML.Component is a very basic class
@@ -798,6 +791,60 @@ var hyperHTML = (function (document) {
   }
 
   /*! (c) Andrea Giammarchi - ISC */
+  var createContent$1 = function (document) {
+
+    var FRAGMENT = 'fragment';
+    var TEMPLATE = 'template';
+    var HAS_CONTENT = 'content' in create(TEMPLATE);
+
+    var createHTML = HAS_CONTENT ? function (html) {
+      var template = create(TEMPLATE);
+      template.innerHTML = html;
+      return template.content;
+    } : function (html) {
+      var content = create(FRAGMENT);
+      var template = create(TEMPLATE);
+      var childNodes = null;
+      if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html)) {
+        var selector = RegExp.$1;
+        template.innerHTML = '<table>' + html + '</table>';
+        childNodes = template.querySelectorAll(selector);
+      } else {
+        template.innerHTML = html;
+        childNodes = template.childNodes;
+      }
+      append(content, childNodes);
+      return content;
+    };
+
+    return function createContent(markup, type) {
+      return (type === 'svg' ? createSVG : createHTML)(markup);
+    };
+
+    function append(root, childNodes) {
+      var length = childNodes.length;
+      while (length--) {
+        root.appendChild(childNodes[0]);
+      }
+    }
+
+    function create(element) {
+      return element === FRAGMENT ? document.createDocumentFragment() : document.createElementNS('http://www.w3.org/1999/xhtml', element);
+    }
+
+    // it could use createElementNS when hasNode is there
+    // but this fallback is equally fast and easier to maintain
+    // it is also battle tested already in all IE
+    function createSVG(svg) {
+      var content = create(FRAGMENT);
+      var template = create('div');
+      template.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + svg + '</svg>';
+      append(content, template.firstChild.childNodes);
+      return content;
+    }
+  }(document);
+
+  /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
     var native = importNode in document;
     // IE 11 has problems with cloning templates:
@@ -816,6 +863,10 @@ var hyperHTML = (function (document) {
       return node[cloneNode](!!deep);
     };
   }(document, 'appendChild', 'cloneNode', 'createTextNode', 'importNode');
+
+  var trim = ''.trim || function () {
+    return String(this).replace(/^\s+|\s+/g, '');
+  };
 
   // Custom
   var UID = '-' + Math.random().toFixed(6) + '%';
@@ -861,10 +912,6 @@ var hyperHTML = (function (document) {
   function fullClosing($0, $1, $2) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
-
-  var trim = ''.trim || function () {
-    return String(this).replace(/^\s+|\s+/g, '');
-  };
 
   function create(type, node, name) {
     return { type: type, name: name, node: node, path: createPath(node) };
@@ -1008,7 +1055,8 @@ var hyperHTML = (function (document) {
     var markup = sanitize(template);
     var transform = options.transform;
     if (transform) markup = transform(markup);
-    var content = createContent(markup, options.type);
+    var content = createContent$1(markup, options.type);
+    cleanContent(content);
     var holes = [];
     parse(content, holes, template.slice(0));
     var info = {
@@ -1069,6 +1117,17 @@ var hyperHTML = (function (document) {
       details.updates.apply(null, arguments);
       return details.content;
     };
+  }
+
+  function cleanContent(fragment) {
+    var childNodes = fragment.childNodes;
+    var i = childNodes.length;
+    while (i--) {
+      var child = childNodes[i];
+      if (child.nodeType !== 1 && trim.call(child.textContent).length === 0) {
+        fragment.removeChild(child);
+      }
+    }
   }
 
   /*! (c) Andrea Giammarchi - ISC */
