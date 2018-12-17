@@ -1,8 +1,8 @@
 import CustomEvent from '@ungap/custom-event';
 import WeakSet from '@ungap/essential-weakset';
 import isArray from '@ungap/is-array';
-
 import createContent from '@ungap/create-content';
+
 import disconnected from 'disconnected';
 import domdiff from 'domdiff';
 import domtagger from 'domtagger';
