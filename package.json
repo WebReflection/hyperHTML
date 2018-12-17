@@ -160,7 +160,7 @@
     "@ungap/weakmap": "^0.1.4",
     "disconnected": "^0.1.6",
     "domdiff": "^2.0.2",
-    "domtagger": "^0.2.2",
+    "domtagger": "^0.2.3",
     "hyperhtml-style": "^0.1.2",
     "lightercollective": "^0.1.0"
   },

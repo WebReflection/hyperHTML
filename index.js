@@ -880,7 +880,6 @@ var hyperHTML = (function (document) {
 
   // DOM
   var COMMENT_NODE = 8;
-  var DOCUMENT_FRAGMENT_NODE = 11;
   var ELEMENT_NODE = 1;
   var TEXT_NODE = 3;
 
@@ -913,32 +912,8 @@ var hyperHTML = (function (document) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
 
-  var index = -1;
-
-  function create(type, node, name) {
-    return { type: type, name: name, node: node, path: createPath(node) };
-  }
-
-  function createPath(node) {
-    var parentNode;
-    var path = [];
-    switch (node.nodeType) {
-      case ELEMENT_NODE:
-      case DOCUMENT_FRAGMENT_NODE:
-        index = -1;
-        parentNode = node;
-        break;
-      case COMMENT_NODE:
-        parentNode = node.parentNode;
-        prepend(path, parentNode, node);
-        break;
-      default:
-        parentNode = node.ownerElement;
-        break;
-    }
-    while (parentNode = (node = parentNode).parentNode) {
-      prepend(path, parentNode, node);
-    }return path;
+  function create(type, node, path, name) {
+    return { name: name, node: node, path: path, type: type };
   }
 
   function find(node, path) {
@@ -949,25 +924,26 @@ var hyperHTML = (function (document) {
     }return node;
   }
 
-  function parse(node, paths, parts) {
+  function parse(node, holes, parts, path) {
     var childNodes = node.childNodes;
     var length = childNodes.length;
     var i = 0;
     while (i < length) {
-      var child = childNodes[index = i++];
+      var child = childNodes[i];
       switch (child.nodeType) {
         case ELEMENT_NODE:
-          parseAttributes(child, paths, parts);
-          parse(child, paths, parts);
+          var childPath = path.concat(i);
+          parseAttributes(child, holes, parts, childPath);
+          parse(child, holes, parts, childPath);
           break;
         case COMMENT_NODE:
           if (child.textContent === UID) {
             parts.shift();
-            paths.push(
+            holes.push(
             // basicHTML or other non standard engines
             // might end up having comments in nodes
             // where they shouldn't, hence this check.
-            SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? create('text', node) : create('any', child));
+            SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? create('text', node, path) : create('any', child, path.concat(i)));
           }
           break;
         case TEXT_NODE:
@@ -978,14 +954,15 @@ var hyperHTML = (function (document) {
           /* istanbul ignore if */
           if (SHOULD_USE_TEXT_CONTENT.test(node.nodeName) && trim.call(child.textContent) === UIDC) {
             parts.shift();
-            paths.push(create('text', node));
+            holes.push(create('text', node, path));
           }
           break;
       }
+      i++;
     }
   }
 
-  function parseAttributes(node, paths, parts) {
+  function parseAttributes(node, holes, parts, path) {
     var cache = new Map$1();
     var attributes = node.attributes;
     var remove = [];
@@ -1007,9 +984,7 @@ var hyperHTML = (function (document) {
           /* istanbul ignore next */
           attributes[realName.toLowerCase()];
           cache.set(name, value);
-          var currentIndex = index;
-          paths.push(create('attr', value, realName));
-          index = currentIndex;
+          holes.push(create('attr', value, path, realName));
         }
         remove.push(attribute);
       }
@@ -1047,15 +1022,6 @@ var hyperHTML = (function (document) {
     }
   }
 
-  function prepend(path, parent, node) {
-    // the first index represent the node position
-    // after that, it needs to be found.
-    // this speeds up repeated holes on the same template literal
-    // avoiding accessing the childNodes when the index is already known
-    path.unshift(index < 0 ? path.indexOf.call(parent.childNodes, node) : index);
-    index = -1;
-  }
-
   // globals
 
   var parsed = new WeakMap$1();
@@ -1068,7 +1034,7 @@ var hyperHTML = (function (document) {
     var content = createContent$1(markup, options.type);
     cleanContent(content);
     var holes = [];
-    parse(content, holes, template.slice(0));
+    parse(content, holes, template.slice(0), []);
     var info = {
       content: content,
       updates: function updates(content) {
