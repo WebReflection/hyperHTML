@@ -1202,11 +1202,6 @@ var hyperHTML = (function (document) {
   }();
 
   var G = document.defaultView;
-
-  // Node.CONSTANTS
-  // 'cause some engine has no global Node defined
-  // (i.e. Node, NativeScript, basicHTML ... )
-  var ELEMENT_NODE$1 = 1;
   var DOCUMENT_FRAGMENT_NODE$1 = 11;
 
   // SVG related constants
@@ -1641,21 +1636,13 @@ var hyperHTML = (function (document) {
   // stay associated with the original interpolation.
   // To prevent hyperHTML from forgetting about a fragment's sub-nodes,
   // fragments are instead returned as an Array of nodes or, if there's only one entry,
-  // as a single referenced node which, unlike framents, will indeed persist
+  // as a single referenced node which, unlike fragments, will indeed persist
   // wire content throughout multiple renderings.
   // The initial fragment, at this point, would be used as unique reference to this
   // array of nodes or to this single referenced node.
   var wireContent = function wireContent(node) {
     var childNodes = node.childNodes;
-    var length = childNodes.length;
-    var wireNodes = [];
-    for (var i = 0; i < length; i++) {
-      var child = childNodes[i];
-      if (child.nodeType === ELEMENT_NODE$1 || trim.call(child.textContent).length !== 0) {
-        wireNodes.push(child);
-      }
-    }
-    return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
+    return childNodes.length === 1 ? childNodes[0] : new Wire(slice.call(childNodes, 0));
   };
 
   // a weak collection of contexts that

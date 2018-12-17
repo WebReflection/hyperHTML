@@ -1,12 +1,10 @@
 'use strict';
 const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
-const trim = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/trim'));
 
-const {ELEMENT_NODE} = require('../shared/constants.js');
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
 
 const {Tagger} = require('../objects/Updates.js');
-const {reArguments} = require('../shared/utils.js');
+const {reArguments, slice} = require('../shared/utils.js');
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -69,24 +67,15 @@ const weakly = (obj, type) => {
 // stay associated with the original interpolation.
 // To prevent hyperHTML from forgetting about a fragment's sub-nodes,
 // fragments are instead returned as an Array of nodes or, if there's only one entry,
-// as a single referenced node which, unlike framents, will indeed persist
+// as a single referenced node which, unlike fragments, will indeed persist
 // wire content throughout multiple renderings.
 // The initial fragment, at this point, would be used as unique reference to this
 // array of nodes or to this single referenced node.
 const wireContent = node => {
   const childNodes = node.childNodes;
-  const length = childNodes.length;
-  const wireNodes = [];
-  for (let i = 0; i < length; i++) {
-    let child = childNodes[i];
-    if (
-      child.nodeType === ELEMENT_NODE ||
-      trim.call(child.textContent).length !== 0
-    ) {
-      wireNodes.push(child);
-    }
-  }
-  return wireNodes.length === 1 ? wireNodes[0] : new Wire(wireNodes);
+  return childNodes.length === 1 ?
+    childNodes[0] :
+    new Wire(slice.call(childNodes, 0));
 };
 
 exports.content = content;
