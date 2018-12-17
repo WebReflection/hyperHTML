@@ -913,6 +913,8 @@ var hyperHTML = (function (document) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
 
+  var index = -1;
+
   function create(type, node, name) {
     return { type: type, name: name, node: node, path: createPath(node) };
   }
@@ -923,6 +925,7 @@ var hyperHTML = (function (document) {
     switch (node.nodeType) {
       case ELEMENT_NODE:
       case DOCUMENT_FRAGMENT_NODE:
+        index = -1;
         parentNode = node;
         break;
       case COMMENT_NODE:
@@ -951,7 +954,7 @@ var hyperHTML = (function (document) {
     var length = childNodes.length;
     var i = 0;
     while (i < length) {
-      var child = childNodes[i++];
+      var child = childNodes[index = i++];
       switch (child.nodeType) {
         case ELEMENT_NODE:
           parseAttributes(child, paths, parts);
@@ -1004,7 +1007,9 @@ var hyperHTML = (function (document) {
           /* istanbul ignore next */
           attributes[realName.toLowerCase()];
           cache.set(name, value);
+          var currentIndex = index;
           paths.push(create('attr', value, realName));
+          index = currentIndex;
         }
         remove.push(attribute);
       }
@@ -1043,7 +1048,12 @@ var hyperHTML = (function (document) {
   }
 
   function prepend(path, parent, node) {
-    path.unshift(path.indexOf.call(parent.childNodes, node));
+    // the first index represent the node position
+    // after that, it needs to be found.
+    // this speeds up repeated holes on the same template literal
+    // avoiding accessing the childNodes when the index is already known
+    path.unshift(index < 0 ? path.indexOf.call(parent.childNodes, node) : index);
+    index = -1;
   }
 
   // globals
