@@ -9,9 +9,8 @@
       h1 { font-size: 1.2em; }
     </style>
     <!--[if lte IE 9]><script>(function(f){window.setTimeout=f(window.setTimeout);window.setInterval=f(window.setInterval)})(function(f){return function(c,t){var a=[].slice.call(arguments,2);return f(function(){c.apply(this,a)},t)}});</script><![endif]-->
-    <!--[if lt IE 11]><script>Object.freeze=Object</script><![endif]-->
     <script>
-    this.WeakMap||(Object.freeze=Object);
+    this.WeakMap||(function(O,f){f=O.freeze||O;O.freeze=function(o){return'raw'in o?o:f(o)}}(Object));
     </script>
     <script>
     Function.bind||document.write([
