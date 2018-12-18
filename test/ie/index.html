@@ -11,13 +11,16 @@
     <!--[if lte IE 9]><script>(function(f){window.setTimeout=f(window.setTimeout);window.setInterval=f(window.setInterval)})(function(f){return function(c,t){var a=[].slice.call(arguments,2);return f(function(){c.apply(this,a)},t)}});</script><![endif]-->
     <!--[if lt IE 11]><script>Object.freeze=Object</script><![endif]-->
     <script>
+    this.WeakMap||(Object.freeze=Object);
+    </script>
+    <script>
     Function.bind||document.write([
       '<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"><', '/script>',
       '<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"><', '/script>'
     ].join(''))
     </script>
     <script>window.module = {};</script>
-    <script>window.Promise||document.write('<script src="https://unpkg.com/es6-promise@4.1.1"><'+'/script>')</script>
+    <script>window.Promise||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"><'+'/script>')</script>
   </head>
   <body>
     <h1>results in console</h1>

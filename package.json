@@ -30,9 +30,7 @@
       ],
       "ie": [
         [
-          "babel ./test/test.js --out-dir ./test/ie --plugins=$(",
-          "node -e 'console.log([\"transform-es2015-classes\", \"transform-es2015-template-literals\"].concat(require(\"./babel-plugins.json\")).join(\",\")",
-          ")')"
+          "rollup --config rollup.ie.js"
         ]
       ],
       "umd": [
@@ -61,6 +59,7 @@
       "$ bundle.min",
       "$ bundle.umd",
       "$ bundle.esm",
+      "$ bundle.ie",
       "$ test",
       "$ size"
     ],
