@@ -121,6 +121,15 @@ You can verify directly through the following links:
 
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/) for browsers natively compatible with string literals
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/ie/) for IE9+ and browsers that need transpiled code
+  
+#### Weakmap error on ie < 11
+
+'_@ungap/weakmap0.16376703265146863': object is not extensible
+Babel freezes the template literals by spec but that causes problems with the weakmap polyfill. To fix this error add this at the top of your page
+
+```
+this.WeakMap||(function(O,f){f=O.freeze||O;O.freeze=function(o){return'raw'in o?o:f(o)}}(Object));
+```
 
 ## HTML Syntax Highlight
 
