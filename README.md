@@ -124,12 +124,9 @@ You can verify directly through the following links:
   
 #### Weakmap error on ie < 11
 
-'_@ungap/weakmap0.16376703265146863': object is not extensible
-Babel freezes the template literals by spec but that causes problems with the weakmap polyfill. To fix this error add this at the top of your page
+'_@ungap/weakmap': object is not extensible
 
-```
-this.WeakMap||(function(O,f){f=O.freeze||O;O.freeze=function(o){return'raw'in o?o:f(o)}}(Object));
-```
+Babel freezes the template literals by spec but that causes problems with the weakmap polyfill. To fix this error add the fix explained on [ungap/weakmap](https://github.com/ungap/weakmap#transpiled-code-and-frozen-objects-in-legacy-browsers)
 
 ## HTML Syntax Highlight
 
