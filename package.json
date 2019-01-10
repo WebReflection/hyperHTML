@@ -53,9 +53,9 @@
       "$ clean.cjs index.js",
       "$ clean.cjs classes/Component.js",
       "$ clean.cjs hyper/render.js",
-      "$ clean.cjs hyper/wire.js",
       "$ clean.cjs objects/Updates.js",
       "$ clean.cjs shared/utils.js",
+      "$ clean.cjs hyper/wire.js",
       "$ bundle.max",
       "$ bundle.min",
       "$ bundle.umd",
@@ -152,6 +152,7 @@
     "domdiff": "^2.0.2",
     "domtagger": "^0.2.3",
     "hyperhtml-style": "^0.1.2",
+    "hyperhtml-wire": "^1.0.0",
     "lightercollective": "^0.2.0"
   },
   "collective": {

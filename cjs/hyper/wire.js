@@ -1,10 +1,10 @@
 'use strict';
 const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
 
-const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
+const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
 
 const {Tagger} = require('../objects/Updates.js');
-const {reArguments, slice} = require('../shared/utils.js');
+const {reArguments} = require('../shared/utils.js');
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -73,9 +73,10 @@ const weakly = (obj, type) => {
 // array of nodes or to this single referenced node.
 const wireContent = node => {
   const childNodes = node.childNodes;
-  return childNodes.length === 1 ?
+  const {length} = childNodes;
+  return length === 1 ?
     childNodes[0] :
-    new Wire(slice.call(childNodes, 0));
+    (length ? new Wire(childNodes) : node);
 };
 
 exports.content = content;

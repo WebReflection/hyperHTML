@@ -14,7 +14,7 @@ const {
 } = require('../shared/constants.js');
 
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
-const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
+const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
 const { slice, text } = require('../shared/utils.js');
 
@@ -36,7 +36,7 @@ const asNode = (item, i) => {
       // all these cases are handled by domdiff already
       /* istanbul ignore next */
       ((1 / i) < 0 ?
-        (i ? item.remove() : item.last) :
+        (i ? item.remove(true) : item.last) :
         (i ? item.valueOf(true) : item.first)) :
       asNode(item.render(), i));
 }

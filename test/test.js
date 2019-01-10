@@ -182,9 +182,9 @@ tressa.async(function (done) {
         <p>1</p>
       `;
     };
-    node = update().childNodes;
+    node = update().n;
     tressa.assert(Array.isArray(node), 'list of nodes');
-    same = update().childNodes;
+    same = update().n;
     tressa.assert(
       node.length === same.length &&
       node[0] &&
@@ -697,55 +697,61 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## attributes with null values');
   var div = document.createElement('div');
-  hyperHTML.bind(div)`<p any-attr=${'1'}>any content</p>`;
+  var anyAttr = function (value) {
+    hyperHTML.bind(div)`<p any-attr=${value}>any content</p>`;
+  };
+  anyAttr('1');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '1',
     'regular attribute'
   );
-  hyperHTML.bind(div)`<p any-attr=${null}>any content</p>`;
+  anyAttr(null);
   tressa.assert(
     !div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') == null,
     'can be removed'
   );
-  hyperHTML.bind(div)`<p any-attr=${undefined}>any content</p>`;
+  anyAttr(undefined);
   tressa.assert(
     !div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') == null,
     'multiple times'
   );
-  hyperHTML.bind(div)`<p any-attr=${'2'}>any content</p>`;
+  anyAttr('2');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '2',
     'but can be also reassigned'
   );
-  hyperHTML.bind(div)`<p any-attr=${'3'}>any content</p>`;
+  anyAttr('3');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '3',
     'many other times'
   );
-  hyperHTML.bind(div)`<input name=${'test'}>`;
+  var inputName = function (value) {
+    hyperHTML.bind(div)`<input name=${value}>`;
+  };
+  inputName('test');
   tressa.assert(
     div.firstChild.hasAttribute('name') &&
     div.firstChild.name === 'test',
     'special attributes are set too'
   );
-  hyperHTML.bind(div)`<input name=${null}>`;
+  inputName(null);
   tressa.assert(
     !div.firstChild.hasAttribute('name') &&
     !div.firstChild.name,
     'but can also be removed'
   );
-  hyperHTML.bind(div)`<input name=${undefined}>`;
+  inputName(undefined);
   tressa.assert(
     !div.firstChild.hasAttribute('name') &&
     !div.firstChild.name,
     'with either null or undefined'
   );
-  hyperHTML.bind(div)`<input name=${'back'}>`;
+  inputName('back');
   tressa.assert(
     div.firstChild.hasAttribute('name') &&
     div.firstChild.name === 'back',
