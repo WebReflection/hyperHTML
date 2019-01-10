@@ -510,19 +510,7 @@ var hyperHTML = (function (document) {
     return futureNodes;
   };
 
-  function _typeof(obj) {
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
+  
 
   /*! (c) Andrea Giammarchi - ISC */
   var self$3 = null ||
@@ -568,7 +556,7 @@ var hyperHTML = (function (document) {
     var get = function get(Class, info, context, id) {
       var relation = info.get(Class) || relate(Class, info);
 
-      switch (_typeof(id)) {
+      switch (typeof(id)) {
         case 'object':
         case 'function':
           var wm = relation.w || (relation.w = new WeakMap$1());
@@ -1236,7 +1224,7 @@ var hyperHTML = (function (document) {
       return function (newValue) {
         var info, key, styleValue, value;
 
-        switch (_typeof(newValue)) {
+        switch (typeof(newValue)) {
           case 'object':
             if (newValue) {
               if (oldType === 'object') {
@@ -1550,7 +1538,7 @@ var hyperHTML = (function (document) {
       var oldValue;
 
       var anyContent = function anyContent(value) {
-        switch (_typeof(value)) {
+        switch (typeof(value)) {
           case 'string':
           case 'number':
           case 'boolean':
@@ -1589,7 +1577,7 @@ var hyperHTML = (function (document) {
                   childNodes = domdiff(node.parentNode, childNodes, [], diffOptions);
                 }
               } else {
-                switch (_typeof(value[0])) {
+                switch (typeof(value[0])) {
                   case 'string':
                   case 'number':
                   case 'boolean':
@@ -1648,7 +1636,7 @@ var hyperHTML = (function (document) {
         if (oldValue !== value) {
           oldValue = value;
 
-          var type = _typeof(value);
+          var type = typeof(value);
 
           if (type === 'object' && value) {
             if (isPromise_ish(value)) {
