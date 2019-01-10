@@ -1305,8 +1305,22 @@ tressa.async(function (done) {
   result.splice(0);
   hyperHTML.define('other-attribute', function (target, value) {
     result.push(target, value);
+    return '';
   });
-  hyperHTML.bind(a)`<p other-attribute=${random}/>`;
+  hyperHTML.define('disappeared-attribute', function (target, value) {
+  });
+  hyperHTML.define('whatever-attribute', function (target, value) {
+    return value;
+  });
+  hyperHTML.define('null-attribute', function (target, value) {
+    return null;
+  });
+  hyperHTML.bind(a)`<p
+    other-attribute=${random}
+    disappeared-attribute=${random}
+    whatever-attribute=${random}
+    null-attribute=${random}
+  />`;
   if (!result.length)
     throw new Error('attributes intents failed');
   else {
@@ -1315,6 +1329,18 @@ tressa.async(function (done) {
     tressa.assert(
       a.firstElementChild.getAttribute('other-attribute') === '',
       'expected other attribute'
+    );
+    tressa.assert(
+      !a.firstElementChild.hasAttribute('disappeared-attribute'),
+      'disappeared-attribute removed'
+    );
+    tressa.assert(
+      a.firstElementChild.getAttribute('whatever-attribute') == random,
+      'whatever-attribute set'
+    );
+    tressa.assert(
+      !a.firstElementChild.hasAttribute('null-attribute'),
+      'null-attribute removed'
     );
   }
 })

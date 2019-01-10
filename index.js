@@ -1484,8 +1484,12 @@ var hyperHTML = (function (document) {
             };
           } else if (name in Intent.attributes) {
             return function (any) {
-              oldValue = Intent.attributes[name](node, any);
-              node.setAttribute(name, oldValue == null ? '' : oldValue);
+              var newValue = Intent.attributes[name](node, any);
+
+              if (oldValue !== newValue) {
+                oldValue = newValue;
+                if (newValue == null) node.removeAttribute(name);else node.setAttribute(name, newValue);
+              }
             };
           } // in every other case, use the attribute node as it is
           // update only the value, set it as node only when/if needed

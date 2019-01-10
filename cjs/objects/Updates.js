@@ -132,9 +132,16 @@ Tagger.prototype = {
       };
     }
     else if (name in Intent.attributes) {
+      oldValue;
       return any => {
-        oldValue = Intent.attributes[name](node, any);
-        node.setAttribute(name, oldValue == null ? '' : oldValue);
+        const newValue = Intent.attributes[name](node, any);
+        if (oldValue !== newValue) {
+          oldValue = newValue;
+          if (newValue == null)
+            node.removeAttribute(name);
+          else
+            node.setAttribute(name, newValue);
+        }
       };
     }
     // in every other case, use the attribute node as it is

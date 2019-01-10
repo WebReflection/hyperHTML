@@ -103,7 +103,7 @@
   }
 
   function _templateObject135() {
-    var data = _taggedTemplateLiteral(["<p other-attribute=", "/>"]);
+    var data = _taggedTemplateLiteral(["<p\n    other-attribute=", "\n    disappeared-attribute=", "\n    whatever-attribute=", "\n    null-attribute=", "\n  />"]);
 
     _templateObject135 = function _templateObject135() {
       return data;
@@ -3031,12 +3031,23 @@
     result.splice(0);
     hyperHTML.define('other-attribute', function (target, value) {
       result.push(target, value);
+      return '';
     });
-    hyperHTML.bind(a)(_templateObject135(), random);
+    hyperHTML.define('disappeared-attribute', function (target, value) {});
+    hyperHTML.define('whatever-attribute', function (target, value) {
+      return value;
+    });
+    hyperHTML.define('null-attribute', function (target, value) {
+      return null;
+    });
+    hyperHTML.bind(a)(_templateObject135(), random, random, random, random);
     if (!result.length) throw new Error('attributes intents failed');else {
       tressa.assert(result[0] === a.firstElementChild, 'expected other target');
       tressa.assert(result[1] === random, 'expected other value');
       tressa.assert(a.firstElementChild.getAttribute('other-attribute') === '', 'expected other attribute');
+      tressa.assert(!a.firstElementChild.hasAttribute('disappeared-attribute'), 'disappeared-attribute removed');
+      tressa.assert(a.firstElementChild.getAttribute('whatever-attribute') == random, 'whatever-attribute set');
+      tressa.assert(!a.firstElementChild.hasAttribute('null-attribute'), 'null-attribute removed');
     }
   }) // WARNING THESE TEST MUST BE AT THE VERY END
   // WARNING THESE TEST MUST BE AT THE VERY END
