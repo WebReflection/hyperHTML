@@ -1759,16 +1759,15 @@ var hyperHTML = (function (document) {
   // to the current context, and render it after cleaning the context up
 
 
-  function upgrade() {
-    var args = reArguments.apply(null, arguments);
+  function upgrade(template) {
     var type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
     var tagger = new Tagger(type);
     bewitched.set(this, {
       tagger: tagger,
-      template: args[0]
+      template: template
     });
     this.textContent = '';
-    this.appendChild(tagger.apply(null, args));
+    this.appendChild(tagger.apply(null, arguments));
   }
 
   /*! (c) Andrea Giammarchi (ISC) */
