@@ -15,7 +15,7 @@ import {
 } from '../shared/constants.js';
 
 import Component from '../classes/Component.js';
-import Wire from '../classes/Wire.js';
+import Wire from 'hyperhtml-wire';
 import Intent from './Intent.js';
 import { slice, text } from '../shared/utils.js';
 
@@ -36,7 +36,7 @@ const asNode = (item, i) => {
       // all these cases are handled by domdiff already
       /* istanbul ignore next */
       ((1 / i) < 0 ?
-        (i ? item.remove() : item.last) :
+        (i ? item.remove(true) : item.last) :
         (i ? item.valueOf(true) : item.first)) :
       asNode(item.render(), i));
 }

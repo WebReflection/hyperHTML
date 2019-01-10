@@ -635,7 +635,7 @@ var hyperHTML = (function (document) {
               detail: detail
             });
             event.component = this;
-            return (_wire$.dispatchEvent ? _wire$ : _wire$.childNodes[0]).dispatchEvent(event);
+            return (_wire$.dispatchEvent ? _wire$ : _wire$.n[0]).dispatchEvent(event);
           }
 
           return false;
@@ -1275,6 +1275,54 @@ var hyperHTML = (function (document) {
   var CONNECTED = 'connected';
   var DISCONNECTED = 'dis' + CONNECTED;
 
+  /*! (c) Andrea Giammarchi - ISC */
+  var Wire = function (slice, proto) {
+    proto = Wire.prototype;
+
+    proto.remove = function (keepFirst) {
+      var childNodes = this.n;
+      var first = this.first;
+      var last = this.last;
+      this.f = null;
+
+      if (keepFirst && childNodes.length === 2) {
+        last.parentNode.removeChild(last);
+      } else {
+        var range = this.d.createRange();
+        range.setStartBefore(keepFirst ? childNodes[1] : first);
+        range.setEndAfter(last);
+        range.deleteContents();
+      }
+
+      return first;
+    };
+
+    proto.valueOf = function (forceAppend) {
+      var frag = this.f;
+      var noFrag = frag == null;
+      if (noFrag) frag = this.f = this.d.createDocumentFragment();
+
+      if (noFrag || forceAppend) {
+        for (var n = this.n, i = 0, l = n.length; i < l; i++) {
+          frag.appendChild(n[i]);
+        }
+      }
+
+      return frag;
+    };
+
+    return Wire;
+
+    function Wire(childNodes) {
+      var nodes = this.n = slice.call(childNodes, 0);
+      var first = nodes[0];
+      this.first = first;
+      this.last = nodes[nodes.length - 1];
+      this.d = first.ownerDocument || first;
+      this.f = null;
+    }
+  }([].slice);
+
   var templateLiteral = function () {
 
     var RAW = 'raw';
@@ -1305,28 +1353,8 @@ var hyperHTML = (function (document) {
     };
   }();
 
-  var doc = function doc(node) {
-    return node.ownerDocument || node;
-  };
-  var fragment = function fragment(node) {
-    return doc(node).createDocumentFragment();
-  };
   var text = function text(node, _text) {
-    return doc(node).createTextNode(_text);
-  }; // appends an array of nodes
-  // to a generic node/fragment
-  // When available, uses append passing all arguments at once
-  // hoping that's somehow faster, even if append has more checks on type
-  // istanbul ignore next
-
-  var append$1 = 'append' in fragment(document) ? function (node, childNodes) {
-    node.append.apply(node, childNodes);
-  } : function (node, childNodes) {
-    var length = childNodes.length;
-
-    for (var i = 0; i < length; i++) {
-      node.appendChild(childNodes[i]);
-    }
+    return node.ownerDocument.createTextNode(_text);
   }; // normalizes the template once for all arguments cases
 
   var reArguments = function reArguments(template) {
@@ -1341,41 +1369,6 @@ var hyperHTML = (function (document) {
   // in every needed place
 
   var slice = [].slice;
-
-  function Wire(childNodes) {
-    this.childNodes = childNodes;
-    this.length = childNodes.length;
-    this.first = childNodes[0];
-    this.last = childNodes[this.length - 1];
-    this._ = null;
-  } // when a wire is inserted, all its nodes will follow
-
-  Wire.prototype.valueOf = function valueOf(different) {
-    var noFragment = this._ == null;
-    if (noFragment) this._ = fragment(this.first);
-    /* istanbul ignore else */
-
-    if (noFragment || different) append$1(this._, this.childNodes);
-    return this._;
-  }; // when a wire is removed, all its nodes must be removed as well
-
-
-  Wire.prototype.remove = function remove() {
-    this._ = null;
-    var first = this.first;
-    var last = this.last;
-
-    if (this.length === 2) {
-      last.parentNode.removeChild(last);
-    } else {
-      var range = doc(first).createRange();
-      range.setStartBefore(this.childNodes[1]);
-      range.setEndAfter(last);
-      range.deleteContents();
-    }
-
-    return first;
-  };
 
   var observe = disconnected({
     Event: CustomEvent$1,
@@ -1395,7 +1388,7 @@ var hyperHTML = (function (document) {
     // all these cases are handled by domdiff already
 
     /* istanbul ignore next */
-    1 / i < 0 ? i ? item.remove() : item.last : i ? item.valueOf(true) : item.first : asNode(item.render(), i);
+    1 / i < 0 ? i ? item.remove(true) : item.last : i ? item.valueOf(true) : item.first : asNode(item.render(), i);
   }; // returns true if domdiff can handle the value
 
 
@@ -1738,7 +1731,8 @@ var hyperHTML = (function (document) {
 
   var wireContent = function wireContent(node) {
     var childNodes = node.childNodes;
-    return childNodes.length === 1 ? childNodes[0] : new Wire(slice.call(childNodes, 0));
+    var length = childNodes.length;
+    return length === 1 ? childNodes[0] : length ? new Wire(childNodes) : node;
   };
 
   // are already known to hyperHTML
@@ -1765,16 +1759,15 @@ var hyperHTML = (function (document) {
   // to the current context, and render it after cleaning the context up
 
 
-  function upgrade() {
-    var args = reArguments.apply(null, arguments);
+  function upgrade(template) {
     var type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
     var tagger = new Tagger(type);
     bewitched.set(this, {
       tagger: tagger,
-      template: args[0]
+      template: template
     });
     this.textContent = '';
-    this.appendChild(tagger.apply(null, args));
+    this.appendChild(tagger.apply(null, arguments));
   }
 
   /*! (c) Andrea Giammarchi (ISC) */

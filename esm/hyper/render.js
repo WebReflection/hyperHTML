@@ -27,13 +27,12 @@ function render() {
 // parse it once, if unknown, to map all interpolations
 // as single DOM callbacks, relate such template
 // to the current context, and render it after cleaning the context up
-function upgrade() {
-  const args = reArguments.apply(null, arguments);
+function upgrade(template) {
   const type = OWNER_SVG_ELEMENT in this ? 'svg' : 'html';
   const tagger = new Tagger(type);
-  bewitched.set(this, {tagger, template: args[0]});
+  bewitched.set(this, {tagger, template: template});
   this.textContent = '';
-  this.appendChild(tagger.apply(null, args));
+  this.appendChild(tagger.apply(null, arguments));
 }
 
 export default render;

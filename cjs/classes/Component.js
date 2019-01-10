@@ -107,7 +107,7 @@ function setup(content) {
           event.component = this;
           return (_wire$.dispatchEvent ?
                     _wire$ :
-                    _wire$.childNodes[0]
+                    _wire$.n[0]
                   ).dispatchEvent(event);
         }
         return false;

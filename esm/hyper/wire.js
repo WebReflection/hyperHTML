@@ -1,9 +1,9 @@
 import WeakMap from '@ungap/weakmap';
 
-import Wire from '../classes/Wire.js';
+import Wire from 'hyperhtml-wire';
 
 import {Tagger} from '../objects/Updates.js';
-import {reArguments, slice} from '../shared/utils.js';
+import {reArguments} from '../shared/utils.js';
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -72,9 +72,10 @@ const weakly = (obj, type) => {
 // array of nodes or to this single referenced node.
 const wireContent = node => {
   const childNodes = node.childNodes;
-  return childNodes.length === 1 ?
+  const {length} = childNodes;
+  return length === 1 ?
     childNodes[0] :
-    new Wire(slice.call(childNodes, 0));
+    (length ? new Wire(childNodes) : node);
 };
 
 export { content, weakly };
