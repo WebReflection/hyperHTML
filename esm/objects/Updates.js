@@ -7,6 +7,7 @@ import disconnected from 'disconnected';
 import domdiff from 'domdiff';
 import domtagger from 'domtagger';
 import hyperStyle from 'hyperhtml-style';
+import Wire from 'hyperhtml-wire';
 
 import {
   CONNECTED, DISCONNECTED,
@@ -15,7 +16,6 @@ import {
 } from '../shared/constants.js';
 
 import Component from '../classes/Component.js';
-import Wire from 'hyperhtml-wire';
 import Intent from './Intent.js';
 
 const observe = disconnected({Event: CustomEvent, WeakSet});

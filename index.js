@@ -1267,14 +1267,6 @@ var hyperHTML = (function (document) {
     }
   }();
 
-  // Node.CONSTANTS
-  var DOCUMENT_FRAGMENT_NODE$1 = 11; // SVG related constants
-
-  var OWNER_SVG_ELEMENT = 'ownerSVGElement'; // Custom Elements / MutationObserver constants
-
-  var CONNECTED = 'connected';
-  var DISCONNECTED = 'dis' + CONNECTED;
-
   /*! (c) Andrea Giammarchi - ISC */
   var Wire = function (slice, proto) {
     proto = Wire.prototype;
@@ -1321,6 +1313,14 @@ var hyperHTML = (function (document) {
       this._ = null;
     }
   }([].slice);
+
+  // Node.CONSTANTS
+  var DOCUMENT_FRAGMENT_NODE$1 = 11; // SVG related constants
+
+  var OWNER_SVG_ELEMENT = 'ownerSVGElement'; // Custom Elements / MutationObserver constants
+
+  var CONNECTED = 'connected';
+  var DISCONNECTED = 'dis' + CONNECTED;
 
   var observe = disconnected({
     Event: CustomEvent$1,
