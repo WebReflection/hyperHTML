@@ -16,7 +16,6 @@ const {
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
-const { slice, text } = require('../shared/utils.js');
 
 const observe = disconnected({Event: CustomEvent, WeakSet});
 
@@ -69,6 +68,12 @@ const isPromise_ish = value => value != null && 'then' in value;
 
 // list of attributes that should not be directly assigned
 const readOnly = /^(?:form|list)$/i;
+
+// reused every slice time
+const slice = [].slice;
+
+// simplifies text node creation
+const text = (node, text) => node.ownerDocument.createTextNode(text);
 
 function Tagger(type) {
   this.type = type;

@@ -74,7 +74,8 @@
           "sed -e 's/exports.*;//g' |",
           "sed '/var createContent$1 =/,/(document);/d' |",
           "sed 's/createContent$1/createContent/' |",
-          "sed 's/({})/(document)/' > index.clean"
+          "sed 's/({})/(document)/' |",
+          "sed -e 's/var isNoOp =.*/var isNoOp = false;/' > index.clean"
         ],
         "mv index.clean index.js"
       ]
@@ -146,7 +147,7 @@
     "@ungap/essential-map": "^0.1.7",
     "@ungap/essential-weakset": "^0.1.2",
     "@ungap/is-array": "^0.1.1",
-    "@ungap/template-literal": "^0.1.0",
+    "@ungap/template-tag-arguments": "^0.1.1",
     "@ungap/weakmap": "^0.1.4",
     "disconnected": "^0.1.6",
     "domdiff": "^2.0.2",

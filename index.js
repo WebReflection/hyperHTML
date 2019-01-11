@@ -1322,53 +1322,6 @@ var hyperHTML = (function (document) {
     }
   }([].slice);
 
-  var templateLiteral = function () {
-
-    var RAW = 'raw';
-    var isNoOp = false;
-
-    var _templateLiteral = function templateLiteral(tl) {
-      if ( // for badly transpiled literals
-      !(RAW in tl) || // for some version of TypeScript
-      tl.propertyIsEnumerable(RAW) || // and some other version of TypeScript
-      !Object.isFrozen(tl.raw) || // or for Firefox < 55
-      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-        var forever = {};
-
-        _templateLiteral = function templateLiteral(tl) {
-          var key = RAW + tl.join(RAW);
-          return forever[key] || (forever[key] = tl);
-        };
-
-        return _templateLiteral(tl);
-      } else {
-        isNoOp = true;
-        return tl;
-      }
-    };
-
-    return function (tl) {
-      return isNoOp ? tl : _templateLiteral(tl);
-    };
-  }();
-
-  var text = function text(node, _text) {
-    return node.ownerDocument.createTextNode(_text);
-  }; // normalizes the template once for all arguments cases
-
-  var reArguments = function reArguments(template) {
-    var args = [templateLiteral(template)];
-
-    for (var i = 1, length = arguments.length; i < length; i++) {
-      args[i] = arguments[i];
-    }
-
-    return args;
-  }; // just recycling a one-off array to use slice
-  // in every needed place
-
-  var slice = [].slice;
-
   var observe = disconnected({
     Event: CustomEvent$1,
     WeakSet: WeakSet$1
@@ -1419,7 +1372,13 @@ var hyperHTML = (function (document) {
   }; // list of attributes that should not be directly assigned
 
 
-  var readOnly = /^(?:form|list)$/i;
+  var readOnly = /^(?:form|list)$/i; // reused every slice time
+
+  var slice = [].slice; // simplifies text node creation
+
+  var text = function text(node, _text) {
+    return node.ownerDocument.createTextNode(_text);
+  };
 
   function Tagger(type) {
     this.type = type;
@@ -1625,7 +1584,7 @@ var hyperHTML = (function (document) {
     // it's pointless to transform or analyze anything
     // different from text there but it's worth checking
     // for possible defined intents.
-    text: function text$$1(node) {
+    text: function text(node) {
       var oldValue;
 
       var textContent = function textContent(value) {
@@ -1662,6 +1621,53 @@ var hyperHTML = (function (document) {
     }
   };
 
+  /*! (c) Andrea Giammarchi - ISC */
+  var templateLiteral = function () {
+
+    var RAW = 'raw';
+    var isNoOp = false;
+
+    var _templateLiteral = function templateLiteral(tl) {
+      if ( // for badly transpiled literals
+      !(RAW in tl) || // for some version of TypeScript
+      tl.propertyIsEnumerable(RAW) || // and some other version of TypeScript
+      !Object.isFrozen(tl[RAW]) || // or for Firefox < 55
+      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
+        var forever = {};
+
+        _templateLiteral = function templateLiteral(tl) {
+          for (var key = '.', i = 0; i < tl.length; i++) {
+            key += tl[i].length + '.' + tl[i];
+          }
+
+          return forever[key] || (forever[key] = tl);
+        };
+      } else {
+        isNoOp = true;
+      }
+
+      return TL(tl);
+    };
+
+    return TL;
+
+    function TL(tl) {
+      return isNoOp ? tl : _templateLiteral(tl);
+    }
+  }();
+
+  function tta (template) {
+    var length = arguments.length;
+    var args = [templateLiteral(template)];
+    var i = 1;
+
+    while (i < length) {
+      args.push(arguments[i++]);
+    }
+
+    return args;
+  }
+
   var wires = new WeakMap$1(); // A wire is a callback used as tag function
   // to lazily relate a generic object to a template literal.
   // hyper.wire(user)`<div id=user>${user.name}</div>`; => the div#user
@@ -1685,7 +1691,7 @@ var hyperHTML = (function (document) {
   var content = function content(type) {
     var wire, tagger, template;
     return function () {
-      var args = reArguments.apply(null, arguments);
+      var args = tta.apply(null, arguments);
 
       if (template !== args[0]) {
         template = args[0];
@@ -1743,7 +1749,7 @@ var hyperHTML = (function (document) {
 
   function render() {
     var wicked = bewitched.get(this);
-    var args = reArguments.apply(null, arguments);
+    var args = tta.apply(null, arguments);
 
     if (wicked && wicked.template === args[0]) {
       wicked.tagger.apply(null, args);

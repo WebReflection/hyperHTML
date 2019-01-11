@@ -1,10 +1,10 @@
 'use strict';
 const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
+const tta = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/template-tag-arguments'));
 
 const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
 
 const {Tagger} = require('../objects/Updates.js');
-const {reArguments} = require('../shared/utils.js');
 
 // all wires used per each context
 const wires = new WeakMap;
@@ -31,7 +31,7 @@ const wire = (obj, type) => obj == null ?
 const content = type => {
   let wire, tagger, template;
   return function () {
-    const args = reArguments.apply(null, arguments);
+    const args = tta.apply(null, arguments);
     if (template !== args[0]) {
       template = args[0];
       tagger = new Tagger(type);

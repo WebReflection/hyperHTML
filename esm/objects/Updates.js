@@ -17,7 +17,6 @@ import {
 import Component from '../classes/Component.js';
 import Wire from 'hyperhtml-wire';
 import Intent from './Intent.js';
-import { slice, text } from '../shared/utils.js';
 
 const observe = disconnected({Event: CustomEvent, WeakSet});
 
@@ -69,6 +68,12 @@ const isPromise_ish = value => value != null && 'then' in value;
 
 // list of attributes that should not be directly assigned
 const readOnly = /^(?:form|list)$/i;
+
+// reused every slice time
+const slice = [].slice;
+
+// simplifies text node creation
+const text = (node, text) => node.ownerDocument.createTextNode(text);
 
 function Tagger(type) {
   this.type = type;
