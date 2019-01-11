@@ -36,8 +36,8 @@ const asNode = (item, i) => {
       // all these cases are handled by domdiff already
       /* istanbul ignore next */
       ((1 / i) < 0 ?
-        (i ? item.remove(true) : item.last) :
-        (i ? item.valueOf(true) : item.first)) :
+        (i ? item.remove(true) : item.lastChild) :
+        (i ? item.valueOf(true) : item.firstChild)) :
       asNode(item.render(), i));
 }
 

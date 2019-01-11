@@ -1563,9 +1563,9 @@
         return render(_templateObject11());
       };
 
-      node = update().n;
+      node = update().childNodes;
       tressa.assert(Array.isArray(node), 'list of nodes');
-      same = update().n;
+      same = update().childNodes;
       tressa.assert(node.length === same.length && node[0] && node.every(function (n, i) {
         return same[i] === n;
       }), 'same list returned');

@@ -635,7 +635,7 @@ var hyperHTML = (function (document) {
               detail: detail
             });
             event.component = this;
-            return (_wire$.dispatchEvent ? _wire$ : _wire$.n[0]).dispatchEvent(event);
+            return (_wire$.dispatchEvent ? _wire$ : _wire$.firstChild).dispatchEvent(event);
           }
 
           return false;
@@ -1280,15 +1280,15 @@ var hyperHTML = (function (document) {
     proto = Wire.prototype;
 
     proto.remove = function (keepFirst) {
-      var childNodes = this.n;
-      var first = this.first;
-      var last = this.last;
-      this.f = null;
+      var childNodes = this.childNodes;
+      var first = this.firstChild;
+      var last = this.lastChild;
+      this._ = null;
 
       if (keepFirst && childNodes.length === 2) {
         last.parentNode.removeChild(last);
       } else {
-        var range = this.d.createRange();
+        var range = this.ownerDocument.createRange();
         range.setStartBefore(keepFirst ? childNodes[1] : first);
         range.setEndAfter(last);
         range.deleteContents();
@@ -1298,28 +1298,27 @@ var hyperHTML = (function (document) {
     };
 
     proto.valueOf = function (forceAppend) {
-      var frag = this.f;
-      var noFrag = frag == null;
-      if (noFrag) frag = this.f = this.d.createDocumentFragment();
+      var fragment = this._;
+      var noFragment = fragment == null;
+      if (noFragment) fragment = this._ = this.ownerDocument.createDocumentFragment();
 
-      if (noFrag || forceAppend) {
-        for (var n = this.n, i = 0, l = n.length; i < l; i++) {
-          frag.appendChild(n[i]);
+      if (noFragment || forceAppend) {
+        for (var n = this.childNodes, i = 0, l = n.length; i < l; i++) {
+          fragment.appendChild(n[i]);
         }
       }
 
-      return frag;
+      return fragment;
     };
 
     return Wire;
 
     function Wire(childNodes) {
-      var nodes = this.n = slice.call(childNodes, 0);
-      var first = nodes[0];
-      this.first = first;
-      this.last = nodes[nodes.length - 1];
-      this.d = first.ownerDocument || first;
-      this.f = null;
+      var nodes = this.childNodes = slice.call(childNodes, 0);
+      this.firstChild = nodes[0];
+      this.lastChild = nodes[nodes.length - 1];
+      this.ownerDocument = nodes[0].ownerDocument;
+      this._ = null;
     }
   }([].slice);
 
@@ -1388,7 +1387,7 @@ var hyperHTML = (function (document) {
     // all these cases are handled by domdiff already
 
     /* istanbul ignore next */
-    1 / i < 0 ? i ? item.remove(true) : item.last : i ? item.valueOf(true) : item.first : asNode(item.render(), i);
+    1 / i < 0 ? i ? item.remove(true) : item.lastChild : i ? item.valueOf(true) : item.firstChild : asNode(item.render(), i);
   }; // returns true if domdiff can handle the value
 
 

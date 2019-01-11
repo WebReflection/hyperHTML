@@ -105,7 +105,7 @@ export function setup(content) {
           event.component = this;
           return (_wire$.dispatchEvent ?
                     _wire$ :
-                    _wire$.n[0]
+                    _wire$.firstChild
                   ).dispatchEvent(event);
         }
         return false;

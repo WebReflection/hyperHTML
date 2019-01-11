@@ -182,9 +182,9 @@ tressa.async(function (done) {
         <p>1</p>
       `;
     };
-    node = update().n;
+    node = update().childNodes;
     tressa.assert(Array.isArray(node), 'list of nodes');
-    same = update().n;
+    same = update().childNodes;
     tressa.assert(
       node.length === same.length &&
       node[0] &&

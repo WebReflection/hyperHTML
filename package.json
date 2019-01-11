@@ -152,7 +152,7 @@
     "domdiff": "^2.0.2",
     "domtagger": "^0.2.3",
     "hyperhtml-style": "^0.1.2",
-    "hyperhtml-wire": "^1.0.0",
+    "hyperhtml-wire": "^2.0.0",
     "lightercollective": "^0.2.0"
   },
   "collective": {
