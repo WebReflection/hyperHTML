@@ -685,6 +685,16 @@ var hyperHTML = (function (document) {
     })[secret];
   };
 
+  Object.defineProperties(Component.prototype, {
+    // used to distinguish better than instanceof
+    ELEMENT_NODE: {
+      value: 1
+    },
+    nodeType: {
+      value: -1
+    }
+  });
+
   var attributes = {};
   var intents = {};
   var keys = [];
@@ -886,8 +896,6 @@ var hyperHTML = (function (document) {
       }
     }
   }
-
-  /*! (c) Andrea Giammarchi - ISC */
 
   /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
@@ -1270,6 +1278,8 @@ var hyperHTML = (function (document) {
   /*! (c) Andrea Giammarchi - ISC */
   var Wire = function (slice, proto) {
     proto = Wire.prototype;
+    proto.ELEMENT_NODE = 1;
+    proto.nodeType = 111;
 
     proto.remove = function (keepFirst) {
       var childNodes = this.childNodes;
@@ -1322,6 +1332,8 @@ var hyperHTML = (function (document) {
   var CONNECTED = 'connected';
   var DISCONNECTED = 'dis' + CONNECTED;
 
+  var componentType = Component.prototype.nodeType;
+  var wireType = Wire.prototype.nodeType;
   var observe = disconnected({
     Event: CustomEvent$1,
     WeakSet: WeakSet$1
@@ -1335,17 +1347,26 @@ var hyperHTML = (function (document) {
 
 
   var asNode = function asNode(item, i) {
-    return 'ELEMENT_NODE' in item ? item : item.constructor === Wire ? // in the Wire case, the content can be
-    // removed, post-pended, inserted, or pre-pended and
-    // all these cases are handled by domdiff already
+    switch (item.nodeType) {
+      case wireType:
+        // in the Wire case, the content can be
+        // removed, post-pended, inserted, or pre-pended and
+        // all these cases are handled by domdiff already
 
-    /* istanbul ignore next */
-    1 / i < 0 ? i ? item.remove(true) : item.lastChild : i ? item.valueOf(true) : item.firstChild : asNode(item.render(), i);
+        /* istanbul ignore next */
+        return 1 / i < 0 ? i ? item.remove(true) : item.lastChild : i ? item.valueOf(true) : item.firstChild;
+
+      case componentType:
+        return asNode(item.render(), i);
+
+      default:
+        return item;
+    }
   }; // returns true if domdiff can handle the value
 
 
   var canDiff = function canDiff(value) {
-    return 'ELEMENT_NODE' in value || value instanceof Wire || value instanceof Component;
+    return 'ELEMENT_NODE' in value;
   }; // when a Promise is used as interpolation value
   // its result must be parsed once resolved.
   // This callback is in charge of understanding what to do

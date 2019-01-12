@@ -152,3 +152,12 @@ const setValue = (self, secret, value) =>
       value
   })[secret]
 ;
+
+Object.defineProperties(
+  Component.prototype,
+  {
+    // used to distinguish better than instanceof
+    ELEMENT_NODE: {value: 1},
+    nodeType: {value: -1}
+  }
+);

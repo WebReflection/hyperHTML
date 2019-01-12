@@ -17,6 +17,9 @@ const {
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
 
+const componentType = Component.prototype.nodeType;
+const wireType = Wire.prototype.nodeType;
+
 const observe = disconnected({Event: CustomEvent, WeakSet});
 
 exports.Tagger = Tagger;
@@ -27,24 +30,24 @@ const asHTML = html => ({html});
 
 // returns nodes from wires and components
 const asNode = (item, i) => {
-  return 'ELEMENT_NODE' in item ?
-    item :
-    (item.constructor === Wire ?
+  switch (item.nodeType) {
+    case wireType:
       // in the Wire case, the content can be
       // removed, post-pended, inserted, or pre-pended and
       // all these cases are handled by domdiff already
       /* istanbul ignore next */
-      ((1 / i) < 0 ?
+      return (1 / i) < 0 ?
         (i ? item.remove(true) : item.lastChild) :
-        (i ? item.valueOf(true) : item.firstChild)) :
-      asNode(item.render(), i));
+        (i ? item.valueOf(true) : item.firstChild);
+    case componentType:
+      return asNode(item.render(), i);
+    default:
+      return item;
+  }
 }
 
 // returns true if domdiff can handle the value
-const canDiff = value =>
-                  'ELEMENT_NODE' in value ||
-                  value instanceof Wire ||
-                  value instanceof Component;
+const canDiff = value => 'ELEMENT_NODE' in value;
 
 // when a Promise is used as interpolation value
 // its result must be parsed once resolved.

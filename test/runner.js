@@ -111,4 +111,4 @@ setTimeout(function () {
     require('../cjs');
     require('./test.js');
   }, 2000);
-}, 3000);
+}, 2000);
