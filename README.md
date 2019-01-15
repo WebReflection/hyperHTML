@@ -15,6 +15,13 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 
 - - -
 
+## lighterhtml 💡
+
+This little brother is "_showing off_" these days, claiming better performance and unprecedented ease of use.
+
+[GitHub Repository](https://github.com/WebReflection/lighterhtml)
+
+
 ## Neverland 🌈🦄
 
 If you like React hooks concept, don't miss this little wrap that adds 0._something_ overhead to the already lightweight hyperHTML, bringing in very similar concepts.
