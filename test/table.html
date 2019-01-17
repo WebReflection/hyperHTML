@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>hyperHTML table</title>
+  <script src="../index.js"></script>
+</head>
+<body>
+    <table id="table"></table>
+  <script>
+const { Component, bind } = hyperHTML
+
+class cell extends Component {
+    constructor({ value, column }) {
+        super()
+        this.value = value
+        this.column = column
+    }
+    render() {
+        return this.html`<td>${this.value}</td>`
+    }
+}
+
+class childRow extends Component {
+    constructor({ columns }) {
+        super()
+        this.colSpan = columns.length
+    }
+    render() {
+        return this.html`<tr><td colspan=${this.colSpan}>Details</td></tr>`
+    }
+}
+const columns = [
+    { name: "FormId", displayName: "Form Id", type: Number },
+    { name: "FormType", displayName: "Type", type: String },
+    { name: "Description", displayName: "Step Description", breakpoints: 'sm', type: String },
+    { name: "Started", displayName: "Step Received", breakpoints: 'sm', type: Date },
+    { name: "Duration", displayName: "Elapsed (h)", breakpoints: 'xs', type: Number },
+    { name: "Action", displayName: "Action", breakpoints: 'xs', classes: "text-right" },
+    { name: "Form", breakpoints: 'all' }
+]
+class row extends Component {
+    constructor(row) {
+        super()
+        this.columns = columns
+        this.classes = row.classes || ""
+        this._cells = row.cells || row
+        this.cells = this.columns.map(c => new cell({ value: this._cells[c.name], column: c }))
+    }
+    get expanded() {
+        return this.state.expanded
+    }
+    set expanded(value) {
+        this.state.expanded = !!value
+    }
+    toggleExpanded() {
+        this.expanded = !this.expanded
+    }
+    onclick(e) {
+      console.log("expand")
+        this.toggleExpanded()
+        this.render()
+    }
+    //This fails after sorting the rows array
+    render() {
+      return this.html`<tr class="${this.classes}" onclick=${this}>${this.cells}</tr>${this.expanded && childRow.for(this)}`;
+    }
+    /* This will also fail
+    render() {
+        return this.html`<tr><td>ok</td></tr>`
+    }*/
+    //This will be fine
+    /*render() {
+        return this.html`<tr class="${this.classes}" onclick=${this}>${this.cells}</tr>`
+    }*/
+}
+
+const rowData = [
+  {
+    "classes": "text-success",
+    "cells": {
+      "ApprovalId": 351026,
+      "FormId": 61441,
+      "Step": 7,
+      "PositionId": null,
+      "Started": "2018-11-29T13:11:57.477",
+      "ActionedEmployeeId": null,
+      "ActionedNovellId": null,
+      "Outcome": null,
+      "Completed": null,
+      "Comments": null,
+      "RequestedGroupId": 9,
+      "Description": "Processing by SIRT",
+      "Processing": true,
+      "EmailTemplate": null,
+      "AutoProcess": null,
+      "ReturnToStep": null,
+      "StepDescription": "Processing by SIRT",
+      "ActionerName": "SIRT",
+      "Duration": 17,
+      "IsCurrent": true,
+      "IsFuture": false,
+      "IsPast": false,
+      "IsFirst": false,
+      "IsOverdue": false,
+      "IsFinalApproval": false,
+      "FormType": "Position Maintenance Request",
+      "Status": "Current",
+      "CanApprove": true,
+      "FormStatus": "Approved"
+    }
+  },
+  {
+    "cells": {
+      "ApprovalId": 409377,
+      "FormId": 67254,
+      "Step": 7,
+      "PositionId": null,
+      "Started": "2018-11-23T16:37:41.8",
+      "ActionedEmployeeId": null,
+      "ActionedNovellId": null,
+      "Outcome": null,
+      "Completed": null,
+      "Comments": null,
+      "RequestedGroupId": 9,
+      "Description": "Processing by SIRT",
+      "Processing": true,
+      "EmailTemplate": null,
+      "AutoProcess": null,
+      "ReturnToStep": null,
+      "StepDescription": "Processing by SIRT",
+      "ActionerName": "SIRT",
+      "Duration": 49,
+      "IsCurrent": true,
+      "IsFuture": false,
+      "IsPast": false,
+      "IsFirst": false,
+      "IsOverdue": true,
+      "IsFinalApproval": false,
+      "FormType": "Position Maintenance Request",
+      "Status": "Overdue",
+      "CanApprove": true,
+      "FormStatus": "Approved"
+    }
+  },
+  {
+    "cells": {
+      "ApprovalId": 411484,
+      "FormId": 67446,
+      "Step": 7,
+      "PositionId": null,
+      "Started": "2018-11-23T16:32:54.463",
+      "ActionedEmployeeId": null,
+      "ActionedNovellId": null,
+      "Outcome": null,
+      "Completed": null,
+      "Comments": null,
+      "RequestedGroupId": 9,
+      "Description": "Processing by SIRT",
+      "Processing": true,
+      "EmailTemplate": null,
+      "AutoProcess": null,
+      "ReturnToStep": null,
+      "StepDescription": "Processing by SIRT",
+      "ActionerName": "SIRT",
+      "Duration": 50,
+      "IsCurrent": true,
+      "IsFuture": false,
+      "IsPast": false,
+      "IsFirst": false,
+      "IsOverdue": true,
+      "IsFinalApproval": false,
+      "FormType": "Position Maintenance Request",
+      "Status": "Overdue",
+      "CanApprove": true,
+      "FormStatus": "Approved"
+    }
+  },
+  {
+    "cells": {
+      "ApprovalId": 412150,
+      "FormId": 67528,
+      "Step": 7,
+      "PositionId": null,
+      "Started": "2018-11-29T08:57:51.493",
+      "ActionedEmployeeId": null,
+      "ActionedNovellId": null,
+      "Outcome": null,
+      "Completed": null,
+      "Comments": null,
+      "RequestedGroupId": 9,
+      "Description": "Processing by SIRT",
+      "Processing": true,
+      "EmailTemplate": null,
+      "AutoProcess": null,
+      "ReturnToStep": null,
+      "StepDescription": "Processing by SIRT",
+      "ActionerName": "SIRT",
+      "Duration": 21,
+      "IsCurrent": true,
+      "IsFuture": false,
+      "IsPast": false,
+      "IsFirst": false,
+      "IsOverdue": true,
+      "IsFinalApproval": false,
+      "FormType": "Position Maintenance Request",
+      "Status": "Overdue",
+      "CanApprove": true,
+      "FormStatus": "Approved"
+    }
+  }
+];
+
+class table extends Component {
+  constructor() {
+    super()
+    this.rows = rowData.map(r => row.for(r))
+    this.view = bind(document.querySelector('#table'));
+    this.render();
+  }
+  sort1() {
+    this.rows = this.rows.sort((a, b) => a.cells.find(c => c.column.name === 'Duration').value - b.cells.find(c => c.column.name === 'Duration').value )
+    this.render()
+  }
+  sort2() {
+    this.rows = this.rows.sort((a, b) => (a.cells.find(c => c.column.name === 'Duration').value - b.cells.find(c => c.column.name === 'Duration')).value * -1 )
+    this.render()
+  }
+  render() {
+    this.view`<tbody>${this.rows.map(r => r)}</tbody>`;
+    return this;
+  }
+}
+
+const t = new table()
+// t.sort1()
+  </script>
+</body>
+</html>

@@ -371,7 +371,7 @@ var hyperHTML = (function (document) {
         case INSERTION:
           // TODO: bulk appends for sequential nodes
           live.set(futureNodes[futureStart], 1);
-          append(get, parentNode, futureNodes, futureStart++, futureStart, currentIndex < currentLength ? get(currentNodes[currentIndex], 1) : before);
+          append(get, parentNode, futureNodes, futureStart++, futureStart, currentIndex < currentLength ? get(currentNodes[currentIndex], 0) : before);
           break;
 
         case DELETION:
