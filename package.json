@@ -46,6 +46,11 @@
         "cp min.js esm.js",
         "echo 'export default hyperHTML;' >> esm.js",
         "echo 'export const {Component, bind, define, diff, hyper, wire} = hyperHTML;' >> esm.js"
+      ],
+      "esm-max": [
+        "cp index.js index-esm.js",
+        "echo 'export default hyperHTML;' >> index-esm.js",
+        "echo 'export const {Component, bind, define, diff, hyper, wire} = hyperHTML;' >> index-esm.js"
       ]
     },
     "build": [
@@ -60,6 +65,7 @@
       "$ bundle.min",
       "$ bundle.umd",
       "$ bundle.esm",
+      "$ bundle.esm-max",
       "$ bundle.ie",
       "$ test",
       "$ size"
