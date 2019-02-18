@@ -41,6 +41,8 @@ You can require or import _hyperHTML_ with any bundler and in different ways.
 
 If requiring or importing from `"hyperhtml"` doesn't work, try requiring from `"hyperhtml/cjs"` for CommonJS friendly bundlers (WebPack), or `"hyperhtml/esm"` for ESM compatible bundlers (Rollup).
 
+See [HELPERS.md] for a list of additional tools which can be helpful for building hyperHTML based web applications.
+
 - - -
 
 ## Sponsors
