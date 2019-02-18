@@ -1,7 +1,4 @@
 'use strict';
-const G = document.defaultView;
-exports.G = G;
-
 // Node.CONSTANTS
 // 'cause some engine has no global Node defined
 // (i.e. Node, NativeScript, basicHTML ... )

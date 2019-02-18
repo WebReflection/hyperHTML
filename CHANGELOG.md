@@ -1,5 +1,14 @@
 # hyper(html) Changelog
 
+### v.2.23
+  * monkey patched rollup generated code to export once the same module shared within sub-modules
+
+### v2.22
+  * using latest domtagger
+
+### v2.21
+  * refactored out all dependencies
+
 ### v2.20
   * re-tested every single supported browser nd fixed few outstanding issues with the 2.19 release
 

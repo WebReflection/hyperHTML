@@ -2,7 +2,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 
 export default {
-  input: 'esm/index.js',
+  input: 'test/test.js',
   plugins: [
     resolve({module: true}),
     babel({presets: ["@babel/preset-env"]})
@@ -10,9 +10,7 @@ export default {
   context: 'null',
   moduleContext: 'null',
   output: {
-    exports: 'named',
-    file: 'index.js',
-    format: 'iife',
-    name: 'hyperHTML'
+    file: 'test/ie/test/test.js',
+    format: 'iife'
   }
 };

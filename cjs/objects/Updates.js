@@ -2,21 +2,23 @@
 const CustomEvent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/custom-event'));
 const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-weakset'));
 const isArray = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/is-array'));
-
 const createContent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/create-content'));
+
 const disconnected = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('disconnected'));
 const domdiff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domdiff'));
 const domtagger = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domtagger'));
 const hyperStyle = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-style'));
+const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
 
 const {
   CONNECTED, DISCONNECTED, DOCUMENT_FRAGMENT_NODE, OWNER_SVG_ELEMENT
 } = require('../shared/constants.js');
 
 const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
-const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Wire.js'));
 const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
-const { slice, text } = require('../shared/utils.js');
+
+const componentType = Component.prototype.nodeType;
+const wireType = Wire.prototype.nodeType;
 
 const observe = disconnected({Event: CustomEvent, WeakSet});
 
@@ -28,24 +30,24 @@ const asHTML = html => ({html});
 
 // returns nodes from wires and components
 const asNode = (item, i) => {
-  return 'ELEMENT_NODE' in item ?
-    item :
-    (item.constructor === Wire ?
+  switch (item.nodeType) {
+    case wireType:
       // in the Wire case, the content can be
       // removed, post-pended, inserted, or pre-pended and
       // all these cases are handled by domdiff already
       /* istanbul ignore next */
-      ((1 / i) < 0 ?
-        (i ? item.remove() : item.last) :
-        (i ? item.valueOf(true) : item.first)) :
-      asNode(item.render(), i));
+      return (1 / i) < 0 ?
+        (i ? item.remove(true) : item.lastChild) :
+        (i ? item.valueOf(true) : item.firstChild);
+    case componentType:
+      return asNode(item.render(), i);
+    default:
+      return item;
+  }
 }
 
 // returns true if domdiff can handle the value
-const canDiff = value =>
-                  'ELEMENT_NODE' in value ||
-                  value instanceof Wire ||
-                  value instanceof Component;
+const canDiff = value => 'ELEMENT_NODE' in value;
 
 // when a Promise is used as interpolation value
 // its result must be parsed once resolved.
@@ -69,6 +71,12 @@ const isPromise_ish = value => value != null && 'then' in value;
 
 // list of attributes that should not be directly assigned
 const readOnly = /^(?:form|list)$/i;
+
+// reused every slice time
+const slice = [].slice;
+
+// simplifies text node creation
+const text = (node, text) => node.ownerDocument.createTextNode(text);
 
 function Tagger(type) {
   this.type = type;
@@ -132,9 +140,16 @@ Tagger.prototype = {
       };
     }
     else if (name in Intent.attributes) {
+      oldValue;
       return any => {
-        oldValue = Intent.attributes[name](node, any);
-        node.setAttribute(name, oldValue == null ? '' : oldValue);
+        const newValue = Intent.attributes[name](node, any);
+        if (oldValue !== newValue) {
+          oldValue = newValue;
+          if (newValue == null)
+            node.removeAttribute(name);
+          else
+            node.setAttribute(name, newValue);
+        }
       };
     }
     // in every other case, use the attribute node as it is

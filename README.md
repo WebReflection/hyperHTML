@@ -15,6 +15,13 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 
 - - -
 
+## lighterhtml 💡
+
+This little brother is "_showing off_" these days, claiming better performance and unprecedented ease of use.
+
+[GitHub Repository](https://github.com/WebReflection/lighterhtml)
+
+
 ## Neverland 🌈🦄
 
 If you like React hooks concept, don't miss this little wrap that adds 0._something_ overhead to the already lightweight hyperHTML, bringing in very similar concepts.
@@ -33,6 +40,8 @@ If you also like React hooks mechanism and you'd like to combine these via hyper
 You can require or import _hyperHTML_ with any bundler and in different ways.
 
 If requiring or importing from `"hyperhtml"` doesn't work, try requiring from `"hyperhtml/cjs"` for CommonJS friendly bundlers (WebPack), or `"hyperhtml/esm"` for ESM compatible bundlers (Rollup).
+
+See [HELPERS.md](./HELPERS.md) for a list of additional tools which can be helpful for building hyperHTML based web applications.
 
 - - -
 
@@ -121,6 +130,12 @@ You can verify directly through the following links:
 
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/) for browsers natively compatible with string literals
   * [100% code coverage](https://webreflection.github.io/hyperHTML/test/ie/) for IE9+ and browsers that need transpiled code
+  
+#### Weakmap error on ie < 11
+
+'@ungap/weakmap': object is not extensible
+
+Babel freezes the template literals by spec but that causes problems with the weakmap polyfill. To fix this error add the fix explained on [ungap/weakmap](https://github.com/ungap/weakmap#transpiled-code-and-frozen-objects-in-legacy-browsers)
 
 ## HTML Syntax Highlight
 
@@ -138,7 +153,7 @@ Please ask anything you'd like to know in [StackOverflow](https://stackoverflow.
 
 #### hyper or lit ?
 
-You can read more on this [hyperHTML vs lit-html](https://gist.github.com/WebReflection/fadcc419f5ccaae92bc167d8ff5c611b) comparison.
+You can read more on this [hyperHTML vs lit-html](https://medium.com/@WebReflection/lit-html-vs-hyperhtml-vs-lighterhtml-c084abfe1285) comparison.
 
 #### installation?
 

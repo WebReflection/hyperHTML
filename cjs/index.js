@@ -11,7 +11,6 @@ const {observe, Tagger} = require('./objects/Updates.js');
 const wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
 const render = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/render.js'));
-const { G } = require('./shared/constants.js');
 
 // all functions are self bound to the right context
 // you can do the following
@@ -35,7 +34,6 @@ hyper.wire = wire;
 // that don't necessarily need upfront polyfills
 // i.e. those still targeting IE
 hyper._ = {
-  global: G,
   WeakMap,
   WeakSet
 };

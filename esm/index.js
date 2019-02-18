@@ -8,7 +8,6 @@ import Intent from './objects/Intent.js';
 import {observe, Tagger} from './objects/Updates.js';
 import wire, {content, weakly} from './hyper/wire.js';
 import render from './hyper/render.js';
-import { G } from './shared/constants.js';
 
 // all functions are self bound to the right context
 // you can do the following
@@ -32,7 +31,6 @@ hyper.wire = wire;
 // that don't necessarily need upfront polyfills
 // i.e. those still targeting IE
 hyper._ = {
-  global: G,
   WeakMap,
   WeakSet
 };

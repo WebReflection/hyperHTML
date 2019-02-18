@@ -697,55 +697,61 @@ tressa.async(function (done) {
 .then(function () {
   tressa.log('## attributes with null values');
   var div = document.createElement('div');
-  hyperHTML.bind(div)`<p any-attr=${'1'}>any content</p>`;
+  var anyAttr = function (value) {
+    hyperHTML.bind(div)`<p any-attr=${value}>any content</p>`;
+  };
+  anyAttr('1');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '1',
     'regular attribute'
   );
-  hyperHTML.bind(div)`<p any-attr=${null}>any content</p>`;
+  anyAttr(null);
   tressa.assert(
     !div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') == null,
     'can be removed'
   );
-  hyperHTML.bind(div)`<p any-attr=${undefined}>any content</p>`;
+  anyAttr(undefined);
   tressa.assert(
     !div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') == null,
     'multiple times'
   );
-  hyperHTML.bind(div)`<p any-attr=${'2'}>any content</p>`;
+  anyAttr('2');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '2',
     'but can be also reassigned'
   );
-  hyperHTML.bind(div)`<p any-attr=${'3'}>any content</p>`;
+  anyAttr('3');
   tressa.assert(
     div.firstChild.hasAttribute('any-attr') &&
     div.firstChild.getAttribute('any-attr') === '3',
     'many other times'
   );
-  hyperHTML.bind(div)`<input name=${'test'}>`;
+  var inputName = function (value) {
+    hyperHTML.bind(div)`<input name=${value}>`;
+  };
+  inputName('test');
   tressa.assert(
     div.firstChild.hasAttribute('name') &&
     div.firstChild.name === 'test',
     'special attributes are set too'
   );
-  hyperHTML.bind(div)`<input name=${null}>`;
+  inputName(null);
   tressa.assert(
     !div.firstChild.hasAttribute('name') &&
     !div.firstChild.name,
     'but can also be removed'
   );
-  hyperHTML.bind(div)`<input name=${undefined}>`;
+  inputName(undefined);
   tressa.assert(
     !div.firstChild.hasAttribute('name') &&
     !div.firstChild.name,
     'with either null or undefined'
   );
-  hyperHTML.bind(div)`<input name=${'back'}>`;
+  inputName('back');
   tressa.assert(
     div.firstChild.hasAttribute('name') &&
     div.firstChild.name === 'back',
@@ -1305,8 +1311,22 @@ tressa.async(function (done) {
   result.splice(0);
   hyperHTML.define('other-attribute', function (target, value) {
     result.push(target, value);
+    return '';
   });
-  hyperHTML.bind(a)`<p other-attribute=${random}/>`;
+  hyperHTML.define('disappeared-attribute', function (target, value) {
+  });
+  hyperHTML.define('whatever-attribute', function (target, value) {
+    return value;
+  });
+  hyperHTML.define('null-attribute', function (target, value) {
+    return null;
+  });
+  hyperHTML.bind(a)`<p
+    other-attribute=${random}
+    disappeared-attribute=${random}
+    whatever-attribute=${random}
+    null-attribute=${random}
+  />`;
   if (!result.length)
     throw new Error('attributes intents failed');
   else {
@@ -1315,6 +1335,18 @@ tressa.async(function (done) {
     tressa.assert(
       a.firstElementChild.getAttribute('other-attribute') === '',
       'expected other attribute'
+    );
+    tressa.assert(
+      !a.firstElementChild.hasAttribute('disappeared-attribute'),
+      'disappeared-attribute removed'
+    );
+    tressa.assert(
+      a.firstElementChild.getAttribute('whatever-attribute') == random,
+      'whatever-attribute set'
+    );
+    tressa.assert(
+      !a.firstElementChild.hasAttribute('null-attribute'),
+      'null-attribute removed'
     );
   }
 })

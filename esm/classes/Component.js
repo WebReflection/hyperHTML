@@ -105,7 +105,7 @@ export function setup(content) {
           event.component = this;
           return (_wire$.dispatchEvent ?
                     _wire$ :
-                    _wire$.childNodes[0]
+                    _wire$.firstChild
                   ).dispatchEvent(event);
         }
         return false;
@@ -152,3 +152,12 @@ const setValue = (self, secret, value) =>
       value
   })[secret]
 ;
+
+Object.defineProperties(
+  Component.prototype,
+  {
+    // used to distinguish better than instanceof
+    ELEMENT_NODE: {value: 1},
+    nodeType: {value: -1}
+  }
+);
