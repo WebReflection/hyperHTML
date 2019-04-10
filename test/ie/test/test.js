@@ -2302,7 +2302,7 @@
     tressa.assert(div.querySelector('p').getAttribute('attr') === 'test', 'the <p attr=test> is defined');
     p.render().click();
     tressa.assert(p.clicked, 'the event worked');
-    render(_templateObject101(), [hyperHTML.Component.for.call(Rect, {
+    render(_templateObject101(), [hyperHTML.Component["for"].call(Rect, {
       x: 789,
       y: 123
     })]);
@@ -2775,7 +2775,7 @@
           var _this3 = this;
 
           return this.setState(props, false).html(_templateObject118(), props.items.map(function (item, i) {
-            return MenuItem.for(_this3, i).render(item);
+            return MenuItem["for"](_this3, i).render(item);
           }));
         }
       }]);
@@ -2800,7 +2800,7 @@
           var _this4 = this;
 
           return this.setState(props, false).html(_templateObject119(), props.items.map(function (item) {
-            return MenuItem.for(_this4, item).render(item);
+            return MenuItem["for"](_this4, item).render(item);
           }));
         }
       }]);
@@ -2831,15 +2831,15 @@
 
     var a = document.createElement('div');
     var b = document.createElement('div');
-    var method = hyperHTML.Component.for;
+    var method = hyperHTML.Component["for"];
 
-    if (!MenuSimple.for) {
-      MenuSimple.for = method;
-      MenuWeakMap.for = method;
-      MenuItem.for = method;
+    if (!MenuSimple["for"]) {
+      MenuSimple["for"] = method;
+      MenuWeakMap["for"] = method;
+      MenuItem["for"] = method;
     }
 
-    hyperHTML.bind(a)(_templateObject121(), MenuSimple.for(a).render({
+    hyperHTML.bind(a)(_templateObject121(), MenuSimple["for"](a).render({
       items: [{
         name: 'item 1'
       }, {
@@ -2848,8 +2848,8 @@
         name: 'item 3'
       }]
     }));
-    tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same simple menu');
-    hyperHTML.bind(b)(_templateObject122(), MenuWeakMap.for(b).render({
+    tressa.assert(MenuSimple["for"](a) === MenuSimple["for"](a), 'same simple menu');
+    hyperHTML.bind(b)(_templateObject122(), MenuWeakMap["for"](b).render({
       items: [{
         name: 'item 1'
       }, {
@@ -2858,9 +2858,9 @@
         name: 'item 3'
       }]
     }));
-    tressa.assert(MenuWeakMap.for(a) === MenuWeakMap.for(a), 'same weakmap menu');
-    tressa.assert(MenuSimple.for(a) !== MenuWeakMap.for(a), 'different from simple');
-    tressa.assert(MenuSimple.for(a) === MenuSimple.for(a), 'same as simple');
+    tressa.assert(MenuWeakMap["for"](a) === MenuWeakMap["for"](a), 'same weakmap menu');
+    tressa.assert(MenuSimple["for"](a) !== MenuWeakMap["for"](a), 'different from simple');
+    tressa.assert(MenuSimple["for"](a) === MenuSimple["for"](a), 'same as simple');
     tressa.assert(a.outerHTML === b.outerHTML, 'same layout');
   }).then(function () {
     tressa.log('## Component.dispatch');

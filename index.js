@@ -17,7 +17,7 @@ var hyperHTML = (function (document) {
       var hOP = Object.hasOwnProperty;
       var proto = WeakMap.prototype;
 
-      proto.delete = function (key) {
+      proto["delete"] = function (key) {
         return this.has(key) && delete key[this._];
       };
 
@@ -77,7 +77,7 @@ var hyperHTML = (function (document) {
         return this.hasOwnProperty.call(object, this._);
       };
 
-      proto.delete = function (object) {
+      proto["delete"] = function (object) {
         return this.has(object) && delete object[this._];
       };
 
@@ -107,7 +107,7 @@ var hyperHTML = (function (document) {
       var k = [];
       var v = [];
       return {
-        delete: function _delete(key) {
+        "delete": function _delete(key) {
           var had = contains(key);
 
           if (had) {
@@ -589,7 +589,7 @@ var hyperHTML = (function (document) {
       // to automatically relate data/context to children components
       // If not created yet, the new Component(context) is weakly stored
       // and after that same instance would always be returned.
-      for: {
+      "for": {
         configurable: true,
         value: function value(context, id) {
           return get(this, children.get(context) || set(context), context, id == null ? 'default' : id);
@@ -866,7 +866,7 @@ var hyperHTML = (function (document) {
 
       function dispatchTarget(node, event, type, counter) {
         if (observer.has(node) && !dispatched[type].has(node)) {
-          dispatched[counter].delete(node);
+          dispatched[counter]["delete"](node);
           dispatched[type].add(node);
           node.dispatchEvent(event);
           /*
@@ -899,13 +899,14 @@ var hyperHTML = (function (document) {
 
   /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
-    var native = importNode in document; // IE 11 has problems with cloning templates:
+    var _native = importNode in document; // IE 11 has problems with cloning templates:
     // it "forgets" empty childNodes. This feature-detects that.
+
 
     var fragment = document.createDocumentFragment();
     fragment[appendChild](document[createTextNode]('g'));
     fragment[appendChild](document[createTextNode](''));
-    var content = native ? document[importNode](fragment, true) : fragment[cloneNode](true);
+    var content = _native ? document[importNode](fragment, true) : fragment[cloneNode](true);
     return content.childNodes.length < 2 ? function importNode(node, deep) {
       var clone = node[cloneNode]();
 
@@ -914,7 +915,7 @@ var hyperHTML = (function (document) {
       }
 
       return clone;
-    } : native ? document[importNode] : function (node, deep) {
+    } : _native ? document[importNode] : function (node, deep) {
       return node[cloneNode](!!deep);
     };
   }(document, 'appendChild', 'cloneNode', 'createTextNode', 'importNode');
@@ -1325,7 +1326,7 @@ var hyperHTML = (function (document) {
   }([].slice);
 
   // Node.CONSTANTS
-  var DOCUMENT_FRAGMENT_NODE$1 = 11; // SVG related constants
+  var DOCUMENT_FRAGMENT_NODE = 11; // SVG related constants
 
   var OWNER_SVG_ELEMENT = 'ownerSVGElement'; // Custom Elements / MutationObserver constants
 
@@ -1578,7 +1579,7 @@ var hyperHTML = (function (document) {
                 }
               }
             } else if (canDiff(value)) {
-              childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE$1 ? slice.call(value.childNodes) : [value], diffOptions);
+              childNodes = domdiff(node.parentNode, childNodes, value.nodeType === DOCUMENT_FRAGMENT_NODE ? slice.call(value.childNodes) : [value], diffOptions);
             } else if (isPromise_ish(value)) {
               value.then(anyContent);
             } else if ('placeholder' in value) {

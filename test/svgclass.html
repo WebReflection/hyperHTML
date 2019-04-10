@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="../index.js"></script>
+  <script>
+const {bind, wire} = hyperHTML;
+todo(document.body);
+function todo(node, items = []) {
+  let texts = ['a', 'b'];
+  bind(node)`
+  <svg width="200" height="200">
+    <g class="foo">
+    ${texts.map((t, i) => wire(null, `svg:${i}`)`
+      <rect x=${20 * i} y="35" width=10 height=10 class=${t}></rect>
+    </g>`)}
+  </svg>`;
+}
+  </script>
+</body>
+</html>
