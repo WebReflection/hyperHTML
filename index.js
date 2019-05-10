@@ -898,6 +898,61 @@ var hyperHTML = (function (document) {
   }
 
   /*! (c) Andrea Giammarchi - ISC */
+  var self$4 = null ||
+  /* istanbul ignore next */
+  {};
+
+  try {
+    self$4.WeakMap = WeakMap;
+  } catch (WeakMap) {
+    // this could be better but 90% of the time
+    // it's everything developers need as fallback
+    self$4.WeakMap = function (id, Object) {
+
+      var dP = Object.defineProperty;
+      var hOP = Object.hasOwnProperty;
+      var proto = WeakMap.prototype;
+
+      proto["delete"] = function (key) {
+        return this.has(key) && delete key[this._];
+      };
+
+      proto.get = function (key) {
+        return this.has(key) ? key[this._] : void 0;
+      };
+
+      proto.has = function (key) {
+        return hOP.call(key, this._);
+      };
+
+      proto.set = function (key, value) {
+        dP(key, this._, {
+          configurable: true,
+          value: value
+        });
+        return this;
+      };
+
+      return WeakMap;
+
+      function WeakMap(iterable) {
+        dP(this, '_', {
+          value: '_@ungap/weakmap' + id++
+        });
+        if (iterable) iterable.forEach(add, this);
+      }
+
+      function add(pair) {
+        this.set(pair[0], pair[1]);
+      }
+    }(Math.random(), Object);
+  }
+
+  var WeakMap$2 = self$4.WeakMap;
+
+  /*! (c) Andrea Giammarchi - ISC */
+
+  /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
     var _native = importNode in document; // IE 11 has problems with cloning templates:
     // it "forgets" empty childNodes. This feature-detects that.
@@ -924,14 +979,17 @@ var hyperHTML = (function (document) {
     return String(this).replace(/^\s+|\s+/g, '');
   };
 
+  /*! (c) Andrea Giammarchi - ISC */
   // Custom
   var UID = '-' + Math.random().toFixed(6) + '%'; //                           Edge issue!
 
-  if (!function (template, content, tabindex) {
-    return content in template && (template.innerHTML = '<p ' + tabindex + '="' + UID + '"></p>', template[content].childNodes[0].getAttribute(tabindex) == UID);
-  }(document.createElement('template'), 'content', 'tabindex')) {
-    UID = '_dt: ' + UID.slice(1, -1) + ';';
-  }
+  try {
+    if (!function (template, content, tabindex) {
+      return content in template && (template.innerHTML = '<p ' + tabindex + '="' + UID + '"></p>', template[content].childNodes[0].getAttribute(tabindex) == UID);
+    }(document.createElement('template'), 'content', 'tabindex')) {
+      UID = '_dt: ' + UID.slice(1, -1) + ';';
+    }
+  } catch (meh) {}
 
   var UIDC = '<!--' + UID + '-->'; // DOM
 
@@ -941,16 +999,17 @@ var hyperHTML = (function (document) {
   var SHOULD_USE_TEXT_CONTENT = /^(?:style|textarea)$/i;
   var VOID_ELEMENTS = /^(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)$/i;
 
+  /*! (c) Andrea Giammarchi - ISC */
   function sanitize (template) {
     return template.join(UIDC).replace(selfClosing, fullClosing).replace(attrSeeker, attrReplacer);
   }
   var spaces = ' \\f\\n\\r\\t';
-  var almostEverything = '[^ ' + spaces + '\\/>"\'=]+';
-  var attrName = '[ ' + spaces + ']+' + almostEverything;
+  var almostEverything = '[^' + spaces + '\\/>"\'=]+';
+  var attrName = '[' + spaces + ']+' + almostEverything;
   var tagName = '<([A-Za-z]+[A-Za-z0-9:_-]*)((?:';
-  var attrPartials = '(?:\\s*=\\s*(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything + '))?)';
-  var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([ ' + spaces + ']*/?>)', 'g');
-  var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([ ' + spaces + ']*/>)', 'g');
+  var attrPartials = '(?:\\s*=\\s*(?:\'[^\']*?\'|"[^"]*?"|<[^>]*?>|' + almostEverything.replace('\\/', '') + '))?)';
+  var attrSeeker = new RegExp(tagName + attrName + attrPartials + '+)([' + spaces + ']*/?>)', 'g');
+  var selfClosing = new RegExp(tagName + attrName + attrPartials + '*)([' + spaces + ']*/>)', 'g');
   var findAttributes = new RegExp('(' + attrName + '\\s*=\\s*)([\'"]?)' + UIDC + '\\2', 'gi');
 
   function attrReplacer($0, $1, $2, $3) {
@@ -964,6 +1023,50 @@ var hyperHTML = (function (document) {
   function fullClosing($0, $1, $2) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
+
+  /*! (c) Andrea Giammarchi - ISC */
+  var self$5 = null ||
+  /* istanbul ignore next */
+  {};
+
+  try {
+    self$5.Map = Map;
+  } catch (Map) {
+    self$5.Map = function Map() {
+      var i = 0;
+      var k = [];
+      var v = [];
+      return {
+        "delete": function _delete(key) {
+          var had = contains(key);
+
+          if (had) {
+            k.splice(i, 1);
+            v.splice(i, 1);
+          }
+
+          return had;
+        },
+        get: function get(key) {
+          return contains(key) ? v[i] : void 0;
+        },
+        has: function has(key) {
+          return contains(key);
+        },
+        set: function set(key, value) {
+          v[contains(key) ? i : k.push(key) - 1] = value;
+          return this;
+        }
+      };
+
+      function contains(v) {
+        i = k.indexOf(v);
+        return -1 < i;
+      }
+    };
+  }
+
+  var Map$2 = self$5.Map;
 
   function create(type, node, path, name) {
     return {
@@ -1031,7 +1134,7 @@ var hyperHTML = (function (document) {
   }
 
   function parseAttributes(node, holes, parts, path) {
-    var cache = new Map$1();
+    var cache = new Map$2();
     var attributes = node.attributes;
     var remove = [];
     var array = remove.slice.call(attributes, 0);
@@ -1100,8 +1203,8 @@ var hyperHTML = (function (document) {
   }
 
   // globals
-  var parsed = new WeakMap$1();
-  var referenced = new WeakMap$1();
+  var parsed = new WeakMap$2();
+  var referenced = new WeakMap$2();
 
   function createInfo(options, template) {
     var markup = sanitize(template);
