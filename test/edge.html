@@ -4,10 +4,10 @@
     <title>Edge test</title>
     <script>document.write('<script src="../index.js?_=' + Math.random() + '"><' + '/script>')</script>
     <script>
-this.onload = () => {
-  hyperHTML.adopt(document.body)`<div><ul></ul>${'OK'}<hr></div>`;
+this.onload = function () {
+  hyperHTML.bind(document.body)(['<textarea rows="3" value="', '"/>'], null);
 };
     </script>
   </head>
-  <body><div><ul></ul>NO<hr></div></body>
+  <body></body>
 </html>

@@ -1549,13 +1549,11 @@ var hyperHTML = (function (document) {
               if (oldValue !== newValue) {
                 oldValue = newValue;
 
-                if (node[name] !== newValue) {
-                  node[name] = newValue;
-
-                  if (newValue == null) {
-                    node.removeAttribute(name);
-                  }
-                }
+                if (node[name] !== newValue && newValue == null) {
+                  // cleanup on null to avoid silly IE/Edge bug
+                  node[name] = '';
+                  node.removeAttribute(name);
+                } else node[name] = newValue;
               }
             };
           } else if (name in Intent.attributes) {
