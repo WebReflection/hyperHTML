@@ -131,7 +131,7 @@
     "npm-dollar": "^2.1.3",
     "rollup": "^1.10.1",
     "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-node-resolve": "^5.0.0",
     "tressa": "^0.3.1",
     "uglify-js": "^2.8.29"
   },
