@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>onconnected</title>
+  <script src="../index.js"></script>
+  <script>
+  this.onload = () => {
+    var skeleton = {
+
+      handleEvent: function(event) {
+        var name = event.target.tagName;
+        document.body.appendChild(document.createElement('p')).textContent = name;
+        if ( name == 'SECTION' ) {
+          this.section(event.target);
+        }
+      },
+
+      section: function(node) {
+        hyperHTML.bind(node)`
+          <div onconnected=${this}>
+            <span onconnected=${this}></apan>
+          </div>
+          <p onconnected=${this}></p>
+        `;
+        
+      },
+
+      body: function() {
+        return hyperHTML.wire()`
+        <main>
+          <header onconnected=${this}>
+            <nav onconnected=${this} />		
+          </header>		
+          <section onconnected=${this} />		
+        </main>
+      `;
+      }
+
+    };
+
+    hyperHTML.bind(document.body)`${skeleton.body()}`;
+    document.body.textContent = '';
+    hyperHTML.bind(document.body)`${skeleton.body()}`;
+  };
+</script>
+</head>
+<body>
+  
+</body>
+</html>
