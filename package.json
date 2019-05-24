@@ -137,7 +137,10 @@
   },
   "greenkeeper": {
     "ignore": [
-      "uglify-js"
+      "uglify-js",
+      "rollup",
+      "rollup-plugin-babel",
+      "rollup-plugin-node-resolve"
     ]
   },
   "dependencies": {
@@ -148,7 +151,7 @@
     "@ungap/is-array": "^0.1.1",
     "@ungap/template-tag-arguments": "^0.1.1",
     "@ungap/weakmap": "^0.1.4",
-    "disconnected": "^0.2.0",
+    "disconnected": "^0.2.1",
     "domdiff": "^2.0.3",
     "domtagger": "^0.3.1",
     "hyperhtml-style": "^0.1.2",
