@@ -797,8 +797,6 @@ var hyperHTML = (function (document) {
   /*! (c) Andrea Giammarchi */
   function disconnected(poly) {
 
-    var CONNECTED = 'connected';
-    var DISCONNECTED = 'dis' + CONNECTED;
     var Event = poly.Event;
     var WeakSet = poly.WeakSet;
     var notObserving = true;
@@ -815,9 +813,8 @@ var hyperHTML = (function (document) {
     };
 
     function startObserving(document) {
-      var dispatched = {};
-      dispatched[CONNECTED] = new WeakSet();
-      dispatched[DISCONNECTED] = new WeakSet();
+      var connected = new WeakSet();
+      var disconnected = new WeakSet();
 
       try {
         new MutationObserver(changes).observe(document, {
@@ -853,20 +850,20 @@ var hyperHTML = (function (document) {
       function changes(records) {
         for (var record, length = records.length, i = 0; i < length; i++) {
           record = records[i];
-          dispatchAll(record.removedNodes, DISCONNECTED, CONNECTED);
-          dispatchAll(record.addedNodes, CONNECTED, DISCONNECTED);
+          dispatchAll(record.removedNodes, 'disconnected', disconnected, connected);
+          dispatchAll(record.addedNodes, 'connected', connected, disconnected);
         }
       }
 
-      function dispatchAll(nodes, type, counter) {
-        for (var node, event = new Event(type), length = nodes.length, i = 0; i < length; (node = nodes[i++]).nodeType === 1 && dispatchTarget(node, event, type, counter)) {
+      function dispatchAll(nodes, type, wsin, wsout) {
+        for (var node, event = new Event(type), length = nodes.length, i = 0; i < length; (node = nodes[i++]).nodeType === 1 && dispatchTarget(node, event, type, wsin, wsout)) {
         }
       }
 
-      function dispatchTarget(node, event, type, counter) {
-        if (observer.has(node) && !dispatched[type].has(node)) {
-          dispatched[counter]["delete"](node);
-          dispatched[type].add(node);
+      function dispatchTarget(node, event, type, wsin, wsout) {
+        if (observer.has(node) && !wsin.has(node)) {
+          wsout["delete"](node);
+          wsin.add(node);
           node.dispatchEvent(event);
           /*
           // The event is not bubbling (perf reason: should it?),
@@ -885,66 +882,11 @@ var hyperHTML = (function (document) {
 
         for (var // apparently is node.children || IE11 ... ^_^;;
         // https://github.com/WebReflection/disconnected/issues/1
-        children = node.children || [], length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, counter)) {
+        children = node.children || [], length = children.length, i = 0; i < length; dispatchTarget(children[i++], event, type, wsin, wsout)) {
         }
       }
     }
   }
-
-  /*! (c) Andrea Giammarchi - ISC */
-  var self$4 = null ||
-  /* istanbul ignore next */
-  {};
-
-  try {
-    self$4.WeakMap = WeakMap;
-  } catch (WeakMap) {
-    // this could be better but 90% of the time
-    // it's everything developers need as fallback
-    self$4.WeakMap = function (id, Object) {
-
-      var dP = Object.defineProperty;
-      var hOP = Object.hasOwnProperty;
-      var proto = WeakMap.prototype;
-
-      proto["delete"] = function (key) {
-        return this.has(key) && delete key[this._];
-      };
-
-      proto.get = function (key) {
-        return this.has(key) ? key[this._] : void 0;
-      };
-
-      proto.has = function (key) {
-        return hOP.call(key, this._);
-      };
-
-      proto.set = function (key, value) {
-        dP(key, this._, {
-          configurable: true,
-          value: value
-        });
-        return this;
-      };
-
-      return WeakMap;
-
-      function WeakMap(iterable) {
-        dP(this, '_', {
-          value: '_@ungap/weakmap' + id++
-        });
-        if (iterable) iterable.forEach(add, this);
-      }
-
-      function add(pair) {
-        this.set(pair[0], pair[1]);
-      }
-    }(Math.random(), Object);
-  }
-
-  var WeakMap$2 = self$4.WeakMap;
-
-  /*! (c) Andrea Giammarchi - ISC */
 
   /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
@@ -1018,50 +960,6 @@ var hyperHTML = (function (document) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
 
-  /*! (c) Andrea Giammarchi - ISC */
-  var self$5 = null ||
-  /* istanbul ignore next */
-  {};
-
-  try {
-    self$5.Map = Map;
-  } catch (Map) {
-    self$5.Map = function Map() {
-      var i = 0;
-      var k = [];
-      var v = [];
-      return {
-        "delete": function _delete(key) {
-          var had = contains(key);
-
-          if (had) {
-            k.splice(i, 1);
-            v.splice(i, 1);
-          }
-
-          return had;
-        },
-        get: function get(key) {
-          return contains(key) ? v[i] : void 0;
-        },
-        has: function has(key) {
-          return contains(key);
-        },
-        set: function set(key, value) {
-          v[contains(key) ? i : k.push(key) - 1] = value;
-          return this;
-        }
-      };
-
-      function contains(v) {
-        i = k.indexOf(v);
-        return -1 < i;
-      }
-    };
-  }
-
-  var Map$2 = self$5.Map;
-
   function create(type, node, path, name) {
     return {
       name: name,
@@ -1098,12 +996,25 @@ var hyperHTML = (function (document) {
           break;
 
         case COMMENT_NODE:
-          if (child.textContent === UID) {
+          var textContent = child.textContent;
+
+          if (textContent === UID) {
             parts.shift();
             holes.push( // basicHTML or other non standard engines
             // might end up having comments in nodes
             // where they shouldn't, hence this check.
             SHOULD_USE_TEXT_CONTENT.test(node.nodeName) ? create('text', node, path) : create('any', child, path.concat(i)));
+          } else {
+            switch (textContent.slice(0, 2)) {
+              case '/*':
+                if (textContent.slice(-2) !== '*/') break;
+
+              case "\uD83D\uDC7B":
+                // ghost
+                node.removeChild(child);
+                i--;
+                length--;
+            }
           }
 
           break;
@@ -1128,7 +1039,7 @@ var hyperHTML = (function (document) {
   }
 
   function parseAttributes(node, holes, parts, path) {
-    var cache = new Map$2();
+    var cache = new Map$1();
     var attributes = node.attributes;
     var remove = [];
     var array = remove.slice.call(attributes, 0);
@@ -1197,8 +1108,8 @@ var hyperHTML = (function (document) {
   }
 
   // globals
-  var parsed = new WeakMap$2();
-  var referenced = new WeakMap$2();
+  var parsed = new WeakMap$1();
+  var referenced = new WeakMap$1();
 
   function createInfo(options, template) {
     var markup = sanitize(template);
@@ -1738,44 +1649,61 @@ var hyperHTML = (function (document) {
     }
   };
 
-  /*! (c) Andrea Giammarchi - ISC */
-  var templateLiteral = function () {
+  var isNoOp = false;
 
+  var _templateLiteral = function templateLiteral(tl) {
     var RAW = 'raw';
-    var isNoOp = false;
 
-    var _templateLiteral = function templateLiteral(tl) {
-      if ( // for badly transpiled literals
-      !(RAW in tl) || // for some version of TypeScript
-      tl.propertyIsEnumerable(RAW) || // and some other version of TypeScript
-      !Object.isFrozen(tl[RAW]) || // or for Firefox < 55
-      /Firefox\/(\d+)/.test((document.defaultView.navigator || {}).userAgent) && parseFloat(RegExp.$1) < 55) {
-        var forever = {};
-
-        _templateLiteral = function templateLiteral(tl) {
-          for (var key = '.', i = 0; i < tl.length; i++) {
-            key += tl[i].length + '.' + tl[i];
-          }
-
-          return forever[key] || (forever[key] = tl);
-        };
-      } else {
-        isNoOp = true;
-      }
-
-      return TL(tl);
+    var isBroken = function isBroken(UA) {
+      return /(Firefox|Safari)\/(\d+)/.test(UA) && !/(Chrom|Android)\/(\d+)/.test(UA);
     };
 
-    return TL;
+    var broken = isBroken((document.defaultView.navigator || {}).userAgent);
+    var FTS = !(RAW in tl) || tl.propertyIsEnumerable(RAW) || !Object.isFrozen(tl[RAW]);
 
-    function TL(tl) {
-      return isNoOp ? tl : _templateLiteral(tl);
+    if (broken || FTS) {
+      var forever = {};
+
+      var foreverCache = function foreverCache(tl) {
+        for (var key = '.', i = 0; i < tl.length; i++) {
+          key += tl[i].length + '.' + tl[i];
+        }
+
+        return forever[key] || (forever[key] = tl);
+      }; // Fallback TypeScript shenanigans
+
+
+      if (FTS) _templateLiteral = foreverCache; // try fast path for other browsers:
+      // store the template as WeakMap key
+      // and forever cache it only when it's not there.
+      // this way performance is still optimal,
+      // penalized only when there are GC issues
+      else {
+          var wm = new WeakMap$1();
+
+          var set = function set(tl, unique) {
+            wm.set(tl, unique);
+            return unique;
+          };
+
+          _templateLiteral = function templateLiteral(tl) {
+            return wm.get(tl) || set(tl, foreverCache(tl));
+          };
+        }
+    } else {
+      isNoOp = true;
     }
-  }();
+
+    return TL(tl);
+  };
+
+  function TL(tl) {
+    return isNoOp ? tl : _templateLiteral(tl);
+  }
 
   function tta (template) {
     var length = arguments.length;
-    var args = [templateLiteral(template)];
+    var args = [TL(template)];
     var i = 1;
 
     while (i < length) {
