@@ -47,12 +47,14 @@
 
   function update(render, items, events) {
     return render`
-      <select onchange="${events.onchange}">${items.map(item => `
-        <option value="${item.ref}">
+      <select onchange="${events.onchange}">${items.map((item, i) => hyperHTML.wire(item)`
+        <option value="${item.ref}" selected="${i > 0}">
           ${item.title}
         </option>
       `)}</select>
     `;
   }
+
+  setInterval(update, 1000, render, items, events);
   </script>
 </html>

@@ -921,11 +921,14 @@ var hyperHTML = (function (document) {
   // Custom
   var UID = '-' + Math.random().toFixed(6) + '%'; //                           Edge issue!
 
+  var UID_IE = false;
+
   try {
     if (!function (template, content, tabindex) {
       return content in template && (template.innerHTML = '<p ' + tabindex + '="' + UID + '"></p>', template[content].childNodes[0].getAttribute(tabindex) == UID);
     }(document.createElement('template'), 'content', 'tabindex')) {
       UID = '_dt: ' + UID.slice(1, -1) + ';';
+      UID_IE = true;
     }
   } catch (meh) {}
 
