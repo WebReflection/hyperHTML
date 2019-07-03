@@ -139,9 +139,17 @@ var hyperHTML = (function (document) {
   var Map$1 = self$2.Map;
 
   var append = function append(get, parent, children, start, end, before) {
+    var isSelect = 'selectedIndex' in parent;
+    var selectedIndex = -1;
+
     while (start < end) {
-      parent.insertBefore(get(children[start++], 1), before);
+      var child = get(children[start], 1);
+      if (isSelect && selectedIndex < 0 && child.selected) selectedIndex = start;
+      parent.insertBefore(child, before);
+      start++;
     }
+
+    if (isSelect && -1 < selectedIndex) parent.selectedIndex = selectedIndex;
   };
   var eqeq = function eqeq(a, b) {
     return a == b;
