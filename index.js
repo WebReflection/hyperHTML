@@ -139,14 +139,8 @@ var hyperHTML = (function (document) {
   var Map$1 = self$2.Map;
 
   var append = function append(get, parent, children, start, end, before) {
-    if (end - start < 2) parent.insertBefore(get(children[start], 1), before);else {
-      var fragment = parent.ownerDocument.createDocumentFragment();
-
-      while (start < end) {
-        fragment.appendChild(get(children[start++], 1));
-      }
-
-      parent.insertBefore(fragment, before);
+    while (start < end) {
+      parent.insertBefore(get(children[start++], 1), before);
     }
   };
   var eqeq = function eqeq(a, b) {
