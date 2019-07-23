@@ -14,6 +14,10 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 [![Greenkeeper badge](https://badges.greenkeeper.io/WebReflection/hyperHTML.svg)](https://greenkeeper.io/) ![Blazing Fast](https://img.shields.io/badge/speed-blazing%20🔥-brightgreen.svg)
 
 - - -
+## hypersimple
+
+If you've just started with template literals based projects and you like components, or you'd like to understand what's _hyperHTML_ capable of, give [hypersimple](https://github.com/WebReflection/hypersimple#readme) a try 🎉
+
 
 ## lighterhtml 💡
 
