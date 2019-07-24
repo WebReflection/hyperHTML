@@ -146,14 +146,14 @@
   "dependencies": {
     "@ungap/create-content": "^0.1.4",
     "@ungap/custom-event": "^0.2.0",
-    "@ungap/essential-map": "^0.1.7",
+    "@ungap/essential-map": "^0.2.0",
     "@ungap/essential-weakset": "^0.1.2",
     "@ungap/is-array": "^0.1.1",
     "@ungap/template-tag-arguments": "^0.3.0",
     "@ungap/weakmap": "^0.1.4",
     "disconnected": "^0.2.1",
-    "domdiff": "^2.0.5",
-    "domtagger": "^0.5.2",
+    "domdiff": "^2.0.6",
+    "domtagger": "^0.5.3",
     "hyperhtml-style": "^0.1.2",
     "hyperhtml-wire": "^2.1.0",
     "lightercollective": "^0.3.0"
