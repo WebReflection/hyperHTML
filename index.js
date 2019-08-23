@@ -143,18 +143,23 @@ var hyperHTML = (function (document) {
 
   var Map$1 = self$2.Map;
 
+  var iOF = [].indexOf;
   var append = function append(get, parent, children, start, end, before) {
     var isSelect = 'selectedIndex' in parent;
-    var selectedIndex = -1;
+    var noSelection = isSelect;
 
     while (start < end) {
       var child = get(children[start], 1);
-      if (isSelect && selectedIndex < 0 && child.selected) selectedIndex = start;
       parent.insertBefore(child, before);
+
+      if (isSelect && noSelection && child.selected) {
+        noSelection = !noSelection;
+        var selectedIndex = parent.selectedIndex;
+        parent.selectedIndex = selectedIndex < 0 ? start : iOF.call(parent.querySelectorAll('option'), child);
+      }
+
       start++;
     }
-
-    if (isSelect && -1 < selectedIndex) parent.selectedIndex = selectedIndex;
   };
   var eqeq = function eqeq(a, b) {
     return a == b;
