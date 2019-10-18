@@ -7,16 +7,11 @@
       document.write('<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"><' + '/script>');
       document.write('<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"><' + '/script>');
     }</script>
-    <script>document.write('<script src="../index.js?_=' + Math.random() + '"><' + '/script>')</script>
+    <script>document.write('<script src="../index.js"><' + '/script>')</script>
     <script>
     this.onload = function () {
       'use strict';
-      var _templateObject = _taggedTemplateLiteral(['\n  <div> ', ' </div>\n'], ['\n  <div> ', ' </div>\n']);
-      function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-      var text = 'I am OK';
-      try {
-        document.body.appendChild(hyperHTML.wire()(_templateObject, text));
-      } catch(e) { document.body.textContent = e.message }
+      document.body.appendChild(hyperHTML.wire()`<div class="block__element${Math.random() < .5 ? '--modifier' : ''}">asd</div>`);
     };
     </script>
   </head>
