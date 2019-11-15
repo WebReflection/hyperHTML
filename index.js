@@ -198,9 +198,9 @@ var hyperHTML = (function (document) {
   var next = function next(get, list, i, length, before) {
     return i < length ? get(list[i], 0) : 0 < i ? get(list[i - 1], -0).nextSibling : before;
   };
-  var remove = function remove(get, parent, children, start, end) {
+  var remove = function remove(get, children, start, end) {
     while (start < end) {
-      _removeChild(get(children[start++], -1), parent);
+      drop(get(children[start++], -1));
     }
   }; // - - - - - - - - - - - - - - - - - - -
   // diff related constants and utilities
@@ -399,7 +399,7 @@ var hyperHTML = (function (document) {
 
         case DELETION:
           // TODO: bulk removes for sequential nodes
-          if (live.has(currentNodes[currentStart])) currentStart++;else remove(get, parentNode, currentNodes, currentStart++, currentStart);
+          if (live.has(currentNodes[currentStart])) currentStart++;else remove(get, currentNodes, currentStart++, currentStart);
           break;
       }
     }
@@ -421,21 +421,16 @@ var hyperHTML = (function (document) {
     applyDiff(OND(futureNodes, futureStart, futureChanges, currentNodes, currentStart, currentChanges, compare) || HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges), get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before);
   };
 
-  var _removeChild = function removeChild(child, parentNode) {
-    /* istanbul ignore if */
-    if ('remove' in child) {
-      _removeChild = function removeChild(child) {
-        child.remove();
-      };
-    } else {
-      _removeChild = function removeChild(child, parentNode) {
-        /* istanbul ignore else */
-        if (child.parentNode === parentNode) parentNode.removeChild(child);
-      };
-    }
-
-    _removeChild(child, parentNode);
+  var drop = function drop(node) {
+    return (node.remove || dropChild).call(node);
   };
+
+  function dropChild() {
+    var parentNode = this.parentNode;
+    /* istanbul ignore else */
+
+    if (parentNode) parentNode.removeChild(this);
+  }
 
   /*! (c) 2018 Andrea Giammarchi (ISC) */
 
@@ -480,7 +475,7 @@ var hyperHTML = (function (document) {
 
 
     if (futureSame && currentStart < currentEnd) {
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      remove(get, currentNodes, currentStart, currentEnd);
       return futureNodes;
     }
 
@@ -502,8 +497,8 @@ var hyperHTML = (function (document) {
         i = indexOf(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare); // outer diff
 
         if (-1 < i) {
-          remove(get, parentNode, currentNodes, currentStart, i);
-          remove(get, parentNode, currentNodes, i + futureChanges, currentEnd);
+          remove(get, currentNodes, currentStart, i);
+          remove(get, currentNodes, i + futureChanges, currentEnd);
           return futureNodes;
         }
       } // common case with one replacement for many nodes
@@ -514,7 +509,7 @@ var hyperHTML = (function (document) {
 
     if (currentChanges < 2 || futureChanges < 2) {
       append(get, parentNode, futureNodes, futureStart, futureEnd, get(currentNodes[currentStart], 0));
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      remove(get, currentNodes, currentStart, currentEnd);
       return futureNodes;
     } // the half match diff part has been skipped in petit-dom
     // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L391-L397
