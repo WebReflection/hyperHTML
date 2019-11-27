@@ -1061,8 +1061,8 @@ var hyperHTML = (function (document) {
   }
 
   function parseAttributes(node, holes, parts, path) {
-    var cache = new Map$1();
     var attributes = node.attributes;
+    var cache = [];
     var remove = [];
     var array = normalizeAttributes(attributes, parts);
     var length = array.length;
@@ -1079,14 +1079,14 @@ var hyperHTML = (function (document) {
 
         /* istanbul ignore else */
 
-        if (!cache.has(name)) {
+        if (cache.indexOf(name) < 0) {
+          cache.push(name);
           var realName = parts.shift().replace(direct ? /^(?:|[\S\s]*?\s)(\S+?)\s*=\s*('|")?$/ : new RegExp('^(?:|[\\S\\s]*?\\s)(' + name + ')\\s*=\\s*(\'|")[\\S\\s]*', 'i'), '$1');
           var value = attributes[realName] || // the following ignore is covered by browsers
           // while basicHTML is already case-sensitive
 
           /* istanbul ignore next */
           attributes[realName.toLowerCase()];
-          cache.set(name, value);
           if (direct) holes.push(Attr(value, path, realName, null));else {
             var skip = sparse.length - 2;
 
@@ -1174,7 +1174,6 @@ var hyperHTML = (function (document) {
 
   // globals
   var parsed = new WeakMap$1();
-  var referenced = new WeakMap$1();
 
   function createInfo(options, template) {
     var markup = (options.convert || sanitize)(template);
@@ -1269,22 +1268,17 @@ var hyperHTML = (function (document) {
 
   function createDetails(options, template) {
     var info = parsed.get(template) || createInfo(options, template);
-    var content = importNode.call(document, info.content, true);
-    var details = {
-      content: content,
-      template: template,
-      updates: info.updates(content)
-    };
-    referenced.set(options, details);
-    return details;
+    return info.updates(importNode.call(document, info.content, true));
   }
 
+  var empty = [];
+
   function domtagger(options) {
+    var previous = empty;
+    var updates = cleanContent;
     return function (template) {
-      var details = referenced.get(options);
-      if (details == null || details.template !== template) details = createDetails(options, template);
-      details.updates.apply(null, arguments);
-      return details.content;
+      if (previous !== template) updates = createDetails(options, previous = template);
+      return updates.apply(null, arguments);
     };
   }
 
