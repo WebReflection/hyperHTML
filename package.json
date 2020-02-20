@@ -124,7 +124,7 @@
     "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
     "ascjs": "^3.1.2",
-    "basichtml": "^1.1.2",
+    "basichtml": "^2.0.0",
     "coveralls": "^3.0.9",
     "drop-babel-typeof": "^1.0.3",
     "istanbul": "^0.4.5",
