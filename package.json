@@ -121,19 +121,19 @@
     "url": "https://github.com/WebReflection/hyperhtml/issues"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.5",
-    "@babel/preset-env": "^7.7.6",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
     "ascjs": "^3.1.2",
-    "basichtml": "^1.1.2",
+    "basichtml": "^2.0.2",
     "coveralls": "^3.0.9",
     "drop-babel-typeof": "^1.0.3",
     "istanbul": "^0.4.5",
     "npm-dollar": "^2.2.1",
-    "rollup": "^1.27.9",
+    "rollup": "^1.31.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-node-resolve": "^5.2.0",
     "tressa": "^0.3.1",
-    "uglify-js": "^3.7.1"
+    "uglify-js": "^3.8.0"
   },
   "greenkeeper": {
     "ignore": [

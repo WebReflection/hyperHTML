@@ -49,6 +49,19 @@ const asNode = (item, i) => {
 // returns true if domdiff can handle the value
 const canDiff = value => 'ELEMENT_NODE' in value;
 
+const hyperSetter = (node, name, svg) => svg ?
+  value => {
+    try {
+      node[name] = value;
+    }
+    catch (nope) {
+      node.setAttribute(name, value);
+    }
+  } :
+  value => {
+    node[name] = value;
+  };
+
 // when a Promise is used as interpolation value
 // its result must be parsed once resolved.
 // This callback is in charge of understanding what to do
@@ -99,6 +112,9 @@ Tagger.prototype = {
     // handle it differently from others
     if (name === 'style')
       return hyperStyle(node, original, isSVG);
+    // direct accessors for <input .value=${...}> and friends
+    else if (name.slice(0, 1) === '.')
+      return hyperSetter(node, name.slice(1), isSVG);
     // the name is an event one,
     // add/remove event listeners accordingly
     else if (/^on/.test(name)) {
