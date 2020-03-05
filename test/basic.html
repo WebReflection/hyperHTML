@@ -11,7 +11,7 @@
     <script>
     this.onload = function () {
       'use strict';
-      document.body.appendChild(hyperHTML.wire()`<div class="block__element${Math.random() < .5 ? '--modifier' : ''}">asd</div>`);
+      document.body.appendChild(hyperHTML.wire()(['<input id="delay" type="number" .value="','">'], 0));
     };
     </script>
   </head>

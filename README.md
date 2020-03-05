@@ -14,6 +14,15 @@ A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viper
 [![Greenkeeper badge](https://badges.greenkeeper.io/WebReflection/hyperHTML.svg)](https://greenkeeper.io/) ![Blazing Fast](https://img.shields.io/badge/speed-blazing%20🔥-brightgreen.svg)
 
 - - -
+
+Following an overview of projects related, or inspired by, _hyperHTML_. For a deep comparison of current libraries, feel free to [check this gist out](https://gist.github.com/WebReflection/761052d6dae7c8207d2fcba7cdede295).
+
+
+## <em>µ</em>html
+
+The latest, smallest, iteration of all best concept from this library since 2017, have been packaged in _~2.5K_. If it's extreme minimalism and great _DX_ that you are after, check [uhtml](https://github.com/WebReflection/uhtml#readme) out.
+
+
 ## hypersimple
 
 If you've just started with template literals based projects and you like components, or you'd like to understand what's _hyperHTML_ capable of, give [hypersimple](https://github.com/WebReflection/hypersimple#readme) a try 🎉
@@ -68,19 +77,6 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 
 - - -
 
-### Seamlessly Isomorphic
-No matter if you use ESM or CommonJS, you can use [hypermorphic](https://github.com/WebReflection/hypermorphic#hypermorphic-)
-to load same features on both client and server.
-
-```js
-// ESM example (assuming bundlers/ESM loaders in place)
-import {bind, wire} from 'hypermorphic';
-
-// CommonJS example
-const {bind, wire} = require('hypermorphic');
-```
-
-- - -
 
 ### V2.5 Highlights
   * `<self-closing />` tags for both custom elements and any other as well 🎉
@@ -101,6 +97,9 @@ Following most important changes in version 2:
 ## Documentation
 
 A proper documentation full of examples can be found in [viperhtml.js.org](https://viperhtml.js.org/).
+
+**Please Note** that _viperHTML_ has been deprecated, so it doesn't grant 100% features parity anymore.
+
 
 ## Basic Example
 The easiest way to describe `hyperHTML` is through [an example](https://webreflection.github.io/hyperHTML/test/tick.html).
