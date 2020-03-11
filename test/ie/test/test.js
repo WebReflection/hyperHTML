@@ -2204,9 +2204,7 @@
   }).then(function () {
     tressa.log('## hyper.Component');
 
-    var Button =
-    /*#__PURE__*/
-    function (_hyperHTML$Component) {
+    var Button = /*#__PURE__*/function (_hyperHTML$Component) {
       _inherits(Button, _hyperHTML$Component);
 
       function Button() {
@@ -2225,9 +2223,7 @@
       return Button;
     }(hyperHTML.Component);
 
-    var Rect =
-    /*#__PURE__*/
-    function (_hyperHTML$Component2) {
+    var Rect = /*#__PURE__*/function (_hyperHTML$Component2) {
       _inherits(Rect, _hyperHTML$Component2);
 
       function Rect(state) {
@@ -2252,9 +2248,7 @@
       return Rect;
     }(hyperHTML.Component);
 
-    var Paragraph =
-    /*#__PURE__*/
-    function (_hyperHTML$Component3) {
+    var Paragraph = /*#__PURE__*/function (_hyperHTML$Component3) {
       _inherits(Paragraph, _hyperHTML$Component3);
 
       function Paragraph(state) {
@@ -2311,9 +2305,7 @@
     return tressa.async(function (done) {
       tressa.log('## Component method via data-call');
 
-      var Paragraph =
-      /*#__PURE__*/
-      function (_hyperHTML$Component4) {
+      var Paragraph = /*#__PURE__*/function (_hyperHTML$Component4) {
         _inherits(Paragraph, _hyperHTML$Component4);
 
         function Paragraph() {
@@ -2343,9 +2335,7 @@
         return Paragraph;
       }(hyperHTML.Component);
 
-      var GlobalEvent =
-      /*#__PURE__*/
-      function (_hyperHTML$Component5) {
+      var GlobalEvent = /*#__PURE__*/function (_hyperHTML$Component5) {
         _inherits(GlobalEvent, _hyperHTML$Component5);
 
         function GlobalEvent() {
@@ -2428,9 +2418,7 @@
   }).then(function () {
     tressa.log('## hyper.Component state');
 
-    var DefaultState =
-    /*#__PURE__*/
-    function (_hyperHTML$Component6) {
+    var DefaultState = /*#__PURE__*/function (_hyperHTML$Component6) {
       _inherits(DefaultState, _hyperHTML$Component6);
 
       function DefaultState() {
@@ -2454,9 +2442,7 @@
       return DefaultState;
     }(hyperHTML.Component);
 
-    var State =
-    /*#__PURE__*/
-    function (_hyperHTML$Component7) {
+    var State = /*#__PURE__*/function (_hyperHTML$Component7) {
       _inherits(State, _hyperHTML$Component7);
 
       function State() {
@@ -2514,9 +2500,7 @@
       tressa.log('## Component connected/disconnected');
       var calls = 0;
 
-      var Paragraph =
-      /*#__PURE__*/
-      function (_hyperHTML$Component8) {
+      var Paragraph = /*#__PURE__*/function (_hyperHTML$Component8) {
         _inherits(Paragraph, _hyperHTML$Component8);
 
         function Paragraph() {
@@ -2632,9 +2616,7 @@
     return tressa.async(function (done) {
       tressa.log('## Nested Component connected/disconnected');
 
-      var GrandChild =
-      /*#__PURE__*/
-      function (_hyperHTML$Component9) {
+      var GrandChild = /*#__PURE__*/function (_hyperHTML$Component9) {
         _inherits(GrandChild, _hyperHTML$Component9);
 
         function GrandChild() {
@@ -2663,9 +2645,7 @@
         return GrandChild;
       }(hyperHTML.Component);
 
-      var Child =
-      /*#__PURE__*/
-      function (_hyperHTML$Component10) {
+      var Child = /*#__PURE__*/function (_hyperHTML$Component10) {
         _inherits(Child, _hyperHTML$Component10);
 
         function Child() {
@@ -2697,9 +2677,7 @@
       var connectedTimes = 0,
           disconnectedTimes = 0;
 
-      var Parent =
-      /*#__PURE__*/
-      function (_hyperHTML$Component11) {
+      var Parent = /*#__PURE__*/function (_hyperHTML$Component11) {
         _inherits(Parent, _hyperHTML$Component11);
 
         function Parent() {
@@ -2758,9 +2736,7 @@
   }).then(function () {
     tressa.log('## Declarative Components');
 
-    var MenuSimple =
-    /*#__PURE__*/
-    function (_hyperHTML$Component12) {
+    var MenuSimple = /*#__PURE__*/function (_hyperHTML$Component12) {
       _inherits(MenuSimple, _hyperHTML$Component12);
 
       function MenuSimple() {
@@ -2783,9 +2759,7 @@
       return MenuSimple;
     }(hyperHTML.Component);
 
-    var MenuWeakMap =
-    /*#__PURE__*/
-    function (_hyperHTML$Component13) {
+    var MenuWeakMap = /*#__PURE__*/function (_hyperHTML$Component13) {
       _inherits(MenuWeakMap, _hyperHTML$Component13);
 
       function MenuWeakMap() {
@@ -2808,9 +2782,7 @@
       return MenuWeakMap;
     }(hyperHTML.Component);
 
-    var MenuItem =
-    /*#__PURE__*/
-    function (_hyperHTML$Component14) {
+    var MenuItem = /*#__PURE__*/function (_hyperHTML$Component14) {
       _inherits(MenuItem, _hyperHTML$Component14);
 
       function MenuItem() {
@@ -2865,9 +2837,7 @@
   }).then(function () {
     tressa.log('## Component.dispatch');
 
-    var Pomponent =
-    /*#__PURE__*/
-    function (_hyperHTML$Component15) {
+    var Pomponent = /*#__PURE__*/function (_hyperHTML$Component15) {
       _inherits(Pomponent, _hyperHTML$Component15);
 
       function Pomponent() {
@@ -2891,9 +2861,7 @@
       return Pomponent;
     }(hyperHTML.Component);
 
-    var Solonent =
-    /*#__PURE__*/
-    function (_hyperHTML$Component16) {
+    var Solonent = /*#__PURE__*/function (_hyperHTML$Component16) {
       _inherits(Solonent, _hyperHTML$Component16);
 
       function Solonent() {
