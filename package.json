@@ -12,7 +12,6 @@
     "build": "npm run $ build",
     "bundle": "npm run $ bundle",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "postinstall": "lightercollective",
     "test": "npm run $ test"
   },
   "$": {
@@ -155,12 +154,14 @@
     "domdiff": "^2.2.1",
     "domtagger": "^0.6.1",
     "hyperhtml-style": "^0.1.2",
-    "hyperhtml-wire": "^2.1.0",
-    "lightercollective": "^0.3.0"
+    "hyperhtml-wire": "^2.1.0"
   },
   "collective": {
     "type": "opencollective",
-    "url": "https://opencollective.com/hyperhtml",
-    "logo": "logo.txt"
+    "url": "https://opencollective.com/hyperhtml"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/hyperhtml"
   }
 }
