@@ -54,6 +54,19 @@
     return _setPrototypeOf(o, p);
   }
 
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -68,6 +81,23 @@
     }
 
     return _assertThisInitialized(self);
+  }
+
+  function _createSuper(Derived) {
+    return function () {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (_isNativeReflectConstruct()) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
   }
 
   function _taggedTemplateLiteral(strings, raw) {
@@ -2207,10 +2237,12 @@
     var Button = /*#__PURE__*/function (_hyperHTML$Component) {
       _inherits(Button, _hyperHTML$Component);
 
+      var _super = _createSuper(Button);
+
       function Button() {
         _classCallCheck(this, Button);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(Button).apply(this, arguments));
+        return _super.apply(this, arguments);
       }
 
       _createClass(Button, [{
@@ -2226,12 +2258,14 @@
     var Rect = /*#__PURE__*/function (_hyperHTML$Component2) {
       _inherits(Rect, _hyperHTML$Component2);
 
+      var _super2 = _createSuper(Rect);
+
       function Rect(state) {
         var _this;
 
         _classCallCheck(this, Rect);
 
-        _this = _possibleConstructorReturn(this, _getPrototypeOf(Rect).call(this));
+        _this = _super2.call(this);
 
         _this.setState(state, false);
 
@@ -2251,12 +2285,14 @@
     var Paragraph = /*#__PURE__*/function (_hyperHTML$Component3) {
       _inherits(Paragraph, _hyperHTML$Component3);
 
+      var _super3 = _createSuper(Paragraph);
+
       function Paragraph(state) {
         var _this2;
 
         _classCallCheck(this, Paragraph);
 
-        _this2 = _possibleConstructorReturn(this, _getPrototypeOf(Paragraph).call(this));
+        _this2 = _super3.call(this);
 
         _this2.setState(state);
 
@@ -2308,10 +2344,12 @@
       var Paragraph = /*#__PURE__*/function (_hyperHTML$Component4) {
         _inherits(Paragraph, _hyperHTML$Component4);
 
+        var _super4 = _createSuper(Paragraph);
+
         function Paragraph() {
           _classCallCheck(this, Paragraph);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(Paragraph).apply(this, arguments));
+          return _super4.apply(this, arguments);
         }
 
         _createClass(Paragraph, [{
@@ -2338,10 +2376,12 @@
       var GlobalEvent = /*#__PURE__*/function (_hyperHTML$Component5) {
         _inherits(GlobalEvent, _hyperHTML$Component5);
 
+        var _super5 = _createSuper(GlobalEvent);
+
         function GlobalEvent() {
           _classCallCheck(this, GlobalEvent);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(GlobalEvent).apply(this, arguments));
+          return _super5.apply(this, arguments);
         }
 
         _createClass(GlobalEvent, [{
@@ -2421,10 +2461,12 @@
     var DefaultState = /*#__PURE__*/function (_hyperHTML$Component6) {
       _inherits(DefaultState, _hyperHTML$Component6);
 
+      var _super6 = _createSuper(DefaultState);
+
       function DefaultState() {
         _classCallCheck(this, DefaultState);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(DefaultState).apply(this, arguments));
+        return _super6.apply(this, arguments);
       }
 
       _createClass(DefaultState, [{
@@ -2445,10 +2487,12 @@
     var State = /*#__PURE__*/function (_hyperHTML$Component7) {
       _inherits(State, _hyperHTML$Component7);
 
+      var _super7 = _createSuper(State);
+
       function State() {
         _classCallCheck(this, State);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(State).apply(this, arguments));
+        return _super7.apply(this, arguments);
       }
 
       return State;
@@ -2503,10 +2547,12 @@
       var Paragraph = /*#__PURE__*/function (_hyperHTML$Component8) {
         _inherits(Paragraph, _hyperHTML$Component8);
 
+        var _super8 = _createSuper(Paragraph);
+
         function Paragraph() {
           _classCallCheck(this, Paragraph);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(Paragraph).apply(this, arguments));
+          return _super8.apply(this, arguments);
         }
 
         _createClass(Paragraph, [{
@@ -2619,10 +2665,12 @@
       var GrandChild = /*#__PURE__*/function (_hyperHTML$Component9) {
         _inherits(GrandChild, _hyperHTML$Component9);
 
+        var _super9 = _createSuper(GrandChild);
+
         function GrandChild() {
           _classCallCheck(this, GrandChild);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(GrandChild).apply(this, arguments));
+          return _super9.apply(this, arguments);
         }
 
         _createClass(GrandChild, [{
@@ -2648,10 +2696,12 @@
       var Child = /*#__PURE__*/function (_hyperHTML$Component10) {
         _inherits(Child, _hyperHTML$Component10);
 
+        var _super10 = _createSuper(Child);
+
         function Child() {
           _classCallCheck(this, Child);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(Child).apply(this, arguments));
+          return _super10.apply(this, arguments);
         }
 
         _createClass(Child, [{
@@ -2680,10 +2730,12 @@
       var Parent = /*#__PURE__*/function (_hyperHTML$Component11) {
         _inherits(Parent, _hyperHTML$Component11);
 
+        var _super11 = _createSuper(Parent);
+
         function Parent() {
           _classCallCheck(this, Parent);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(Parent).apply(this, arguments));
+          return _super11.apply(this, arguments);
         }
 
         _createClass(Parent, [{
@@ -2739,10 +2791,12 @@
     var MenuSimple = /*#__PURE__*/function (_hyperHTML$Component12) {
       _inherits(MenuSimple, _hyperHTML$Component12);
 
+      var _super12 = _createSuper(MenuSimple);
+
       function MenuSimple() {
         _classCallCheck(this, MenuSimple);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(MenuSimple).apply(this, arguments));
+        return _super12.apply(this, arguments);
       }
 
       _createClass(MenuSimple, [{
@@ -2762,10 +2816,12 @@
     var MenuWeakMap = /*#__PURE__*/function (_hyperHTML$Component13) {
       _inherits(MenuWeakMap, _hyperHTML$Component13);
 
+      var _super13 = _createSuper(MenuWeakMap);
+
       function MenuWeakMap() {
         _classCallCheck(this, MenuWeakMap);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(MenuWeakMap).apply(this, arguments));
+        return _super13.apply(this, arguments);
       }
 
       _createClass(MenuWeakMap, [{
@@ -2785,10 +2841,12 @@
     var MenuItem = /*#__PURE__*/function (_hyperHTML$Component14) {
       _inherits(MenuItem, _hyperHTML$Component14);
 
+      var _super14 = _createSuper(MenuItem);
+
       function MenuItem() {
         _classCallCheck(this, MenuItem);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(MenuItem).apply(this, arguments));
+        return _super14.apply(this, arguments);
       }
 
       _createClass(MenuItem, [{
@@ -2840,10 +2898,12 @@
     var Pomponent = /*#__PURE__*/function (_hyperHTML$Component15) {
       _inherits(Pomponent, _hyperHTML$Component15);
 
+      var _super15 = _createSuper(Pomponent);
+
       function Pomponent() {
         _classCallCheck(this, Pomponent);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(Pomponent).apply(this, arguments));
+        return _super15.apply(this, arguments);
       }
 
       _createClass(Pomponent, [{
@@ -2864,10 +2924,12 @@
     var Solonent = /*#__PURE__*/function (_hyperHTML$Component16) {
       _inherits(Solonent, _hyperHTML$Component16);
 
+      var _super16 = _createSuper(Solonent);
+
       function Solonent() {
         _classCallCheck(this, Solonent);
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(Solonent).apply(this, arguments));
+        return _super16.apply(this, arguments);
       }
 
       _createClass(Solonent, [{

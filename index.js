@@ -94,9 +94,11 @@ var hyperHTML = (function (document) {
 
   var WeakSet$1 = self$1.WeakSet;
 
-  var iOF = [].indexOf;
+  var _ref = [],
+      indexOf = _ref.indexOf;
+
   var append = function append(get, parent, children, start, end, before) {
-    var isSelect = 'selectedIndex' in parent;
+    var isSelect = ('selectedIndex' in parent);
     var noSelection = isSelect;
 
     while (start < end) {
@@ -106,7 +108,7 @@ var hyperHTML = (function (document) {
       if (isSelect && noSelection && child.selected) {
         noSelection = !noSelection;
         var selectedIndex = parent.selectedIndex;
-        parent.selectedIndex = selectedIndex < 0 ? start : iOF.call(parent.querySelectorAll('option'), child);
+        parent.selectedIndex = selectedIndex < 0 ? start : indexOf.call(parent.querySelectorAll('option'), child);
       }
 
       start++;
@@ -118,7 +120,7 @@ var hyperHTML = (function (document) {
   var identity = function identity(O) {
     return O;
   };
-  var indexOf = function indexOf(moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) {
+  var indexOf$1 = function indexOf(moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) {
     var length = lessEnd - lessStart;
     /* istanbul ignore if */
 
@@ -432,7 +434,7 @@ var hyperHTML = (function (document) {
     var i = -1; // 2 simple indels: the shortest sequence is a subsequence of the longest
 
     if (currentChanges < futureChanges) {
-      i = indexOf(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare); // inner diff
+      i = indexOf$1(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare); // inner diff
 
       if (-1 < i) {
         append(get, parentNode, futureNodes, futureStart, i, get(currentNodes[currentStart], 0));
@@ -442,7 +444,7 @@ var hyperHTML = (function (document) {
     }
     /* istanbul ignore else */
     else if (futureChanges < currentChanges) {
-        i = indexOf(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare); // outer diff
+        i = indexOf$1(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare); // outer diff
 
         if (-1 < i) {
           remove(get, currentNodes, currentStart, i);
@@ -761,7 +763,7 @@ var hyperHTML = (function (document) {
 
     var FRAGMENT = 'fragment';
     var TEMPLATE = 'template';
-    var HAS_CONTENT = 'content' in create(TEMPLATE);
+    var HAS_CONTENT = ('content' in create(TEMPLATE));
     var createHTML = HAS_CONTENT ? function (html) {
       var template = create(TEMPLATE);
       template.innerHTML = html;
@@ -907,7 +909,7 @@ var hyperHTML = (function (document) {
 
   /*! (c) Andrea Giammarchi - ISC */
   var importNode = function (document, appendChild, cloneNode, createTextNode, importNode) {
-    var _native = importNode in document; // IE 11 has problems with cloning templates:
+    var _native = (importNode in document); // IE 11 has problems with cloning templates:
     // it "forgets" empty childNodes. This feature-detects that.
 
 
@@ -979,6 +981,22 @@ var hyperHTML = (function (document) {
   function fullClosing($0, $1, $2) {
     return VOID_ELEMENTS.test($1) ? $0 : '<' + $1 + $2 + '></' + $1 + '>';
   }
+
+  var umap = (function (_) {
+    return {
+      // About: get: _.get.bind(_)
+      // It looks like WebKit/Safari didn't optimize bind at all,
+      // so that using bind slows it down by 60%.
+      // Firefox and Chrome are just fine in both cases,
+      // so let's use the approach that works fast everywhere 👍
+      get: function get(key) {
+        return _.get(key);
+      },
+      set: function set(key, value) {
+        return _.set(key, value), value;
+      }
+    };
+  });
 
   /* istanbul ignore next */
 
@@ -1173,7 +1191,7 @@ var hyperHTML = (function (document) {
   }
 
   // globals
-  var parsed = new WeakMap$1();
+  var parsed = umap(new WeakMap$1());
 
   function createInfo(options, template) {
     var markup = (options.convert || sanitize)(template);
@@ -1183,7 +1201,7 @@ var hyperHTML = (function (document) {
     cleanContent(content);
     var holes = [];
     parse(content, holes, template.slice(0), []);
-    var info = {
+    return {
       content: content,
       updates: function updates(content) {
         var updates = [];
@@ -1262,12 +1280,10 @@ var hyperHTML = (function (document) {
         };
       }
     };
-    parsed.set(template, info);
-    return info;
   }
 
   function createDetails(options, template) {
-    var info = parsed.get(template) || createInfo(options, template);
+    var info = parsed.get(template) || parsed.set(template, createInfo(options, template));
     return info.updates(importNode.call(document, info.content, true));
   }
 
@@ -1530,7 +1546,7 @@ var hyperHTML = (function (document) {
     //    so that you can style=${{width: 120}}. In this case, the behavior has been
     //    fully inspired by Preact library and its simplicity.
     attribute: function attribute(node, name, original) {
-      var isSVG = OWNER_SVG_ELEMENT in node;
+      var isSVG = (OWNER_SVG_ELEMENT in node);
       var oldValue; // if the attribute is the style one
       // handle it differently from others
 
