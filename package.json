@@ -143,7 +143,7 @@
     ]
   },
   "dependencies": {
-    "@ungap/create-content": "^0.1.4",
+    "@ungap/create-content": "^0.2.0",
     "@ungap/custom-event": "^0.2.0",
     "@ungap/essential-map": "^0.2.0",
     "@ungap/essential-weakset": "^0.1.2",
