@@ -2,9 +2,7 @@ var hyperHTML = (function (document) {
   'use strict';
 
   /*! (c) Andrea Giammarchi - ISC */
-  var self = null ||
-  /* istanbul ignore next */
-  {};
+  var self = {};
 
   try {
     self.WeakMap = WeakMap;
@@ -55,9 +53,7 @@ var hyperHTML = (function (document) {
   var WeakMap$1 = self.WeakMap;
 
   /*! (c) Andrea Giammarchi - ISC */
-  var self$1 = null ||
-  /* istanbul ignore next */
-  {};
+  var self$1 = {};
 
   try {
     self$1.WeakSet = WeakSet;
@@ -483,9 +479,7 @@ var hyperHTML = (function (document) {
   
 
   /*! (c) Andrea Giammarchi - ISC */
-  var self$2 = null ||
-  /* istanbul ignore next */
-  {};
+  var self$2 = {};
   self$2.CustomEvent = typeof CustomEvent === 'function' ? CustomEvent : function (__p__) {
     CustomEvent[__p__] = new CustomEvent('').constructor[__p__];
     return CustomEvent;
@@ -500,9 +494,7 @@ var hyperHTML = (function (document) {
   var CustomEvent$1 = self$2.CustomEvent;
 
   /*! (c) Andrea Giammarchi - ISC */
-  var self$3 = null ||
-  /* istanbul ignore next */
-  {};
+  var self$3 = {};
 
   try {
     self$3.Map = Map;
@@ -751,8 +743,13 @@ var hyperHTML = (function (document) {
     }
   };
 
-  var isArray = Array.isArray || function (toString) {
+  var isArray = Array.isArray ||
+  /* istanbul ignore next */
+  function (toString) {
+    /* istanbul ignore next */
     var $ = toString.call([]);
+    /* istanbul ignore next */
+
     return function isArray(object) {
       return toString.call(object) === $;
     };
@@ -916,21 +913,29 @@ var hyperHTML = (function (document) {
     var fragment = document.createDocumentFragment();
     fragment[appendChild](document[createTextNode]('g'));
     fragment[appendChild](document[createTextNode](''));
+    /* istanbul ignore next */
+
     var content = _native ? document[importNode](fragment, true) : fragment[cloneNode](true);
     return content.childNodes.length < 2 ? function importNode(node, deep) {
       var clone = node[cloneNode]();
 
-      for (var childNodes = node.childNodes || [], length = childNodes.length, i = 0; deep && i < length; i++) {
+      for (var
+      /* istanbul ignore next */
+      childNodes = node.childNodes || [], length = childNodes.length, i = 0; deep && i < length; i++) {
         clone[appendChild](importNode(childNodes[i], deep));
       }
 
       return clone;
-    } : _native ? document[importNode] : function (node, deep) {
+    } :
+    /* istanbul ignore next */
+    _native ? document[importNode] : function (node, deep) {
       return node[cloneNode](!!deep);
     };
   }(document, 'appendChild', 'cloneNode', 'createTextNode', 'importNode');
 
-  var trim = ''.trim || function () {
+  var trim = ''.trim ||
+  /* istanbul ignore next */
+  function () {
     return String(this).replace(/^\s+|\s+/g, '');
   };
 
@@ -1835,6 +1840,15 @@ var hyperHTML = (function (document) {
 
     return args;
   }
+  /**
+   * best benchmark goes here
+   * https://jsperf.com/tta-bench
+   * I should probably have an @ungap/template-literal-es too
+  export default (...args) => {
+    args[0] = unique(args[0]);
+    return args;
+  };
+   */
 
   var wires = new WeakMap$1(); // A wire is a callback used as tag function
   // to lazily relate a generic object to a template literal.
