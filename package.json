@@ -1,6 +1,6 @@
 {
   "name": "hyperhtml",
-  "version": "2.33.0",
+  "version": "2.34.0",
   "description": "A Fast & Light Virtual DOM Alternative",
   "homepage": "https://viperhtml.js.org/hyper.html",
   "unpkg": "min.js",
