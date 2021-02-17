@@ -49,6 +49,17 @@ const asNode = (item, i) => {
 // returns true if domdiff can handle the value
 const canDiff = value => 'ELEMENT_NODE' in value;
 
+// borrowed from uhandlers
+// https://github.com/WebReflection/uhandlers
+const booleanSetter = (node, key, oldValue) => newValue => {
+  if (oldValue !== !!newValue) {
+    if ((oldValue = !!newValue))
+      node.setAttribute(key, '');
+    else
+      node.removeAttribute(key);
+  }
+};
+
 const hyperSetter = (node, name, svg) => svg ?
   value => {
     try {
@@ -115,6 +126,9 @@ Tagger.prototype = {
     // direct accessors for <input .value=${...}> and friends
     else if (name.slice(0, 1) === '.')
       return hyperSetter(node, name.slice(1), isSVG);
+    // boolean accessors for <input .value=${...}> and friends
+    else if (name.slice(0, 1) === '?')
+      return booleanSetter(node, name.slice(1));
     // the name is an event one,
     // add/remove event listeners accordingly
     else if (/^on/.test(name)) {
