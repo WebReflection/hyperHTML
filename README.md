@@ -8,7 +8,7 @@ Please ask questions in the [dedicated discussions repository](https://github.co
 
 <img alt="hyperHTML logo" src="https://webreflection.github.io/hyperHTML/logo/hyperhtml.svg" width="116" height="81">
 
-A **Fast & Light Virtual DOM Alternative** available for [Node.js](https://viperhtml.js.org/viper.html) and [NativeScript](https://viperhtml.js.org/native.html) too.
+A **Fast & Light Virtual DOM Alternative**.
 
 - - -
 
@@ -107,8 +107,6 @@ Following most important changes in version 2:
 ## Documentation
 
 A proper documentation full of examples can be found in [viperhtml.js.org](https://viperhtml.js.org/).
-
-**Please Note** that _viperHTML_ has been deprecated, so it doesn't grant 100% features parity anymore.
 
 
 ## Basic Example
