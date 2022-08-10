@@ -8,7 +8,7 @@ export declare class Component<T = {}> {
   html: WiredTemplateFunction;
   svg: WiredTemplateFunction;
   state: T;
-  readonly defaultState: T;
+  get defaultState(): T;
   setState(state: Partial<T> | ((this: this, state: T) => Partial<T>), render?: boolean): this;
   dispatch(type: string, detail?: any): boolean;
 }
@@ -32,7 +32,7 @@ export declare const hyper: {
 
   // hyper('html')`HTML`
   (type: 'html' | 'svg'): WiredTemplateFunction;
-  
+
   // hyper(element)`HTML`
   <T extends Element>(element: T): BoundTemplateFunction<T>;
 
