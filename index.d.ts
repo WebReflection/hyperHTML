@@ -3,7 +3,7 @@ export type BoundTemplateFunction<T extends Element | ShadowRoot> = TemplateFunc
 export type WiredTemplateFunction = TemplateFunction<any>;
 
 export declare class Component<T = {}> {
-  static for(context: object, identity?: any): Component;
+  static for<TComponent>(this: new() => TComponent, context: object, identity?: any): TComponent;
   handleEvent(e: Event): void;
   html: WiredTemplateFunction;
   svg: WiredTemplateFunction;
