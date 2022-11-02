@@ -85,7 +85,7 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 
 ### 2.34 Highlights
 
-  * the new `?boolean=${value}` syntax from [µhtml](https://github.com/WebReflection/uhtml#readme) has landed in *hyperHTML* too. Feel free to [rea this long discussion](https://github.com/WebReflection/discussions/discussions/13) to better understand *why* this syntax is necessary.
+  * the new `?boolean=${value}` syntax from [µhtml](https://github.com/WebReflection/uhtml#readme) has landed in *hyperHTML* too. Feel free to [read this long discussion](https://github.com/WebReflection/discussions/discussions/13) to better understand *why* this syntax is necessary.
 
 ### V2.5 Highlights
 
