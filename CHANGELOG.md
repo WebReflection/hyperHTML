@@ -1,5 +1,8 @@
 # hyper(html) Changelog
 
+### v.3.0.0
+  * Drop IE, Edge legacy and old browsers which are not support ES2015+ features
+
 ### v.2.23
   * monkey patched rollup generated code to export once the same module shared within sub-modules
 

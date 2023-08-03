@@ -1,16 +1,13 @@
 'use strict';
 /*! (c) Andrea Giammarchi (ISC) */
-const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
-const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-weakset'));
-
-const diff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domdiff'));
-const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./classes/Component.js'));
+const diff = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('domdiff'));
+const Component = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('./classes/Component.js'));
 const {setup} = require('./classes/Component.js');
-const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./objects/Intent.js'));
+const Intent = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('./objects/Intent.js'));
 const {observe, Tagger} = require('./objects/Updates.js');
-const wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/wire.js'));
+const wire = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('./hyper/wire.js'));
 const {content, weakly} = require('./hyper/wire.js');
-const render = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./hyper/render.js'));
+const render = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('./hyper/render.js'));
 
 // all functions are self bound to the right context
 // you can do the following
@@ -28,15 +25,6 @@ hyper.hyper = hyper;
 hyper.observe = observe;
 hyper.tagger = tagger;
 hyper.wire = wire;
-
-// exported as shared utils
-// for projects based on hyperHTML
-// that don't necessarily need upfront polyfills
-// i.e. those still targeting IE
-hyper._ = {
-  WeakMap,
-  WeakSet
-};
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component

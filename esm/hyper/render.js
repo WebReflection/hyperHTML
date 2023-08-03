@@ -1,4 +1,3 @@
-import WeakMap from '@ungap/weakmap';
 import tta from '@ungap/template-tag-arguments';
 
 import {OWNER_SVG_ELEMENT} from '../shared/constants.js';

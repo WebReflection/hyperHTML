@@ -1,4 +1,3 @@
-import WeakMap from '@ungap/weakmap';
 import tta from '@ungap/template-tag-arguments';
 
 import Wire from 'hyperhtml-wire';

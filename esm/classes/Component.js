@@ -1,7 +1,3 @@
-import CustomEvent from '@ungap/custom-event';
-import Map from '@ungap/essential-map';
-import WeakMap from '@ungap/weakmap';
-
 // hyperHTML.Component is a very basic class
 // able to create Custom Elements like components
 // including the ability to listen to connect/disconnect
@@ -10,9 +6,8 @@ import WeakMap from '@ungap/weakmap';
 // The main difference is that declared components
 // will not automatically render on setState(...)
 // to simplify state handling on render.
-export default function Component() {
-  return this; // this is needed in Edge !!!
-}
+class Component {}
+export default Component
 
 // Component is lazily setup because it needs
 // wire mechanism as lazy content

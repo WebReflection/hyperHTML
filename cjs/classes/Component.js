@@ -1,8 +1,4 @@
 'use strict';
-const CustomEvent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/custom-event'));
-const Map = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-map'));
-const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/weakmap'));
-
 // hyperHTML.Component is a very basic class
 // able to create Custom Elements like components
 // including the ability to listen to connect/disconnect
@@ -11,9 +7,7 @@ const WeakMap = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* i
 // The main difference is that declared components
 // will not automatically render on setState(...)
 // to simplify state handling on render.
-function Component() {
-  return this; // this is needed in Edge !!!
-}
+class Component {}
 Object.defineProperty(exports, '__esModule', {value: true}).default = Component
 
 // Component is lazily setup because it needs

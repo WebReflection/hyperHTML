@@ -1,21 +1,17 @@
 'use strict';
-const CustomEvent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/custom-event'));
-const WeakSet = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/essential-weakset'));
-const isArray = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/is-array'));
-const createContent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@ungap/create-content'));
-
-const disconnected = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('disconnected'));
-const domdiff = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domdiff'));
-const domtagger = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('domtagger'));
-const hyperStyle = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-style'));
-const Wire = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('hyperhtml-wire'));
+const disconnected = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('disconnected'));
+const domdiff = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('domdiff'));
+const domtagger = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('domtagger'));
+const hyperStyle = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('hyperhtml-style'));
+const Wire = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('hyperhtml-wire'));
 
 const {
   CONNECTED, DISCONNECTED, DOCUMENT_FRAGMENT_NODE, OWNER_SVG_ELEMENT
 } = require('../shared/constants.js');
 
-const Component = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('../classes/Component.js'));
-const Intent = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('./Intent.js'));
+const { isArray, createContent } = require('../shared/utils.js');
+const Component = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('../classes/Component.js'));
+const Intent = (m => /* c8 ignore start */ m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m /* c8 ignore stop */)(require('./Intent.js'));
 
 const componentType = Component.prototype.nodeType;
 const wireType = Wire.prototype.nodeType;

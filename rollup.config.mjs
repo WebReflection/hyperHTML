@@ -1,16 +1,13 @@
-import resolve from 'rollup-plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
+import resolve from '@rollup/plugin-node-resolve';
 
 export default {
   input: 'esm/index.js',
-  plugins: [
-    resolve({module: true}),
-    babel({presets: ["@babel/preset-env"]})
-  ],
+  plugins: [resolve({modulesOnly: true})],
   context: 'null',
   moduleContext: 'null',
   output: {
     exports: 'named',
+    esModule: false,
     file: 'index.js',
     format: 'iife',
     name: 'hyperHTML'

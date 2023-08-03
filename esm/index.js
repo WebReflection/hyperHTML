@@ -1,7 +1,4 @@
 /*! (c) Andrea Giammarchi (ISC) */
-import WeakMap from '@ungap/weakmap';
-import WeakSet from '@ungap/essential-weakset';
-
 import diff from 'domdiff';
 import Component, {setup} from './classes/Component.js';
 import Intent from './objects/Intent.js';
@@ -25,15 +22,6 @@ hyper.hyper = hyper;
 hyper.observe = observe;
 hyper.tagger = tagger;
 hyper.wire = wire;
-
-// exported as shared utils
-// for projects based on hyperHTML
-// that don't necessarily need upfront polyfills
-// i.e. those still targeting IE
-hyper._ = {
-  WeakMap,
-  WeakSet
-};
 
 // the wire content is the lazy defined
 // html or svg property of each hyper.Component
