@@ -1,5 +1,13 @@
 # hyper(HTML)
 
+### Maintainance Only
+
+This module is great, works great, and served me greatly, but there's a pletora of modern, faster, more capable alternatives me, among many other OSS developers, offer so that if obvious bugs are proven to exist, these will be fixed, but there won't be a major release and I won't remove legacy support for stuff that, as previously mentioned, works just fine and it's battle-tested from IE to the latest Chrome.
+
+Removing that legacy support brings pretty much nothing in terms of size too: this module is already smaller than 90% of alternatives out there, dropping 0.xK so that there's less code that, behind feature detection, is not even used in modern browsers, won't benefit anyone.
+
+Thansk for your understanding and for not opening PRs which goal is to drop a check for legacy browsers ... these won't likely be merged ever as that'd be a major release update and I don't think anyone is interested in that.
+
 ### 📣 Community Announcement
 
 Please ask questions in the [dedicated discussions repository](https://github.com/WebReflection/discussions), to help the community around this project grow ♥
